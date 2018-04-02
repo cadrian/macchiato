@@ -1,38 +1,40 @@
-package net.cadrian.macchiato.recipe.ast;
+package net.cadrian.macchiato.recipe.ast.expression;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.regex.Pattern;
 
-public class Array implements TypedExpression<Array> {
+import net.cadrian.macchiato.recipe.ast.Node;
+
+public class ManifestRegex implements TypedExpression<Pattern> {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(Array array);
+		void visit(ManifestRegex manifestRegex);
 	}
 
-	private final List<Expression> expressions = new ArrayList<>();
+	private final Pattern value;
 	private final int position;
 
-	public Array(final int position) {
+	public ManifestRegex(final int position, final Pattern value) {
+		this.value = value;
 		this.position = position;
 	}
 
 	@Override
 	public <T> TypedExpression<T> typed(final Class<? extends T> type) {
-		if (type.isAssignableFrom(Array.class)) {
+		if (type.isAssignableFrom(Pattern.class)) {
 			@SuppressWarnings("unchecked")
 			final TypedExpression<T> result = (TypedExpression<T>) this;
 			return result;
 		}
-		return new CheckedExpression<T>(this, type);
+		return null;
+	}
+
+	public Pattern getValue() {
+		return value;
 	}
 
 	@Override
 	public int position() {
 		return position;
-	}
-
-	public void add(final Expression expression) {
-		expressions.add(expression);
 	}
 
 	@Override

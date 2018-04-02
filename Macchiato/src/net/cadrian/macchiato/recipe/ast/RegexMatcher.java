@@ -2,6 +2,9 @@ package net.cadrian.macchiato.recipe.ast;
 
 import java.util.regex.Pattern;
 
+import net.cadrian.macchiato.recipe.ast.expression.Binary;
+import net.cadrian.macchiato.recipe.ast.expression.TypedExpression;
+
 public class RegexMatcher extends Binary {
 
 	public static interface Visitor extends Node.Visitor {

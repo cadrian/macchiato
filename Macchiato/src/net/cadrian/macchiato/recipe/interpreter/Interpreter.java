@@ -20,7 +20,7 @@ import net.cadrian.macchiato.recipe.ast.ConditionFilter;
 import net.cadrian.macchiato.recipe.ast.Filter;
 import net.cadrian.macchiato.recipe.ast.Instruction;
 import net.cadrian.macchiato.recipe.ast.Recipe;
-import net.cadrian.macchiato.recipe.ast.TypedExpression;
+import net.cadrian.macchiato.recipe.ast.expression.TypedExpression;
 
 public class Interpreter {
 

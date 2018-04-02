@@ -33,4 +33,12 @@ class Context {
 		this.next = next;
 	}
 
+	public Track getTrack() {
+		return track;
+	}
+
+	public AbstractEvent getEvent() {
+		return event;
+	}
+
 }

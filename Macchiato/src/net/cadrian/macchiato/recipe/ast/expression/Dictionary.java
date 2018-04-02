@@ -1,7 +1,10 @@
-package net.cadrian.macchiato.recipe.ast;
+package net.cadrian.macchiato.recipe.ast.expression;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import net.cadrian.macchiato.recipe.ast.Expression;
+import net.cadrian.macchiato.recipe.ast.Node;
 
 public class Dictionary implements TypedExpression<Dictionary> {
 
@@ -9,13 +12,21 @@ public class Dictionary implements TypedExpression<Dictionary> {
 		void visit(Dictionary dictionary);
 	}
 
-	private static class Entry {
-		final TypedExpression<Comparable<?>> key;
-		final Expression expression;
+	public static class Entry {
+		private final TypedExpression<Comparable<?>> key;
+		private final Expression expression;
 
 		Entry(final TypedExpression<Comparable<?>> key, final Expression expression) {
 			this.key = key;
 			this.expression = expression;
+		}
+
+		public TypedExpression<Comparable<?>> getKey() {
+			return key;
+		}
+
+		public Expression getExpression() {
+			return expression;
 		}
 	}
 

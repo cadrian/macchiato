@@ -1,6 +1,8 @@
-package net.cadrian.macchiato.recipe.ast;
+package net.cadrian.macchiato.recipe.ast.expression;
 
 import java.math.BigInteger;
+
+import net.cadrian.macchiato.recipe.ast.Node;
 
 public class ManifestNumeric implements TypedExpression<BigInteger> {
 

@@ -1,5 +1,7 @@
 package net.cadrian.macchiato.recipe.ast;
 
+import net.cadrian.macchiato.recipe.ast.instruction.Block;
+
 public class BoundFilter extends Filter {
 
 	public static enum Bound {

@@ -1,9 +1,13 @@
-package net.cadrian.macchiato.recipe.ast;
+package net.cadrian.macchiato.recipe.ast.instruction;
 
-public class While implements Instruction {
+import net.cadrian.macchiato.recipe.ast.Expression;
+import net.cadrian.macchiato.recipe.ast.Instruction;
+import net.cadrian.macchiato.recipe.ast.Node;
+
+public class If implements Instruction {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(While w);
+		void visit(If i);
 	}
 
 	private final int position;
@@ -11,7 +15,7 @@ public class While implements Instruction {
 	private final Instruction instruction;
 	private final Instruction otherwise;
 
-	public While(final int position, final Expression condition, final Instruction instruction,
+	public If(final int position, final Expression condition, final Instruction instruction,
 			final Instruction otherwise) {
 		this.position = position;
 		this.condition = condition;

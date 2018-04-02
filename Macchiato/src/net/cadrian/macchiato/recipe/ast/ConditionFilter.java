@@ -1,5 +1,8 @@
 package net.cadrian.macchiato.recipe.ast;
 
+import net.cadrian.macchiato.recipe.ast.expression.TypedExpression;
+import net.cadrian.macchiato.recipe.ast.instruction.Block;
+
 public class ConditionFilter extends Filter {
 
 	public static interface Visitor extends Node.Visitor {

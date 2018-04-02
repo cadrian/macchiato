@@ -1,4 +1,8 @@
-package net.cadrian.macchiato.recipe.ast;
+package net.cadrian.macchiato.recipe.ast.instruction;
+
+import net.cadrian.macchiato.recipe.ast.Expression;
+import net.cadrian.macchiato.recipe.ast.Instruction;
+import net.cadrian.macchiato.recipe.ast.Node;
 
 public class Assignment implements Instruction {
 

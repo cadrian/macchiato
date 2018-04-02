@@ -1,5 +1,7 @@
 package net.cadrian.macchiato.recipe.ast;
 
+import net.cadrian.macchiato.recipe.ast.instruction.Block;
+
 public abstract class Filter implements Node {
 
 	private final Block instructions;

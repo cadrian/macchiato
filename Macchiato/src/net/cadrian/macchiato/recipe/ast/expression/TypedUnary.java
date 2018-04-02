@@ -1,4 +1,6 @@
-package net.cadrian.macchiato.recipe.ast;
+package net.cadrian.macchiato.recipe.ast.expression;
+
+import net.cadrian.macchiato.recipe.ast.Node;
 
 public class TypedUnary<T, R> extends Unary implements TypedExpression<R> {
 

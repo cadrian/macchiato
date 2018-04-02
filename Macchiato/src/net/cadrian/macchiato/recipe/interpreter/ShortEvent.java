@@ -15,4 +15,12 @@ class ShortEvent extends AbstractEvent {
 		this.message = message;
 	}
 
+	public ShortMessageType getType() {
+		return type;
+	}
+
+	public ShortMessage getMessage() {
+		return message;
+	}
+
 }

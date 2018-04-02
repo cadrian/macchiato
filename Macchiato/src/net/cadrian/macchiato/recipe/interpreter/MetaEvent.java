@@ -15,4 +15,12 @@ class MetaEvent extends AbstractEvent {
 		this.message = message;
 	}
 
+	public MetaMessageType getType() {
+		return type;
+	}
+
+	public MetaMessage getMessage() {
+		return message;
+	}
+
 }

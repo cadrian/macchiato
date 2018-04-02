@@ -6,36 +6,36 @@ import java.io.Reader;
 import java.math.BigInteger;
 import java.util.regex.Pattern;
 
-import net.cadrian.macchiato.midi.Event;
-import net.cadrian.macchiato.recipe.ast.Array;
-import net.cadrian.macchiato.recipe.ast.Assignment;
-import net.cadrian.macchiato.recipe.ast.Binary;
-import net.cadrian.macchiato.recipe.ast.Block;
 import net.cadrian.macchiato.recipe.ast.BoundFilter;
 import net.cadrian.macchiato.recipe.ast.ConditionFilter;
 import net.cadrian.macchiato.recipe.ast.Def;
-import net.cadrian.macchiato.recipe.ast.Dictionary;
-import net.cadrian.macchiato.recipe.ast.Emit;
 import net.cadrian.macchiato.recipe.ast.Expression;
 import net.cadrian.macchiato.recipe.ast.Filter;
 import net.cadrian.macchiato.recipe.ast.FormalArgs;
-import net.cadrian.macchiato.recipe.ast.FunctionCall;
-import net.cadrian.macchiato.recipe.ast.Identifier;
-import net.cadrian.macchiato.recipe.ast.If;
-import net.cadrian.macchiato.recipe.ast.IndexedExpression;
 import net.cadrian.macchiato.recipe.ast.Instruction;
-import net.cadrian.macchiato.recipe.ast.ManifestNumeric;
-import net.cadrian.macchiato.recipe.ast.ManifestRegex;
-import net.cadrian.macchiato.recipe.ast.ManifestString;
-import net.cadrian.macchiato.recipe.ast.Next;
-import net.cadrian.macchiato.recipe.ast.ProcedureCall;
 import net.cadrian.macchiato.recipe.ast.Recipe;
 import net.cadrian.macchiato.recipe.ast.RegexMatcher;
-import net.cadrian.macchiato.recipe.ast.TypedBinary;
-import net.cadrian.macchiato.recipe.ast.TypedExpression;
-import net.cadrian.macchiato.recipe.ast.TypedUnary;
-import net.cadrian.macchiato.recipe.ast.Unary;
-import net.cadrian.macchiato.recipe.ast.While;
+import net.cadrian.macchiato.recipe.ast.expression.Array;
+import net.cadrian.macchiato.recipe.ast.expression.Binary;
+import net.cadrian.macchiato.recipe.ast.expression.Dictionary;
+import net.cadrian.macchiato.recipe.ast.expression.FunctionCall;
+import net.cadrian.macchiato.recipe.ast.expression.Identifier;
+import net.cadrian.macchiato.recipe.ast.expression.IndexedExpression;
+import net.cadrian.macchiato.recipe.ast.expression.ManifestNumeric;
+import net.cadrian.macchiato.recipe.ast.expression.ManifestRegex;
+import net.cadrian.macchiato.recipe.ast.expression.ManifestString;
+import net.cadrian.macchiato.recipe.ast.expression.TypedBinary;
+import net.cadrian.macchiato.recipe.ast.expression.TypedExpression;
+import net.cadrian.macchiato.recipe.ast.expression.TypedUnary;
+import net.cadrian.macchiato.recipe.ast.expression.Unary;
+import net.cadrian.macchiato.recipe.ast.instruction.Assignment;
+import net.cadrian.macchiato.recipe.ast.instruction.Block;
+import net.cadrian.macchiato.recipe.ast.instruction.Emit;
+import net.cadrian.macchiato.recipe.ast.instruction.If;
+import net.cadrian.macchiato.recipe.ast.instruction.Next;
+import net.cadrian.macchiato.recipe.ast.instruction.ProcedureCall;
+import net.cadrian.macchiato.recipe.ast.instruction.While;
+import net.cadrian.macchiato.recipe.interpreter.AbstractEvent;
 
 public class Parser {
 
@@ -192,7 +192,7 @@ public class Parser {
 			result = new Emit(position, null);
 		} else {
 			final Expression expression = parseExpression();
-			final TypedExpression<Event> eventExpression = expression.typed(Event.class);
+			final TypedExpression<AbstractEvent> eventExpression = expression.typed(AbstractEvent.class);
 			result = new Emit(position, eventExpression);
 		}
 		skipBlanks();

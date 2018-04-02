@@ -1,7 +1,10 @@
-package net.cadrian.macchiato.recipe.ast;
+package net.cadrian.macchiato.recipe.ast.instruction;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import net.cadrian.macchiato.recipe.ast.Instruction;
+import net.cadrian.macchiato.recipe.ast.Node;
 
 public class Block implements Instruction {
 

@@ -1,6 +1,6 @@
 package net.cadrian.macchiato.recipe.interpreter;
 
-class AbstractEvent {
+public class AbstractEvent {
 
 	private final int index;
 	private final long tick;
@@ -8,6 +8,14 @@ class AbstractEvent {
 	public AbstractEvent(final int index, final long tick) {
 		this.index = index;
 		this.tick = tick;
+	}
+
+	public int getIndex() {
+		return index;
+	}
+
+	public long getTick() {
+		return tick;
 	}
 
 }

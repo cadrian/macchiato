@@ -1,4 +1,8 @@
-package net.cadrian.macchiato.recipe.ast;
+package net.cadrian.macchiato.recipe.ast.expression;
+
+import net.cadrian.macchiato.recipe.ast.AbstractCall;
+import net.cadrian.macchiato.recipe.ast.Expression;
+import net.cadrian.macchiato.recipe.ast.Node;
 
 public class FunctionCall extends AbstractCall implements Expression {
 

@@ -3,7 +3,7 @@ package net.cadrian.macchiato.recipe.ast;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class AbstractCall {
+public abstract class AbstractCall {
 
 	private final String name;
 	private final int position;

@@ -10,4 +10,12 @@ class Track {
 		this.midi = midi;
 	}
 
+	public int getIndex() {
+		return index;
+	}
+
+	public javax.sound.midi.Track getMidi() {
+		return midi;
+	}
+
 }
