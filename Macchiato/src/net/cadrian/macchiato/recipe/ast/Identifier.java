@@ -2,6 +2,10 @@ package net.cadrian.macchiato.recipe.ast;
 
 public class Identifier implements Expression {
 
+	public static interface Visitor extends Node.Visitor {
+		void visit(Identifier identifier);
+	}
+
 	private final String name;
 	private final int position;
 
@@ -22,6 +26,11 @@ public class Identifier implements Expression {
 	@Override
 	public int position() {
 		return position;
+	}
+
+	@Override
+	public void accept(final Node.Visitor v) {
+		((Visitor) v).visit(this);
 	}
 
 }

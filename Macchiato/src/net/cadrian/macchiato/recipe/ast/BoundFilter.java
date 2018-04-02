@@ -9,6 +9,10 @@ public class BoundFilter extends Filter {
 		END_TRACK;
 	}
 
+	public static interface Visitor extends Node.Visitor {
+		void visit(BoundFilter boundFilter);
+	}
+
 	private final int position;
 	private final Bound bound;
 
@@ -25,6 +29,11 @@ public class BoundFilter extends Filter {
 	@Override
 	public int position() {
 		return position;
+	}
+
+	@Override
+	public void accept(final Node.Visitor v) {
+		((Visitor) v).visit(this);
 	}
 
 }

@@ -5,6 +5,10 @@ import java.util.List;
 
 public class Array implements TypedExpression<Array> {
 
+	public static interface Visitor extends Node.Visitor {
+		void visit(Array array);
+	}
+
 	private final List<Expression> expressions = new ArrayList<>();
 	private final int position;
 
@@ -29,6 +33,11 @@ public class Array implements TypedExpression<Array> {
 
 	public void add(final Expression expression) {
 		expressions.add(expression);
+	}
+
+	@Override
+	public void accept(final Node.Visitor v) {
+		((Visitor) v).visit(this);
 	}
 
 }

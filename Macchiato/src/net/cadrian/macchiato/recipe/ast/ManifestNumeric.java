@@ -4,6 +4,10 @@ import java.math.BigInteger;
 
 public class ManifestNumeric implements TypedExpression<BigInteger> {
 
+	public static interface Visitor extends Node.Visitor {
+		void visit(ManifestNumeric manifestNumeric);
+	}
+
 	private final BigInteger value;
 	private final int position;
 
@@ -29,6 +33,11 @@ public class ManifestNumeric implements TypedExpression<BigInteger> {
 	@Override
 	public int position() {
 		return position;
+	}
+
+	@Override
+	public void accept(final Node.Visitor v) {
+		((Visitor) v).visit(this);
 	}
 
 }

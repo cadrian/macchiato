@@ -2,6 +2,10 @@ package net.cadrian.macchiato.recipe.ast;
 
 public class If implements Instruction {
 
+	public static interface Visitor extends Node.Visitor {
+		void visit(If i);
+	}
+
 	private final int position;
 	private final Expression condition;
 	private final Instruction instruction;
@@ -30,6 +34,11 @@ public class If implements Instruction {
 	@Override
 	public int position() {
 		return position;
+	}
+
+	@Override
+	public void accept(final Node.Visitor v) {
+		((Visitor) v).visit(this);
 	}
 
 }

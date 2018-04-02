@@ -5,6 +5,10 @@ import java.util.List;
 
 public class Dictionary implements TypedExpression<Dictionary> {
 
+	public static interface Visitor extends Node.Visitor {
+		void visit(Dictionary dictionary);
+	}
+
 	private static class Entry {
 		final TypedExpression<Comparable<?>> key;
 		final Expression expression;
@@ -39,6 +43,11 @@ public class Dictionary implements TypedExpression<Dictionary> {
 
 	public void put(final TypedExpression<Comparable<?>> key, final Expression expression) {
 		expressions.add(new Entry(key, expression));
+	}
+
+	@Override
+	public void accept(final Node.Visitor v) {
+		((Visitor) v).visit(this);
 	}
 
 }

@@ -4,6 +4,10 @@ import java.util.regex.Pattern;
 
 public class RegexMatcher extends Binary {
 
+	public static interface Visitor extends Node.Visitor {
+		void visit(RegexMatcher regexMatcher);
+	}
+
 	private final TypedExpression<String> leftOperand;
 	private final TypedExpression<Pattern> rightOperand;
 
@@ -34,6 +38,11 @@ public class RegexMatcher extends Binary {
 			return result;
 		}
 		return null;
+	}
+
+	@Override
+	public void accept(final Node.Visitor v) {
+		((Visitor) v).visit(this);
 	}
 
 }

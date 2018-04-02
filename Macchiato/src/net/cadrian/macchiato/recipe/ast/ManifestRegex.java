@@ -4,6 +4,10 @@ import java.util.regex.Pattern;
 
 public class ManifestRegex implements TypedExpression<Pattern> {
 
+	public static interface Visitor extends Node.Visitor {
+		void visit(ManifestRegex manifestRegex);
+	}
+
 	private final Pattern value;
 	private final int position;
 
@@ -29,6 +33,11 @@ public class ManifestRegex implements TypedExpression<Pattern> {
 	@Override
 	public int position() {
 		return position;
+	}
+
+	@Override
+	public void accept(final Node.Visitor v) {
+		((Visitor) v).visit(this);
 	}
 
 }

@@ -2,6 +2,10 @@ package net.cadrian.macchiato.recipe.ast;
 
 public class Def implements Node {
 
+	public static interface Visitor extends Node.Visitor {
+		void visit(Def def);
+	}
+
 	private final String name;
 	private final FormalArgs args;
 	private final Instruction instruction;
@@ -29,6 +33,11 @@ public class Def implements Node {
 	@Override
 	public int position() {
 		return position;
+	}
+
+	@Override
+	public void accept(final Node.Visitor v) {
+		((Visitor) v).visit(this);
 	}
 
 }

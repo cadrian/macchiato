@@ -2,6 +2,10 @@ package net.cadrian.macchiato.recipe.ast;
 
 public class ManifestString implements TypedExpression<String> {
 
+	public static interface Visitor extends Node.Visitor {
+		void visit(ManifestString manifestString);
+	}
+
 	private final String value;
 	private final int position;
 
@@ -27,6 +31,11 @@ public class ManifestString implements TypedExpression<String> {
 	@Override
 	public int position() {
 		return position;
+	}
+
+	@Override
+	public void accept(final Node.Visitor v) {
+		((Visitor) v).visit(this);
 	}
 
 }

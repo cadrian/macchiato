@@ -5,6 +5,10 @@ import java.util.List;
 
 public class Block implements Instruction {
 
+	public static interface Visitor extends Node.Visitor {
+		void visit(Block block);
+	}
+
 	private final int position;
 	private final List<Instruction> instructions = new ArrayList<>();
 
@@ -19,6 +23,11 @@ public class Block implements Instruction {
 	@Override
 	public int position() {
 		return position;
+	}
+
+	@Override
+	public void accept(final Node.Visitor v) {
+		((Visitor) v).visit(this);
 	}
 
 }

@@ -2,6 +2,10 @@ package net.cadrian.macchiato.recipe.ast;
 
 public class TypedBinary<T1, T2, R> extends Binary implements TypedExpression<R> {
 
+	public static interface Visitor<T1, T2, R> extends Node.Visitor {
+		void visit(TypedBinary<T1, T2, R> typedBinary);
+	}
+
 	private final TypedExpression<? extends T1> leftOperand;
 	private final TypedExpression<? extends T2> rightOperand;
 	private final Class<? extends R> resultType;
@@ -35,6 +39,12 @@ public class TypedBinary<T1, T2, R> extends Binary implements TypedExpression<R>
 			return result;
 		}
 		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void accept(final Node.Visitor v) {
+		((Visitor<T1, T2, R>) v).visit(this);
 	}
 
 }

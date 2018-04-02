@@ -10,17 +10,27 @@ class Context {
 
 	private Track track;
 	private AbstractEvent event;
+	private boolean next;
 
-	void setTrack(int trackIndex, javax.sound.midi.Track track) {
+	void setTrack(final int trackIndex, final javax.sound.midi.Track track) {
 		this.track = new Track(trackIndex, track);
 	}
 
-	void setEvent(int eventIndex, long tick, MetaMessageType type, MetaMessage message) {
+	void setEvent(final int eventIndex, final long tick, final MetaMessageType type, final MetaMessage message) {
 		this.event = new MetaEvent(eventIndex, tick, type, message);
 	}
 
-	public void setEvent(int eventIndex, long tick, ShortMessageType type, ShortMessage message) {
-		this.event = new ShortEvent(eventIndex, tick, type, message);		
+	public void setEvent(final int eventIndex, final long tick, final ShortMessageType type,
+			final ShortMessage message) {
+		this.event = new ShortEvent(eventIndex, tick, type, message);
+	}
+
+	public boolean isNext() {
+		return next;
+	}
+
+	public void setNext(final boolean next) {
+		this.next = next;
 	}
 
 }

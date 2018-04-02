@@ -2,6 +2,10 @@ package net.cadrian.macchiato.recipe.ast;
 
 public class TypedUnary<T, R> extends Unary implements TypedExpression<R> {
 
+	public static interface Visitor<T, R> extends Node.Visitor {
+		void visit(TypedUnary<T, R> typedUnary);
+	}
+
 	private final TypedExpression<? extends T> operand;
 	private final Class<? extends R> resultType;
 	private final int position;
@@ -32,6 +36,12 @@ public class TypedUnary<T, R> extends Unary implements TypedExpression<R> {
 			return result;
 		}
 		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void accept(final Node.Visitor v) {
+		((Visitor<T, R>) v).visit(this);
 	}
 
 }
