@@ -2,27 +2,25 @@ package net.cadrian.macchiato.recipe.ast;
 
 public class Assignment implements Instruction {
 
-	private final int position;
-	private final String name;
-	private final Expression expression;
+	private final Expression leftSide;
+	private final Expression rightSide;
 
-	public Assignment(final int position, final String name, final Expression expression) {
-		this.position = position;
-		this.name = name;
-		this.expression = expression;
+	public Assignment(Expression leftSide, Expression rightSide) {
+		this.leftSide = leftSide;
+		this.rightSide = rightSide;
 	}
 
-	public String getName() {
-		return name;
+	public Expression getLeftSide() {
+		return leftSide;
 	}
 
-	public Expression getExpression() {
-		return expression;
+	public Expression getRightSide() {
+		return rightSide;
 	}
 
 	@Override
 	public int position() {
-		return position;
+		return leftSide.position();
 	}
 
 }

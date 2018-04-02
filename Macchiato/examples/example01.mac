@@ -1,0 +1,14 @@
+BEGIN TRACK {
+	notes = [];
+}
+
+event.type == NOTE_ON and event.velocity > 0 {
+	notes[event.pitch] = event.velocity;
+	emit;
+	next;
+}
+
+event.type == NOTE_ON and event.velocity == 0 {
+	emit NOTE_OFF(event.pitch, notes[event.pitch]);
+	next;
+}

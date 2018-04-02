@@ -6,22 +6,28 @@ import java.io.Reader;
 import java.math.BigInteger;
 import java.util.regex.Pattern;
 
+import net.cadrian.macchiato.midi.Event;
 import net.cadrian.macchiato.recipe.ast.Array;
 import net.cadrian.macchiato.recipe.ast.Assignment;
 import net.cadrian.macchiato.recipe.ast.Binary;
 import net.cadrian.macchiato.recipe.ast.Block;
+import net.cadrian.macchiato.recipe.ast.BoundFilter;
+import net.cadrian.macchiato.recipe.ast.ConditionFilter;
 import net.cadrian.macchiato.recipe.ast.Def;
 import net.cadrian.macchiato.recipe.ast.Dictionary;
+import net.cadrian.macchiato.recipe.ast.Emit;
 import net.cadrian.macchiato.recipe.ast.Expression;
 import net.cadrian.macchiato.recipe.ast.Filter;
 import net.cadrian.macchiato.recipe.ast.FormalArgs;
 import net.cadrian.macchiato.recipe.ast.FunctionCall;
 import net.cadrian.macchiato.recipe.ast.Identifier;
 import net.cadrian.macchiato.recipe.ast.If;
+import net.cadrian.macchiato.recipe.ast.IndexedExpression;
 import net.cadrian.macchiato.recipe.ast.Instruction;
 import net.cadrian.macchiato.recipe.ast.ManifestNumeric;
 import net.cadrian.macchiato.recipe.ast.ManifestRegex;
 import net.cadrian.macchiato.recipe.ast.ManifestString;
+import net.cadrian.macchiato.recipe.ast.Next;
 import net.cadrian.macchiato.recipe.ast.ProcedureCall;
 import net.cadrian.macchiato.recipe.ast.Recipe;
 import net.cadrian.macchiato.recipe.ast.RegexMatcher;
@@ -107,14 +113,15 @@ public class Parser {
 
 	private Instruction parseInstruction() {
 		skipBlanks();
-		if (buffer.current() == '{') {
-			return parseBlock();
-		}
 		if (buffer.off()) {
 			throw new ParserException(buffer.error("Expected instruction"));
 		}
+		if (buffer.current() == '{') {
+			return parseBlock();
+		}
 		final int position = buffer.position();
-		final String name = readIdentifier();
+
+		final String name = readRawIdentifier();
 		if (name == null) {
 			throw new ParserException(buffer.error("Expected instruction", position));
 		}
@@ -130,12 +137,30 @@ public class Parser {
 				throw new ParserException(buffer.error("not yet implemented"));
 			case "while":
 				return parseWhile(position);
+			case "emit":
+				return parseEmit(position);
+			case "next":
+				return parseNext(position);
 			default:
 				throw new ParserException(buffer.error("Unexpected keyword " + name, position));
 			}
 		} else {
 			skipBlanks();
 			switch (buffer.current()) {
+			case '[': {
+				final Expression indexed = parseIndexed(new Identifier(position, name));
+				skipBlanks();
+				if (buffer.off() || buffer.current() != '=') {
+					throw new ParserException(buffer.error("Expected assignment"));
+				}
+				buffer.next();
+				final Expression exp = parseExpression();
+				skipBlanks();
+				if (buffer.current() == ';') {
+					buffer.next();
+				}
+				return new Assignment(indexed, exp);
+			}
 			case '=':
 				buffer.next();
 				final Expression exp = parseExpression();
@@ -143,13 +168,38 @@ public class Parser {
 				if (buffer.current() == ';') {
 					buffer.next();
 				}
-				return new Assignment(position, name, exp);
+				return new Assignment(new Identifier(position, name), exp);
 			case '(':
 				return parseProcedureCall(position, name);
 			default:
 				throw new ParserException(buffer.error("Expected assignment or function call"));
 			}
 		}
+	}
+
+	private Next parseNext(final int position) {
+		skipBlanks();
+		if (!buffer.off() && buffer.current() == ';') {
+			buffer.next();
+		}
+		return new Next(position);
+	}
+
+	private Emit parseEmit(int position) {
+		final Emit result;
+		skipBlanks();
+		if (buffer.off() || buffer.current() == ';') {
+			result = new Emit(position, null);
+		} else {
+			final Expression expression = parseExpression();
+			final TypedExpression<Event> eventExpression = expression.typed(Event.class);
+			result = new Emit(position, eventExpression);
+		}
+		skipBlanks();
+		if (!buffer.off() && buffer.current() == ';') {
+			buffer.next();
+		}
+		return result;
 	}
 
 	private ProcedureCall parseProcedureCall(final int position, final String name) {
@@ -182,6 +232,10 @@ public class Parser {
 
 	private If parseIf(final int position) {
 		final Expression cond = parseExpression();
+		skipBlanks();
+		if (buffer.off() || buffer.current() != '{') {
+			throw new ParserException(buffer.error("Expected block"));
+		}
 		final Block inst = parseBlock();
 		final Block other;
 		skipBlanks();
@@ -195,6 +249,10 @@ public class Parser {
 
 	private While parseWhile(final int position) {
 		final Expression cond = parseExpression();
+		skipBlanks();
+		if (buffer.off() || buffer.current() != '{') {
+			throw new ParserException(buffer.error("Expected block"));
+		}
 		final Block inst = parseBlock();
 		final Block other;
 		skipBlanks();
@@ -221,7 +279,8 @@ public class Parser {
 				buffer.next();
 				more = false;
 			} else {
-				result.add(parseInstruction());
+				final Instruction instruction = parseInstruction();
+				result.add(instruction);
 			}
 		} while (more);
 		return result;
@@ -516,6 +575,7 @@ public class Parser {
 			if (buffer.off() || buffer.current() != ')') {
 				throw new ParserException(buffer.error("Unfinished expresssion"));
 			}
+			buffer.next();
 		} else {
 			switch (buffer.current()) {
 			case '"':
@@ -544,7 +604,26 @@ public class Parser {
 				}
 			}
 		}
-		return result;
+		return parseIndexed(result);
+	}
+
+	private Expression parseIndexed(Expression expression) {
+		skipBlanks();
+		while (!buffer.off() && buffer.current() == '[') {
+			buffer.next();
+			final Expression index = parseExpression();
+			skipBlanks();
+			if (buffer.off() || buffer.current() != ']') {
+				throw new ParserException(buffer.error("Missing closing bracket"));
+			}
+			buffer.next();
+			final TypedExpression<Comparable<?>> typedIndex = index.typed(Comparable.class);
+			if (typedIndex == null) {
+				throw new ParserException(buffer.error("Expected numeric or string index", index.position()));
+			}
+			expression = new IndexedExpression(expression, typedIndex);
+		}
+		return expression;
 	}
 
 	private TypedExpression<String> parseString() {
@@ -634,13 +713,60 @@ public class Parser {
 	}
 
 	private Array parseArray() {
-		// TODO
-		throw new ParserException(buffer.error("not yet implemented"));
+		assert buffer.current() == '[';
+		final Array result = new Array(buffer.position());
+		buffer.next();
+		boolean more = true;
+		do {
+			final Expression exp = parseExpression();
+			result.add(exp);
+			skipBlanks();
+			switch (buffer.current()) {
+			case ',':
+				buffer.next();
+				break;
+			case ']':
+				buffer.next();
+				more = false;
+				break;
+			default:
+				throw new ParserException(buffer.error("Unexpected character"));
+			}
+		} while (more);
+		return result;
 	}
 
 	private Dictionary parseDictionary() {
-		// TODO
-		throw new ParserException(buffer.error("not yet implemented"));
+		assert buffer.current() == '{';
+		final Dictionary result = new Dictionary(buffer.position());
+		buffer.next();
+		boolean more = true;
+		do {
+			final Expression key = parseExpression();
+			skipBlanks();
+			if (buffer.off() || buffer.current() != ':') {
+				throw new ParserException(buffer.error("Invalid dictionary", buffer.position()));
+			}
+			final TypedExpression<Comparable<?>> typedKey = key.typed(Comparable.class);
+			if (typedKey == null) {
+				throw new ParserException(buffer.error("Invalid dictionary key", key.position()));
+			}
+			final Expression exp = parseExpression();
+			result.put(typedKey, exp);
+			skipBlanks();
+			switch (buffer.current()) {
+			case ',':
+				buffer.next();
+				break;
+			case '}':
+				buffer.next();
+				more = false;
+				break;
+			default:
+				throw new ParserException(buffer.error("Unexpected character"));
+			}
+		} while (more);
+		return result;
 	}
 
 	private TypedExpression<BigInteger> parseNumber() {
@@ -684,13 +810,49 @@ public class Parser {
 	}
 
 	private Filter parseFilter() {
-		final Expression expr = parseExpression();
-		final TypedExpression<Boolean> condition = expr.typed(Boolean.class);
-		if (condition == null) {
-			throw new ParserException(buffer.error("Expected boolean condition", expr.position()));
+		skipBlanks();
+		final int position = buffer.position();
+		final BoundFilter.Bound bound;
+		if (readKeyword("BEGIN")) {
+			if (readKeyword("SEQUENCE")) {
+				bound = BoundFilter.Bound.BEGIN_SEQUENCE;
+			} else if (readKeyword("TRACK")) {
+				bound = BoundFilter.Bound.BEGIN_TRACK;
+			} else {
+				bound = null;
+			}
+		} else if (readKeyword("END")) {
+			if (readKeyword("SEQUENCE")) {
+				bound = BoundFilter.Bound.END_SEQUENCE;
+			} else if (readKeyword("TRACK")) {
+				bound = BoundFilter.Bound.END_TRACK;
+			} else {
+				bound = null;
+			}
+		} else {
+			bound = null;
 		}
-		final Block instr = parseBlock();
-		return new Filter(condition, instr);
+		if (bound != null) {
+			skipBlanks();
+			if (buffer.off() || buffer.current() != '{') {
+				throw new ParserException(buffer.error("Expected block"));
+			}
+			final Block instr = parseBlock();
+			return new BoundFilter(position, bound, instr);
+		} else {
+			buffer.rewind(position);
+			final Expression expr = parseExpression();
+			final TypedExpression<Boolean> condition = expr.typed(Boolean.class);
+			if (condition == null) {
+				throw new ParserException(buffer.error("Expected boolean condition", expr.position()));
+			}
+			skipBlanks();
+			if (buffer.off() || buffer.current() != '{') {
+				throw new ParserException(buffer.error("Expected block"));
+			}
+			final Block instr = parseBlock();
+			return new ConditionFilter(condition, instr);
+		}
 	}
 
 	private String readIdentifier() {
@@ -745,6 +907,8 @@ public class Parser {
 		case "or":
 		case "not":
 		case "xor":
+		case "emit":
+		case "next":
 			return true;
 		default:
 			return false;
