@@ -1,6 +1,7 @@
 package net.cadrian.macchiato.recipe.ast.instruction;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import net.cadrian.macchiato.recipe.ast.Instruction;
@@ -31,6 +32,10 @@ public class Block implements Instruction {
 	@Override
 	public void accept(final Node.Visitor v) {
 		((Visitor) v).visit(this);
+	}
+
+	public List<Instruction> getInstructions() {
+		return Collections.unmodifiableList(instructions);
 	}
 
 }

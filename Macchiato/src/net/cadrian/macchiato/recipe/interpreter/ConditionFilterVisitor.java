@@ -1,0 +1,27 @@
+package net.cadrian.macchiato.recipe.interpreter;
+
+import net.cadrian.macchiato.recipe.ast.BoundFilter;
+import net.cadrian.macchiato.recipe.ast.ConditionFilter;
+
+class ConditionFilterVisitor implements BoundFilter.Visitor, ConditionFilter.Visitor {
+
+	private final Context context;
+
+	public ConditionFilterVisitor(final Context context) {
+		this.context = context;
+	}
+
+	@Override
+	public void visit(final ConditionFilter conditionFilter) {
+		final boolean condition = context.eval(conditionFilter.getCondition());
+		if (condition) {
+			context.eval(conditionFilter.getInstructions());
+		}
+	}
+
+	@Override
+	public void visit(final BoundFilter boundFilter) {
+		// do nothing
+	}
+
+}

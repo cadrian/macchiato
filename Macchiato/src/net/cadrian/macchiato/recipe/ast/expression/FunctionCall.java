@@ -15,8 +15,8 @@ public class FunctionCall extends AbstractCall implements Expression {
 	}
 
 	@Override
-	public <T> TypedExpression<T> typed(final Class<? extends T> type) {
-		return new CheckedExpression<T>(this, type);
+	public TypedExpression typed(final Class<?> type) {
+		return new CheckedExpression(this, type);
 	}
 
 	@Override

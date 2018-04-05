@@ -12,9 +12,10 @@ public class Emit implements Instruction {
 	}
 
 	private final int position;
-	private final TypedExpression<AbstractEvent> expression;
+	private final TypedExpression expression;
 
-	public Emit(final int position, final TypedExpression<AbstractEvent> expression) {
+	public Emit(final int position, final TypedExpression expression) {
+		assert expression.getType() == AbstractEvent.class;
 		this.position = position;
 		this.expression = expression;
 	}
@@ -24,7 +25,7 @@ public class Emit implements Instruction {
 		return position;
 	}
 
-	public TypedExpression<AbstractEvent> getExpression() {
+	public TypedExpression getExpression() {
 		return expression;
 	}
 

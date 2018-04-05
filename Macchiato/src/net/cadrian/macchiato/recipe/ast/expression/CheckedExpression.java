@@ -3,24 +3,23 @@ package net.cadrian.macchiato.recipe.ast.expression;
 import net.cadrian.macchiato.recipe.ast.Expression;
 import net.cadrian.macchiato.recipe.ast.Node;
 
-public class CheckedExpression<T> implements TypedExpression<T> {
+public class CheckedExpression implements TypedExpression {
 
-	public static interface Visitor<T> extends Node.Visitor {
-		void visit(CheckedExpression<T> e);
+	public static interface Visitor extends Node.Visitor {
+		void visit(CheckedExpression e);
 	}
 
-	private final Class<? extends T> type;
+	private final Class<?> type;
 	private final Expression toCheck;
 
-	public CheckedExpression(final Expression toCheck, final Class<? extends T> type) {
+	public CheckedExpression(final Expression toCheck, final Class<?> type) {
 		this.toCheck = toCheck;
 		this.type = type;
 	}
 
-	@SuppressWarnings("hiding")
 	@Override
-	public <T> TypedExpression<T> typed(final Class<? extends T> type) {
-		return new CheckedExpression<T>(toCheck, type);
+	public TypedExpression typed(final Class<?> type) {
+		return new CheckedExpression(toCheck, type);
 	}
 
 	@Override
@@ -28,7 +27,8 @@ public class CheckedExpression<T> implements TypedExpression<T> {
 		return toCheck.position();
 	}
 
-	public Class<? extends T> getType() {
+	@Override
+	public Class<?> getType() {
 		return type;
 	}
 
@@ -36,10 +36,9 @@ public class CheckedExpression<T> implements TypedExpression<T> {
 		return toCheck;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor<T>) v).visit(this);
+		((Visitor) v).visit(this);
 	}
 
 }

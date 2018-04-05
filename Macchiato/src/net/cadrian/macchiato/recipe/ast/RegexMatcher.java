@@ -1,30 +1,28 @@
 package net.cadrian.macchiato.recipe.ast;
 
-import java.util.regex.Pattern;
-
 import net.cadrian.macchiato.recipe.ast.expression.Binary;
 import net.cadrian.macchiato.recipe.ast.expression.TypedExpression;
 
-public class RegexMatcher extends Binary {
+public class RegexMatcher extends Binary implements TypedExpression {
 
 	public static interface Visitor extends Node.Visitor {
 		void visit(RegexMatcher regexMatcher);
 	}
 
-	private final TypedExpression<String> leftOperand;
-	private final TypedExpression<Pattern> rightOperand;
+	private final TypedExpression leftOperand;
+	private final TypedExpression rightOperand;
 
-	public RegexMatcher(final TypedExpression<String> leftOperand, final TypedExpression<Pattern> rightOperand) {
+	public RegexMatcher(final TypedExpression leftOperand, final TypedExpression rightOperand) {
 		super(Binary.Operator.MATCH);
 		this.leftOperand = leftOperand;
 		this.rightOperand = rightOperand;
 	}
 
-	public TypedExpression<String> getLeftOperand() {
+	public TypedExpression getLeftOperand() {
 		return leftOperand;
 	}
 
-	public TypedExpression<Pattern> getRightOperand() {
+	public TypedExpression getRightOperand() {
 		return rightOperand;
 	}
 
@@ -34,13 +32,16 @@ public class RegexMatcher extends Binary {
 	}
 
 	@Override
-	public <T> TypedExpression<T> typed(final Class<? extends T> type) {
+	public TypedExpression typed(final Class<?> type) {
 		if (type.isAssignableFrom(Boolean.class)) {
-			@SuppressWarnings("unchecked")
-			final TypedExpression<T> result = (TypedExpression<T>) this;
-			return result;
+			return this;
 		}
 		return null;
+	}
+
+	@Override
+	public Class<?> getType() {
+		return Boolean.class;
 	}
 
 	@Override

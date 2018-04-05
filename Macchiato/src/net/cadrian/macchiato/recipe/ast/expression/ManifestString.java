@@ -2,7 +2,7 @@ package net.cadrian.macchiato.recipe.ast.expression;
 
 import net.cadrian.macchiato.recipe.ast.Node;
 
-public class ManifestString implements TypedExpression<String> {
+public class ManifestString implements TypedExpression {
 
 	public static interface Visitor extends Node.Visitor {
 		void visit(ManifestString manifestString);
@@ -17,13 +17,16 @@ public class ManifestString implements TypedExpression<String> {
 	}
 
 	@Override
-	public <T> TypedExpression<T> typed(final Class<? extends T> type) {
+	public TypedExpression typed(final Class<?> type) {
 		if (type.isAssignableFrom(String.class)) {
-			@SuppressWarnings("unchecked")
-			final TypedExpression<T> result = (TypedExpression<T>) this;
-			return result;
+			return this;
 		}
 		return null;
+	}
+
+	@Override
+	public Class<?> getType() {
+		return String.class;
 	}
 
 	public String getValue() {

@@ -9,14 +9,15 @@ public class ConditionFilter extends Filter {
 		void visit(ConditionFilter conditionFilter);
 	}
 
-	private final TypedExpression<Boolean> condition;
+	private final TypedExpression condition;
 
-	public ConditionFilter(final TypedExpression<Boolean> condition, final Block instructions) {
+	public ConditionFilter(final TypedExpression condition, final Block instructions) {
 		super(instructions);
+		assert (condition.getType() == Boolean.class);
 		this.condition = condition;
 	}
 
-	public TypedExpression<Boolean> getCondition() {
+	public TypedExpression getCondition() {
 		return condition;
 	}
 

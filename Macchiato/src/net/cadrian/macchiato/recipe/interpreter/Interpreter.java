@@ -14,13 +14,9 @@ import javax.sound.midi.Track;
 
 import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.ShortMessageType;
-import net.cadrian.macchiato.recipe.ast.BoundFilter;
 import net.cadrian.macchiato.recipe.ast.BoundFilter.Bound;
-import net.cadrian.macchiato.recipe.ast.ConditionFilter;
 import net.cadrian.macchiato.recipe.ast.Filter;
-import net.cadrian.macchiato.recipe.ast.Instruction;
 import net.cadrian.macchiato.recipe.ast.Recipe;
-import net.cadrian.macchiato.recipe.ast.expression.TypedExpression;
 
 public class Interpreter {
 
@@ -32,7 +28,7 @@ public class Interpreter {
 
 	public void run() throws InvalidMidiDataException, IOException {
 		final Sequence sequence = MidiSystem.getSequence(System.in);
-		final Context context = new Context();
+		final Context context = new Context(this);
 		final Track[] tracks = sequence.getTracks();
 		filter(Bound.BEGIN_SEQUENCE, context);
 		for (int trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
@@ -68,30 +64,6 @@ public class Interpreter {
 		filter(Bound.END_SEQUENCE, context);
 	}
 
-	private class BoundFilterVisitor implements BoundFilter.Visitor, ConditionFilter.Visitor {
-
-		private final Context context;
-		private final Bound bound;
-
-		public BoundFilterVisitor(final Context context, final Bound bound) {
-			this.context = context;
-			this.bound = bound;
-		}
-
-		@Override
-		public void visit(final ConditionFilter conditionFilter) {
-			// do nothing
-		}
-
-		@Override
-		public void visit(final BoundFilter boundFilter) {
-			if (boundFilter.getBound() == bound) {
-				eval(context, boundFilter.getInstructions());
-			}
-		}
-
-	}
-
 	private void filter(final Bound bound, final Context context) {
 		context.setNext(false);
 		final BoundFilterVisitor visitor = new BoundFilterVisitor(context, bound);
@@ -103,45 +75,12 @@ public class Interpreter {
 		}
 	}
 
-	private class ConditionFilterVisitor implements BoundFilter.Visitor, ConditionFilter.Visitor {
-
-		private final Context context;
-
-		public ConditionFilterVisitor(final Context context) {
-			this.context = context;
-		}
-
-		@Override
-		public void visit(final ConditionFilter conditionFilter) {
-			final boolean condition = eval(context, conditionFilter.getCondition());
-			if (condition) {
-				eval(context, conditionFilter.getInstructions());
-			}
-		}
-
-		@Override
-		public void visit(final BoundFilter boundFilter) {
-			// do nothing
-		}
-
-	}
-
 	private void filter(final Context context) {
 		context.setNext(false);
 		final ConditionFilterVisitor visitor = new ConditionFilterVisitor(context);
 		for (final Filter filter : recipe.getFilters()) {
 			filter.accept(visitor);
 		}
-	}
-
-	private void eval(final Context context, final Instruction instruction) {
-		// TODO Auto-generated method stub
-
-	}
-
-	private <T> T eval(final Context context, final TypedExpression<T> expression) {
-		// TODO
-		return null;
 	}
 
 }

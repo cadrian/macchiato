@@ -6,27 +6,30 @@ import java.util.List;
 import net.cadrian.macchiato.recipe.ast.Expression;
 import net.cadrian.macchiato.recipe.ast.Node;
 
-public class Array implements TypedExpression<Array> {
+public class ManifestArray implements TypedExpression {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(Array array);
+		void visit(ManifestArray array);
 	}
 
 	private final List<Expression> expressions = new ArrayList<>();
 	private final int position;
 
-	public Array(final int position) {
+	public ManifestArray(final int position) {
 		this.position = position;
 	}
 
 	@Override
-	public <T> TypedExpression<T> typed(final Class<? extends T> type) {
-		if (type.isAssignableFrom(Array.class)) {
-			@SuppressWarnings("unchecked")
-			final TypedExpression<T> result = (TypedExpression<T>) this;
-			return result;
+	public TypedExpression typed(final Class<?> type) {
+		if (type.isAssignableFrom(ManifestArray.class)) {
+			return this;
 		}
-		return new CheckedExpression<T>(this, type);
+		return new CheckedExpression(this, type);
+	}
+
+	@Override
+	public Class<?> getType() {
+		return List.class;
 	}
 
 	@Override

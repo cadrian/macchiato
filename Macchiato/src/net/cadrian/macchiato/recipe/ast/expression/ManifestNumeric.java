@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 import net.cadrian.macchiato.recipe.ast.Node;
 
-public class ManifestNumeric implements TypedExpression<BigInteger> {
+public class ManifestNumeric implements TypedExpression {
 
 	public static interface Visitor extends Node.Visitor {
 		void visit(ManifestNumeric manifestNumeric);
@@ -19,13 +19,16 @@ public class ManifestNumeric implements TypedExpression<BigInteger> {
 	}
 
 	@Override
-	public <T> TypedExpression<T> typed(final Class<? extends T> type) {
+	public TypedExpression typed(final Class<?> type) {
 		if (type.isAssignableFrom(BigInteger.class)) {
-			@SuppressWarnings("unchecked")
-			final TypedExpression<T> result = (TypedExpression<T>) this;
-			return result;
+			return this;
 		}
 		return null;
+	}
+
+	@Override
+	public Class<?> getType() {
+		return BigInteger.class;
 	}
 
 	public BigInteger getValue() {

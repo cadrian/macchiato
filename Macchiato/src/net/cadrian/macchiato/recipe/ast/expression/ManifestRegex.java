@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 import net.cadrian.macchiato.recipe.ast.Node;
 
-public class ManifestRegex implements TypedExpression<Pattern> {
+public class ManifestRegex implements TypedExpression {
 
 	public static interface Visitor extends Node.Visitor {
 		void visit(ManifestRegex manifestRegex);
@@ -19,13 +19,16 @@ public class ManifestRegex implements TypedExpression<Pattern> {
 	}
 
 	@Override
-	public <T> TypedExpression<T> typed(final Class<? extends T> type) {
+	public TypedExpression typed(final Class<?> type) {
 		if (type.isAssignableFrom(Pattern.class)) {
-			@SuppressWarnings("unchecked")
-			final TypedExpression<T> result = (TypedExpression<T>) this;
-			return result;
+			return this;
 		}
 		return null;
+	}
+
+	@Override
+	public Class<?> getType() {
+		return Pattern.class;
 	}
 
 	public Pattern getValue() {

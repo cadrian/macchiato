@@ -10,9 +10,9 @@ public class IndexedExpression implements Expression {
 	}
 
 	private final Expression indexed;
-	private final TypedExpression<Comparable<?>> index;
+	private final TypedExpression index;
 
-	public IndexedExpression(final Expression indexed, final TypedExpression<Comparable<?>> index) {
+	public IndexedExpression(final Expression indexed, final TypedExpression index) {
 		this.indexed = indexed;
 		this.index = index;
 	}
@@ -22,7 +22,7 @@ public class IndexedExpression implements Expression {
 		return indexed.position();
 	}
 
-	public TypedExpression<Comparable<?>> getIndex() {
+	public TypedExpression getIndex() {
 		return index;
 	}
 
@@ -31,8 +31,8 @@ public class IndexedExpression implements Expression {
 	}
 
 	@Override
-	public <T> TypedExpression<T> typed(final Class<? extends T> type) {
-		return new CheckedExpression<T>(this, type);
+	public TypedExpression typed(final Class<?> type) {
+		return new CheckedExpression(this, type);
 	}
 
 	@Override
