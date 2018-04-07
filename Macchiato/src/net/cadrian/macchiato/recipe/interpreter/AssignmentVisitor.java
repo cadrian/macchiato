@@ -27,13 +27,11 @@ class AssignmentVisitor implements ExpressionVisitor {
 	}
 
 	private final Context context;
-	private final Map<String, Object> global;
 	private Object value;
 	private Setter setter;
 
 	AssignmentVisitor(final Context context) {
 		this.context = context;
-		this.global = context.global;
 	}
 
 	void assign(final Expression target, final Object value) {
@@ -56,9 +54,9 @@ class AssignmentVisitor implements ExpressionVisitor {
 	@Override
 	public void visit(final Identifier identifier) {
 		final String key = identifier.getName();
-		value = global.get(key);
+		value = context.get(key);
 		setter = (final Object value) -> {
-			global.put(key, value);
+			context.put(key, value);
 		};
 	}
 

@@ -4,7 +4,7 @@ public class InterpreterException extends RuntimeException {
 
 	private static final long serialVersionUID = -695648464250538720L;
 
-	public InterpreterException(String msg) {
+	public InterpreterException(final String msg) {
 		super(msg);
 	}
 

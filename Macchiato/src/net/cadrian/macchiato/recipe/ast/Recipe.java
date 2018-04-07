@@ -1,7 +1,7 @@
 package net.cadrian.macchiato.recipe.ast;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +19,12 @@ public class Recipe {
 		filters.add(filter);
 	}
 
-	public Collection<Filter> getFilters() {
-		return filters;
+	public Def getDef(final String name) {
+		return defs.get(name);
+	}
+
+	public List<Filter> getFilters() {
+		return Collections.unmodifiableList(filters);
 	}
 
 }

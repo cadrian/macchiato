@@ -1,6 +1,12 @@
 package net.cadrian.macchiato.recipe.interpreter;
 
+import java.util.List;
+
+import net.cadrian.macchiato.recipe.ast.Def;
+import net.cadrian.macchiato.recipe.ast.Expression;
+import net.cadrian.macchiato.recipe.ast.FormalArgs;
 import net.cadrian.macchiato.recipe.ast.Instruction;
+import net.cadrian.macchiato.recipe.ast.expression.TypedExpression;
 import net.cadrian.macchiato.recipe.ast.instruction.Assignment;
 import net.cadrian.macchiato.recipe.ast.instruction.Block;
 import net.cadrian.macchiato.recipe.ast.instruction.Emit;
@@ -39,8 +45,19 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 
 	@Override
 	public void visit(final ProcedureCall procedureCall) {
-		// TODO Auto-generated method stub
-
+		final Def def = context.getInterpreter().recipe.getDef(procedureCall.getName());
+		final LocalContext callContext = new LocalContext(context);
+		final FormalArgs args = def.getArgs();
+		final List<Expression> arguments = procedureCall.getArguments();
+		if (args.size() != arguments.size()) {
+			throw new InterpreterException("invalid parameters");
+		}
+		for (int i = 0; i < args.size(); i++) {
+			final Expression argument = arguments.get(i);
+			final Object value = context.eval(argument.typed(Object.class));
+			callContext.put(args.get(i), value);
+		}
+		def.getInstruction().accept(new InstructionEvaluationVisitor(callContext));
 	}
 
 	@Override
@@ -63,8 +80,13 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 
 	@Override
 	public void visitEmit(final Emit emit) {
-		// TODO Auto-generated method stub
-
+		final TypedExpression expression = emit.getExpression();
+		if (expression == null) {
+			context.emit();
+		} else {
+			final AbstractEvent event = context.eval(expression);
+			context.emit(event);
+		}
 	}
 
 	@Override

@@ -5,9 +5,9 @@ import net.cadrian.macchiato.recipe.ast.ConditionFilter;
 
 class ConditionFilterVisitor implements BoundFilter.Visitor, ConditionFilter.Visitor {
 
-	private final Context context;
+	private final GlobalContext context;
 
-	public ConditionFilterVisitor(final Context context) {
+	public ConditionFilterVisitor(final GlobalContext context) {
 		this.context = context;
 	}
 

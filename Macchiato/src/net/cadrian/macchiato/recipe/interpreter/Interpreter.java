@@ -20,25 +20,29 @@ import net.cadrian.macchiato.recipe.ast.Recipe;
 
 public class Interpreter {
 
-	private final Recipe recipe;
+	final Recipe recipe;
 
 	public Interpreter(final Recipe recipe) {
 		this.recipe = recipe;
 	}
 
 	public void run() throws InvalidMidiDataException, IOException {
-		final Sequence sequence = MidiSystem.getSequence(System.in);
-		final Context context = new Context(this);
-		final Track[] tracks = sequence.getTracks();
+		final Sequence sequenceIn = MidiSystem.getSequence(System.in);
+		final Sequence sequenceOut = new Sequence(sequenceIn.getDivisionType(), sequenceIn.getResolution(),
+				sequenceIn.getTracks().length);
+		final GlobalContext context = new GlobalContext(this);
+		final Track[] tracksIn = sequenceIn.getTracks();
+		final Track[] tracksOut = sequenceOut.getTracks();
 		filter(Bound.BEGIN_SEQUENCE, context);
-		for (int trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
-			final Track track = tracks[trackIndex];
-			context.setTrack(trackIndex, track);
+		for (int trackIndex = 0; trackIndex < tracksIn.length; trackIndex++) {
+			final Track trackIn = tracksIn[trackIndex];
+			final Track trackOut = tracksOut[trackIndex];
+			context.setTrack(trackIndex, trackIn, trackOut);
 			filter(Bound.BEGIN_TRACK, context);
-			for (int eventIndex = 0; eventIndex < track.size(); eventIndex++) {
-				final MidiEvent event = track.get(eventIndex);
-				final long tick = event.getTick();
-				final MidiMessage message = event.getMessage();
+			for (int eventIndex = 0; eventIndex < trackIn.size(); eventIndex++) {
+				final MidiEvent eventIn = trackIn.get(eventIndex);
+				final long tick = eventIn.getTick();
+				final MidiMessage message = eventIn.getMessage();
 				if (message instanceof MetaMessage) {
 					// Meta message
 					final MetaMessage metaMessage = (MetaMessage) message;
@@ -49,6 +53,7 @@ public class Interpreter {
 					// System-exclusive message, ignored
 					@SuppressWarnings("unused")
 					final SysexMessage sysexMessage = (SysexMessage) message;
+					trackOut.add(eventIn);
 				} else if (message instanceof ShortMessage) {
 					// According to javadoc, any other type of message
 					final ShortMessage shortMessage = (ShortMessage) message;
@@ -62,25 +67,28 @@ public class Interpreter {
 			filter(Bound.END_TRACK, context);
 		}
 		filter(Bound.END_SEQUENCE, context);
+		// TODO: determine file type from input
+		MidiSystem.write(sequenceOut, 0, System.out);
 	}
 
-	private void filter(final Bound bound, final Context context) {
+	private void filter(final Bound bound, final GlobalContext context) {
 		context.setNext(false);
 		final BoundFilterVisitor visitor = new BoundFilterVisitor(context, bound);
 		for (final Filter filter : recipe.getFilters()) {
 			filter.accept(visitor);
-			if (context.isNext()) {
-				break;
-			}
 		}
 	}
 
-	private void filter(final Context context) {
+	private void filter(final GlobalContext context) {
 		context.setNext(false);
 		final ConditionFilterVisitor visitor = new ConditionFilterVisitor(context);
 		for (final Filter filter : recipe.getFilters()) {
+			if (context.isNext()) {
+				return;
+			}
 			filter.accept(visitor);
 		}
+		context.emit();
 	}
 
 }

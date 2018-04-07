@@ -11,4 +11,12 @@ public class FormalArgs {
 		args.add(arg);
 	}
 
+	public int size() {
+		return args.size();
+	}
+
+	public String get(final int i) {
+		return args.get(i);
+	}
+
 }

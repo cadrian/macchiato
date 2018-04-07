@@ -1,69 +1,37 @@
 package net.cadrian.macchiato.recipe.interpreter;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.sound.midi.MetaMessage;
-import javax.sound.midi.ShortMessage;
-
-import net.cadrian.macchiato.midi.MetaMessageType;
-import net.cadrian.macchiato.midi.ShortMessageType;
 import net.cadrian.macchiato.recipe.ast.Instruction;
 import net.cadrian.macchiato.recipe.ast.expression.TypedExpression;
 
-class Context {
+abstract class Context {
 
-	private final Interpreter interpreter;
-	final Map<String, Object> global = new HashMap<>();
-	private Track track;
-	private AbstractEvent event;
-	private boolean next;
+	abstract Interpreter getInterpreter();
 
-	public Context(final Interpreter interpreter) {
-		this.interpreter = interpreter;
+	abstract Track getTrack();
+
+	abstract AbstractEvent getEvent();
+
+	void emit() {
+		emit(getEvent());
 	}
 
-	public Interpreter getInterpreter() {
-		return interpreter;
-	}
+	abstract void emit(AbstractEvent event);
 
-	void setTrack(final int trackIndex, final javax.sound.midi.Track track) {
-		this.track = new Track(trackIndex, track);
-	}
+	abstract boolean isNext();
 
-	void setEvent(final int eventIndex, final long tick, final MetaMessageType type, final MetaMessage message) {
-		this.event = new MetaEvent(eventIndex, tick, type, message);
-	}
-
-	public void setEvent(final int eventIndex, final long tick, final ShortMessageType type,
-			final ShortMessage message) {
-		this.event = new ShortEvent(eventIndex, tick, type, message);
-	}
-
-	public boolean isNext() {
-		return next;
-	}
-
-	public void setNext(final boolean next) {
-		this.next = next;
-	}
-
-	public Track getTrack() {
-		return track;
-	}
-
-	public AbstractEvent getEvent() {
-		return event;
-	}
+	abstract void setNext(boolean next);
 
 	void eval(final Instruction instruction) {
-		// TODO Auto-generated method stub
-
+		instruction.accept(new InstructionEvaluationVisitor(this));
 	}
 
 	<T> T eval(final TypedExpression expression) {
 		// TODO
 		return null;
 	}
+
+	abstract <T> T get(String key);
+
+	abstract <T> T put(String key, T value);
 
 }
