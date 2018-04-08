@@ -1,6 +1,7 @@
 package net.cadrian.macchiato.recipe.ast.expression;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import net.cadrian.macchiato.recipe.ast.Expression;
@@ -9,7 +10,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class ManifestArray implements TypedExpression {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(ManifestArray array);
+		void visit(ManifestArray manifestArray);
 	}
 
 	private final List<Expression> expressions = new ArrayList<>();
@@ -44,6 +45,10 @@ public class ManifestArray implements TypedExpression {
 	@Override
 	public void accept(final Node.Visitor v) {
 		((Visitor) v).visit(this);
+	}
+	
+	public List<Expression> getExpressions() {
+		return Collections.unmodifiableList(expressions);
 	}
 
 }

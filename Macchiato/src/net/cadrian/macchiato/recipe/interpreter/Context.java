@@ -25,13 +25,14 @@ abstract class Context {
 		instruction.accept(new InstructionEvaluationVisitor(this));
 	}
 
-	<T> T eval(final TypedExpression expression) {
-		// TODO
-		return null;
+	Object eval(final TypedExpression expression) {
+		final ExpressionEvaluationVisitor v = new ExpressionEvaluationVisitor(this, expression.getType());
+		expression.accept(v);
+		return v.getResult();
 	}
 
 	abstract <T> T get(String key);
 
-	abstract <T> T put(String key, T value);
+	abstract <T> T set(String key, T value);
 
 }

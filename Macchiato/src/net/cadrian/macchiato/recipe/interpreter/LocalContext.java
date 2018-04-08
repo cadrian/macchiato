@@ -36,7 +36,7 @@ class LocalContext extends Context {
 	AbstractEvent getEvent() {
 		return parent.getEvent();
 	}
-	
+
 	@Override
 	void emit(AbstractEvent event) {
 		parent.emit(event);
@@ -46,17 +46,17 @@ class LocalContext extends Context {
 	<T> T get(final String key) {
 		@SuppressWarnings("unchecked")
 		T result = (T) local.get(key);
-		if (result == null) {
+		if (result == null && !key.equals("result")) {
 			result = parent.get(key);
 		}
 		return result;
 	}
 
 	@Override
-	<T> T put(final String key, final T value) {
+	<T> T set(final String key, final T value) {
 		@SuppressWarnings("unchecked")
 		T result = (T) local.put(key, value);
-		if (result == null) {
+		if (result == null && !key.equals("result")) {
 			result = parent.get(key);
 		}
 		return result;

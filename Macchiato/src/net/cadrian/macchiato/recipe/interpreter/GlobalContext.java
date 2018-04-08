@@ -66,12 +66,18 @@ class GlobalContext extends Context {
 	@SuppressWarnings("unchecked")
 	@Override
 	<T> T get(final String key) {
+		if (key.equals("result")) {
+			throw new InterpreterException("result not available at this level");
+		}
 		return (T) global.get(key);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	<T> T put(final String key, final T value) {
+	<T> T set(final String key, final T value) {
+		if (key.equals("result")) {
+			throw new InterpreterException("result not available at this level");
+		}
 		return (T) global.put(key, value);
 	}
 

@@ -1,9 +1,6 @@
 package net.cadrian.macchiato.recipe.interpreter;
 
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
 
 import net.cadrian.macchiato.recipe.ast.Expression;
 import net.cadrian.macchiato.recipe.ast.expression.CheckedExpression;
@@ -56,34 +53,31 @@ class AssignmentVisitor implements ExpressionVisitor {
 		final String key = identifier.getName();
 		value = context.get(key);
 		setter = (final Object value) -> {
-			context.put(key, value);
+			context.set(key, value);
 		};
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final IndexedExpression indexedExpression) {
 		indexedExpression.getIndexed().accept(this);
 		final Object index = context.eval(indexedExpression.getIndex());
 		if (index instanceof BigInteger) {
-			final Map<BigInteger, Object> array = value == null ? new TreeMap<BigInteger, Object>()
-					: (Map<BigInteger, Object>) value;
-			if (!(value instanceof TreeMap)) {
+			if (value != null && !(value instanceof Array)) {
 				throw new InterpreterException("invalid index");
 			}
+			final Array array = value == null ? new Array() : (Array) value;
 			value = array;
 			setter = (final Object value) -> {
-				array.put((BigInteger) index, value);
+				array.set((BigInteger) index, value);
 			};
 		} else if (index instanceof String) {
-			final Map<String, Object> dictionary = value == null ? new HashMap<String, Object>()
-					: (Map<String, Object>) value;
-			if (!(value instanceof HashMap)) {
+			if (value != null && !(value instanceof Dictionary)) {
 				throw new InterpreterException("invalid index");
 			}
+			final Dictionary dictionary = value == null ? new Dictionary() : (Dictionary) value;
 			value = dictionary;
 			setter = (final Object value) -> {
-				dictionary.put((String) index, value);
+				dictionary.set((String) index, value);
 			};
 		} else {
 			throw new InterpreterException("Cannot use " + index.getClass().getSimpleName() + " as index");

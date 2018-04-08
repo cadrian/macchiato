@@ -13,7 +13,7 @@ class ConditionFilterVisitor implements BoundFilter.Visitor, ConditionFilter.Vis
 
 	@Override
 	public void visit(final ConditionFilter conditionFilter) {
-		final boolean condition = context.eval(conditionFilter.getCondition());
+		final boolean condition = (Boolean) context.eval(conditionFilter.getCondition());
 		if (condition) {
 			context.eval(conditionFilter.getInstructions());
 		}

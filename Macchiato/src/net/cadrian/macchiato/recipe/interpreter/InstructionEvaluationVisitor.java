@@ -28,7 +28,7 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 	public void visit(final While w) {
 		boolean looped = false;
 		while (true) {
-			final boolean value = context.eval(w.getCondition().typed(Boolean.class));
+			final boolean value = (Boolean) context.eval(w.getCondition().typed(Boolean.class));
 			if (!value) {
 				break;
 			}
@@ -55,7 +55,7 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 		for (int i = 0; i < args.size(); i++) {
 			final Expression argument = arguments.get(i);
 			final Object value = context.eval(argument.typed(Object.class));
-			callContext.put(args.get(i), value);
+			callContext.set(args.get(i), value);
 		}
 		def.getInstruction().accept(new InstructionEvaluationVisitor(callContext));
 	}
@@ -67,7 +67,7 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 
 	@Override
 	public void visit(final If i) {
-		final boolean value = context.eval(i.getCondition().typed(Boolean.class));
+		final boolean value = (Boolean) context.eval(i.getCondition().typed(Boolean.class));
 		if (value) {
 			i.getInstruction().accept(this);
 		} else {
@@ -84,7 +84,7 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 		if (expression == null) {
 			context.emit();
 		} else {
-			final AbstractEvent event = context.eval(expression);
+			final AbstractEvent event = (AbstractEvent) context.eval(expression);
 			context.emit(event);
 		}
 	}
