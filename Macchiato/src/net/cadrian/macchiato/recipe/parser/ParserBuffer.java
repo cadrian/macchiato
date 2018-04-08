@@ -76,6 +76,9 @@ class ParserBuffer {
 			readMore();
 		}
 		int startPosition = position;
+		if (startPosition >= content.length) {
+			startPosition = content.length - 1;
+		}
 		while (startPosition > 0 && content[startPosition] != '\n') {
 			startPosition--;
 		}
@@ -94,11 +97,11 @@ class ParserBuffer {
 			}
 		}
 		carret.append('^');
-		if (content[position] != '\n') {
+		if (position < content.length && content[position] != '\n') {
 			text.append(content[position]);
 			rewind(position);
 			next();
-			while (current() != '\n') {
+			while (!off() && current() != '\n') {
 				final char c = current();
 				text.append(c);
 				next();
