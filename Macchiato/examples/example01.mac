@@ -1,16 +1,22 @@
+# Called at each beginning of track. Other special markers are BEGIN SEQUENCE, END SEQUENCE, and END TRACK.
 BEGIN TRACK {
+    # not necessary (variables are initialized as needed)
 	notes = [];
 }
 
 event.type == NOTE_ON and event.velocity > 0 {
 	notes[event.pitch] = event.velocity;
+	# emits the current event
 	emit;
+	# next "skips" the remainder of recipes and analyzes the next event
 	next;
 }
 
 event.type == NOTE_ON and event.velocity == 0 {
+	# emits a new event (instead of the analyzed one)
 	emit NOTE_OFF(event.pitch, notes[event.pitch]);
+	# next is necessary to skip the default event emission
 	next;
 }
 
-# by default event is emitted
+# the event is emitted if there were no next before
