@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.cadrian.macchiato.recipe.ast.Expression;
 import net.cadrian.macchiato.recipe.ast.Node;
+import net.cadrian.macchiato.recipe.interpreter.Array;
 
 public class ManifestArray implements TypedExpression {
 
@@ -30,7 +31,7 @@ public class ManifestArray implements TypedExpression {
 
 	@Override
 	public Class<?> getType() {
-		return List.class;
+		return Array.class;
 	}
 
 	@Override
@@ -46,7 +47,7 @@ public class ManifestArray implements TypedExpression {
 	public void accept(final Node.Visitor v) {
 		((Visitor) v).visit(this);
 	}
-	
+
 	public List<Expression> getExpressions() {
 		return Collections.unmodifiableList(expressions);
 	}

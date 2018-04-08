@@ -39,6 +39,9 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	public void visit(final TypedUnary typedUnary) {
 		typedUnary.getOperand().accept(this);
 		final Object operand = lastExpression;
+		if (operand == null) {
+			throw new InterpreterException("invalid null expression");
+		}
 		switch (typedUnary.getOperator()) {
 		case NOT:
 			if (!(operand instanceof Boolean)) {
@@ -62,6 +65,9 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	public void visit(final TypedBinary typedBinary) {
 		typedBinary.getLeftOperand().accept(this);
 		final Object left = lastExpression;
+		if (left == null) {
+			throw new InterpreterException("invalid null left expression");
+		}
 		switch (typedBinary.getOperator()) {
 		case ADD:
 			if (!(left instanceof String) && (left instanceof BigInteger)) {
@@ -100,7 +106,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			break;
 		case EQ:
 			if (!(left instanceof Comparable)) {
-				throw new InterpreterException("invalid left operand type");
+				throw new InterpreterException("invalid left operand type: " + left.getClass().getSimpleName());
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastExpression.getClass() != left.getClass()) {

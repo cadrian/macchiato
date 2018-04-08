@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.util.Map;
 import java.util.TreeMap;
 
-class Array {
+public class Array {
 
 	private final Map<BigInteger, Object> array = new TreeMap<>();
 

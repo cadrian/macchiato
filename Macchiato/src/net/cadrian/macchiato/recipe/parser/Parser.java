@@ -6,6 +6,9 @@ import java.io.Reader;
 import java.math.BigInteger;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.cadrian.macchiato.recipe.ast.BoundFilter;
 import net.cadrian.macchiato.recipe.ast.ConditionFilter;
 import net.cadrian.macchiato.recipe.ast.Def;
@@ -40,6 +43,8 @@ import net.cadrian.macchiato.recipe.interpreter.AbstractEvent;
 
 public class Parser {
 
+	private static final Logger logger = LoggerFactory.getLogger(Parser.class);
+
 	private final ParserBuffer buffer;
 
 	public Parser(final Reader reader) throws IOException {
@@ -47,23 +52,32 @@ public class Parser {
 	}
 
 	public Recipe parse() {
+		logger.debug("<-- {}", buffer.position());
 		final Recipe result = new Recipe();
-		while (!buffer.off()) {
-			if (readKeyword("def")) {
-				skipBlanks();
-				final int position = buffer.position();
-				final Def old = result.addDef(parseDef());
-				if (old != null) {
-					throw new ParserException(buffer.error("Duplicate def " + old.name(), old.position(), position));
+		try {
+			while (!buffer.off()) {
+				if (readKeyword("def")) {
+					skipBlanks();
+					final int position = buffer.position();
+					final Def old = result.addDef(parseDef());
+					if (old != null) {
+						throw new ParserException(
+								buffer.error("Duplicate def " + old.name(), old.position(), position));
+					}
+				} else {
+					result.addFilter(parseFilter());
 				}
-			} else {
-				result.addFilter(parseFilter());
+				skipBlanks();
 			}
+		} catch (Exception e) {
+			throw new ParserException(buffer.error(e.getMessage()), e);
 		}
+		logger.debug("--> {}", result);
 		return result;
 	}
 
 	private Def parseDef() {
+		logger.debug("<-- {}", buffer.position());
 		skipBlanks();
 		final int position = buffer.position();
 		final String name = readIdentifier();
@@ -73,10 +87,12 @@ public class Parser {
 		final FormalArgs args = parseFormalArgs();
 		final Instruction inst = parseInstruction();
 		final Def result = new Def(position, name, args, inst);
+		logger.debug("--> {}", result);
 		return result;
 	}
 
 	private FormalArgs parseFormalArgs() {
+		logger.debug("<-- {}", buffer.position());
 		skipBlanks();
 		if (buffer.current() != '(') {
 			throw new ParserException(buffer.error("Expected formal arguments"));
@@ -109,16 +125,20 @@ public class Parser {
 				}
 			} while (more);
 		}
-		return null;
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private Instruction parseInstruction() {
+		logger.debug("<-- {}", buffer.position());
 		skipBlanks();
 		if (buffer.off()) {
 			throw new ParserException(buffer.error("Expected instruction"));
 		}
 		if (buffer.current() == '{') {
-			return parseBlock();
+			final Block result = parseBlock();
+			logger.debug("--> {}", result);
+			return result;
 		}
 		final int position = buffer.position();
 
@@ -128,20 +148,32 @@ public class Parser {
 		}
 		if (isReserved(name)) {
 			switch (name) {
-			case "if":
-				return parseIf(position);
+			case "if": {
+				final If result = parseIf(position);
+				logger.debug("--> {}", result);
+				return result;
+			}
 			case "switch":
 				// TODO return parseSwitch();
 				throw new ParserException(buffer.error("not yet implemented"));
 			case "do":
 				// TODO return parseDo();
 				throw new ParserException(buffer.error("not yet implemented"));
-			case "while":
-				return parseWhile(position);
-			case "emit":
-				return parseEmit(position);
-			case "next":
-				return parseNext(position);
+			case "while": {
+				final While result = parseWhile(position);
+				logger.debug("--> {}", result);
+				return result;
+			}
+			case "emit": {
+				final Emit result = parseEmit(position);
+				logger.debug("--> {}", result);
+				return result;
+			}
+			case "next": {
+				final Next result = parseNext(position);
+				logger.debug("--> {}", result);
+				return result;
+			}
 			default:
 				throw new ParserException(buffer.error("Unexpected keyword " + name, position));
 			}
@@ -160,18 +192,26 @@ public class Parser {
 				if (buffer.current() == ';') {
 					buffer.next();
 				}
-				return new Assignment(indexed, exp);
+				final Assignment result = new Assignment(indexed, exp);
+				logger.debug("--> {}", result);
+				return result;
 			}
-			case '=':
+			case '=': {
 				buffer.next();
 				final Expression exp = parseExpression();
 				skipBlanks();
 				if (buffer.current() == ';') {
 					buffer.next();
 				}
-				return new Assignment(new Identifier(position, name), exp);
-			case '(':
-				return parseProcedureCall(position, name);
+				final Assignment result = new Assignment(new Identifier(position, name), exp);
+				logger.debug("--> {}", result);
+				return result;
+			}
+			case '(': {
+				final ProcedureCall result = parseProcedureCall(position, name);
+				logger.debug("--> {}", result);
+				return result;
+			}
 			default:
 				throw new ParserException(buffer.error("Expected assignment or function call"));
 			}
@@ -179,14 +219,18 @@ public class Parser {
 	}
 
 	private Next parseNext(final int position) {
+		logger.debug("<-- {}", buffer.position());
 		skipBlanks();
 		if (!buffer.off() && buffer.current() == ';') {
 			buffer.next();
 		}
-		return new Next(position);
+		final Next result = new Next(position);
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private Emit parseEmit(final int position) {
+		logger.debug("<-- {}", buffer.position());
 		final Emit result;
 		skipBlanks();
 		if (buffer.off() || buffer.current() == ';') {
@@ -200,10 +244,12 @@ public class Parser {
 		if (!buffer.off() && buffer.current() == ';') {
 			buffer.next();
 		}
+		logger.debug("--> {}", result);
 		return result;
 	}
 
 	private ProcedureCall parseProcedureCall(final int position, final String name) {
+		logger.debug("<-- {}", buffer.position());
 		final ProcedureCall result = new ProcedureCall(position, name);
 		assert buffer.current() == '(';
 		buffer.next();
@@ -228,10 +274,12 @@ public class Parser {
 		if (buffer.current() == ';') {
 			buffer.next();
 		}
+		logger.debug("--> {}", result);
 		return result;
 	}
 
 	private If parseIf(final int position) {
+		logger.debug("<-- {}", buffer.position());
 		final Expression cond = parseExpression();
 		skipBlanks();
 		if (buffer.off() || buffer.current() != '{') {
@@ -245,10 +293,13 @@ public class Parser {
 		} else {
 			other = null;
 		}
-		return new If(position, cond, inst, other);
+		final If result = new If(position, cond, inst, other);
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private While parseWhile(final int position) {
+		logger.debug("<-- {}", buffer.position());
 		final Expression cond = parseExpression();
 		skipBlanks();
 		if (buffer.off() || buffer.current() != '{') {
@@ -262,10 +313,13 @@ public class Parser {
 		} else {
 			other = null;
 		}
-		return new While(position, cond, inst, other);
+		final While result = new While(position, cond, inst, other);
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private Block parseBlock() {
+		logger.debug("<-- {}", buffer.position());
 		assert buffer.current() == '{';
 		final int position = buffer.position();
 		final Block result = new Block(position);
@@ -284,86 +338,112 @@ public class Parser {
 				result.add(instruction);
 			}
 		} while (more);
+		logger.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parseExpression() {
-		return parseOrRight(parseOrLeft());
+		logger.debug("<-- {}", buffer.position());
+		final Expression result = parseOrRight(parseOrLeft());
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private Expression parseOrLeft() {
-		return parseAndRight(parseAndLeft());
+		logger.debug("<-- {}", buffer.position());
+		final Expression result = parseAndRight(parseAndLeft());
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private Expression parseOrRight(final Expression left) {
+		logger.debug("<-- {}", buffer.position());
+		final Expression result;
 		if (!readKeyword("or")) {
-			return left;
+			result = left;
+		} else {
+			final TypedExpression leftOperand = left.typed(Boolean.class);
+			if (leftOperand == null) {
+				throw new ParserException(buffer.error("Expected boolean expression", left.position()));
+			}
+			final Expression right = parseExpression();
+			final TypedExpression rightOperand = right.typed(Boolean.class);
+			if (rightOperand == null) {
+				throw new ParserException(buffer.error("Expected boolean expression", right.position()));
+			}
+			result = parseOrRight(new TypedBinary(leftOperand, Binary.Operator.OR, rightOperand, Boolean.class));
 		}
-		final TypedExpression leftOperand = left.typed(Boolean.class);
-		if (leftOperand == null) {
-			throw new ParserException(buffer.error("Expected boolean expression", left.position()));
-		}
-		final Expression right = parseExpression();
-		final TypedExpression rightOperand = right.typed(Boolean.class);
-		if (rightOperand == null) {
-			throw new ParserException(buffer.error("Expected boolean expression", right.position()));
-		}
-		return parseOrRight(new TypedBinary(leftOperand, Binary.Operator.OR, rightOperand, Boolean.class));
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private Expression parseAndLeft() {
-		return parseComparatorRight(parseComparatorLeft());
+		logger.debug("<-- {}", buffer.position());
+		final Expression result = parseComparatorRight(parseComparatorLeft());
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private Expression parseAndRight(final Expression left) {
+		logger.debug("<-- {}", buffer.position());
+		final Expression result;
 		if (!readKeyword("and")) {
-			return left;
+			result = left;
+		} else {
+			final TypedExpression leftOperand = left.typed(Boolean.class);
+			if (leftOperand == null) {
+				throw new ParserException(buffer.error("Expected boolean expression", left.position()));
+			}
+			final Expression right = parseExpression();
+			final TypedExpression rightOperand = right.typed(Boolean.class);
+			if (rightOperand == null) {
+				throw new ParserException(buffer.error("Expected boolean expression", right.position()));
+			}
+			result = parseAndRight(new TypedBinary(leftOperand, Binary.Operator.AND, rightOperand, Boolean.class));
 		}
-		final TypedExpression leftOperand = left.typed(Boolean.class);
-		if (leftOperand == null) {
-			throw new ParserException(buffer.error("Expected boolean expression", left.position()));
-		}
-		final Expression right = parseExpression();
-		final TypedExpression rightOperand = right.typed(Boolean.class);
-		if (rightOperand == null) {
-			throw new ParserException(buffer.error("Expected boolean expression", right.position()));
-		}
-		return parseAndRight(new TypedBinary(leftOperand, Binary.Operator.AND, rightOperand, Boolean.class));
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private Expression parseComparatorLeft() {
-		return parseAdditionRight(parseAdditionLeft());
+		logger.debug("<-- {}", buffer.position());
+		final Expression result = parseAdditionRight(parseAdditionLeft());
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private Expression parseComparatorRight(final Expression left) {
+		logger.debug("<-- {}", buffer.position());
 		final Binary.Operator comparator = readComparator();
-		if (comparator == null) {
-			return left;
-		}
 		final Expression result;
-		final Expression right = parseExpression();
-		if (comparator == Binary.Operator.MATCH) {
-			final TypedExpression leftOperand = left.typed(String.class);
-			if (leftOperand == null) {
-				throw new ParserException(buffer.error("Expected string", left.position()));
-			}
-			final TypedExpression rightOperand = right.typed(Pattern.class);
-			if (rightOperand == null) {
-				throw new ParserException(buffer.error("Expected regular expression", right.position()));
-			}
-			result = new RegexMatcher(leftOperand, rightOperand);
+		if (comparator == null) {
+			result = left;
 		} else {
-			final TypedExpression leftOperand = left.typed(Comparable.class);
-			if (leftOperand == null) {
-				throw new ParserException(buffer.error("Expected comparable expression", left.position()));
+			final Expression right = parseExpression();
+			if (comparator == Binary.Operator.MATCH) {
+				final TypedExpression leftOperand = left.typed(String.class);
+				if (leftOperand == null) {
+					throw new ParserException(buffer.error("Expected string", left.position()));
+				}
+				final TypedExpression rightOperand = right.typed(Pattern.class);
+				if (rightOperand == null) {
+					throw new ParserException(buffer.error("Expected regular expression", right.position()));
+				}
+				result = parseComparatorRight(new RegexMatcher(leftOperand, rightOperand));
+			} else {
+				final TypedExpression leftOperand = left.typed(Comparable.class);
+				if (leftOperand == null) {
+					throw new ParserException(buffer.error("Expected comparable expression", left.position()));
+				}
+				final TypedExpression rightOperand = right.typed(Comparable.class);
+				if (rightOperand == null) {
+					throw new ParserException(buffer.error("Expected comparable expression", right.position()));
+				}
+				result = parseComparatorRight(new TypedBinary(leftOperand, comparator, rightOperand, Boolean.class));
 			}
-			final TypedExpression rightOperand = right.typed(Comparable.class);
-			if (rightOperand == null) {
-				throw new ParserException(buffer.error("Expected comparable expression", right.position()));
-			}
-			result = new TypedBinary(leftOperand, comparator, rightOperand, Boolean.class);
 		}
-		return parseComparatorRight(result);
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private Binary.Operator readComparator() {
@@ -418,111 +498,145 @@ public class Parser {
 	}
 
 	private Expression parseAdditionLeft() {
-		return parseMultiplicationRight(parseMultiplicationLeft());
+		logger.debug("<-- {}", buffer.position());
+		final Expression result = parseMultiplicationRight(parseMultiplicationLeft());
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private Expression parseAdditionRight(final Expression left) {
+		logger.debug("<-- {}", buffer.position());
 		skipBlanks();
+		final Expression result;
 		if (buffer.off()) {
-			return left;
-		}
-		switch (buffer.current()) {
-		case '+': {
-			buffer.next();
-			final TypedExpression leftOperand = left.typed(Comparable.class);
-			if (leftOperand == null) {
-				throw new ParserException(buffer.error("Expected comparable expression", left.position()));
+			result = left;
+		} else {
+			switch (buffer.current()) {
+			case '+': {
+				buffer.next();
+				final TypedExpression leftOperand = left.typed(Comparable.class);
+				if (leftOperand == null) {
+					throw new ParserException(buffer.error("Expected comparable expression", left.position()));
+				}
+				final Expression right = parseExpression();
+				final TypedExpression rightOperand = right.typed(Comparable.class);
+				if (rightOperand == null) {
+					throw new ParserException(buffer.error("Expected comparable expression", right.position()));
+				}
+				@SuppressWarnings("unchecked")
+				final Class<? extends Comparable<?>> resultType = (Class<? extends Comparable<?>>) Comparable.class;
+				result = parseAdditionRight(
+						new TypedBinary(leftOperand, Binary.Operator.ADD, rightOperand, resultType));
+				break;
 			}
-			final Expression right = parseExpression();
-			final TypedExpression rightOperand = right.typed(Comparable.class);
-			if (rightOperand == null) {
-				throw new ParserException(buffer.error("Expected comparable expression", right.position()));
+			case '-': {
+				buffer.next();
+				final TypedExpression leftOperand = left.typed(BigInteger.class);
+				if (leftOperand == null) {
+					throw new ParserException(buffer.error("Expected numeric expression", left.position()));
+				}
+				final Expression right = parseExpression();
+				final TypedExpression rightOperand = right.typed(BigInteger.class);
+				if (rightOperand == null) {
+					throw new ParserException(buffer.error("Expected numeric expression", right.position()));
+				}
+				result = parseAdditionRight(
+						new TypedBinary(leftOperand, Binary.Operator.SUBTRACT, rightOperand, BigInteger.class));
+				break;
 			}
-			@SuppressWarnings("unchecked")
-			final Class<? extends Comparable<?>> resultType = (Class<? extends Comparable<?>>) Comparable.class;
-			return parseAdditionRight(new TypedBinary(leftOperand, Binary.Operator.ADD, rightOperand, resultType));
+			default:
+				result = left;
+			}
 		}
-		case '-': {
-			buffer.next();
+		logger.debug("--> {}", result);
+		return result;
+	}
+
+	private Expression parseMultiplicationLeft() {
+		logger.debug("<-- {}", buffer.position());
+		final Expression result = parsePowerRight(parsePowerLeft());
+		logger.debug("--> {}", result);
+		return result;
+	}
+
+	private Expression parseMultiplicationRight(final Expression left) {
+		logger.debug("<-- {}", buffer.position());
+		skipBlanks();
+		final Expression result;
+		if (buffer.off()) {
+			result = left;
+		} else {
+			final Binary.Operator operator;
+			switch (buffer.current()) {
+			case '*':
+				operator = Binary.Operator.MULTIPLY;
+				break;
+			case '/':
+				operator = Binary.Operator.DIVIDE;
+				break;
+			case '\\':
+				operator = Binary.Operator.REMAINDER;
+				break;
+			default:
+				operator = null;
+			}
+			if (operator == null) {
+				result = left;
+			} else {
+				buffer.next();
+				final TypedExpression leftOperand = left.typed(BigInteger.class);
+				if (leftOperand == null) {
+					throw new ParserException(buffer.error("Expected comparable expression", left.position()));
+				}
+				final Expression right = parseExpression();
+				final TypedExpression rightOperand = right.typed(BigInteger.class);
+				if (rightOperand == null) {
+					throw new ParserException(buffer.error("Expected comparable expression", right.position()));
+				}
+				result = parseMultiplicationRight(
+						new TypedBinary(leftOperand, operator, rightOperand, BigInteger.class));
+			}
+		}
+		logger.debug("--> {}", result);
+		return result;
+	}
+
+	private Expression parsePowerLeft() {
+		logger.debug("<-- {}", buffer.position());
+		final Expression result = parseUnary();
+		logger.debug("--> {}", result);
+		return result;
+	}
+
+	private Expression parsePowerRight(final Expression left) {
+		logger.debug("<-- {}", buffer.position());
+		skipBlanks();
+		final Expression result;
+		if (buffer.off() || buffer.current() != '^') {
+			result = left;
+		} else {
 			final TypedExpression leftOperand = left.typed(BigInteger.class);
 			if (leftOperand == null) {
 				throw new ParserException(buffer.error("Expected numeric expression", left.position()));
 			}
-			final Expression right = parseExpression();
+			final Expression right = parsePowerRight(parsePowerLeft());
 			final TypedExpression rightOperand = right.typed(BigInteger.class);
 			if (rightOperand == null) {
-				throw new ParserException(buffer.error("Expected numeric expression", right.position()));
+				throw new ParserException(buffer.error("Expected comparable expression", right.position()));
 			}
-			return parseAdditionRight(
-					new TypedBinary(leftOperand, Binary.Operator.SUBTRACT, rightOperand, BigInteger.class));
+			result = new TypedBinary(leftOperand, Binary.Operator.POWER, rightOperand, BigInteger.class);
 		}
-		default:
-			return left;
-		}
-	}
-
-	private Expression parseMultiplicationLeft() {
-		return parsePowerRight(parsePowerLeft());
-	}
-
-	private Expression parseMultiplicationRight(final Expression left) {
-		skipBlanks();
-		if (buffer.off()) {
-			return left;
-		}
-		final Binary.Operator operator;
-		switch (buffer.current()) {
-		case '*':
-			operator = Binary.Operator.MULTIPLY;
-			break;
-		case '/':
-			operator = Binary.Operator.DIVIDE;
-			break;
-		case '\\':
-			operator = Binary.Operator.REMAINDER;
-			break;
-		default:
-			return left;
-		}
-		buffer.next();
-		final TypedExpression leftOperand = left.typed(BigInteger.class);
-		if (leftOperand == null) {
-			throw new ParserException(buffer.error("Expected comparable expression", left.position()));
-		}
-		final Expression right = parseExpression();
-		final TypedExpression rightOperand = right.typed(BigInteger.class);
-		if (rightOperand == null) {
-			throw new ParserException(buffer.error("Expected comparable expression", right.position()));
-		}
-		return parseMultiplicationRight(new TypedBinary(leftOperand, operator, rightOperand, BigInteger.class));
-	}
-
-	private Expression parsePowerLeft() {
-		return parseUnary();
-	}
-
-	private Expression parsePowerRight(final Expression left) {
-		skipBlanks();
-		if (buffer.off() || buffer.current() != '^') {
-			return left;
-		}
-		final TypedExpression leftOperand = left.typed(BigInteger.class);
-		if (leftOperand == null) {
-			throw new ParserException(buffer.error("Expected numeric expression", left.position()));
-		}
-		final Expression right = parsePowerRight(parsePowerLeft());
-		final TypedExpression rightOperand = right.typed(BigInteger.class);
-		if (rightOperand == null) {
-			throw new ParserException(buffer.error("Expected comparable expression", right.position()));
-		}
-		return new TypedBinary(leftOperand, Binary.Operator.POWER, rightOperand, BigInteger.class);
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private Expression parseUnary() {
+		logger.debug("<-- {}", buffer.position());
 		skipBlanks();
 		if (buffer.off()) {
 			throw new ParserException(buffer.error("Expected expression"));
 		}
+		final Expression result;
 		final int position = buffer.position();
 		if (readKeyword("not")) {
 			final Expression operand = parseUnary();
@@ -530,7 +644,7 @@ public class Parser {
 			if (typedOperand == null) {
 				throw new ParserException(buffer.error("Expected boolean expression", operand.position()));
 			}
-			return new TypedUnary(position, Unary.Operator.NOT, typedOperand, Boolean.class);
+			result = new TypedUnary(position, Unary.Operator.NOT, typedOperand, Boolean.class);
 		} else {
 			switch (buffer.current()) {
 			case '+': {
@@ -540,7 +654,8 @@ public class Parser {
 				if (typedOperand == null) {
 					throw new ParserException(buffer.error("Expected comparable expression", operand.position()));
 				}
-				return operand;
+				result = operand;
+				break;
 			}
 			case '-':
 				buffer.next(); {
@@ -549,22 +664,27 @@ public class Parser {
 				if (typedOperand == null) {
 					throw new ParserException(buffer.error("Expected comparable expression", operand.position()));
 				}
-				return new TypedUnary(position, Unary.Operator.MINUS, typedOperand, BigInteger.class);
+				result = new TypedUnary(position, Unary.Operator.MINUS, typedOperand, BigInteger.class);
+				break;
 			}
+			default:
+				result = parseAtomicExpression();
 			}
 		}
-		return parseAtomicExpression();
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private Expression parseAtomicExpression() {
-		final Expression result;
+		logger.debug("<-- {}", buffer.position());
+		final Expression atom;
 		if (buffer.off()) {
 			throw new ParserException(buffer.error("Expected expression"));
 		}
 		final int position = buffer.position();
 		if (buffer.current() == '(') {
 			buffer.next();
-			result = parseExpression();
+			atom = parseExpression();
 			skipBlanks();
 			if (buffer.off() || buffer.current() != ')') {
 				throw new ParserException(buffer.error("Unfinished expresssion"));
@@ -573,37 +693,40 @@ public class Parser {
 		} else {
 			switch (buffer.current()) {
 			case '"':
-				result = parseString();
+				atom = parseString();
 				break;
 			case '/':
-				result = parseRegex();
+				atom = parseRegex();
 				break;
 			case '[':
-				result = parseArray();
+				atom = parseArray();
 				break;
 			case '{':
-				result = parseDictionary();
+				atom = parseDictionary();
 				break;
 			default:
 				if (Character.isDigit(buffer.current())) {
-					result = parseNumber();
+					atom = parseNumber();
 				} else if (readKeyword("result")) {
-					result = new Result(position);
+					atom = new Result(position);
 				} else {
 					final String name = readIdentifier();
 					skipBlanks();
 					if (buffer.off() || buffer.current() != '(') {
-						result = new Identifier(position, name);
+						atom = new Identifier(position, name);
 					} else {
-						result = parseFunctionCall(position, name);
+						atom = parseFunctionCall(position, name);
 					}
 				}
 			}
 		}
-		return parseIndexed(result);
+		Expression result = parseIndexed(atom);
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private Expression parseIndexed(Expression expression) {
+		logger.debug("<-- {}", buffer.position());
 		skipBlanks();
 		while (!buffer.off() && buffer.current() == '[') {
 			buffer.next();
@@ -619,10 +742,12 @@ public class Parser {
 			}
 			expression = new IndexedExpression(expression, typedIndex);
 		}
+		logger.debug("--> {}", expression);
 		return expression;
 	}
 
 	private TypedExpression parseString() {
+		logger.debug("<-- {}", buffer.position());
 		assert buffer.current() == '"';
 		final int position = buffer.position();
 		buffer.next();
@@ -662,10 +787,13 @@ public class Parser {
 			}
 			buffer.next();
 		} while (state >= 0);
-		return new ManifestString(position, b.toString());
+		ManifestString result = new ManifestString(position, b.toString());
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private TypedExpression parseRegex() {
+		logger.debug("<-- {}", buffer.position());
 		assert buffer.current() == '/';
 		final int position = buffer.position();
 		buffer.next();
@@ -705,67 +833,90 @@ public class Parser {
 			}
 			buffer.next();
 		} while (state >= 0);
-		return new ManifestRegex(position, Pattern.compile(b.toString()));
+		ManifestRegex result = new ManifestRegex(position, Pattern.compile(b.toString()));
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private ManifestArray parseArray() {
+		logger.debug("<-- {}", buffer.position());
 		assert buffer.current() == '[';
 		final ManifestArray result = new ManifestArray(buffer.position());
 		buffer.next();
-		boolean more = true;
-		do {
-			final Expression exp = parseExpression();
-			result.add(exp);
-			skipBlanks();
-			switch (buffer.current()) {
-			case ',':
-				buffer.next();
-				break;
-			case ']':
-				buffer.next();
-				more = false;
-				break;
-			default:
-				throw new ParserException(buffer.error("Unexpected character"));
-			}
-		} while (more);
+		skipBlanks();
+		if (buffer.off()) {
+			throw new ParserException(buffer.error("Invalid array"));
+		}
+		if (buffer.current() == ']') {
+			buffer.next();
+		} else {
+			boolean more = true;
+			do {
+				final Expression exp = parseExpression();
+				result.add(exp);
+				skipBlanks();
+				switch (buffer.current()) {
+				case ',':
+					buffer.next();
+					break;
+				case ']':
+					buffer.next();
+					more = false;
+					break;
+				default:
+					throw new ParserException(buffer.error("Unexpected character"));
+				}
+			} while (more);
+		}
+		logger.debug("--> {}", result);
 		return result;
 	}
 
 	private ManifestDictionary parseDictionary() {
+		logger.debug("<-- {}", buffer.position());
 		assert buffer.current() == '{';
 		final ManifestDictionary result = new ManifestDictionary(buffer.position());
 		buffer.next();
-		boolean more = true;
-		do {
-			final Expression key = parseExpression();
-			skipBlanks();
-			if (buffer.off() || buffer.current() != ':') {
-				throw new ParserException(buffer.error("Invalid dictionary", buffer.position()));
-			}
-			final TypedExpression typedKey = key.typed(Comparable.class);
-			if (typedKey == null) {
-				throw new ParserException(buffer.error("Invalid dictionary key", key.position()));
-			}
-			final Expression exp = parseExpression();
-			result.put(typedKey, exp);
-			skipBlanks();
-			switch (buffer.current()) {
-			case ',':
-				buffer.next();
-				break;
-			case '}':
-				buffer.next();
-				more = false;
-				break;
-			default:
-				throw new ParserException(buffer.error("Unexpected character"));
-			}
-		} while (more);
+		skipBlanks();
+		if (buffer.off()) {
+			throw new ParserException(buffer.error("Invalid array"));
+		}
+		if (buffer.current() == '}') {
+			buffer.next();
+		} else {
+			boolean more = true;
+			do {
+				final Expression key = parseExpression();
+				skipBlanks();
+				if (buffer.off() || buffer.current() != ':') {
+					throw new ParserException(buffer.error("Invalid dictionary", buffer.position()));
+				}
+				final TypedExpression typedKey = key.typed(Comparable.class);
+				if (typedKey == null) {
+					throw new ParserException(buffer.error("Invalid dictionary key", key.position()));
+				}
+				final Expression exp = parseExpression();
+				result.put(typedKey, exp);
+				skipBlanks();
+				switch (buffer.current()) {
+				case ',':
+					buffer.next();
+					break;
+				case '}':
+					buffer.next();
+					more = false;
+					break;
+				default:
+					throw new ParserException(buffer.error("Unexpected character"));
+				}
+			} while (more);
+		}
+		logger.debug("--> {}", result);
 		return result;
 	}
 
 	private TypedExpression parseNumber() {
+		logger.debug("<-- {}", buffer.position());
 		assert Character.isDigit(buffer.current());
 		final int position = buffer.position();
 		final StringBuilder b = new StringBuilder();
@@ -774,10 +925,13 @@ public class Parser {
 			buffer.next();
 		}
 		final BigInteger value = new BigInteger(b.toString());
-		return new ManifestNumeric(position, value);
+		ManifestNumeric result = new ManifestNumeric(position, value);
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private FunctionCall parseFunctionCall(final int position, final String name) {
+		logger.debug("<-- {}", buffer.position());
 		final FunctionCall result = new FunctionCall(position, name);
 		assert buffer.current() == '(';
 		buffer.next();
@@ -802,11 +956,14 @@ public class Parser {
 		if (buffer.current() == ';') {
 			buffer.next();
 		}
+		logger.debug("--> {}", result);
 		return result;
 	}
 
 	private Filter parseFilter() {
+		logger.debug("<-- {}", buffer.position());
 		skipBlanks();
+		final Filter result;
 		final int position = buffer.position();
 		final BoundFilter.Bound bound;
 		if (readKeyword("BEGIN")) {
@@ -834,7 +991,7 @@ public class Parser {
 				throw new ParserException(buffer.error("Expected block"));
 			}
 			final Block instr = parseBlock();
-			return new BoundFilter(position, bound, instr);
+			result = new BoundFilter(position, bound, instr);
 		} else {
 			buffer.rewind(position);
 			final Expression expr = parseExpression();
@@ -847,11 +1004,14 @@ public class Parser {
 				throw new ParserException(buffer.error("Expected block"));
 			}
 			final Block instr = parseBlock();
-			return new ConditionFilter(condition, instr);
+			result = new ConditionFilter(condition, instr);
 		}
+		logger.debug("--> {}", result);
+		return result;
 	}
 
 	private String readIdentifier() {
+		logger.debug("<-- {}", buffer.position());
 		skipBlanks();
 		if (buffer.off()) {
 			return null;
@@ -862,12 +1022,15 @@ public class Parser {
 			buffer.rewind(position);
 			return null;
 		}
+		logger.debug("--> {}", result);
 		return result;
 	}
 
 	private String readRawIdentifier() {
+		logger.debug("<-- {}", buffer.position());
 		final char first = buffer.current();
 		if (!Character.isJavaIdentifierStart(first)) {
+			logger.debug("--> null");
 			return null;
 		}
 		buffer.next();
@@ -886,6 +1049,7 @@ public class Parser {
 				}
 			}
 		} while (more);
+		logger.debug("--> {}", result);
 		return result.toString();
 	}
 
@@ -913,19 +1077,23 @@ public class Parser {
 	}
 
 	private boolean readKeyword(final String keyword) {
+		logger.debug("<-- {} at {}", keyword, buffer.position());
 		skipBlanks();
 		final int position = buffer.position();
 		for (final char kw : keyword.toCharArray()) {
 			if (buffer.off() || buffer.current() != kw) {
 				buffer.rewind(position);
+				logger.debug("--> false");
 				return false;
 			}
 			buffer.next();
 		}
+		logger.debug("--> true");
 		return true;
 	}
 
 	private void skipBlanks() {
+		logger.debug("<-- {}", buffer.error("skip"));
 		int state = 0;
 		while (!buffer.off()) {
 			switch (state) {
@@ -942,6 +1110,7 @@ public class Parser {
 					buffer.next();
 					break;
 				default:
+					logger.debug("--> {}", buffer.error("skip"));
 					return;
 				}
 				break;

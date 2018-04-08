@@ -1,6 +1,8 @@
 package net.cadrian.macchiato.recipe.interpreter;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
@@ -27,7 +29,11 @@ public class Interpreter {
 	}
 
 	public void run() throws InvalidMidiDataException, IOException {
-		final Sequence sequenceIn = MidiSystem.getSequence(System.in);
+		run(System.in, System.out);
+	}
+
+	public void run(InputStream in, OutputStream out) throws InvalidMidiDataException, IOException {
+		final Sequence sequenceIn = MidiSystem.getSequence(in);
 		final Sequence sequenceOut = new Sequence(sequenceIn.getDivisionType(), sequenceIn.getResolution(),
 				sequenceIn.getTracks().length);
 		final GlobalContext context = new GlobalContext(this);
@@ -68,7 +74,7 @@ public class Interpreter {
 		}
 		filter(Bound.END_SEQUENCE, context);
 		// TODO: determine file type from input
-		MidiSystem.write(sequenceOut, 0, System.out);
+		MidiSystem.write(sequenceOut, 0, out);
 	}
 
 	private void filter(final Bound bound, final GlobalContext context) {

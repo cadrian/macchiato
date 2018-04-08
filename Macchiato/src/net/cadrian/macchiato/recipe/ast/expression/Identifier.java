@@ -13,6 +13,9 @@ public class Identifier implements Expression {
 	private final int position;
 
 	public Identifier(final int position, final String name) {
+		if (name == null) {
+			throw new NullPointerException("null identifier");
+		}
 		this.name = name;
 		this.position = position;
 	}
@@ -34,6 +37,11 @@ public class Identifier implements Expression {
 	@Override
 	public void accept(final Node.Visitor v) {
 		((Visitor) v).visit(this);
+	}
+
+	@Override
+	public String toString() {
+		return "{Identifier:" + name + "}";
 	}
 
 }

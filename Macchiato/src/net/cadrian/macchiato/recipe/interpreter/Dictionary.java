@@ -3,7 +3,7 @@ package net.cadrian.macchiato.recipe.interpreter;
 import java.util.HashMap;
 import java.util.Map;
 
-class Dictionary {
+public class Dictionary {
 
 	private final Map<String, Object> array = new HashMap<>();
 

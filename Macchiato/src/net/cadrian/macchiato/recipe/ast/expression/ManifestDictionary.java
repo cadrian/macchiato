@@ -3,10 +3,10 @@ package net.cadrian.macchiato.recipe.ast.expression;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import net.cadrian.macchiato.recipe.ast.Expression;
 import net.cadrian.macchiato.recipe.ast.Node;
+import net.cadrian.macchiato.recipe.interpreter.Dictionary;
 
 public class ManifestDictionary implements TypedExpression {
 
@@ -49,7 +49,7 @@ public class ManifestDictionary implements TypedExpression {
 
 	@Override
 	public Class<?> getType() {
-		return Map.class;
+		return Dictionary.class;
 	}
 
 	@Override
