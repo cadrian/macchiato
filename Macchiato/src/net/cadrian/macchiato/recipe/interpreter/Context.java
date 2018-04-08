@@ -28,11 +28,13 @@ abstract class Context {
 	Object eval(final TypedExpression expression) {
 		final ExpressionEvaluationVisitor v = new ExpressionEvaluationVisitor(this, expression.getType());
 		expression.accept(v);
-		return v.getResult();
+		return v.getLastExpression();
 	}
 
 	abstract <T> T get(String key);
 
 	abstract <T> T set(String key, T value);
+
+	abstract <T> T setGlobal(String key, T value);
 
 }

@@ -83,10 +83,10 @@ public class Interpreter {
 		context.setNext(false);
 		final ConditionFilterVisitor visitor = new ConditionFilterVisitor(context);
 		for (final Filter filter : recipe.getFilters()) {
+			filter.accept(visitor);
 			if (context.isNext()) {
 				return;
 			}
-			filter.accept(visitor);
 		}
 		context.emit();
 	}

@@ -24,6 +24,7 @@ import net.cadrian.macchiato.recipe.ast.expression.ManifestDictionary;
 import net.cadrian.macchiato.recipe.ast.expression.ManifestNumeric;
 import net.cadrian.macchiato.recipe.ast.expression.ManifestRegex;
 import net.cadrian.macchiato.recipe.ast.expression.ManifestString;
+import net.cadrian.macchiato.recipe.ast.expression.Result;
 import net.cadrian.macchiato.recipe.ast.expression.TypedBinary;
 import net.cadrian.macchiato.recipe.ast.expression.TypedExpression;
 import net.cadrian.macchiato.recipe.ast.expression.TypedUnary;
@@ -586,6 +587,8 @@ public class Parser {
 			default:
 				if (Character.isDigit(buffer.current())) {
 					result = parseNumber();
+				} else if (readKeyword("result")) {
+					result = new Result(position);
 				} else {
 					final String name = readIdentifier();
 					skipBlanks();
@@ -888,20 +891,21 @@ public class Parser {
 
 	private boolean isReserved(final String identifier) {
 		switch (identifier) {
-		case "def":
-		case "if":
-		case "else":
-		case "switch":
-		case "case":
-		case "default":
-		case "while":
-		case "do":
 		case "and":
-		case "or":
-		case "not":
-		case "xor":
+		case "case":
+		case "def":
+		case "default":
+		case "do":
+		case "else":
 		case "emit":
+		case "if":
 		case "next":
+		case "not":
+		case "or":
+		case "result":
+		case "switch":
+		case "while":
+		case "xor":
 			return true;
 		default:
 			return false;

@@ -46,7 +46,7 @@ class LocalContext extends Context {
 	<T> T get(final String key) {
 		@SuppressWarnings("unchecked")
 		T result = (T) local.get(key);
-		if (result == null && !key.equals("result")) {
+		if (result == null) {
 			result = parent.get(key);
 		}
 		return result;
@@ -56,10 +56,15 @@ class LocalContext extends Context {
 	<T> T set(final String key, final T value) {
 		@SuppressWarnings("unchecked")
 		T result = (T) local.put(key, value);
-		if (result == null && !key.equals("result")) {
+		if (result == null) {
 			result = parent.get(key);
 		}
 		return result;
+	}
+
+	@Override
+	<T> T setGlobal(String key, T value) {
+		return parent.setGlobal(key, value);
 	}
 
 }

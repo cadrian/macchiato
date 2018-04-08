@@ -13,6 +13,7 @@ import net.cadrian.macchiato.recipe.ast.expression.ManifestDictionary;
 import net.cadrian.macchiato.recipe.ast.expression.ManifestNumeric;
 import net.cadrian.macchiato.recipe.ast.expression.ManifestRegex;
 import net.cadrian.macchiato.recipe.ast.expression.ManifestString;
+import net.cadrian.macchiato.recipe.ast.expression.Result;
 import net.cadrian.macchiato.recipe.ast.expression.TypedBinary;
 import net.cadrian.macchiato.recipe.ast.expression.TypedUnary;
 
@@ -53,7 +54,15 @@ class AssignmentVisitor implements ExpressionVisitor {
 		final String key = identifier.getName();
 		value = context.get(key);
 		setter = (final Object value) -> {
-			context.set(key, value);
+			context.setGlobal(key, value);
+		};
+	}
+
+	@Override
+	public void visit(Result result) {
+		value = context.get("result");
+		setter = (final Object value) -> {
+			context.set("result", value);
 		};
 	}
 
