@@ -5,14 +5,19 @@ import java.util.Map;
 
 public class Dictionary {
 
-	private final Map<String, Object> array = new HashMap<>();
+	private final Map<String, Object> dictionary = new HashMap<>();
 
-	Object set(String index, Object value) {
-		return array.put(index, value);
+	Object set(final String index, final Object value) {
+		return dictionary.put(index, value);
 	}
 
-	Object get(String index) {
-		return array.get(index);
+	Object get(final String index) {
+		return dictionary.get(index);
+	}
+
+	@Override
+	public String toString() {
+		return dictionary.toString();
 	}
 
 }

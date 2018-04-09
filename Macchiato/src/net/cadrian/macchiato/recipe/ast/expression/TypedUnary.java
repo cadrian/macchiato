@@ -47,4 +47,9 @@ public class TypedUnary extends Unary implements TypedExpression {
 		((Visitor) v).visit(this);
 	}
 
+	@Override
+	public String toString() {
+		return "{TypedUnary " + resultType.getSimpleName() + ": " + getOperator() + " " + operand + "}#";
+	}
+
 }

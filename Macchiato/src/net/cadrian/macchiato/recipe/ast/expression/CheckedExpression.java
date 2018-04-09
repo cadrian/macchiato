@@ -41,4 +41,9 @@ public class CheckedExpression implements TypedExpression {
 		((Visitor) v).visit(this);
 	}
 
+	@Override
+	public String toString() {
+		return "{CheckedExpression " + type.getSimpleName() + ": " + toCheck + "}";
+	}
+
 }

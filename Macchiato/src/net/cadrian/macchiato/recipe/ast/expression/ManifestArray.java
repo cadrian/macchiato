@@ -52,4 +52,9 @@ public class ManifestArray implements TypedExpression {
 		return Collections.unmodifiableList(expressions);
 	}
 
+	@Override
+	public String toString() {
+		return "{ManifestArray " + expressions + "}";
+	}
+
 }

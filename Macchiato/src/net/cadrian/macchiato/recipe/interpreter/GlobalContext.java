@@ -76,7 +76,7 @@ class GlobalContext extends Context {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	<T> T setGlobal(String key, T value) {
+	<T> T setGlobal(final String key, final T value) {
 		return (T) global.put(key, value);
 	}
 

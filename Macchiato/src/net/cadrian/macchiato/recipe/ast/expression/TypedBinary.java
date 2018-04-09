@@ -51,4 +51,10 @@ public class TypedBinary extends Binary implements TypedExpression {
 		((Visitor) v).visit(this);
 	}
 
+	@Override
+	public String toString() {
+		return "{TypedBinary " + resultType.getSimpleName() + ": " + leftOperand + " " + getOperator() + " "
+				+ rightOperand + "}";
+	}
+
 }

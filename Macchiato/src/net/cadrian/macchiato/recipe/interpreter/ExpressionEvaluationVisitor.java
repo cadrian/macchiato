@@ -3,6 +3,9 @@ package net.cadrian.macchiato.recipe.interpreter;
 import java.math.BigInteger;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.cadrian.macchiato.recipe.ast.Def;
 import net.cadrian.macchiato.recipe.ast.Expression;
 import net.cadrian.macchiato.recipe.ast.FormalArgs;
@@ -22,6 +25,8 @@ import net.cadrian.macchiato.recipe.ast.expression.TypedUnary;
 
 public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionEvaluationVisitor.class);
+
 	private final Context context;
 	private final Class<?> expressionType;
 	private Object lastExpression;
@@ -37,6 +42,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 
 	@Override
 	public void visit(final TypedUnary typedUnary) {
+		LOGGER.debug("<-- {}", typedUnary);
 		typedUnary.getOperand().accept(this);
 		final Object operand = lastExpression;
 		if (operand == null) {
@@ -58,11 +64,13 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		default:
 			throw new InterpreterException("BUG: not implemented");
 		}
+		LOGGER.debug("--> {}", lastExpression);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final TypedBinary typedBinary) {
+		LOGGER.debug("<-- {}", typedBinary);
 		typedBinary.getLeftOperand().accept(this);
 		final Object left = lastExpression;
 		if (left == null) {
@@ -112,8 +120,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (lastExpression.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types");
 			}
-			lastExpression = Boolean
-					.valueOf(((Comparable<Object>) left).compareTo((Comparable<Object>) lastExpression) == 0);
+			lastExpression = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastExpression) == 0);
 			break;
 		case GE:
 			if (!(left instanceof Comparable)) {
@@ -123,8 +130,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (lastExpression.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types");
 			}
-			lastExpression = Boolean
-					.valueOf(((Comparable<Object>) left).compareTo((Comparable<Object>) lastExpression) >= 0);
+			lastExpression = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastExpression) >= 0);
 			break;
 		case GT:
 			if (!(left instanceof Comparable)) {
@@ -134,8 +140,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (lastExpression.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types");
 			}
-			lastExpression = Boolean
-					.valueOf(((Comparable<Object>) left).compareTo((Comparable<Object>) lastExpression) > 0);
+			lastExpression = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastExpression) > 0);
 			break;
 		case LE:
 			if (!(left instanceof Comparable)) {
@@ -145,8 +150,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (lastExpression.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types");
 			}
-			lastExpression = Boolean
-					.valueOf(((Comparable<Object>) left).compareTo((Comparable<Object>) lastExpression) <= 0);
+			lastExpression = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastExpression) <= 0);
 			break;
 		case LT:
 			if (!(left instanceof Comparable)) {
@@ -156,8 +160,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (lastExpression.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types");
 			}
-			lastExpression = Boolean
-					.valueOf(((Comparable<Object>) left).compareTo((Comparable<Object>) lastExpression) < 0);
+			lastExpression = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastExpression) < 0);
 			break;
 		case MATCH:
 			if (!(left instanceof String)) {
@@ -182,8 +185,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (lastExpression.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types");
 			}
-			lastExpression = Boolean
-					.valueOf(((Comparable<Object>) left).compareTo((Comparable<Object>) lastExpression) != 0);
+			lastExpression = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastExpression) != 0);
 			break;
 		case OR:
 			if (!(left instanceof Boolean)) {
@@ -240,25 +242,33 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		default:
 			throw new InterpreterException("BUG: not implemented");
 		}
+		LOGGER.debug("--> {}", lastExpression);
 	}
 
 	@Override
 	public void visit(final ManifestString manifestString) {
+		LOGGER.debug("<-- {}", manifestString);
 		lastExpression = manifestString.getValue();
+		LOGGER.debug("--> {}", lastExpression);
 	}
 
 	@Override
 	public void visit(final ManifestRegex manifestRegex) {
+		LOGGER.debug("<-- {}", manifestRegex);
 		lastExpression = manifestRegex.getValue();
+		LOGGER.debug("--> {}", lastExpression);
 	}
 
 	@Override
 	public void visit(final ManifestNumeric manifestNumeric) {
+		LOGGER.debug("<-- {}", manifestNumeric);
 		lastExpression = manifestNumeric.getValue();
+		LOGGER.debug("--> {}", lastExpression);
 	}
 
 	@Override
 	public void visit(final ManifestDictionary manifestDictionary) {
+		LOGGER.debug("<-- {}", manifestDictionary);
 		final Dictionary dictionary = new Dictionary();
 		for (final ManifestDictionary.Entry entry : manifestDictionary.getExpressions()) {
 			entry.getKey().accept(this);
@@ -267,10 +277,12 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			dictionary.set(key, lastExpression);
 		}
 		lastExpression = dictionary;
+		LOGGER.debug("--> {}", lastExpression);
 	}
 
 	@Override
 	public void visit(final ManifestArray manifestArray) {
+		LOGGER.debug("<-- {}", manifestArray);
 		final Array array = new Array();
 		BigInteger index = BigInteger.ZERO;
 		for (final Expression expression : manifestArray.getExpressions()) {
@@ -279,10 +291,12 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			index = index.add(BigInteger.ONE);
 		}
 		lastExpression = array;
+		LOGGER.debug("--> {}", lastExpression);
 	}
 
 	@Override
 	public void visit(final IndexedExpression indexedExpression) {
+		LOGGER.debug("<-- {}", indexedExpression);
 		indexedExpression.getIndexed().accept(this);
 		final Object target = lastExpression;
 		if (target == null) {
@@ -303,20 +317,26 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		} else {
 			throw new InterpreterException("invalid index type");
 		}
+		LOGGER.debug("--> {}", lastExpression);
 	}
 
 	@Override
 	public void visit(final Identifier identifier) {
+		LOGGER.debug("<-- {}", identifier);
 		lastExpression = context.get(identifier.getName());
+		LOGGER.debug("--> {}", lastExpression);
 	}
 
 	@Override
-	public void visit(Result result) {
+	public void visit(final Result result) {
+		LOGGER.debug("<-- {}", result);
 		this.lastExpression = context.get("result");
+		LOGGER.debug("--> {}", lastExpression);
 	}
 
 	@Override
 	public void visit(final FunctionCall functionCall) {
+		LOGGER.debug("<-- {}", functionCall);
 		final Def def = context.getInterpreter().recipe.getDef(functionCall.getName());
 		final LocalContext callContext = new LocalContext(context);
 		final FormalArgs args = def.getArgs();
@@ -331,15 +351,18 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		}
 		def.getInstruction().accept(new InstructionEvaluationVisitor(callContext));
 		lastExpression = callContext.get("result");
+		LOGGER.debug("--> {}", lastExpression);
 	}
 
 	@Override
 	public void visit(final CheckedExpression e) {
+		LOGGER.debug("<-- {}", e);
 		e.getToCheck().accept(this);
 		if (lastExpression != null && !e.getType().isAssignableFrom(lastExpression.getClass())) {
 			throw new InterpreterException("bad result type: expected " + e.getType().getSimpleName() + " but got "
 					+ lastExpression.getClass().getSimpleName());
 		}
+		LOGGER.debug("--> {}", lastExpression);
 	}
 
 }

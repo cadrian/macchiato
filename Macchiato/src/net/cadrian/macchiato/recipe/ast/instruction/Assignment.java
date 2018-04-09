@@ -36,4 +36,9 @@ public class Assignment implements Instruction {
 		((Visitor) v).visit(this);
 	}
 
+	@Override
+	public String toString() {
+		return "{Assignment " + leftSide + " = " + rightSide + "}";
+	}
+
 }

@@ -38,7 +38,7 @@ class LocalContext extends Context {
 	}
 
 	@Override
-	void emit(AbstractEvent event) {
+	void emit(final AbstractEvent event) {
 		parent.emit(event);
 	}
 
@@ -63,7 +63,7 @@ class LocalContext extends Context {
 	}
 
 	@Override
-	<T> T setGlobal(String key, T value) {
+	<T> T setGlobal(final String key, final T value) {
 		return parent.setGlobal(key, value);
 	}
 

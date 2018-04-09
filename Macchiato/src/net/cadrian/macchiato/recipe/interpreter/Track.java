@@ -20,7 +20,7 @@ class Track {
 		return input;
 	}
 
-	public void add(AbstractEvent event) {
+	public void add(final AbstractEvent event) {
 		output.add(event.asMidi());
 	}
 

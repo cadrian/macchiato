@@ -45,4 +45,9 @@ public class If implements Instruction {
 		((Visitor) v).visit(this);
 	}
 
+	@Override
+	public String toString() {
+		return "{If " + condition + ": " + instruction + " Else " + otherwise + "}";
+	}
+
 }

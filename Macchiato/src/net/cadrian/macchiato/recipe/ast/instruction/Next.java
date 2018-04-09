@@ -25,4 +25,9 @@ public class Next implements Instruction {
 		((Visitor) v).visit(this);
 	}
 
+	@Override
+	public String toString() {
+		return "{Next}";
+	}
+
 }

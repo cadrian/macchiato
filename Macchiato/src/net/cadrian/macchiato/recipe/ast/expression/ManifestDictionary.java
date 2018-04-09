@@ -70,4 +70,9 @@ public class ManifestDictionary implements TypedExpression {
 		return Collections.unmodifiableList(expressions);
 	}
 
+	@Override
+	public String toString() {
+		return "{ManifestDictionary " + expressions + "}";
+	}
+
 }

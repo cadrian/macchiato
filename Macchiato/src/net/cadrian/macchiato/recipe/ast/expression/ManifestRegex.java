@@ -45,4 +45,9 @@ public class ManifestRegex implements TypedExpression {
 		((Visitor) v).visit(this);
 	}
 
+	@Override
+	public String toString() {
+		return "{ManifestRegex /" + value + "/}";
+	}
+
 }

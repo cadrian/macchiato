@@ -8,12 +8,17 @@ public class Array {
 
 	private final Map<BigInteger, Object> array = new TreeMap<>();
 
-	Object set(BigInteger index, Object value) {
+	Object set(final BigInteger index, final Object value) {
 		return array.put(index, value);
 	}
 
-	Object get(BigInteger index) {
+	Object get(final BigInteger index) {
 		return array.get(index);
+	}
+
+	@Override
+	public String toString() {
+		return array.toString();
 	}
 
 }

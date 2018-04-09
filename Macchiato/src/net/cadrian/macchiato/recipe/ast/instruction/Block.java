@@ -38,4 +38,9 @@ public class Block implements Instruction {
 		return Collections.unmodifiableList(instructions);
 	}
 
+	@Override
+	public String toString() {
+		return "{Block " + instructions + "}";
+	}
+
 }

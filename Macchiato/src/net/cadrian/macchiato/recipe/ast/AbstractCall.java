@@ -31,4 +31,9 @@ public abstract class AbstractCall {
 		return Collections.unmodifiableList(arguments);
 	}
 
+	@Override
+	public String toString() {
+		return "{" + getClass().getSimpleName() + " " + name + arguments + "}";
+	}
+
 }

@@ -30,4 +30,9 @@ public class Result implements Expression {
 		((Visitor) v).visit(this);
 	}
 
+	@Override
+	public String toString() {
+		return "{Result}";
+	}
+
 }

@@ -13,7 +13,7 @@ import net.cadrian.macchiato.recipe.parser.Parser;
 
 public class Run {
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		if (args.length < 1) {
 			System.err.println("Usage: " + Run.class.getSimpleName() + " <mac file> (<midi file>)");
 			System.exit(1);

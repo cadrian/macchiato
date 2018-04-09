@@ -43,4 +43,8 @@ public class ManifestString implements TypedExpression {
 		((Visitor) v).visit(this);
 	}
 
+	@Override
+	public String toString() {
+		return "{ManifestString \"" + value + "\"}";
+	}
 }

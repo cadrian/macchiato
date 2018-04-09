@@ -45,4 +45,9 @@ public class While implements Instruction {
 		((Visitor) v).visit(this);
 	}
 
+	@Override
+	public String toString() {
+		return "{While " + condition + ": " + instruction + " Else " + otherwise + "}";
+	}
+
 }

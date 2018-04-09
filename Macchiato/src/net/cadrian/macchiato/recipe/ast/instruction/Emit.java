@@ -34,4 +34,9 @@ public class Emit implements Instruction {
 		((Visitor) v).visitEmit(this);
 	}
 
+	@Override
+	public String toString() {
+		return expression == null ? "{Emit}" : ("{Emit " + expression + "}");
+	}
+
 }

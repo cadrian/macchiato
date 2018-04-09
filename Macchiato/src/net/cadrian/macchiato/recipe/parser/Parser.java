@@ -43,7 +43,7 @@ import net.cadrian.macchiato.recipe.interpreter.AbstractEvent;
 
 public class Parser {
 
-	private static final Logger logger = LoggerFactory.getLogger(Parser.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(Parser.class);
 
 	private final ParserBuffer buffer;
 
@@ -52,7 +52,7 @@ public class Parser {
 	}
 
 	public Recipe parse() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final Recipe result = new Recipe();
 		try {
 			while (!buffer.off()) {
@@ -69,15 +69,15 @@ public class Parser {
 				}
 				skipBlanks();
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new ParserException(buffer.error(e.getMessage()), e);
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Def parseDef() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		skipBlanks();
 		final int position = buffer.position();
 		final String name = readIdentifier();
@@ -87,12 +87,12 @@ public class Parser {
 		final FormalArgs args = parseFormalArgs();
 		final Instruction inst = parseInstruction();
 		final Def result = new Def(position, name, args, inst);
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private FormalArgs parseFormalArgs() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		skipBlanks();
 		if (buffer.current() != '(') {
 			throw new ParserException(buffer.error("Expected formal arguments"));
@@ -125,19 +125,19 @@ public class Parser {
 				}
 			} while (more);
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Instruction parseInstruction() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		skipBlanks();
 		if (buffer.off()) {
 			throw new ParserException(buffer.error("Expected instruction"));
 		}
 		if (buffer.current() == '{') {
 			final Block result = parseBlock();
-			logger.debug("--> {}", result);
+			LOGGER.debug("--> {}", result);
 			return result;
 		}
 		final int position = buffer.position();
@@ -150,7 +150,7 @@ public class Parser {
 			switch (name) {
 			case "if": {
 				final If result = parseIf(position);
-				logger.debug("--> {}", result);
+				LOGGER.debug("--> {}", result);
 				return result;
 			}
 			case "switch":
@@ -161,17 +161,17 @@ public class Parser {
 				throw new ParserException(buffer.error("not yet implemented"));
 			case "while": {
 				final While result = parseWhile(position);
-				logger.debug("--> {}", result);
+				LOGGER.debug("--> {}", result);
 				return result;
 			}
 			case "emit": {
 				final Emit result = parseEmit(position);
-				logger.debug("--> {}", result);
+				LOGGER.debug("--> {}", result);
 				return result;
 			}
 			case "next": {
 				final Next result = parseNext(position);
-				logger.debug("--> {}", result);
+				LOGGER.debug("--> {}", result);
 				return result;
 			}
 			default:
@@ -193,7 +193,7 @@ public class Parser {
 					buffer.next();
 				}
 				final Assignment result = new Assignment(indexed, exp);
-				logger.debug("--> {}", result);
+				LOGGER.debug("--> {}", result);
 				return result;
 			}
 			case '=': {
@@ -204,12 +204,12 @@ public class Parser {
 					buffer.next();
 				}
 				final Assignment result = new Assignment(new Identifier(position, name), exp);
-				logger.debug("--> {}", result);
+				LOGGER.debug("--> {}", result);
 				return result;
 			}
 			case '(': {
 				final ProcedureCall result = parseProcedureCall(position, name);
-				logger.debug("--> {}", result);
+				LOGGER.debug("--> {}", result);
 				return result;
 			}
 			default:
@@ -219,18 +219,18 @@ public class Parser {
 	}
 
 	private Next parseNext(final int position) {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		skipBlanks();
 		if (!buffer.off() && buffer.current() == ';') {
 			buffer.next();
 		}
 		final Next result = new Next(position);
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Emit parseEmit(final int position) {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final Emit result;
 		skipBlanks();
 		if (buffer.off() || buffer.current() == ';') {
@@ -244,12 +244,12 @@ public class Parser {
 		if (!buffer.off() && buffer.current() == ';') {
 			buffer.next();
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private ProcedureCall parseProcedureCall(final int position, final String name) {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final ProcedureCall result = new ProcedureCall(position, name);
 		assert buffer.current() == '(';
 		buffer.next();
@@ -274,12 +274,12 @@ public class Parser {
 		if (buffer.current() == ';') {
 			buffer.next();
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private If parseIf(final int position) {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final Expression cond = parseExpression();
 		skipBlanks();
 		if (buffer.off() || buffer.current() != '{') {
@@ -294,12 +294,12 @@ public class Parser {
 			other = null;
 		}
 		final If result = new If(position, cond, inst, other);
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private While parseWhile(final int position) {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final Expression cond = parseExpression();
 		skipBlanks();
 		if (buffer.off() || buffer.current() != '{') {
@@ -314,12 +314,12 @@ public class Parser {
 			other = null;
 		}
 		final While result = new While(position, cond, inst, other);
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Block parseBlock() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		assert buffer.current() == '{';
 		final int position = buffer.position();
 		final Block result = new Block(position);
@@ -338,26 +338,26 @@ public class Parser {
 				result.add(instruction);
 			}
 		} while (more);
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parseExpression() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final Expression result = parseOrRight(parseOrLeft());
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parseOrLeft() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final Expression result = parseAndRight(parseAndLeft());
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parseOrRight(final Expression left) {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final Expression result;
 		if (!readKeyword("or")) {
 			result = left;
@@ -373,19 +373,19 @@ public class Parser {
 			}
 			result = parseOrRight(new TypedBinary(leftOperand, Binary.Operator.OR, rightOperand, Boolean.class));
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parseAndLeft() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final Expression result = parseComparatorRight(parseComparatorLeft());
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parseAndRight(final Expression left) {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final Expression result;
 		if (!readKeyword("and")) {
 			result = left;
@@ -401,19 +401,19 @@ public class Parser {
 			}
 			result = parseAndRight(new TypedBinary(leftOperand, Binary.Operator.AND, rightOperand, Boolean.class));
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parseComparatorLeft() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final Expression result = parseAdditionRight(parseAdditionLeft());
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parseComparatorRight(final Expression left) {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final Binary.Operator comparator = readComparator();
 		final Expression result;
 		if (comparator == null) {
@@ -442,7 +442,7 @@ public class Parser {
 				result = parseComparatorRight(new TypedBinary(leftOperand, comparator, rightOperand, Boolean.class));
 			}
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
@@ -498,14 +498,14 @@ public class Parser {
 	}
 
 	private Expression parseAdditionLeft() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final Expression result = parseMultiplicationRight(parseMultiplicationLeft());
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parseAdditionRight(final Expression left) {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		skipBlanks();
 		final Expression result;
 		if (buffer.off()) {
@@ -548,19 +548,19 @@ public class Parser {
 				result = left;
 			}
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parseMultiplicationLeft() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final Expression result = parsePowerRight(parsePowerLeft());
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parseMultiplicationRight(final Expression left) {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		skipBlanks();
 		final Expression result;
 		if (buffer.off()) {
@@ -597,19 +597,19 @@ public class Parser {
 						new TypedBinary(leftOperand, operator, rightOperand, BigInteger.class));
 			}
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parsePowerLeft() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final Expression result = parseUnary();
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parsePowerRight(final Expression left) {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		skipBlanks();
 		final Expression result;
 		if (buffer.off() || buffer.current() != '^') {
@@ -626,12 +626,12 @@ public class Parser {
 			}
 			result = new TypedBinary(leftOperand, Binary.Operator.POWER, rightOperand, BigInteger.class);
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parseUnary() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		skipBlanks();
 		if (buffer.off()) {
 			throw new ParserException(buffer.error("Expected expression"));
@@ -671,12 +671,12 @@ public class Parser {
 				result = parseAtomicExpression();
 			}
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parseAtomicExpression() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final Expression atom;
 		if (buffer.off()) {
 			throw new ParserException(buffer.error("Expected expression"));
@@ -720,13 +720,13 @@ public class Parser {
 				}
 			}
 		}
-		Expression result = parseIndexed(atom);
-		logger.debug("--> {}", result);
+		final Expression result = parseIndexed(atom);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Expression parseIndexed(Expression expression) {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		skipBlanks();
 		while (!buffer.off() && buffer.current() == '[') {
 			buffer.next();
@@ -742,12 +742,12 @@ public class Parser {
 			}
 			expression = new IndexedExpression(expression, typedIndex);
 		}
-		logger.debug("--> {}", expression);
+		LOGGER.debug("--> {}", expression);
 		return expression;
 	}
 
 	private TypedExpression parseString() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		assert buffer.current() == '"';
 		final int position = buffer.position();
 		buffer.next();
@@ -787,13 +787,13 @@ public class Parser {
 			}
 			buffer.next();
 		} while (state >= 0);
-		ManifestString result = new ManifestString(position, b.toString());
-		logger.debug("--> {}", result);
+		final ManifestString result = new ManifestString(position, b.toString());
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private TypedExpression parseRegex() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		assert buffer.current() == '/';
 		final int position = buffer.position();
 		buffer.next();
@@ -833,13 +833,13 @@ public class Parser {
 			}
 			buffer.next();
 		} while (state >= 0);
-		ManifestRegex result = new ManifestRegex(position, Pattern.compile(b.toString()));
-		logger.debug("--> {}", result);
+		final ManifestRegex result = new ManifestRegex(position, Pattern.compile(b.toString()));
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private ManifestArray parseArray() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		assert buffer.current() == '[';
 		final ManifestArray result = new ManifestArray(buffer.position());
 		buffer.next();
@@ -868,12 +868,12 @@ public class Parser {
 				}
 			} while (more);
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private ManifestDictionary parseDictionary() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		assert buffer.current() == '{';
 		final ManifestDictionary result = new ManifestDictionary(buffer.position());
 		buffer.next();
@@ -911,12 +911,12 @@ public class Parser {
 				}
 			} while (more);
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private TypedExpression parseNumber() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		assert Character.isDigit(buffer.current());
 		final int position = buffer.position();
 		final StringBuilder b = new StringBuilder();
@@ -925,13 +925,13 @@ public class Parser {
 			buffer.next();
 		}
 		final BigInteger value = new BigInteger(b.toString());
-		ManifestNumeric result = new ManifestNumeric(position, value);
-		logger.debug("--> {}", result);
+		final ManifestNumeric result = new ManifestNumeric(position, value);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private FunctionCall parseFunctionCall(final int position, final String name) {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final FunctionCall result = new FunctionCall(position, name);
 		assert buffer.current() == '(';
 		buffer.next();
@@ -956,12 +956,12 @@ public class Parser {
 		if (buffer.current() == ';') {
 			buffer.next();
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private Filter parseFilter() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		skipBlanks();
 		final Filter result;
 		final int position = buffer.position();
@@ -1006,12 +1006,12 @@ public class Parser {
 			final Block instr = parseBlock();
 			result = new ConditionFilter(condition, instr);
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private String readIdentifier() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		skipBlanks();
 		if (buffer.off()) {
 			return null;
@@ -1022,15 +1022,15 @@ public class Parser {
 			buffer.rewind(position);
 			return null;
 		}
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private String readRawIdentifier() {
-		logger.debug("<-- {}", buffer.position());
+		LOGGER.debug("<-- {}", buffer.position());
 		final char first = buffer.current();
 		if (!Character.isJavaIdentifierStart(first)) {
-			logger.debug("--> null");
+			LOGGER.debug("--> null");
 			return null;
 		}
 		buffer.next();
@@ -1049,7 +1049,7 @@ public class Parser {
 				}
 			}
 		} while (more);
-		logger.debug("--> {}", result);
+		LOGGER.debug("--> {}", result);
 		return result.toString();
 	}
 
@@ -1077,23 +1077,23 @@ public class Parser {
 	}
 
 	private boolean readKeyword(final String keyword) {
-		logger.debug("<-- {} at {}", keyword, buffer.position());
+		LOGGER.debug("<-- {} at {}", keyword, buffer.position());
 		skipBlanks();
 		final int position = buffer.position();
 		for (final char kw : keyword.toCharArray()) {
 			if (buffer.off() || buffer.current() != kw) {
 				buffer.rewind(position);
-				logger.debug("--> false");
+				LOGGER.debug("--> false");
 				return false;
 			}
 			buffer.next();
 		}
-		logger.debug("--> true");
+		LOGGER.debug("--> true");
 		return true;
 	}
 
 	private void skipBlanks() {
-		logger.debug("<-- {}", buffer.error("skip"));
+		LOGGER.debug("<-- {}", buffer.error("skip"));
 		int state = 0;
 		while (!buffer.off()) {
 			switch (state) {
@@ -1110,7 +1110,7 @@ public class Parser {
 					buffer.next();
 					break;
 				default:
-					logger.debug("--> {}", buffer.error("skip"));
+					LOGGER.debug("--> {}", buffer.error("skip"));
 					return;
 				}
 				break;

@@ -40,4 +40,9 @@ public class IndexedExpression implements Expression {
 		((Visitor) v).visit(this);
 	}
 
+	@Override
+	public String toString() {
+		return "{IndexedExpression " + indexed + " at " + index + "}";
+	}
+
 }

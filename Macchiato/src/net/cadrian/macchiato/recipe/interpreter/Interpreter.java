@@ -14,6 +14,9 @@ import javax.sound.midi.ShortMessage;
 import javax.sound.midi.SysexMessage;
 import javax.sound.midi.Track;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.ShortMessageType;
 import net.cadrian.macchiato.recipe.ast.BoundFilter.Bound;
@@ -21,6 +24,8 @@ import net.cadrian.macchiato.recipe.ast.Filter;
 import net.cadrian.macchiato.recipe.ast.Recipe;
 
 public class Interpreter {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Interpreter.class);
 
 	final Recipe recipe;
 
@@ -32,7 +37,7 @@ public class Interpreter {
 		run(System.in, System.out);
 	}
 
-	public void run(InputStream in, OutputStream out) throws InvalidMidiDataException, IOException {
+	public void run(final InputStream in, final OutputStream out) throws InvalidMidiDataException, IOException {
 		final Sequence sequenceIn = MidiSystem.getSequence(in);
 		final Sequence sequenceOut = new Sequence(sequenceIn.getDivisionType(), sequenceIn.getResolution(),
 				sequenceIn.getTracks().length);
@@ -78,14 +83,17 @@ public class Interpreter {
 	}
 
 	private void filter(final Bound bound, final GlobalContext context) {
+		LOGGER.debug("<-- {}", bound);
 		context.setNext(false);
 		final BoundFilterVisitor visitor = new BoundFilterVisitor(context, bound);
 		for (final Filter filter : recipe.getFilters()) {
 			filter.accept(visitor);
 		}
+		LOGGER.debug("-->");
 	}
 
 	private void filter(final GlobalContext context) {
+		LOGGER.debug("<--");
 		context.setNext(false);
 		final ConditionFilterVisitor visitor = new ConditionFilterVisitor(context);
 		for (final Filter filter : recipe.getFilters()) {
@@ -95,6 +103,7 @@ public class Interpreter {
 			}
 		}
 		context.emit();
+		LOGGER.debug("-->");
 	}
 
 }
