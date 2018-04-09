@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.ShortMessage;
 
+import net.cadrian.macchiato.midi.ControlChange;
 import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.ShortMessageType;
 
@@ -19,6 +20,15 @@ class GlobalContext extends Context {
 
 	public GlobalContext(final Interpreter interpreter) {
 		this.interpreter = interpreter;
+		for (final MetaMessageType type : MetaMessageType.values()) {
+			global.put(type.name(), type);
+		}
+		for (final ShortMessageType type : ShortMessageType.values()) {
+			global.put(type.name(), type);
+		}
+		for (final ControlChange mpc : ControlChange.values()) {
+			global.put(mpc.name(), mpc);
+		}
 	}
 
 	@Override
@@ -32,10 +42,18 @@ class GlobalContext extends Context {
 
 	void setEvent(final int eventIndex, final long tick, final MetaMessageType type, final MetaMessage message) {
 		this.event = new MetaEvent(eventIndex, tick, type, message);
+		final Dictionary eventData = new Dictionary();
+		eventData.set("type", type);
+		type.fill(eventData, event.asEvent());
+		global.put("event", eventData);
 	}
 
 	void setEvent(final int eventIndex, final long tick, final ShortMessageType type, final ShortMessage message) {
 		this.event = new ShortEvent(eventIndex, tick, type, message);
+		final Dictionary eventData = new Dictionary();
+		eventData.set("type", type);
+		type.fill(eventData, event.asEvent());
+		global.put("event", eventData);
 	}
 
 	@Override

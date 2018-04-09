@@ -113,14 +113,8 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			lastExpression = ((BigInteger) left).divide((BigInteger) lastExpression);
 			break;
 		case EQ:
-			if (!(left instanceof Comparable)) {
-				throw new InterpreterException("invalid left operand type: " + left.getClass().getSimpleName());
-			}
 			typedBinary.getRightOperand().accept(this);
-			if (lastExpression.getClass() != left.getClass()) {
-				throw new InterpreterException("incompatible types");
-			}
-			lastExpression = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastExpression) == 0);
+			lastExpression = Boolean.valueOf(left.equals(lastExpression));
 			break;
 		case GE:
 			if (!(left instanceof Comparable)) {
@@ -178,14 +172,8 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			lastExpression = ((BigInteger) left).multiply((BigInteger) lastExpression);
 			break;
 		case NE:
-			if (!(left instanceof Comparable)) {
-				throw new InterpreterException("invalid left operand type");
-			}
 			typedBinary.getRightOperand().accept(this);
-			if (lastExpression.getClass() != left.getClass()) {
-				throw new InterpreterException("incompatible types");
-			}
-			lastExpression = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastExpression) != 0);
+			lastExpression = Boolean.valueOf(!left.equals(lastExpression));
 			break;
 		case OR:
 			if (!(left instanceof Boolean)) {
@@ -338,6 +326,9 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	public void visit(final FunctionCall functionCall) {
 		LOGGER.debug("<-- {}", functionCall);
 		final Def def = context.getInterpreter().recipe.getDef(functionCall.getName());
+		if (def == null) {
+			throw new InterpreterException("unknown function " + functionCall.getName());
+		}
 		final LocalContext callContext = new LocalContext(context);
 		final FormalArgs args = def.getArgs();
 		final List<Expression> arguments = functionCall.getArguments();

@@ -1,5 +1,6 @@
 package net.cadrian.macchiato.midi;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +12,7 @@ import net.cadrian.macchiato.midi.event.shortev.NoteOnEvent;
 import net.cadrian.macchiato.midi.event.shortev.PitchBendEvent;
 import net.cadrian.macchiato.midi.event.shortev.PolyPressureEvent;
 import net.cadrian.macchiato.midi.event.shortev.ProgramChangeEvent;
+import net.cadrian.macchiato.recipe.interpreter.Dictionary;
 
 public enum ShortMessageType {
 	NOTE_OFF(0x80) {
@@ -23,6 +25,14 @@ public enum ShortMessageType {
 		public Event createEvent(final int channel, final int pitch, final int velocity) {
 			return new NoteOffEvent(channel, pitch, velocity);
 		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final NoteOffEvent e = (NoteOffEvent) event;
+			eventData.set("channel", BigInteger.valueOf(e.getChannel()));
+			eventData.set("velocity", BigInteger.valueOf(e.getVelocity()));
+			eventData.set("pitch", BigInteger.valueOf(e.getPitch()));
+		}
 	},
 	NOTE_ON(0x90) {
 		@Override
@@ -33,6 +43,14 @@ public enum ShortMessageType {
 		@Override
 		public Event createEvent(final int channel, final int pitch, final int velocity) {
 			return new NoteOnEvent(channel, pitch, velocity);
+		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final NoteOnEvent e = (NoteOnEvent) event;
+			eventData.set("channel", BigInteger.valueOf(e.getChannel()));
+			eventData.set("velocity", BigInteger.valueOf(e.getVelocity()));
+			eventData.set("pitch", BigInteger.valueOf(e.getPitch()));
 		}
 	},
 	POLY_PRESSURE(0xA0) {
@@ -45,6 +63,13 @@ public enum ShortMessageType {
 		@Override
 		public Event createEvent(final int channel, final int pressure, final int unused) {
 			return new PolyPressureEvent(channel, pressure);
+		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final PolyPressureEvent e = (PolyPressureEvent) event;
+			eventData.set("channel", BigInteger.valueOf(e.getChannel()));
+			eventData.set("pressure", BigInteger.valueOf(e.getPressure()));
 		}
 	},
 	CONTROL_CHANGE(0xB0) {
@@ -61,6 +86,14 @@ public enum ShortMessageType {
 		public Event createEvent(final int channel, final int code, final int value) {
 			return new ControlChangeEvent(channel, ControlChange.at(code), value);
 		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final ControlChangeEvent e = (ControlChangeEvent) event;
+			eventData.set("channel", BigInteger.valueOf(e.getChannel()));
+			eventData.set("mpc", e.getMpc());
+			eventData.set("value", BigInteger.valueOf(e.getValue()));
+		}
 	},
 	PROGRAM_CHANGE(0xC0) {
 		@Override
@@ -73,6 +106,13 @@ public enum ShortMessageType {
 		public Event createEvent(final int channel, final int patch, final int unused) {
 			return new ProgramChangeEvent(channel, patch);
 		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final ProgramChangeEvent e = (ProgramChangeEvent) event;
+			eventData.set("channel", BigInteger.valueOf(e.getChannel()));
+			eventData.set("patch", BigInteger.valueOf(e.getPatch()));
+		}
 	},
 	CHANNEL_PRESSURE(0xD0) {
 		@Override
@@ -84,6 +124,13 @@ public enum ShortMessageType {
 		@Override
 		public Event createEvent(final int channel, final int pressure, final int unused) {
 			return new ChannelPressureEvent(channel, pressure);
+		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final ChannelPressureEvent e = (ChannelPressureEvent) event;
+			eventData.set("channel", BigInteger.valueOf(e.getChannel()));
+			eventData.set("pressure", BigInteger.valueOf(e.getPressure()));
 		}
 	},
 	PITCH_BEND(0xE0) {
@@ -99,6 +146,13 @@ public enum ShortMessageType {
 
 		private int value(final int data1, final int data2) {
 			return (data1 << 7) + data2;
+		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final PitchBendEvent e = (PitchBendEvent) event;
+			eventData.set("channel", BigInteger.valueOf(e.getChannel()));
+			eventData.set("value", BigInteger.valueOf(e.getValue()));
 		}
 	};
 
@@ -124,5 +178,7 @@ public enum ShortMessageType {
 	public abstract String toString(int data1, int data2);
 
 	public abstract Event createEvent(int channel, int data1, int data2);
+
+	public abstract void fill(Dictionary eventData, Event event);
 
 }

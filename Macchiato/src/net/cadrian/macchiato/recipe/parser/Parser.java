@@ -181,7 +181,7 @@ public class Parser {
 			skipBlanks();
 			switch (buffer.current()) {
 			case '[': {
-				final Expression indexed = parseIndexed(new Identifier(position, name));
+				final Expression indexed = parseIdentifierSuffix(new Identifier(position, name));
 				skipBlanks();
 				if (buffer.off() || buffer.current() != '=') {
 					throw new ParserException(buffer.error("Expected assignment"));
@@ -720,30 +720,64 @@ public class Parser {
 				}
 			}
 		}
-		final Expression result = parseIndexed(atom);
+		final Expression result = parseIdentifierSuffix(atom);
 		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
-	private Expression parseIndexed(Expression expression) {
+	private Expression parseIdentifierSuffix(final Expression expression) {
 		LOGGER.debug("<-- {}", buffer.position());
-		skipBlanks();
-		while (!buffer.off() && buffer.current() == '[') {
-			buffer.next();
-			final Expression index = parseExpression();
+		Expression result = expression;
+		boolean more = !buffer.off();
+		while (more) {
 			skipBlanks();
-			if (buffer.off() || buffer.current() != ']') {
-				throw new ParserException(buffer.error("Missing closing bracket"));
+			switch (buffer.current()) {
+			case '[':
+				result = parseIndexed(result);
+				break;
+			case '.':
+				result = parseDotted(result);
+				break;
+			default:
+				more = false;
 			}
-			buffer.next();
-			final TypedExpression typedIndex = index.typed(Comparable.class);
-			if (typedIndex == null) {
-				throw new ParserException(buffer.error("Expected numeric or string index", index.position()));
-			}
-			expression = new IndexedExpression(expression, typedIndex);
 		}
-		LOGGER.debug("--> {}", expression);
-		return expression;
+		LOGGER.debug("--> {}", result);
+		return result;
+	}
+
+	private Expression parseIndexed(final Expression expression) {
+		LOGGER.debug("<-- {}", buffer.position());
+		assert buffer.current() == '[';
+		buffer.next();
+		final Expression index = parseExpression();
+		skipBlanks();
+		if (buffer.off() || buffer.current() != ']') {
+			throw new ParserException(buffer.error("Missing closing bracket"));
+		}
+		buffer.next();
+		final TypedExpression typedIndex = index.typed(Comparable.class);
+		if (typedIndex == null) {
+			throw new ParserException(buffer.error("Expected numeric or string index", index.position()));
+		}
+		final IndexedExpression result = new IndexedExpression(expression, typedIndex);
+		LOGGER.debug("--> {}", result);
+		return result;
+	}
+
+	private Expression parseDotted(final Expression expression) {
+		LOGGER.debug("<-- {}", buffer.position());
+		assert buffer.current() == '.';
+		buffer.next();
+		skipBlanks();
+		final int position = buffer.position();
+		final String identifier = readIdentifier();
+		if (identifier == null) {
+			throw new ParserException(buffer.error("Expected identifier"));
+		}
+		final IndexedExpression result = new IndexedExpression(expression, new ManifestString(position, identifier));
+		LOGGER.debug("--> {}", result);
+		return result;
 	}
 
 	private TypedExpression parseString() {
@@ -1041,7 +1075,7 @@ public class Parser {
 				more = false;
 			} else {
 				final char c = buffer.current();
-				if (Character.isJavaIdentifierPart(c) || c == '.') {
+				if (Character.isJavaIdentifierPart(c)) {
 					result.append(c);
 					buffer.next();
 				} else {
@@ -1087,6 +1121,11 @@ public class Parser {
 				return false;
 			}
 			buffer.next();
+		}
+		if (!(buffer.off() || !Character.isJavaIdentifierPart(buffer.current()))) {
+			buffer.rewind(position);
+			LOGGER.debug("--> false");
+			return false;
 		}
 		LOGGER.debug("--> true");
 		return true;

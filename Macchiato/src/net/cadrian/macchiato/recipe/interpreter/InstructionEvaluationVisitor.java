@@ -54,6 +54,9 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 	public void visit(final ProcedureCall procedureCall) {
 		LOGGER.debug("<-- {}", procedureCall);
 		final Def def = context.getInterpreter().recipe.getDef(procedureCall.getName());
+		if (def == null) {
+			throw new InterpreterException("unknown procedure " + procedureCall.getName());
+		}
 		final LocalContext callContext = new LocalContext(context);
 		final FormalArgs args = def.getArgs();
 		final List<Expression> arguments = procedureCall.getArguments();

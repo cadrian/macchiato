@@ -17,6 +17,7 @@ import net.cadrian.macchiato.midi.event.metaev.TempoEvent;
 import net.cadrian.macchiato.midi.event.metaev.TextEvent;
 import net.cadrian.macchiato.midi.event.metaev.TimeSignatureEvent;
 import net.cadrian.macchiato.midi.event.metaev.TrackNameEvent;
+import net.cadrian.macchiato.recipe.interpreter.Dictionary;
 
 public enum MetaMessageType {
 	SEQUENCE_NUMBER(0x00) {
@@ -29,6 +30,12 @@ public enum MetaMessageType {
 		public Event createEvent(final byte[] data) {
 			return new SequenceNumberEvent(new BigInteger(1, data).intValue());
 		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final SequenceNumberEvent e = (SequenceNumberEvent) event;
+			eventData.set("sequence", BigInteger.valueOf(e.getSequence()));
+		}
 	},
 	TEXT(0x01) {
 		@Override
@@ -39,6 +46,12 @@ public enum MetaMessageType {
 		@Override
 		public Event createEvent(final byte[] data) {
 			return new TextEvent(new String(data));
+		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final TextEvent e = (TextEvent) event;
+			eventData.set("text", e.getText());
 		}
 	},
 	COPYRIGHT(0x02) {
@@ -51,6 +64,12 @@ public enum MetaMessageType {
 		public Event createEvent(final byte[] data) {
 			return new CopyrightEvent(new String(data));
 		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final CopyrightEvent e = (CopyrightEvent) event;
+			eventData.set("text", e.getText());
+		}
 	},
 	TRACK_NAME(0x03) {
 		@Override
@@ -61,6 +80,12 @@ public enum MetaMessageType {
 		@Override
 		public Event createEvent(final byte[] data) {
 			return new TrackNameEvent(new String(data));
+		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final TrackNameEvent e = (TrackNameEvent) event;
+			eventData.set("text", e.getText());
 		}
 	},
 	INSTRUMENT_NAME(0x04) {
@@ -73,6 +98,12 @@ public enum MetaMessageType {
 		public Event createEvent(final byte[] data) {
 			return new InstrumentNameEvent(new String(data));
 		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final InstrumentNameEvent e = (InstrumentNameEvent) event;
+			eventData.set("text", e.getText());
+		}
 	},
 	LYRICS(0x05) {
 		@Override
@@ -83,6 +114,12 @@ public enum MetaMessageType {
 		@Override
 		public Event createEvent(final byte[] data) {
 			return new LyricsEvent(new String(data));
+		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final LyricsEvent e = (LyricsEvent) event;
+			eventData.set("text", e.getText());
 		}
 	},
 	MARKER_TEXT(0x06) {
@@ -95,6 +132,12 @@ public enum MetaMessageType {
 		public Event createEvent(final byte[] data) {
 			return new MarkerTextEvent(new String(data));
 		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final MarkerTextEvent e = (MarkerTextEvent) event;
+			eventData.set("text", e.getText());
+		}
 	},
 	CUE_POINT(0x07) {
 		@Override
@@ -105,6 +148,12 @@ public enum MetaMessageType {
 		@Override
 		public Event createEvent(final byte[] data) {
 			return new CuePointEvent(new String(data));
+		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final CuePointEvent e = (CuePointEvent) event;
+			eventData.set("text", e.getText());
 		}
 	},
 	CHANNEL_PREFIX(0x20) {
@@ -119,6 +168,12 @@ public enum MetaMessageType {
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			// TODO Auto-generated method stub
+
+		}
 	},
 	END_OF_TRACK(0x2F) {
 		@Override
@@ -130,6 +185,10 @@ public enum MetaMessageType {
 		@Override
 		public Event createEvent(final byte[] data) {
 			return new EndOfTrackEvent();
+		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
 		}
 	},
 	TEMPO(0x51) {
@@ -146,6 +205,12 @@ public enum MetaMessageType {
 			final BigInteger mpq = new BigInteger(1, data);
 			final BigInteger bpm = BPM_MPQ_FACTOR.divide(mpq);
 			return new TempoEvent(bpm.intValueExact());
+		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final TempoEvent e = (TempoEvent) event;
+			eventData.set("bpm", BigInteger.valueOf(e.getBpm()));
 		}
 	},
 	TIME_SIGNATURE(0x58) {
@@ -173,6 +238,15 @@ public enum MetaMessageType {
 			final byte m = data[2];
 			final byte t = data[2];
 			return new TimeSignatureEvent(n, d, m, t);
+		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final TimeSignatureEvent e = (TimeSignatureEvent) event;
+			eventData.set("numerator", BigInteger.valueOf(e.getNumerator()));
+			eventData.set("denominator", BigInteger.valueOf(e.getDenominator()));
+			eventData.set("metronome", BigInteger.valueOf(e.getMetronome()));
+			eventData.set("ticks", BigInteger.valueOf(e.getTicks()));
 		}
 	},
 	KEY_SIGNATURE(0x59) {
@@ -262,6 +336,13 @@ public enum MetaMessageType {
 			final byte mode = data[1];
 			return new KeySignatureEvent(keysig, mode);
 		}
+
+		@Override
+		public void fill(final Dictionary eventData, final Event event) {
+			final KeySignatureEvent e = (KeySignatureEvent) event;
+			eventData.set("keysig", BigInteger.valueOf(e.getKeysig()));
+			eventData.set("mode", BigInteger.valueOf(e.getMode()));
+		}
 	};
 
 	private static final BigInteger BPM_MPQ_FACTOR = new BigInteger("60000000");
@@ -287,4 +368,6 @@ public enum MetaMessageType {
 	public abstract String toString(byte[] data);
 
 	public abstract Event createEvent(byte[] data);
+
+	public abstract void fill(final Dictionary eventData, final Event event);
 }

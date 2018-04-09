@@ -3,6 +3,7 @@ package net.cadrian.macchiato.recipe.interpreter;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.ShortMessage;
 
+import net.cadrian.macchiato.midi.Event;
 import net.cadrian.macchiato.midi.ShortMessageType;
 
 class ShortEvent extends AbstractEvent {
@@ -22,6 +23,11 @@ class ShortEvent extends AbstractEvent {
 
 	public ShortMessage getMessage() {
 		return message;
+	}
+
+	@Override
+	public Event asEvent() {
+		return type.createEvent(message.getChannel(), message.getData1(), message.getData2());
 	}
 
 	@Override

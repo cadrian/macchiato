@@ -2,6 +2,8 @@ package net.cadrian.macchiato.recipe.interpreter;
 
 import javax.sound.midi.MidiEvent;
 
+import net.cadrian.macchiato.midi.Event;
+
 public abstract class AbstractEvent {
 
 	private final int index;
@@ -19,6 +21,8 @@ public abstract class AbstractEvent {
 	public long getTick() {
 		return tick;
 	}
+
+	public abstract Event asEvent();
 
 	public abstract MidiEvent asMidi();
 

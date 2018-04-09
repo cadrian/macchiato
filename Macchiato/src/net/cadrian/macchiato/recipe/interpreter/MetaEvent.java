@@ -3,6 +3,7 @@ package net.cadrian.macchiato.recipe.interpreter;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
 
+import net.cadrian.macchiato.midi.Event;
 import net.cadrian.macchiato.midi.MetaMessageType;
 
 class MetaEvent extends AbstractEvent {
@@ -22,6 +23,11 @@ class MetaEvent extends AbstractEvent {
 
 	public MetaMessage getMessage() {
 		return message;
+	}
+
+	@Override
+	public Event asEvent() {
+		return type.createEvent(message.getData());
 	}
 
 	@Override
