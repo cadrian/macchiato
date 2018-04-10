@@ -1,29 +1,28 @@
 package net.cadrian.macchiato.recipe.interpreter;
 
-import javax.sound.midi.MidiEvent;
+import java.math.BigInteger;
 
-import net.cadrian.macchiato.midi.Event;
+import javax.sound.midi.MidiEvent;
+import javax.sound.midi.MidiMessage;
+
+import net.cadrian.macchiato.midi.Message;
 
 public abstract class AbstractEvent {
 
-	private final int index;
-	private final long tick;
+	private final BigInteger tick;
 
-	public AbstractEvent(final int index, final long tick) {
-		this.index = index;
+	public AbstractEvent(final BigInteger tick) {
 		this.tick = tick;
 	}
 
-	public int getIndex() {
-		return index;
-	}
-
-	public long getTick() {
+	public BigInteger getTick() {
 		return tick;
 	}
 
-	public abstract Event asEvent();
+	public abstract MidiMessage getMidiMessage();
 
-	public abstract MidiEvent asMidi();
+	public abstract Message createMessage();
+
+	public abstract MidiEvent createMidiEvent();
 
 }

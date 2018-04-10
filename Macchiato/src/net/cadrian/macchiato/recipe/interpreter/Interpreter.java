@@ -3,6 +3,7 @@ package net.cadrian.macchiato.recipe.interpreter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
@@ -52,13 +53,13 @@ public class Interpreter {
 			filter(Bound.BEGIN_TRACK, context);
 			for (int eventIndex = 0; eventIndex < trackIn.size(); eventIndex++) {
 				final MidiEvent eventIn = trackIn.get(eventIndex);
-				final long tick = eventIn.getTick();
+				final BigInteger tick = BigInteger.valueOf(eventIn.getTick());
 				final MidiMessage message = eventIn.getMessage();
 				if (message instanceof MetaMessage) {
 					// Meta message
 					final MetaMessage metaMessage = (MetaMessage) message;
 					final MetaMessageType type = MetaMessageType.at(metaMessage.getType());
-					context.setEvent(eventIndex, tick, type, metaMessage);
+					context.setEvent(tick, type, metaMessage);
 					filter(context);
 				} else if (message instanceof SysexMessage) {
 					// System-exclusive message, ignored
@@ -69,7 +70,7 @@ public class Interpreter {
 					// According to javadoc, any other type of message
 					final ShortMessage shortMessage = (ShortMessage) message;
 					final ShortMessageType type = ShortMessageType.at(shortMessage.getCommand());
-					context.setEvent(eventIndex, tick, type, shortMessage);
+					context.setEvent(tick, type, shortMessage);
 					filter(context);
 				} else {
 					throw new RuntimeException("unknown type of MIDI message: " + message.getClass());

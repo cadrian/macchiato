@@ -5,18 +5,21 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.cadrian.macchiato.midi.event.metaev.CopyrightEvent;
-import net.cadrian.macchiato.midi.event.metaev.CuePointEvent;
-import net.cadrian.macchiato.midi.event.metaev.EndOfTrackEvent;
-import net.cadrian.macchiato.midi.event.metaev.InstrumentNameEvent;
-import net.cadrian.macchiato.midi.event.metaev.KeySignatureEvent;
-import net.cadrian.macchiato.midi.event.metaev.LyricsEvent;
-import net.cadrian.macchiato.midi.event.metaev.MarkerTextEvent;
-import net.cadrian.macchiato.midi.event.metaev.SequenceNumberEvent;
-import net.cadrian.macchiato.midi.event.metaev.TempoEvent;
-import net.cadrian.macchiato.midi.event.metaev.TextEvent;
-import net.cadrian.macchiato.midi.event.metaev.TimeSignatureEvent;
-import net.cadrian.macchiato.midi.event.metaev.TrackNameEvent;
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MetaMessage;
+
+import net.cadrian.macchiato.midi.message.m.CopyrightMessage;
+import net.cadrian.macchiato.midi.message.m.CuePointMessage;
+import net.cadrian.macchiato.midi.message.m.EndOfTrackMessage;
+import net.cadrian.macchiato.midi.message.m.InstrumentNameMessage;
+import net.cadrian.macchiato.midi.message.m.KeySignatureMessage;
+import net.cadrian.macchiato.midi.message.m.LyricsMessage;
+import net.cadrian.macchiato.midi.message.m.MarkerTextMessage;
+import net.cadrian.macchiato.midi.message.m.SequenceNumberMessage;
+import net.cadrian.macchiato.midi.message.m.TempoMessage;
+import net.cadrian.macchiato.midi.message.m.TextMessage;
+import net.cadrian.macchiato.midi.message.m.TimeSignatureMessage;
+import net.cadrian.macchiato.midi.message.m.TrackNameMessage;
 import net.cadrian.macchiato.recipe.interpreter.Dictionary;
 
 public enum MetaMessageType {
@@ -27,14 +30,20 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Event createEvent(final byte[] data) {
-			return new SequenceNumberEvent(new BigInteger(1, data).intValue());
+		public Message createMessage(final byte[] data) {
+			return new SequenceNumberMessage(new BigInteger(1, data).intValue());
 		}
 
 		@Override
-		public void fill(final Dictionary eventData, final Event event) {
-			final SequenceNumberEvent e = (SequenceNumberEvent) event;
-			eventData.set("sequence", BigInteger.valueOf(e.getSequence()));
+		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+			final byte[] data = BigInteger.valueOf(((SequenceNumberMessage) message).getSequence()).toByteArray();
+			return new MetaMessage(type, data, data.length);
+		}
+
+		@Override
+		public void fill(final Dictionary messageData, final Message message) {
+			final SequenceNumberMessage e = (SequenceNumberMessage) message;
+			messageData.set("sequence", BigInteger.valueOf(e.getSequence()));
 		}
 	},
 	TEXT(0x01) {
@@ -44,14 +53,21 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Event createEvent(final byte[] data) {
-			return new TextEvent(new String(data));
+		public Message createMessage(final byte[] data) {
+			return new TextMessage(new String(data));
 		}
 
 		@Override
-		public void fill(final Dictionary eventData, final Event event) {
-			final TextEvent e = (TextEvent) event;
-			eventData.set("text", e.getText());
+		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+			final TextMessage m = (TextMessage) message;
+			final byte[] data = m.getText().getBytes();
+			return new MetaMessage(type, data, data.length);
+		}
+
+		@Override
+		public void fill(final Dictionary messageData, final Message message) {
+			final TextMessage m = (TextMessage) message;
+			messageData.set("text", m.getText());
 		}
 	},
 	COPYRIGHT(0x02) {
@@ -61,14 +77,21 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Event createEvent(final byte[] data) {
-			return new CopyrightEvent(new String(data));
+		public Message createMessage(final byte[] data) {
+			return new CopyrightMessage(new String(data));
 		}
 
 		@Override
-		public void fill(final Dictionary eventData, final Event event) {
-			final CopyrightEvent e = (CopyrightEvent) event;
-			eventData.set("text", e.getText());
+		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+			final CopyrightMessage m = (CopyrightMessage) message;
+			final byte[] data = m.getText().getBytes();
+			return new MetaMessage(type, data, data.length);
+		}
+
+		@Override
+		public void fill(final Dictionary messageData, final Message message) {
+			final CopyrightMessage m = (CopyrightMessage) message;
+			messageData.set("text", m.getText());
 		}
 	},
 	TRACK_NAME(0x03) {
@@ -78,14 +101,21 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Event createEvent(final byte[] data) {
-			return new TrackNameEvent(new String(data));
+		public Message createMessage(final byte[] data) {
+			return new TrackNameMessage(new String(data));
 		}
 
 		@Override
-		public void fill(final Dictionary eventData, final Event event) {
-			final TrackNameEvent e = (TrackNameEvent) event;
-			eventData.set("text", e.getText());
+		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+			final TrackNameMessage m = (TrackNameMessage) message;
+			final byte[] data = m.getText().getBytes();
+			return new MetaMessage(type, data, data.length);
+		}
+
+		@Override
+		public void fill(final Dictionary messageData, final Message message) {
+			final TrackNameMessage m = (TrackNameMessage) message;
+			messageData.set("text", m.getText());
 		}
 	},
 	INSTRUMENT_NAME(0x04) {
@@ -95,14 +125,21 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Event createEvent(final byte[] data) {
-			return new InstrumentNameEvent(new String(data));
+		public Message createMessage(final byte[] data) {
+			return new InstrumentNameMessage(new String(data));
 		}
 
 		@Override
-		public void fill(final Dictionary eventData, final Event event) {
-			final InstrumentNameEvent e = (InstrumentNameEvent) event;
-			eventData.set("text", e.getText());
+		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+			final InstrumentNameMessage m = (InstrumentNameMessage) message;
+			final byte[] data = m.getText().getBytes();
+			return new MetaMessage(type, data, data.length);
+		}
+
+		@Override
+		public void fill(final Dictionary messageData, final Message message) {
+			final InstrumentNameMessage m = (InstrumentNameMessage) message;
+			messageData.set("text", m.getText());
 		}
 	},
 	LYRICS(0x05) {
@@ -112,14 +149,21 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Event createEvent(final byte[] data) {
-			return new LyricsEvent(new String(data));
+		public Message createMessage(final byte[] data) {
+			return new LyricsMessage(new String(data));
 		}
 
 		@Override
-		public void fill(final Dictionary eventData, final Event event) {
-			final LyricsEvent e = (LyricsEvent) event;
-			eventData.set("text", e.getText());
+		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+			final LyricsMessage m = (LyricsMessage) message;
+			final byte[] data = m.getText().getBytes();
+			return new MetaMessage(type, data, data.length);
+		}
+
+		@Override
+		public void fill(final Dictionary messageData, final Message message) {
+			final LyricsMessage m = (LyricsMessage) message;
+			messageData.set("text", m.getText());
 		}
 	},
 	MARKER_TEXT(0x06) {
@@ -129,14 +173,21 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Event createEvent(final byte[] data) {
-			return new MarkerTextEvent(new String(data));
+		public Message createMessage(final byte[] data) {
+			return new MarkerTextMessage(new String(data));
 		}
 
 		@Override
-		public void fill(final Dictionary eventData, final Event event) {
-			final MarkerTextEvent e = (MarkerTextEvent) event;
-			eventData.set("text", e.getText());
+		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+			final MarkerTextMessage m = (MarkerTextMessage) message;
+			final byte[] data = m.getText().getBytes();
+			return new MetaMessage(type, data, data.length);
+		}
+
+		@Override
+		public void fill(final Dictionary messageData, final Message message) {
+			final MarkerTextMessage m = (MarkerTextMessage) message;
+			messageData.set("text", m.getText());
 		}
 	},
 	CUE_POINT(0x07) {
@@ -146,14 +197,21 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Event createEvent(final byte[] data) {
-			return new CuePointEvent(new String(data));
+		public Message createMessage(final byte[] data) {
+			return new CuePointMessage(new String(data));
 		}
 
 		@Override
-		public void fill(final Dictionary eventData, final Event event) {
-			final CuePointEvent e = (CuePointEvent) event;
-			eventData.set("text", e.getText());
+		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+			final CuePointMessage m = (CuePointMessage) message;
+			final byte[] data = m.getText().getBytes();
+			return new MetaMessage(type, data, data.length);
+		}
+
+		@Override
+		public void fill(final Dictionary messageData, final Message message) {
+			final CuePointMessage m = (CuePointMessage) message;
+			messageData.set("text", m.getText());
 		}
 	},
 	CHANNEL_PREFIX(0x20) {
@@ -164,13 +222,19 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Event createEvent(final byte[] data) {
+		public Message createMessage(final byte[] data) {
 			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
-		public void fill(final Dictionary eventData, final Event event) {
+		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void fill(final Dictionary messageData, final Message message) {
 			// TODO Auto-generated method stub
 
 		}
@@ -183,12 +247,17 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Event createEvent(final byte[] data) {
-			return new EndOfTrackEvent();
+		public Message createMessage(final byte[] data) {
+			return new EndOfTrackMessage();
 		}
 
 		@Override
-		public void fill(final Dictionary eventData, final Event event) {
+		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+			return new MetaMessage(type, new byte[0], 0);
+		}
+
+		@Override
+		public void fill(final Dictionary messageData, final Message message) {
 		}
 	},
 	TEMPO(0x51) {
@@ -201,16 +270,25 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Event createEvent(final byte[] data) {
+		public Message createMessage(final byte[] data) {
 			final BigInteger mpq = new BigInteger(1, data);
 			final BigInteger bpm = BPM_MPQ_FACTOR.divide(mpq);
-			return new TempoEvent(bpm.intValueExact());
+			return new TempoMessage(bpm.intValueExact());
 		}
 
 		@Override
-		public void fill(final Dictionary eventData, final Event event) {
-			final TempoEvent e = (TempoEvent) event;
-			eventData.set("bpm", BigInteger.valueOf(e.getBpm()));
+		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+			final TempoMessage m = (TempoMessage) message;
+			final BigInteger bpm = BigInteger.valueOf(m.getBpm());
+			final BigInteger mpq = BPM_MPQ_FACTOR.divide(bpm);
+			final byte[] data = mpq.toByteArray();
+			return new MetaMessage(type, data, data.length);
+		}
+
+		@Override
+		public void fill(final Dictionary messageData, final Message message) {
+			final TempoMessage m = (TempoMessage) message;
+			messageData.set("bpm", BigInteger.valueOf(m.getBpm()));
 		}
 	},
 	TIME_SIGNATURE(0x58) {
@@ -232,21 +310,28 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Event createEvent(final byte[] data) {
+		public Message createMessage(final byte[] data) {
 			final byte n = data[0];
 			final byte d = data[1];
 			final byte m = data[2];
 			final byte t = data[2];
-			return new TimeSignatureEvent(n, d, m, t);
+			return new TimeSignatureMessage(n, d, m, t);
 		}
 
 		@Override
-		public void fill(final Dictionary eventData, final Event event) {
-			final TimeSignatureEvent e = (TimeSignatureEvent) event;
-			eventData.set("numerator", BigInteger.valueOf(e.getNumerator()));
-			eventData.set("denominator", BigInteger.valueOf(e.getDenominator()));
-			eventData.set("metronome", BigInteger.valueOf(e.getMetronome()));
-			eventData.set("ticks", BigInteger.valueOf(e.getTicks()));
+		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+			final TimeSignatureMessage m = (TimeSignatureMessage) message;
+			final byte[] data = new byte[] { m.getNumerator(), m.getDenominator(), m.getMetronome(), m.getTicks() };
+			return new MetaMessage(type, data, 4);
+		}
+
+		@Override
+		public void fill(final Dictionary messageData, final Message message) {
+			final TimeSignatureMessage m = (TimeSignatureMessage) message;
+			messageData.set("numerator", BigInteger.valueOf(m.getNumerator()));
+			messageData.set("denominator", BigInteger.valueOf(m.getDenominator()));
+			messageData.set("metronome", BigInteger.valueOf(m.getMetronome()));
+			messageData.set("ticks", BigInteger.valueOf(m.getTicks()));
 		}
 	},
 	KEY_SIGNATURE(0x59) {
@@ -331,17 +416,24 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Event createEvent(final byte[] data) {
+		public Message createMessage(final byte[] data) {
 			final byte keysig = data[0];
 			final byte mode = data[1];
-			return new KeySignatureEvent(keysig, mode);
+			return new KeySignatureMessage(keysig, mode);
 		}
 
 		@Override
-		public void fill(final Dictionary eventData, final Event event) {
-			final KeySignatureEvent e = (KeySignatureEvent) event;
-			eventData.set("keysig", BigInteger.valueOf(e.getKeysig()));
-			eventData.set("mode", BigInteger.valueOf(e.getMode()));
+		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+			final KeySignatureMessage m = (KeySignatureMessage) message;
+			final byte[] data = { m.getKeysig(), m.getMode() };
+			return new MetaMessage(type, data, 2);
+		}
+
+		@Override
+		public void fill(final Dictionary messageData, final Message message) {
+			final KeySignatureMessage m = (KeySignatureMessage) message;
+			messageData.set("keysig", BigInteger.valueOf(m.getKeysig()));
+			messageData.set("mode", BigInteger.valueOf(m.getMode()));
 		}
 	};
 
@@ -350,24 +442,26 @@ public enum MetaMessageType {
 	static {
 		final Map<Byte, MetaMessageType> m = new HashMap<>();
 		for (final MetaMessageType type : values()) {
-			m.put(type.status, type);
+			m.put(type.type, type);
 		}
 		MAP = Collections.unmodifiableMap(m);
 	}
 
-	public final byte status;
+	public final byte type;
 
-	private MetaMessageType(final int status) {
-		this.status = (byte) status;
+	private MetaMessageType(final int type) {
+		this.type = (byte) type;
 	}
 
-	public static MetaMessageType at(final int status) {
-		return MAP.get((byte) status);
+	public static MetaMessageType at(final int type) {
+		return MAP.get((byte) type);
 	}
 
 	public abstract String toString(byte[] data);
 
-	public abstract Event createEvent(byte[] data);
+	public abstract Message createMessage(byte[] data);
 
-	public abstract void fill(final Dictionary eventData, final Event event);
+	public abstract MetaMessage createMidiMessage(Message message) throws InvalidMidiDataException;
+
+	public abstract void fill(final Dictionary messageData, final Message message);
 }

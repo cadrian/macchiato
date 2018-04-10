@@ -1,7 +1,10 @@
 package net.cadrian.macchiato.recipe.interpreter;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+
+import net.cadrian.macchiato.midi.Message;
 
 class LocalContext extends Context {
 
@@ -38,8 +41,8 @@ class LocalContext extends Context {
 	}
 
 	@Override
-	void emit(final AbstractEvent event) {
-		parent.emit(event);
+	void emit(final Message message, final BigInteger tick) {
+		parent.emit(message, tick);
 	}
 
 	@Override

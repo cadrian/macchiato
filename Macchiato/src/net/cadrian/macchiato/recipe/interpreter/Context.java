@@ -1,5 +1,8 @@
 package net.cadrian.macchiato.recipe.interpreter;
 
+import java.math.BigInteger;
+
+import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.recipe.ast.Instruction;
 import net.cadrian.macchiato.recipe.ast.expression.TypedExpression;
 
@@ -12,10 +15,11 @@ abstract class Context {
 	abstract AbstractEvent getEvent();
 
 	void emit() {
-		emit(getEvent());
+		final AbstractEvent event = getEvent();
+		emit(event.createMessage(), event.getTick());
 	}
 
-	abstract void emit(AbstractEvent event);
+	abstract void emit(Message message, BigInteger tick);
 
 	abstract boolean isNext();
 

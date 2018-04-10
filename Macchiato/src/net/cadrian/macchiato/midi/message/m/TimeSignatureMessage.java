@@ -1,13 +1,13 @@
-package net.cadrian.macchiato.midi.event.metaev;
+package net.cadrian.macchiato.midi.message.m;
 
-import net.cadrian.macchiato.midi.Event;
+import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
-import net.cadrian.macchiato.midi.event.MetaEvent;
+import net.cadrian.macchiato.midi.message.MetaMessage;
 
-public class TimeSignatureEvent extends MetaEvent {
+public class TimeSignatureMessage extends MetaMessage {
 
-	public static interface Visitor extends Event.Visitor {
-		void visitTimeSignature(TimeSignatureEvent event);
+	public static interface Visitor extends Message.Visitor {
+		void visitTimeSignature(TimeSignatureMessage message);
 	}
 
 	private final byte numerator;
@@ -15,7 +15,7 @@ public class TimeSignatureEvent extends MetaEvent {
 	private final byte metronome;
 	private final byte ticks;
 
-	public TimeSignatureEvent(final byte n, final byte d, final byte m, final byte t) {
+	public TimeSignatureMessage(final byte n, final byte d, final byte m, final byte t) {
 		super(MetaMessageType.TIME_SIGNATURE);
 		this.numerator = n;
 		this.denominator = d;
@@ -40,7 +40,7 @@ public class TimeSignatureEvent extends MetaEvent {
 	}
 
 	@Override
-	public void accept(final Event.Visitor v) {
+	public void accept(final Message.Visitor v) {
 		((Visitor) v).visitTimeSignature(this);
 	}
 

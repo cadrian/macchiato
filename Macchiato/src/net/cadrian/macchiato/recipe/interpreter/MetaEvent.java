@@ -1,38 +1,41 @@
 package net.cadrian.macchiato.recipe.interpreter;
 
+import java.math.BigInteger;
+
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
 
-import net.cadrian.macchiato.midi.Event;
+import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
 
-class MetaEvent extends AbstractEvent {
+public class MetaEvent extends AbstractEvent {
 
 	private final MetaMessageType type;
-	private final MetaMessage message;
+	private final MetaMessage midiMessage;
 
-	public MetaEvent(final int index, final long tick, final MetaMessageType type, final MetaMessage message) {
-		super(index, tick);
+	public MetaEvent(final BigInteger tick, final MetaMessageType type, final MetaMessage message) {
+		super(tick);
 		this.type = type;
-		this.message = message;
+		this.midiMessage = message;
 	}
 
 	public MetaMessageType getType() {
 		return type;
 	}
 
-	public MetaMessage getMessage() {
-		return message;
+	@Override
+	public MetaMessage getMidiMessage() {
+		return midiMessage;
 	}
 
 	@Override
-	public Event asEvent() {
-		return type.createEvent(message.getData());
+	public Message createMessage() {
+		return type.createMessage(midiMessage.getData());
 	}
 
 	@Override
-	public MidiEvent asMidi() {
-		return new MidiEvent(message, getTick());
+	public MidiEvent createMidiEvent() {
+		return new MidiEvent(midiMessage, getTick().longValueExact());
 	}
 
 }

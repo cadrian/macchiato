@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.recipe.ast.BoundFilter;
 import net.cadrian.macchiato.recipe.ast.ConditionFilter;
 import net.cadrian.macchiato.recipe.ast.Def;
@@ -39,7 +40,6 @@ import net.cadrian.macchiato.recipe.ast.instruction.If;
 import net.cadrian.macchiato.recipe.ast.instruction.Next;
 import net.cadrian.macchiato.recipe.ast.instruction.ProcedureCall;
 import net.cadrian.macchiato.recipe.ast.instruction.While;
-import net.cadrian.macchiato.recipe.interpreter.AbstractEvent;
 
 public class Parser {
 
@@ -234,11 +234,18 @@ public class Parser {
 		final Emit result;
 		skipBlanks();
 		if (buffer.off() || buffer.current() == ';') {
-			result = new Emit(position, null);
+			result = new Emit(position, null, null);
 		} else {
 			final Expression expression = parseExpression();
-			final TypedExpression eventExpression = expression.typed(AbstractEvent.class);
-			result = new Emit(position, eventExpression);
+			final TypedExpression messageExpression = expression.typed(Message.class);
+			final TypedExpression tickExpression;
+			skipBlanks();
+			if (readKeyword("at")) {
+				tickExpression = parseExpression().typed(BigInteger.class);
+			} else {
+				tickExpression = null;
+			}
+			result = new Emit(position, messageExpression, tickExpression);
 		}
 		skipBlanks();
 		if (!buffer.off() && buffer.current() == ';') {
@@ -1090,6 +1097,7 @@ public class Parser {
 	private boolean isReserved(final String identifier) {
 		switch (identifier) {
 		case "and":
+		case "at":
 		case "case":
 		case "def":
 		case "default":

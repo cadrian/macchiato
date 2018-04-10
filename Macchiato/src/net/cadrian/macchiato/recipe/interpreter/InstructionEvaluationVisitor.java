@@ -1,10 +1,12 @@
 package net.cadrian.macchiato.recipe.interpreter;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.recipe.ast.Def;
 import net.cadrian.macchiato.recipe.ast.Expression;
 import net.cadrian.macchiato.recipe.ast.FormalArgs;
@@ -97,12 +99,14 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 	@Override
 	public void visitEmit(final Emit emit) {
 		LOGGER.debug("<-- {}", emit);
-		final TypedExpression expression = emit.getExpression();
-		if (expression == null) {
+		final TypedExpression eventExpression = emit.getMessage();
+		if (eventExpression == null) {
 			context.emit();
 		} else {
-			final AbstractEvent event = (AbstractEvent) context.eval(expression);
-			context.emit(event);
+			final Message event = (Message) context.eval(eventExpression);
+			final TypedExpression tickExpression = emit.getTick();
+			final BigInteger tick = (BigInteger) context.eval(tickExpression);
+			context.emit(event, tick);
 		}
 		LOGGER.debug("--> {}", emit);
 	}

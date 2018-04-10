@@ -1,38 +1,41 @@
 package net.cadrian.macchiato.recipe.interpreter;
 
+import java.math.BigInteger;
+
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.ShortMessage;
 
-import net.cadrian.macchiato.midi.Event;
+import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.ShortMessageType;
 
-class ShortEvent extends AbstractEvent {
+public class ShortEvent extends AbstractEvent {
 
 	private final ShortMessageType type;
-	private final ShortMessage message;
+	private final ShortMessage midiMessage;
 
-	public ShortEvent(final int index, final long tick, final ShortMessageType type, final ShortMessage message) {
-		super(index, tick);
+	public ShortEvent(final BigInteger tick, final ShortMessageType type, final ShortMessage message) {
+		super(tick);
 		this.type = type;
-		this.message = message;
+		this.midiMessage = message;
 	}
 
 	public ShortMessageType getType() {
 		return type;
 	}
 
-	public ShortMessage getMessage() {
-		return message;
+	@Override
+	public ShortMessage getMidiMessage() {
+		return midiMessage;
 	}
 
 	@Override
-	public Event asEvent() {
-		return type.createEvent(message.getChannel(), message.getData1(), message.getData2());
+	public Message createMessage() {
+		return type.createMessage(midiMessage.getChannel(), midiMessage.getData1(), midiMessage.getData2());
 	}
 
 	@Override
-	public MidiEvent asMidi() {
-		return new MidiEvent(message, getTick());
+	public MidiEvent createMidiEvent() {
+		return new MidiEvent(midiMessage, getTick().longValueExact());
 	}
 
 }

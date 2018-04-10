@@ -21,7 +21,7 @@ class Track {
 	}
 
 	public void add(final AbstractEvent event) {
-		output.add(event.asMidi());
+		output.add(event.createMidiEvent());
 	}
 
 }

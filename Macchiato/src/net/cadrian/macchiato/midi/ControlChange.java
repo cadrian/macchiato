@@ -47,17 +47,17 @@ public enum ControlChange {
 	static {
 		final Map<Integer, ControlChange> m = new HashMap<>();
 		for (final ControlChange mpc : values()) {
-			m.put(mpc.id, mpc);
+			m.put(mpc.code, mpc);
 		}
 		MAP = Collections.unmodifiableMap(m);
 	}
 
-	private final int id;
+	public final int code;
 	private final boolean flag;
 
-	private ControlChange(final int id) {
-		this.id = id;
-		this.flag = id > 63;
+	private ControlChange(final int code) {
+		this.code = code;
+		this.flag = code > 63;
 	}
 
 	public static ControlChange at(final int id) {

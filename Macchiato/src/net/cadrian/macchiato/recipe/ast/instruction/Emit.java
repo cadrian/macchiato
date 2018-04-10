@@ -1,9 +1,9 @@
 package net.cadrian.macchiato.recipe.ast.instruction;
 
+import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.recipe.ast.Instruction;
 import net.cadrian.macchiato.recipe.ast.Node;
 import net.cadrian.macchiato.recipe.ast.expression.TypedExpression;
-import net.cadrian.macchiato.recipe.interpreter.AbstractEvent;
 
 public class Emit implements Instruction {
 
@@ -12,12 +12,15 @@ public class Emit implements Instruction {
 	}
 
 	private final int position;
-	private final TypedExpression expression;
+	private final TypedExpression message;
+	private final TypedExpression tick;
 
-	public Emit(final int position, final TypedExpression expression) {
-		assert expression.getType() == AbstractEvent.class;
+	public Emit(final int position, final TypedExpression message, final TypedExpression tick) {
+		assert message.getType() == Message.class;
+		assert message != null || tick == null;
 		this.position = position;
-		this.expression = expression;
+		this.message = message;
+		this.tick = tick;
 	}
 
 	@Override
@@ -25,8 +28,12 @@ public class Emit implements Instruction {
 		return position;
 	}
 
-	public TypedExpression getExpression() {
-		return expression;
+	public TypedExpression getMessage() {
+		return message;
+	}
+
+	public TypedExpression getTick() {
+		return tick;
 	}
 
 	@Override
@@ -36,7 +43,13 @@ public class Emit implements Instruction {
 
 	@Override
 	public String toString() {
-		return expression == null ? "{Emit}" : ("{Emit " + expression + "}");
+		if (message == null) {
+			return "{Emit}";
+		}
+		if (tick == null) {
+			return "{Emit " + message + "}";
+		}
+		return "{Emit " + message + " at " + tick + "}";
 	}
 
 }
