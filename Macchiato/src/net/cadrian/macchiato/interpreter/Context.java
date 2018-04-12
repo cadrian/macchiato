@@ -1,4 +1,4 @@
-package net.cadrian.macchiato.recipe.interpreter;
+package net.cadrian.macchiato.interpreter;
 
 import java.math.BigInteger;
 
@@ -32,8 +32,10 @@ abstract class Context {
 	Object eval(final TypedExpression expression) {
 		final ExpressionEvaluationVisitor v = new ExpressionEvaluationVisitor(this, expression.getType());
 		expression.accept(v);
-		return v.getLastExpression();
+		return v.getLastValue();
 	}
+	
+	abstract Function getFunction(String name);
 
 	abstract <T> T get(String key);
 

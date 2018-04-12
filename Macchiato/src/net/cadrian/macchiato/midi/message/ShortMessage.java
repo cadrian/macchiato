@@ -4,10 +4,10 @@ import java.math.BigInteger;
 
 import javax.sound.midi.InvalidMidiDataException;
 
+import net.cadrian.macchiato.interpreter.AbstractEvent;
+import net.cadrian.macchiato.interpreter.ShortEvent;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.ShortMessageType;
-import net.cadrian.macchiato.recipe.interpreter.AbstractEvent;
-import net.cadrian.macchiato.recipe.interpreter.ShortEvent;
 
 public abstract class ShortMessage implements Message {
 

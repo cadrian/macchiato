@@ -1,4 +1,4 @@
-package net.cadrian.macchiato.recipe.interpreter;
+package net.cadrian.macchiato.interpreter;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -11,11 +11,14 @@ import net.cadrian.macchiato.midi.ControlChange;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.ShortMessageType;
+import net.cadrian.macchiato.recipe.ast.Def;
 
 class GlobalContext extends Context {
 
 	private final Interpreter interpreter;
 	private final Map<String, Object> global = new HashMap<>();
+	private final Map<String, Function> nativeFunctions = new HashMap<>();
+	private final Map<String, Function> functions = new HashMap<>();
 	private Track track;
 	private AbstractEvent event;
 	private boolean next;
@@ -81,6 +84,23 @@ class GlobalContext extends Context {
 	@Override
 	AbstractEvent getEvent() {
 		return event;
+	}
+
+	@Override
+	Function getFunction(final String name) {
+		final Function fn = functions.get(name);
+		if (fn != null) {
+			return fn;
+		}
+		final Function result;
+		final Def def = interpreter.recipe.getDef(name);
+		if (def == null) {
+			result = nativeFunctions.get(name);
+		} else {
+			result = new DefFunction(def);
+		}
+		functions.put(name, result);
+		return result;
 	}
 
 	@SuppressWarnings("unchecked")

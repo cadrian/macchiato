@@ -7,8 +7,8 @@ import java.io.IOException;
 
 import javax.sound.midi.InvalidMidiDataException;
 
+import net.cadrian.macchiato.interpreter.Interpreter;
 import net.cadrian.macchiato.recipe.ast.Recipe;
-import net.cadrian.macchiato.recipe.interpreter.Interpreter;
 import net.cadrian.macchiato.recipe.parser.Parser;
 
 public class Run {

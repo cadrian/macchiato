@@ -1,4 +1,4 @@
-package net.cadrian.macchiato.recipe.interpreter;
+package net.cadrian.macchiato.interpreter;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -6,9 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.cadrian.macchiato.recipe.ast.Def;
 import net.cadrian.macchiato.recipe.ast.Expression;
-import net.cadrian.macchiato.recipe.ast.FormalArgs;
 import net.cadrian.macchiato.recipe.ast.expression.CheckedExpression;
 import net.cadrian.macchiato.recipe.ast.expression.ExpressionVisitor;
 import net.cadrian.macchiato.recipe.ast.expression.FunctionCall;
@@ -29,22 +27,22 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 
 	private final Context context;
 	private final Class<?> expressionType;
-	private Object lastExpression;
+	private Object lastValue;
 
 	ExpressionEvaluationVisitor(final Context context, final Class<?> expressionType) {
 		this.context = context;
 		this.expressionType = expressionType;
 	}
 
-	public Object getLastExpression() {
-		return expressionType.cast(lastExpression);
+	public Object getLastValue() {
+		return expressionType.cast(lastValue);
 	}
 
 	@Override
 	public void visit(final TypedUnary typedUnary) {
 		LOGGER.debug("<-- {}", typedUnary);
 		typedUnary.getOperand().accept(this);
-		final Object operand = lastExpression;
+		final Object operand = lastValue;
 		if (operand == null) {
 			throw new InterpreterException("invalid null expression");
 		}
@@ -53,18 +51,18 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (!(operand instanceof Boolean)) {
 				throw new InterpreterException("invalid operand type");
 			}
-			lastExpression = ((Boolean) operand) ? Boolean.FALSE : Boolean.TRUE;
+			lastValue = ((Boolean) operand) ? Boolean.FALSE : Boolean.TRUE;
 			break;
 		case MINUS:
 			if (!(operand instanceof BigInteger)) {
 				throw new InterpreterException("invalid operand type");
 			}
-			lastExpression = ((BigInteger) operand).negate();
+			lastValue = ((BigInteger) operand).negate();
 			break;
 		default:
 			throw new InterpreterException("BUG: not implemented");
 		}
-		LOGGER.debug("--> {}", lastExpression);
+		LOGGER.debug("--> {}", lastValue);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -72,7 +70,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	public void visit(final TypedBinary typedBinary) {
 		LOGGER.debug("<-- {}", typedBinary);
 		typedBinary.getLeftOperand().accept(this);
-		final Object left = lastExpression;
+		final Object left = lastValue;
 		if (left == null) {
 			throw new InterpreterException("invalid null left expression");
 		}
@@ -82,22 +80,22 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type");
 			}
 			typedBinary.getRightOperand().accept(this);
-			if (lastExpression.getClass() != left.getClass()) {
+			if (lastValue.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types");
 			}
-			if (lastExpression instanceof String) {
-				lastExpression = ((String) left) + (String) lastExpression;
-			} else if (lastExpression instanceof BigInteger) {
-				lastExpression = ((BigInteger) left).add((BigInteger) lastExpression);
+			if (lastValue instanceof String) {
+				lastValue = ((String) left) + (String) lastValue;
+			} else if (lastValue instanceof BigInteger) {
+				lastValue = ((BigInteger) left).add((BigInteger) lastValue);
 			}
 			break;
 		case AND:
 			if (!(left instanceof Boolean)) {
 				throw new InterpreterException("invalid left operand type");
 			}
-			if (Boolean.TRUE.equals(lastExpression)) {
+			if (Boolean.TRUE.equals(lastValue)) {
 				typedBinary.getRightOperand().accept(this);
-				if (!(lastExpression instanceof Boolean)) {
+				if (!(lastValue instanceof Boolean)) {
 					throw new InterpreterException("invalid right operand type");
 				}
 			}
@@ -107,54 +105,54 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type");
 			}
 			typedBinary.getRightOperand().accept(this);
-			if (!(lastExpression instanceof BigInteger)) {
+			if (!(lastValue instanceof BigInteger)) {
 				throw new InterpreterException("invalid right operand type");
 			}
-			lastExpression = ((BigInteger) left).divide((BigInteger) lastExpression);
+			lastValue = ((BigInteger) left).divide((BigInteger) lastValue);
 			break;
 		case EQ:
 			typedBinary.getRightOperand().accept(this);
-			lastExpression = Boolean.valueOf(left.equals(lastExpression));
+			lastValue = Boolean.valueOf(left.equals(lastValue));
 			break;
 		case GE:
 			if (!(left instanceof Comparable)) {
 				throw new InterpreterException("invalid left operand type");
 			}
 			typedBinary.getRightOperand().accept(this);
-			if (lastExpression.getClass() != left.getClass()) {
+			if (lastValue.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types");
 			}
-			lastExpression = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastExpression) >= 0);
+			lastValue = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastValue) >= 0);
 			break;
 		case GT:
 			if (!(left instanceof Comparable)) {
 				throw new InterpreterException("invalid left operand type");
 			}
 			typedBinary.getRightOperand().accept(this);
-			if (lastExpression.getClass() != left.getClass()) {
+			if (lastValue.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types");
 			}
-			lastExpression = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastExpression) > 0);
+			lastValue = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastValue) > 0);
 			break;
 		case LE:
 			if (!(left instanceof Comparable)) {
 				throw new InterpreterException("invalid left operand type");
 			}
 			typedBinary.getRightOperand().accept(this);
-			if (lastExpression.getClass() != left.getClass()) {
+			if (lastValue.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types");
 			}
-			lastExpression = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastExpression) <= 0);
+			lastValue = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastValue) <= 0);
 			break;
 		case LT:
 			if (!(left instanceof Comparable)) {
 				throw new InterpreterException("invalid left operand type");
 			}
 			typedBinary.getRightOperand().accept(this);
-			if (lastExpression.getClass() != left.getClass()) {
+			if (lastValue.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types");
 			}
-			lastExpression = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastExpression) < 0);
+			lastValue = Boolean.valueOf(((Comparable<Object>) left).compareTo(lastValue) < 0);
 			break;
 		case MATCH:
 			if (!(left instanceof String)) {
@@ -166,22 +164,22 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type");
 			}
 			typedBinary.getRightOperand().accept(this);
-			if (!(lastExpression instanceof BigInteger)) {
+			if (!(lastValue instanceof BigInteger)) {
 				throw new InterpreterException("invalid right operand type");
 			}
-			lastExpression = ((BigInteger) left).multiply((BigInteger) lastExpression);
+			lastValue = ((BigInteger) left).multiply((BigInteger) lastValue);
 			break;
 		case NE:
 			typedBinary.getRightOperand().accept(this);
-			lastExpression = Boolean.valueOf(!left.equals(lastExpression));
+			lastValue = Boolean.valueOf(!left.equals(lastValue));
 			break;
 		case OR:
 			if (!(left instanceof Boolean)) {
 				throw new InterpreterException("invalid left operand type");
 			}
-			if (Boolean.FALSE.equals(lastExpression)) {
+			if (Boolean.FALSE.equals(lastValue)) {
 				typedBinary.getRightOperand().accept(this);
-				if (!(lastExpression instanceof Boolean)) {
+				if (!(lastValue instanceof Boolean)) {
 					throw new InterpreterException("invalid right operand type");
 				}
 			}
@@ -191,67 +189,66 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type");
 			}
 			typedBinary.getRightOperand().accept(this);
-			if (!(lastExpression instanceof BigInteger)) {
+			if (!(lastValue instanceof BigInteger)) {
 				throw new InterpreterException("invalid right operand type");
 			}
-			lastExpression = ((BigInteger) left).pow(((BigInteger) lastExpression).intValueExact());
+			lastValue = ((BigInteger) left).pow(((BigInteger) lastValue).intValueExact());
 			break;
 		case REMAINDER:
 			if (!(left instanceof BigInteger)) {
 				throw new InterpreterException("invalid left operand type");
 			}
 			typedBinary.getRightOperand().accept(this);
-			if (!(lastExpression instanceof BigInteger)) {
+			if (!(lastValue instanceof BigInteger)) {
 				throw new InterpreterException("invalid right operand type");
 			}
-			lastExpression = ((BigInteger) left).remainder((BigInteger) lastExpression);
+			lastValue = ((BigInteger) left).remainder((BigInteger) lastValue);
 			break;
 		case SUBTRACT:
 			if (!(left instanceof BigInteger)) {
 				throw new InterpreterException("invalid left operand type");
 			}
 			typedBinary.getRightOperand().accept(this);
-			if (!(lastExpression instanceof BigInteger)) {
+			if (!(lastValue instanceof BigInteger)) {
 				throw new InterpreterException("invalid right operand type");
 			}
-			lastExpression = ((BigInteger) left).subtract((BigInteger) lastExpression);
+			lastValue = ((BigInteger) left).subtract((BigInteger) lastValue);
 			break;
 		case XOR:
 			if (!(left instanceof Boolean)) {
 				throw new InterpreterException("invalid left operand type");
 			}
 			typedBinary.getRightOperand().accept(this);
-			if (!(lastExpression instanceof Boolean)) {
+			if (!(lastValue instanceof Boolean)) {
 				throw new InterpreterException("invalid right operand type");
 			}
-			lastExpression = Boolean
-					.valueOf(((Boolean) left).booleanValue() != ((Boolean) lastExpression).booleanValue());
+			lastValue = Boolean.valueOf(((Boolean) left).booleanValue() != ((Boolean) lastValue).booleanValue());
 			break;
 		default:
 			throw new InterpreterException("BUG: not implemented");
 		}
-		LOGGER.debug("--> {}", lastExpression);
+		LOGGER.debug("--> {}", lastValue);
 	}
 
 	@Override
 	public void visit(final ManifestString manifestString) {
 		LOGGER.debug("<-- {}", manifestString);
-		lastExpression = manifestString.getValue();
-		LOGGER.debug("--> {}", lastExpression);
+		lastValue = manifestString.getValue();
+		LOGGER.debug("--> {}", lastValue);
 	}
 
 	@Override
 	public void visit(final ManifestRegex manifestRegex) {
 		LOGGER.debug("<-- {}", manifestRegex);
-		lastExpression = manifestRegex.getValue();
-		LOGGER.debug("--> {}", lastExpression);
+		lastValue = manifestRegex.getValue();
+		LOGGER.debug("--> {}", lastValue);
 	}
 
 	@Override
 	public void visit(final ManifestNumeric manifestNumeric) {
 		LOGGER.debug("<-- {}", manifestNumeric);
-		lastExpression = manifestNumeric.getValue();
-		LOGGER.debug("--> {}", lastExpression);
+		lastValue = manifestNumeric.getValue();
+		LOGGER.debug("--> {}", lastValue);
 	}
 
 	@Override
@@ -260,12 +257,12 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		final Dictionary dictionary = new Dictionary();
 		for (final ManifestDictionary.Entry entry : manifestDictionary.getExpressions()) {
 			entry.getKey().accept(this);
-			final String key = (String) lastExpression;
+			final String key = (String) lastValue;
 			entry.getExpression().accept(this);
-			dictionary.set(key, lastExpression);
+			dictionary.set(key, lastValue);
 		}
-		lastExpression = dictionary;
-		LOGGER.debug("--> {}", lastExpression);
+		lastValue = dictionary;
+		LOGGER.debug("--> {}", lastValue);
 	}
 
 	@Override
@@ -275,85 +272,86 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		BigInteger index = BigInteger.ZERO;
 		for (final Expression expression : manifestArray.getExpressions()) {
 			expression.accept(this);
-			array.set(index, lastExpression);
+			array.set(index, lastValue);
 			index = index.add(BigInteger.ONE);
 		}
-		lastExpression = array;
-		LOGGER.debug("--> {}", lastExpression);
+		lastValue = array;
+		LOGGER.debug("--> {}", lastValue);
 	}
 
 	@Override
 	public void visit(final IndexedExpression indexedExpression) {
 		LOGGER.debug("<-- {}", indexedExpression);
 		indexedExpression.getIndexed().accept(this);
-		final Object target = lastExpression;
+		final Object target = lastValue;
 		if (target == null) {
 			throw new InterpreterException("invalid target");
 		}
 		indexedExpression.getIndex().accept(this);
-		final Object index = lastExpression;
+		final Object index = lastValue;
 		if (index instanceof BigInteger) {
 			if (!(target instanceof Array)) {
 				throw new InterpreterException("invalid target type");
 			}
-			lastExpression = ((Array) target).get((BigInteger) index);
+			lastValue = ((Array) target).get((BigInteger) index);
 		} else if (index instanceof String) {
 			if (!(target instanceof Dictionary)) {
 				throw new InterpreterException("invalid target type");
 			}
-			lastExpression = ((Dictionary) target).get((String) index);
+			lastValue = ((Dictionary) target).get((String) index);
 		} else {
 			throw new InterpreterException("invalid index type");
 		}
-		LOGGER.debug("--> {}", lastExpression);
+		LOGGER.debug("--> {}", lastValue);
 	}
 
 	@Override
 	public void visit(final Identifier identifier) {
 		LOGGER.debug("<-- {}", identifier);
-		lastExpression = context.get(identifier.getName());
-		LOGGER.debug("--> {}", lastExpression);
+		lastValue = context.get(identifier.getName());
+		LOGGER.debug("--> {}", lastValue);
 	}
 
 	@Override
 	public void visit(final Result result) {
 		LOGGER.debug("<-- {}", result);
-		this.lastExpression = context.get("result");
-		LOGGER.debug("--> {}", lastExpression);
+		this.lastValue = context.get("result");
+		LOGGER.debug("--> {}", lastValue);
 	}
 
 	@Override
 	public void visit(final FunctionCall functionCall) {
 		LOGGER.debug("<-- {}", functionCall);
-		final Def def = context.getInterpreter().recipe.getDef(functionCall.getName());
-		if (def == null) {
+		final Function fn = context.getFunction(functionCall.getName());
+		if (fn == null) {
 			throw new InterpreterException("unknown function " + functionCall.getName());
 		}
 		final LocalContext callContext = new LocalContext(context);
-		final FormalArgs args = def.getArgs();
+		final String[] argNames = fn.getArgNames();
+		final Class<?>[] argTypes = fn.getArgTypes();
 		final List<Expression> arguments = functionCall.getArguments();
-		if (args.size() != arguments.size()) {
+		if (argNames.length != arguments.size()) {
 			throw new InterpreterException("invalid parameters");
 		}
-		for (int i = 0; i < args.size(); i++) {
+		for (int i = 0; i < argNames.length; i++) {
 			final Expression argument = arguments.get(i);
-			final Object value = context.eval(argument.typed(Object.class));
-			callContext.set(args.get(i), value);
+			final Object value = context.eval(argument.typed(argTypes[i]));
+			callContext.set(argNames[i], value);
 		}
-		def.getInstruction().accept(new InstructionEvaluationVisitor(callContext));
-		lastExpression = callContext.get("result");
-		LOGGER.debug("--> {}", lastExpression);
+		fn.run(callContext);
+		lastValue = fn.getResultType().cast(callContext.get("result"));
+		LOGGER.debug("--> {}", lastValue);
 	}
 
 	@Override
 	public void visit(final CheckedExpression e) {
 		LOGGER.debug("<-- {}", e);
 		e.getToCheck().accept(this);
-		if (lastExpression != null && !e.getType().isAssignableFrom(lastExpression.getClass())) {
+		if (lastValue != null && !e.getType().isAssignableFrom(lastValue.getClass())) {
 			throw new InterpreterException("bad result type: expected " + e.getType().getSimpleName() + " but got "
-					+ lastExpression.getClass().getSimpleName());
+					+ lastValue.getClass().getSimpleName());
 		}
-		LOGGER.debug("--> {}", lastExpression);
+		LOGGER.debug("--> {}", lastValue);
 	}
 
 }

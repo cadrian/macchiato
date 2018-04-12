@@ -1,4 +1,4 @@
-package net.cadrian.macchiato.recipe.interpreter;
+package net.cadrian.macchiato.interpreter;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -7,9 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.midi.Message;
-import net.cadrian.macchiato.recipe.ast.Def;
 import net.cadrian.macchiato.recipe.ast.Expression;
-import net.cadrian.macchiato.recipe.ast.FormalArgs;
 import net.cadrian.macchiato.recipe.ast.Instruction;
 import net.cadrian.macchiato.recipe.ast.expression.TypedExpression;
 import net.cadrian.macchiato.recipe.ast.instruction.Assignment;
@@ -55,22 +53,23 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 	@Override
 	public void visit(final ProcedureCall procedureCall) {
 		LOGGER.debug("<-- {}", procedureCall);
-		final Def def = context.getInterpreter().recipe.getDef(procedureCall.getName());
-		if (def == null) {
+		final Function fn = context.getFunction(procedureCall.getName());
+		if (fn == null) {
 			throw new InterpreterException("unknown procedure " + procedureCall.getName());
 		}
 		final LocalContext callContext = new LocalContext(context);
-		final FormalArgs args = def.getArgs();
+		final String[] argNames = fn.getArgNames();
+		final Class<?>[] argTypes = fn.getArgTypes();
 		final List<Expression> arguments = procedureCall.getArguments();
-		if (args.size() != arguments.size()) {
+		if (argNames.length != arguments.size()) {
 			throw new InterpreterException("invalid parameters");
 		}
-		for (int i = 0; i < args.size(); i++) {
+		for (int i = 0; i < argNames.length; i++) {
 			final Expression argument = arguments.get(i);
-			final Object value = context.eval(argument.typed(Object.class));
-			callContext.set(args.get(i), value);
+			final Object value = context.eval(argument.typed(argTypes[i]));
+			callContext.set(argNames[i], value);
 		}
-		def.getInstruction().accept(new InstructionEvaluationVisitor(callContext));
+		fn.run(callContext);
 		LOGGER.debug("--> {}", procedureCall);
 	}
 

@@ -1,4 +1,4 @@
-package net.cadrian.macchiato.recipe.interpreter;
+package net.cadrian.macchiato.interpreter;
 
 class Track {
 

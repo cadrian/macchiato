@@ -19,4 +19,8 @@ public class FormalArgs {
 		return args.get(i);
 	}
 
+	public String[] toArray() {
+		return args.toArray(new String[args.size()]);
+	}
+
 }

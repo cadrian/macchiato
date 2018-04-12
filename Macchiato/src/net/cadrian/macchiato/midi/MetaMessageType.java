@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 
+import net.cadrian.macchiato.interpreter.Dictionary;
 import net.cadrian.macchiato.midi.message.m.CopyrightMessage;
 import net.cadrian.macchiato.midi.message.m.CuePointMessage;
 import net.cadrian.macchiato.midi.message.m.EndOfTrackMessage;
@@ -20,7 +21,6 @@ import net.cadrian.macchiato.midi.message.m.TempoMessage;
 import net.cadrian.macchiato.midi.message.m.TextMessage;
 import net.cadrian.macchiato.midi.message.m.TimeSignatureMessage;
 import net.cadrian.macchiato.midi.message.m.TrackNameMessage;
-import net.cadrian.macchiato.recipe.interpreter.Dictionary;
 
 public enum MetaMessageType {
 	SEQUENCE_NUMBER(0x00) {

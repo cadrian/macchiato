@@ -1,4 +1,4 @@
-package net.cadrian.macchiato.recipe.interpreter;
+package net.cadrian.macchiato.interpreter;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -43,6 +43,11 @@ class LocalContext extends Context {
 	@Override
 	void emit(final Message message, final BigInteger tick) {
 		parent.emit(message, tick);
+	}
+
+	@Override
+	Function getFunction(String name) {
+		return parent.getFunction(name);
 	}
 
 	@Override

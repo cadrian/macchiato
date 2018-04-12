@@ -1,4 +1,4 @@
-package net.cadrian.macchiato.recipe.interpreter;
+package net.cadrian.macchiato.interpreter;
 
 import net.cadrian.macchiato.recipe.ast.BoundFilter;
 import net.cadrian.macchiato.recipe.ast.ConditionFilter;

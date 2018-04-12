@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.cadrian.macchiato.interpreter.Dictionary;
 import net.cadrian.macchiato.recipe.ast.Expression;
 import net.cadrian.macchiato.recipe.ast.Node;
-import net.cadrian.macchiato.recipe.interpreter.Dictionary;
 
 public class ManifestDictionary implements TypedExpression {
 
