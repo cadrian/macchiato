@@ -32,4 +32,9 @@ public class NoteOnMessage extends ShortMessage {
 		((Visitor) v).visitNoteOn(this);
 	}
 
+	@Override
+	public String toString() {
+		return "NOTE_ON(" + channel + ", " + pitch + ", " + velocity + ")";
+	}
+
 }

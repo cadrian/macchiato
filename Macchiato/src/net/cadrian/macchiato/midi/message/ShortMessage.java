@@ -12,7 +12,7 @@ import net.cadrian.macchiato.midi.ShortMessageType;
 public abstract class ShortMessage implements Message {
 
 	private final ShortMessageType messageType;
-	private final int channel;
+	protected final int channel;
 
 	public ShortMessage(final int channel, final ShortMessageType messageType) {
 		this.messageType = messageType;

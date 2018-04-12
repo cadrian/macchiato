@@ -34,7 +34,7 @@ abstract class Context {
 		expression.accept(v);
 		return v.getLastValue();
 	}
-	
+
 	abstract Function getFunction(String name);
 
 	abstract <T> T get(String key);

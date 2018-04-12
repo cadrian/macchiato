@@ -42,6 +42,24 @@ public enum ShortMessageType {
 			messageData.set("velocity", BigInteger.valueOf(m.getVelocity()));
 			messageData.set("pitch", BigInteger.valueOf(m.getPitch()));
 		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_INT3;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_CHANNEL_PITCH_VELOCITY;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final BigInteger channel = (BigInteger) args[0];
+			final BigInteger velocity = (BigInteger) args[1];
+			final BigInteger pitch = (BigInteger) args[2];
+			return new NoteOffMessage(channel.intValueExact(), velocity.intValueExact(), pitch.intValueExact());
+		}
 	},
 	NOTE_ON(0x90) {
 		@Override
@@ -67,6 +85,24 @@ public enum ShortMessageType {
 			messageData.set("velocity", BigInteger.valueOf(m.getVelocity()));
 			messageData.set("pitch", BigInteger.valueOf(m.getPitch()));
 		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_INT3;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_CHANNEL_PITCH_VELOCITY;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final BigInteger channel = (BigInteger) args[0];
+			final BigInteger velocity = (BigInteger) args[1];
+			final BigInteger pitch = (BigInteger) args[2];
+			return new NoteOnMessage(channel.intValueExact(), velocity.intValueExact(), pitch.intValueExact());
+		}
 	},
 	POLY_PRESSURE(0xA0) {
 		@Override
@@ -91,6 +127,23 @@ public enum ShortMessageType {
 			final PolyPressureMessage m = (PolyPressureMessage) message;
 			messageData.set("channel", BigInteger.valueOf(m.getChannel()));
 			messageData.set("pressure", BigInteger.valueOf(m.getPressure()));
+		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_INT2;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_CHANNEL_PRESSURE;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final BigInteger channel = (BigInteger) args[0];
+			final BigInteger pressure = (BigInteger) args[1];
+			return new PolyPressureMessage(channel.intValueExact(), pressure.intValueExact());
 		}
 	},
 	CONTROL_CHANGE(0xB0) {
@@ -121,6 +174,24 @@ public enum ShortMessageType {
 			messageData.set("mpc", m.getMpc());
 			messageData.set("value", BigInteger.valueOf(m.getValue()));
 		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_MPC;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_CHANNEL_MPC_VALUE;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final BigInteger channel = (BigInteger) args[0];
+			final ControlChange mpc = (ControlChange) args[1];
+			final BigInteger value = (BigInteger) args[2];
+			return new ControlChangeMessage(channel.intValueExact(), mpc, value.intValueExact());
+		}
 	},
 	PROGRAM_CHANGE(0xC0) {
 		@Override
@@ -146,6 +217,23 @@ public enum ShortMessageType {
 			messageData.set("channel", BigInteger.valueOf(m.getChannel()));
 			messageData.set("patch", BigInteger.valueOf(m.getPatch()));
 		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_INT2;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_CHANNEL_PATCH;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final BigInteger channel = (BigInteger) args[0];
+			final BigInteger patch = (BigInteger) args[1];
+			return new ProgramChangeMessage(channel.intValueExact(), patch.intValueExact());
+		}
 	},
 	CHANNEL_PRESSURE(0xD0) {
 		@Override
@@ -170,6 +258,23 @@ public enum ShortMessageType {
 			final ChannelPressureMessage m = (ChannelPressureMessage) message;
 			messageData.set("channel", BigInteger.valueOf(m.getChannel()));
 			messageData.set("pressure", BigInteger.valueOf(m.getPressure()));
+		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_INT2;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_CHANNEL_PRESSURE;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final BigInteger channel = (BigInteger) args[0];
+			final BigInteger pressure = (BigInteger) args[1];
+			return new ChannelPressureMessage(channel.intValueExact(), pressure.intValueExact());
 		}
 	},
 	PITCH_BEND(0xE0) {
@@ -201,7 +306,35 @@ public enum ShortMessageType {
 			messageData.set("channel", BigInteger.valueOf(m.getChannel()));
 			messageData.set("value", BigInteger.valueOf(m.getValue()));
 		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_INT2;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_CHANNEL_VALUE;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final BigInteger channel = (BigInteger) args[0];
+			final BigInteger value = (BigInteger) args[1];
+			return new PitchBendMessage(channel.intValueExact(), value.intValueExact());
+		}
 	};
+
+	private static final String[] ARG_CHANNEL_VALUE = new String[] { "channel", "value" };
+	private static final String[] ARG_CHANNEL_PATCH = new String[] { "channel", "patch" };
+	private static final String[] ARG_CHANNEL_MPC_VALUE = new String[] { "channel", "mpc", "value" };
+	private static final String[] ARG_CHANNEL_PRESSURE = new String[] { "channel", "pressure" };
+	private static final String[] ARG_CHANNEL_PITCH_VELOCITY = new String[] { "channel", "pitch", "velocity" };
+
+	private static final Class<?>[] TYPE_MPC = new Class<?>[] { BigInteger.class, ControlChange.class,
+			BigInteger.class };
+	private static final Class<?>[] TYPE_INT2 = new Class<?>[] { BigInteger.class, BigInteger.class };
+	private static final Class<?>[] TYPE_INT3 = new Class<?>[] { BigInteger.class, BigInteger.class, BigInteger.class };
 
 	private static final Map<Integer, ShortMessageType> MAP;
 	static {
@@ -229,5 +362,11 @@ public enum ShortMessageType {
 	public abstract ShortMessage createMidiMessage(Message message) throws InvalidMidiDataException;
 
 	public abstract void fill(Dictionary messageData, Message message);
+
+	public abstract Class<?>[] getArgTypes();
+
+	public abstract String[] getArgNames();
+
+	public abstract Message create(Object... args);
 
 }

@@ -18,4 +18,9 @@ public class TextMessage extends AbstractTextMessage {
 		((Visitor) v).visitText(this);
 	}
 
+	@Override
+	public String toString() {
+		return "TEXT(\"" + text + "\")";
+	}
+
 }

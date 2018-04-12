@@ -26,4 +26,9 @@ public class PitchBendMessage extends ShortMessage {
 		((Visitor) v).visitPitchBend(this);
 	}
 
+	@Override
+	public String toString() {
+		return "PITCH_BEND(" + channel + ", " + value + ")";
+	}
+
 }

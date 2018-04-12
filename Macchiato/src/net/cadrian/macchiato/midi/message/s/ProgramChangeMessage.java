@@ -26,4 +26,9 @@ public class ProgramChangeMessage extends ShortMessage {
 		((Visitor) v).visitProgramChange(this);
 	}
 
+	@Override
+	public String toString() {
+		return "PROGRAM_CHANGE(" + channel + ", " + patch + ")";
+	}
+
 }

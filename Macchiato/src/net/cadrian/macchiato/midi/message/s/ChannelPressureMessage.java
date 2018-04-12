@@ -13,7 +13,7 @@ public class ChannelPressureMessage extends ShortMessage {
 	private final int pressure;
 
 	public ChannelPressureMessage(final int channel, final int pressure) {
-		super(channel, ShortMessageType.PROGRAM_CHANGE);
+		super(channel, ShortMessageType.CHANNEL_PRESSURE);
 		this.pressure = pressure;
 	}
 
@@ -24,7 +24,11 @@ public class ChannelPressureMessage extends ShortMessage {
 	@Override
 	public void accept(final Message.Visitor v) {
 		((Visitor) v).visitChannelPressure(this);
-		;
+	}
+
+	@Override
+	public String toString() {
+		return "CHANNEL_PRESSURE(" + channel + "," + pressure + ")";
 	}
 
 }

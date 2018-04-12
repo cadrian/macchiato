@@ -18,4 +18,9 @@ public class InstrumentNameMessage extends AbstractTextMessage {
 		((Visitor) v).visitInstrumentName(this);
 	}
 
+	@Override
+	public String toString() {
+		return "INSTRUMENT_NAME(\"" + text + "\")";
+	}
+
 }

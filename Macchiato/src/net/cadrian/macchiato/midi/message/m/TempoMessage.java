@@ -26,4 +26,9 @@ public class TempoMessage extends MetaMessage {
 		((Visitor) v).visitTempo(this);
 	}
 
+	@Override
+	public String toString() {
+		return "TEMPO(" + bpm + ")";
+	}
+
 }

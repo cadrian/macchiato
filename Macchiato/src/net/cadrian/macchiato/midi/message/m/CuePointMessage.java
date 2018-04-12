@@ -18,4 +18,9 @@ public class CuePointMessage extends AbstractTextMessage {
 		((Visitor) v).visitCuePoint(this);
 	}
 
+	@Override
+	public String toString() {
+		return "CUE_POINT(\"" + text + "\")";
+	}
+
 }

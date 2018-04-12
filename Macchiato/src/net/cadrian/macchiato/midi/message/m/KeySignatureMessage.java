@@ -32,4 +32,9 @@ public class KeySignatureMessage extends MetaMessage {
 		((Visitor) v).visitKeySignature(this);
 	}
 
+	@Override
+	public String toString() {
+		return "KEY_SIGNATURE(" + keysig + ", " + mode + ")";
+	}
+
 }

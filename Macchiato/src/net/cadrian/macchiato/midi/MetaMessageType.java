@@ -31,7 +31,7 @@ public enum MetaMessageType {
 
 		@Override
 		public Message createMessage(final byte[] data) {
-			return new SequenceNumberMessage(new BigInteger(1, data).intValue());
+			return new SequenceNumberMessage(new BigInteger(1, data).intValueExact());
 		}
 
 		@Override
@@ -44,6 +44,22 @@ public enum MetaMessageType {
 		public void fill(final Dictionary messageData, final Message message) {
 			final SequenceNumberMessage e = (SequenceNumberMessage) message;
 			messageData.set("sequence", BigInteger.valueOf(e.getSequence()));
+		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_INT1;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_SEQUENCE;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final BigInteger sequence = (BigInteger) args[0];
+			return new SequenceNumberMessage(sequence.intValueExact());
 		}
 	},
 	TEXT(0x01) {
@@ -69,6 +85,22 @@ public enum MetaMessageType {
 			final TextMessage m = (TextMessage) message;
 			messageData.set("text", m.getText());
 		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_STR1;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_TEXT;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final String text = (String) args[0];
+			return new TextMessage(text);
+		}
 	},
 	COPYRIGHT(0x02) {
 		@Override
@@ -92,6 +124,22 @@ public enum MetaMessageType {
 		public void fill(final Dictionary messageData, final Message message) {
 			final CopyrightMessage m = (CopyrightMessage) message;
 			messageData.set("text", m.getText());
+		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_STR1;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_TEXT;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final String text = (String) args[0];
+			return new CopyrightMessage(text);
 		}
 	},
 	TRACK_NAME(0x03) {
@@ -117,6 +165,22 @@ public enum MetaMessageType {
 			final TrackNameMessage m = (TrackNameMessage) message;
 			messageData.set("text", m.getText());
 		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_STR1;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_TEXT;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final String text = (String) args[0];
+			return new TrackNameMessage(text);
+		}
 	},
 	INSTRUMENT_NAME(0x04) {
 		@Override
@@ -140,6 +204,22 @@ public enum MetaMessageType {
 		public void fill(final Dictionary messageData, final Message message) {
 			final InstrumentNameMessage m = (InstrumentNameMessage) message;
 			messageData.set("text", m.getText());
+		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_STR1;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_TEXT;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final String text = (String) args[0];
+			return new InstrumentNameMessage(text);
 		}
 	},
 	LYRICS(0x05) {
@@ -165,6 +245,22 @@ public enum MetaMessageType {
 			final LyricsMessage m = (LyricsMessage) message;
 			messageData.set("text", m.getText());
 		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_STR1;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_TEXT;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final String text = (String) args[0];
+			return new LyricsMessage(text);
+		}
 	},
 	MARKER_TEXT(0x06) {
 		@Override
@@ -189,6 +285,22 @@ public enum MetaMessageType {
 			final MarkerTextMessage m = (MarkerTextMessage) message;
 			messageData.set("text", m.getText());
 		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_STR1;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_TEXT;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final String text = (String) args[0];
+			return new MarkerTextMessage(text);
+		}
 	},
 	CUE_POINT(0x07) {
 		@Override
@@ -212,6 +324,22 @@ public enum MetaMessageType {
 		public void fill(final Dictionary messageData, final Message message) {
 			final CuePointMessage m = (CuePointMessage) message;
 			messageData.set("text", m.getText());
+		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_STR1;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_TEXT;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final String text = (String) args[0];
+			return new CuePointMessage(text);
 		}
 	},
 	CHANNEL_PREFIX(0x20) {
@@ -238,6 +366,24 @@ public enum MetaMessageType {
 			// TODO Auto-generated method stub
 
 		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	},
 	END_OF_TRACK(0x2F) {
 		@Override
@@ -258,6 +404,21 @@ public enum MetaMessageType {
 
 		@Override
 		public void fill(final Dictionary messageData, final Message message) {
+		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_0;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_0;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			return new EndOfTrackMessage();
 		}
 	},
 	TEMPO(0x51) {
@@ -289,6 +450,22 @@ public enum MetaMessageType {
 		public void fill(final Dictionary messageData, final Message message) {
 			final TempoMessage m = (TempoMessage) message;
 			messageData.set("bpm", BigInteger.valueOf(m.getBpm()));
+		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_INT1;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_BPM;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final BigInteger mpq = (BigInteger) args[0];
+			return new TempoMessage(mpq.intValueExact());
 		}
 	},
 	TIME_SIGNATURE(0x58) {
@@ -332,6 +509,26 @@ public enum MetaMessageType {
 			messageData.set("denominator", BigInteger.valueOf(m.getDenominator()));
 			messageData.set("metronome", BigInteger.valueOf(m.getMetronome()));
 			messageData.set("ticks", BigInteger.valueOf(m.getTicks()));
+		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_INT4;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_TIMESIG;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final BigInteger numerator = (BigInteger) args[0];
+			final BigInteger denominator = (BigInteger) args[1];
+			final BigInteger metronome = (BigInteger) args[2];
+			final BigInteger ticks = (BigInteger) args[3];
+			return new TimeSignatureMessage(numerator.byteValueExact(), denominator.byteValueExact(),
+					metronome.byteValueExact(), ticks.byteValueExact());
 		}
 	},
 	KEY_SIGNATURE(0x59) {
@@ -435,8 +632,37 @@ public enum MetaMessageType {
 			messageData.set("keysig", BigInteger.valueOf(m.getKeysig()));
 			messageData.set("mode", BigInteger.valueOf(m.getMode()));
 		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_INT2;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_KEYSIG;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final BigInteger keysig = (BigInteger) args[0];
+			final BigInteger mode = (BigInteger) args[1];
+			return new KeySignatureMessage(keysig.byteValueExact(), mode.byteValueExact());
+		}
 	};
 
+	private static final String[] ARG_KEYSIG = new String[] { "keysig", "mode" };
+	private static final String[] ARG_TIMESIG = new String[] { "numerator", "denominator", "metronome", "ticks" };
+	private static final String[] ARG_BPM = new String[] { "bpm" };
+	private static final String[] ARG_0 = new String[0];
+	private static final Class<?>[] TYPE_0 = new Class<?>[0];
+	private static final String[] ARG_TEXT = new String[] { "text" };
+	private static final Class<?>[] TYPE_STR1 = new Class<?>[] { String.class };
+	private static final String[] ARG_SEQUENCE = new String[] { "sequence" };
+	private static final Class<?>[] TYPE_INT1 = new Class<?>[] { BigInteger.class };
+	private static final Class<?>[] TYPE_INT2 = new Class<?>[] { BigInteger.class, BigInteger.class };
+	private static final Class<?>[] TYPE_INT4 = new Class<?>[] { BigInteger.class, BigInteger.class, BigInteger.class,
+			BigInteger.class };
 	private static final BigInteger BPM_MPQ_FACTOR = new BigInteger("60000000");
 	private static final Map<Byte, MetaMessageType> MAP;
 	static {
@@ -464,4 +690,10 @@ public enum MetaMessageType {
 	public abstract MetaMessage createMidiMessage(Message message) throws InvalidMidiDataException;
 
 	public abstract void fill(final Dictionary messageData, final Message message);
+
+	public abstract Class<?>[] getArgTypes();
+
+	public abstract String[] getArgNames();
+
+	public abstract Message create(Object... args);
 }

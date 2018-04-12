@@ -46,7 +46,7 @@ class LocalContext extends Context {
 	}
 
 	@Override
-	Function getFunction(String name) {
+	Function getFunction(final String name) {
 		return parent.getFunction(name);
 	}
 

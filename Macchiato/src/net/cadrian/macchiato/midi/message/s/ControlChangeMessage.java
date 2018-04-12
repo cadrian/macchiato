@@ -33,4 +33,9 @@ public class ControlChangeMessage extends ShortMessage {
 		((Visitor) v).visitControlChange(this);
 	}
 
+	@Override
+	public String toString() {
+		return "CONTROL_CHANGE(" + channel + ", " + mpc + ", " + value + ")";
+	}
+
 }

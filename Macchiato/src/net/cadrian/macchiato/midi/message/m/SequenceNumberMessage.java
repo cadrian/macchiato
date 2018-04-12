@@ -26,4 +26,9 @@ public class SequenceNumberMessage extends MetaMessage {
 		((Visitor) v).visitSequenceNumberEvent(this);
 	}
 
+	@Override
+	public String toString() {
+		return "SEQUENCE_NUMBER(" + sequence + ")";
+	}
+
 }

@@ -19,4 +19,9 @@ public class EndOfTrackMessage extends MetaMessage {
 		((Visitor) v).visitEndOfTrack(this);
 	}
 
+	@Override
+	public String toString() {
+		return "END_OF_TRACK()";
+	}
+
 }

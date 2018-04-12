@@ -26,4 +26,9 @@ public class PolyPressureMessage extends ShortMessage {
 		((Visitor) v).visitPolyPressure(this);
 	}
 
+	@Override
+	public String toString() {
+		return "POLY_PRESSURE(" + channel + ", " + pressure + ")";
+	}
+
 }

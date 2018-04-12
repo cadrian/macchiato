@@ -18,4 +18,9 @@ public class TrackNameMessage extends AbstractTextMessage {
 		((Visitor) v).visitTrackName(this);
 	}
 
+	@Override
+	public String toString() {
+		return "TRACK_NAME(\"" + text + "\")";
+	}
+
 }

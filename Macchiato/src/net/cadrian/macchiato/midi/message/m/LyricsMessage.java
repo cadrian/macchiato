@@ -18,4 +18,9 @@ public class LyricsMessage extends AbstractTextMessage {
 		((Visitor) v).visitLyrics(this);
 	}
 
+	@Override
+	public String toString() {
+		return "LYRICS(\"" + text + "\")";
+	}
+
 }

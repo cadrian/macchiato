@@ -5,7 +5,7 @@ import net.cadrian.macchiato.midi.message.MetaMessage;
 
 abstract class AbstractTextMessage extends MetaMessage {
 
-	private final String text;
+	protected final String text;
 
 	public AbstractTextMessage(final MetaMessageType messageType, final String text) {
 		super(messageType);

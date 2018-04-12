@@ -18,4 +18,9 @@ public class MarkerTextMessage extends AbstractTextMessage {
 		((Visitor) v).visitMarkerText(this);
 	}
 
+	@Override
+	public String toString() {
+		return "MARKER_TEXT(\"" + text + "\")";
+	}
+
 }

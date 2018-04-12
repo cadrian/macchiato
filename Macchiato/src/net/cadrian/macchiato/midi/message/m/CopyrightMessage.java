@@ -18,4 +18,9 @@ public class CopyrightMessage extends AbstractTextMessage {
 		((Visitor) v).visitCopyright(this);
 	}
 
+	@Override
+	public String toString() {
+		return "COPYRIGHT(\"" + text + "\")";
+	}
+
 }

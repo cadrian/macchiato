@@ -4,7 +4,7 @@ BEGIN TRACK {
 	notes = [];
 }
 
-event.type == NOTE_ON and event.velocity > 0 {
+(event.type == NOTE_ON) and (event.velocity > 0) {
 	notes[event.pitch] = event.velocity;
 	# emits the current event
 	emit;
@@ -12,9 +12,9 @@ event.type == NOTE_ON and event.velocity > 0 {
 	next;
 }
 
-event.type == NOTE_ON and event.velocity == 0 {
+(event.type == NOTE_ON) and (event.velocity == 0) {
 	# emits a new event (instead of the analyzed one)
-	emit NOTE_OFF(event.pitch, notes[event.pitch]);
+	emit NOTE_OFF(event.channel, event.pitch, notes[event.pitch]);
 	# next is necessary to skip the default event emission
 	next;
 }

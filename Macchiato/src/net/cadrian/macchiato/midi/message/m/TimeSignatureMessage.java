@@ -44,4 +44,9 @@ public class TimeSignatureMessage extends MetaMessage {
 		((Visitor) v).visitTimeSignature(this);
 	}
 
+	@Override
+	public String toString() {
+		return "TIME_SIGNATURE(" + numerator + ", " + denominator + ", " + metronome + ", " + ticks + ")";
+	}
+
 }

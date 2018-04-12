@@ -27,9 +27,11 @@ class GlobalContext extends Context {
 		this.interpreter = interpreter;
 		for (final MetaMessageType type : MetaMessageType.values()) {
 			global.put(type.name(), type);
+			nativeFunctions.put(type.name(), new MetaMessageCreationFunction(type));
 		}
 		for (final ShortMessageType type : ShortMessageType.values()) {
 			global.put(type.name(), type);
+			nativeFunctions.put(type.name(), new ShortMessageCreationFunction(type));
 		}
 		for (final ControlChange mpc : ControlChange.values()) {
 			global.put(mpc.name(), mpc);
