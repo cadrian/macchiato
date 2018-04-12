@@ -1,21 +1,34 @@
 # Called at each beginning of track. Other special markers are BEGIN SEQUENCE, END SEQUENCE, and END TRACK.
 BEGIN TRACK {
-    # not necessary (variables are initialized as needed)
+    # reset global variables at track beginning
 	notes = [];
+	expression = 127;
+}
+
+(event.type == CONTROL_CHANGE) and (event.mpc == EXPRESSION) {
+    # record the expression value
+    expression = event.value;
+	# next "skips" the remainder of recipes and analyzes the next event
+	# (in this case the old expression event is not emitted at all)
+    next;
 }
 
 (event.type == NOTE_ON) and (event.velocity > 0) {
 	notes[event.pitch] = event.velocity;
-	# emits the current event
-	emit;
-	# next "skips" the remainder of recipes and analyzes the next event
+	emit NOTE_ON(event.channel, event.pitch, (event.velocity * expression) / 127);
 	next;
 }
 
 (event.type == NOTE_ON) and (event.velocity == 0) {
 	# emits a new event (instead of the analyzed one)
-	emit NOTE_OFF(event.channel, event.pitch, notes[event.pitch]);
-	# next is necessary to skip the default event emission
+	# Note that expression may have changed so the release velocity is not
+	# necessarily equal to the press velocity
+	emit NOTE_OFF(event.channel, event.pitch, (notes[event.pitch] * expression) / 127);
+	next;
+}
+
+(event.type == NOTE_OFF) {
+	emit NOTE_OFF(event.channel, event.pitch, (event.velocity * expression) / 127);
 	next;
 }
 
