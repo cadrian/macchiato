@@ -2,12 +2,17 @@
 BEGIN TRACK {
     # reset global variables at track beginning
 	notes = [];
-	expression = 127;
+	expression = [];
+	i = 0;
+	while (i < 16) {
+		expression[i] = 127;
+		i = i + 1;
+	}
 }
 
 (event.type == CONTROL_CHANGE) and (event.mpc == EXPRESSION) {
     # record the expression value
-    expression = event.value;
+    expression[event.channel] = event.value;
 	# next "skips" the remainder of recipes and analyzes the next event
 	# (in this case the old expression event is not emitted at all)
     next;
@@ -15,7 +20,7 @@ BEGIN TRACK {
 
 (event.type == NOTE_ON) and (event.velocity > 0) {
 	notes[event.pitch] = event.velocity;
-	emit NOTE_ON(event.channel, event.pitch, (event.velocity * expression) / 127);
+	emit NOTE_ON(event.channel, event.pitch, (event.velocity * expression[event.channel]) / 127);
 	next;
 }
 
@@ -23,12 +28,12 @@ BEGIN TRACK {
 	# emits a new event (instead of the analyzed one)
 	# Note that expression may have changed so the release velocity is not
 	# necessarily equal to the press velocity
-	emit NOTE_OFF(event.channel, event.pitch, (notes[event.pitch] * expression) / 127);
+	emit NOTE_OFF(event.channel, event.pitch, (notes[event.pitch] * expression[event.channel]) / 127);
 	next;
 }
 
 (event.type == NOTE_OFF) {
-	emit NOTE_OFF(event.channel, event.pitch, (event.velocity * expression) / 127);
+	emit NOTE_OFF(event.channel, event.pitch, (event.velocity * expression[event.channel]) / 127);
 	next;
 }
 
