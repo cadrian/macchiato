@@ -76,7 +76,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		}
 		switch (typedBinary.getOperator()) {
 		case ADD:
-			if (!(left instanceof String) && (left instanceof BigInteger)) {
+			if (!(left instanceof String) && !(left instanceof BigInteger)) {
 				throw new InterpreterException("invalid left operand type");
 			}
 			typedBinary.getRightOperand().accept(this);
