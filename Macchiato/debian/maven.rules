@@ -1,0 +1,3 @@
+
+net.cadrian.macchiato Macchiato jar * * *
+net.cadrian.macchiato Macchiato jar s/.*/debian/ * *

@@ -1,0 +1,17 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Macchiato
+Source: 
+
+Files: *
+Copyright: 2018, Cyril Adrian
+License: GPL-3
+
+Files: debian/*
+Copyright: 2018, Cyril Adrian <cyril.adrian+apt@gmail.com>
+License: GPL-3
+
+License: GPL-3
+ On Debian systems, the full text of the GPL-3 license
+ can be found in the file '/usr/share/common-licenses/GPL-3'
+
+
