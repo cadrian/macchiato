@@ -3,13 +3,12 @@ package net.cadrian.macchiato.recipe;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.IOException;
-
-import javax.sound.midi.InvalidMidiDataException;
 
 import net.cadrian.macchiato.interpreter.Interpreter;
+import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.recipe.ast.Recipe;
 import net.cadrian.macchiato.recipe.parser.Parser;
+import net.cadrian.macchiato.recipe.parser.ParserException;
 
 public class Run {
 
@@ -20,14 +19,18 @@ public class Run {
 		}
 		try (final FileReader reader = new FileReader(args[0])) {
 			final Parser parser = new Parser(reader);
-			final Recipe recipe = parser.parse();
-			final Interpreter interpreter = new Interpreter(recipe);
-			if (args.length > 1) {
-				interpreter.run(new FileInputStream(args[1]), new FileOutputStream(args[1] + ".out"));
-			} else {
-				interpreter.run();
+			try {
+				final Recipe recipe = parser.parse();
+				final Interpreter interpreter = new Interpreter(recipe);
+				if (args.length > 1) {
+					interpreter.run(new FileInputStream(args[1]), new FileOutputStream(args[1] + ".out"));
+				} else {
+					interpreter.run();
+				}
+			} catch (final InterpreterException e) {
+				throw new ParserException(parser.error(e.getMessage(), e.getPosition()), e);
 			}
-		} catch (final IOException | InvalidMidiDataException e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}

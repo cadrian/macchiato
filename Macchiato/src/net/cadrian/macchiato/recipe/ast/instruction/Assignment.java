@@ -7,7 +7,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class Assignment implements Instruction {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(Assignment assignment);
+		void visitAssignment(Assignment assignment);
 	}
 
 	private final Expression leftSide;
@@ -33,7 +33,7 @@ public class Assignment implements Instruction {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitAssignment(this);
 	}
 
 	@Override

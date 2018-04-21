@@ -6,7 +6,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class IndexedExpression implements Expression {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(IndexedExpression indexedExpression);
+		void visitIndexedExpression(IndexedExpression indexedExpression);
 	}
 
 	private final Expression indexed;
@@ -37,7 +37,7 @@ public class IndexedExpression implements Expression {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitIndexedExpression(this);
 	}
 
 	@Override

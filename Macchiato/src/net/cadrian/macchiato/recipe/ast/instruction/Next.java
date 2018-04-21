@@ -6,7 +6,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class Next implements Instruction {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(Next next);
+		void visitNext(Next next);
 	}
 
 	private final int position;
@@ -22,7 +22,7 @@ public class Next implements Instruction {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitNext(this);
 	}
 
 	@Override

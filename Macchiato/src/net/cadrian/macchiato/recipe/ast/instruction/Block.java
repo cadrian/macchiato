@@ -10,7 +10,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class Block implements Instruction {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(Block block);
+		void visitBlock(Block block);
 	}
 
 	private final int position;
@@ -31,7 +31,7 @@ public class Block implements Instruction {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitBlock(this);
 	}
 
 	public List<Instruction> getInstructions() {

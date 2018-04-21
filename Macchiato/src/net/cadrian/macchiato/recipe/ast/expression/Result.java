@@ -6,7 +6,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class Result implements Expression {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(Result result);
+		void visitResult(Result result);
 	}
 
 	private final int position;
@@ -27,7 +27,7 @@ public class Result implements Expression {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitResult(this);
 	}
 
 	@Override

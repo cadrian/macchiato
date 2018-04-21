@@ -7,7 +7,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class ManifestRegex implements TypedExpression {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(ManifestRegex manifestRegex);
+		void visitManifestRegex(ManifestRegex manifestRegex);
 	}
 
 	private final Pattern value;
@@ -42,7 +42,7 @@ public class ManifestRegex implements TypedExpression {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitManifestRegex(this);
 	}
 
 	@Override

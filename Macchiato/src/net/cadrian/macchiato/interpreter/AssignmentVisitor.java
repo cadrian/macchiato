@@ -24,13 +24,13 @@ class AssignmentVisitor implements ExpressionVisitor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AssignmentVisitor.class);
 
-	@FunctionalInterface
 	private static interface Setter {
 		void set(Object value);
 	}
 
 	private final Context context;
-	private Object value;
+
+	private Object previousValue;
 	private Setter setter;
 
 	AssignmentVisitor(final Context context) {
@@ -38,111 +38,170 @@ class AssignmentVisitor implements ExpressionVisitor {
 	}
 
 	void assign(final Expression target, final Object value) {
-		this.value = null;
+		previousValue = null;
 		setter = null;
 		target.accept(this);
 		setter.set(value);
 	}
 
 	@Override
-	public void visit(final CheckedExpression e) {
+	public void visitCheckedExpression(final CheckedExpression e) {
 		LOGGER.debug("<-- {}", e);
 		e.getToCheck().accept(this);
-		LOGGER.debug("--> {}", value);
+		LOGGER.debug("-->");
 	}
 
 	@Override
-	public void visit(final FunctionCall functionCall) {
-		throw new InterpreterException("Cannot assign to a function call");
+	public void visitFunctionCall(final FunctionCall functionCall) {
+		throw new InterpreterException("Cannot assign to a function call", functionCall.position());
 	}
 
-	@Override
-	public void visit(final Identifier identifier) {
-		LOGGER.debug("<-- {}", identifier);
-		final String key = identifier.getName();
-		value = context.get(key);
-		setter = (final Object value) -> {
+	private class IdentifierSetter implements Setter {
+		private final Identifier identifier;
+
+		IdentifierSetter(final Identifier identifier) {
+			this.identifier = identifier;
+		}
+
+		@Override
+		public void set(final Object value) {
+			final String key = identifier.getName();
 			LOGGER.debug("Setting global {} to {}", key, value);
 			context.setGlobal(key, value);
-		};
-		LOGGER.debug("--> {}", value);
+		}
 	}
 
 	@Override
-	public void visit(final Result result) {
-		LOGGER.debug("<-- {}", result);
-		value = context.get("result");
-		setter = (final Object value) -> {
+	public void visitIdentifier(final Identifier identifier) {
+		LOGGER.debug("<-- {}", identifier);
+		previousValue = context.get(identifier.getName());
+		setter = new IdentifierSetter(identifier);
+		LOGGER.debug("--> {}", previousValue);
+	}
+
+	private class ResultSetter implements Setter {
+
+		ResultSetter() {
+		}
+
+		@Override
+		public void set(final Object value) {
 			LOGGER.debug("Setting result to {}", value);
 			context.set("result", value);
-		};
-		LOGGER.debug("--> {}", value);
-	}
-
-	@Override
-	public void visit(final IndexedExpression indexedExpression) {
-		LOGGER.debug("<-- {}", indexedExpression);
-		indexedExpression.getIndexed().accept(this);
-		final Object index = context.eval(indexedExpression.getIndex());
-		if (index instanceof BigInteger) {
-			if (value != null && !(value instanceof Array)) {
-				throw new InterpreterException("invalid index");
-			}
-			final Array array = value == null ? new Array() : (Array) value;
-			value = array;
-			setter = (final Object value) -> {
-				LOGGER.debug("Setting array index {} to {}", index, value);
-				array.set((BigInteger) index, value);
-			};
-		} else if (index instanceof String) {
-			if (value != null && !(value instanceof Dictionary)) {
-				throw new InterpreterException("invalid index");
-			}
-			final Dictionary dictionary = value == null ? new Dictionary() : (Dictionary) value;
-			value = dictionary;
-			setter = (final Object value) -> {
-				LOGGER.debug("Setting dictionary index {} to {}", index, value);
-				dictionary.set((String) index, value);
-			};
-		} else {
-			throw new InterpreterException("Cannot use " + index.getClass().getSimpleName() + " as index");
 		}
-		LOGGER.debug("--> {}", value);
 	}
 
 	@Override
-	public void visit(final ManifestArray array) {
-		throw new InterpreterException("Invalid left-side assignment");
+	public void visitResult(final Result result) {
+		LOGGER.debug("<-- {}", result);
+		previousValue = context.get("result");
+		setter = new ResultSetter();
+		LOGGER.debug("--> {}", previousValue);
+	}
+
+	private abstract class ContainerSetter<I, C extends Container<I>> implements Setter {
+		private final C container;
+		private final Setter setter;
+		private final I index;
+
+		ContainerSetter(final C container, final Setter setter, final I index) {
+			this.container = container;
+			this.setter = setter;
+			this.index = index;
+		}
+
+		@Override
+		public void set(final Object value) {
+			final C actualContainer = container == null ? newContainer() : container;
+			LOGGER.debug("--> setting container {} to {} at {}", actualContainer, value, index);
+			actualContainer.set(index, value);
+			setter.set(actualContainer);
+			LOGGER.debug("<--");
+		}
+
+		protected abstract C newContainer();
+	}
+
+	private class ArraySetter extends ContainerSetter<BigInteger, Array> {
+		ArraySetter(final Array container, final Setter setter, final BigInteger index) {
+			super(container, setter, index);
+		}
+
+		@Override
+		protected Array newContainer() {
+			return new Array();
+		}
+	}
+
+	private class DictionarySetter extends ContainerSetter<String, Dictionary> {
+		DictionarySetter(final Dictionary container, final Setter setter, final String index) {
+			super(container, setter, index);
+		}
+
+		@Override
+		protected Dictionary newContainer() {
+			return new Dictionary();
+		}
 	}
 
 	@Override
-	public void visit(final ManifestDictionary dictionary) {
-		throw new InterpreterException("Invalid left-side assignment");
+	public void visitIndexedExpression(final IndexedExpression indexedExpression) {
+		LOGGER.debug("<-- {}", indexedExpression);
+		final Object index = context.eval(indexedExpression.getIndex());
+		indexedExpression.getIndexed().accept(this);
+		final Setter indexedSetter = setter;
+		if (index instanceof BigInteger) {
+			if (previousValue != null && !(previousValue instanceof Array)) {
+				throw new InterpreterException("invalid index", indexedExpression.getIndex().position());
+			}
+			setter = new ArraySetter((Array) previousValue, indexedSetter, (BigInteger) index);
+			previousValue = ((Array) previousValue).get((BigInteger) index);
+		} else if (index instanceof String) {
+			if (previousValue != null && !(previousValue instanceof Dictionary)) {
+				throw new InterpreterException("invalid index", indexedExpression.getIndex().position());
+			}
+			setter = new DictionarySetter((Dictionary) previousValue, indexedSetter, (String) index);
+			previousValue = ((Dictionary) previousValue).get((String) index);
+		} else {
+			throw new InterpreterException("Cannot use " + index.getClass().getSimpleName() + " as index",
+					indexedExpression.position());
+		}
+		LOGGER.debug("--> {}", previousValue);
 	}
 
 	@Override
-	public void visit(final ManifestNumeric manifestNumeric) {
-		throw new InterpreterException("Invalid left-side assignment");
+	public void visitManifestArray(final ManifestArray array) {
+		throw new InterpreterException("Invalid left-side assignment", array.position());
 	}
 
 	@Override
-	public void visit(final ManifestRegex manifestRegex) {
-		throw new InterpreterException("Invalid left-side assignment");
+	public void visitManifestDictionary(final ManifestDictionary dictionary) {
+		throw new InterpreterException("Invalid left-side assignment", dictionary.position());
 	}
 
 	@Override
-	public void visit(final ManifestString manifestString) {
-		throw new InterpreterException("Invalid left-side assignment");
+	public void visitManifestNumeric(final ManifestNumeric manifestNumeric) {
+		throw new InterpreterException("Invalid left-side assignment", manifestNumeric.position());
 	}
 
 	@Override
-	public void visit(final TypedBinary typedBinary) {
-		throw new InterpreterException("Invalid left-side assignment");
+	public void visitManifestRegex(final ManifestRegex manifestRegex) {
+		throw new InterpreterException("Invalid left-side assignment", manifestRegex.position());
 	}
 
 	@Override
-	public void visit(final TypedUnary typedUnary) {
-		throw new InterpreterException("Invalid left-side assignment");
+	public void visitManifestString(final ManifestString manifestString) {
+		throw new InterpreterException("Invalid left-side assignment", manifestString.position());
+	}
+
+	@Override
+	public void visitTypedBinary(final TypedBinary typedBinary) {
+		throw new InterpreterException("Invalid left-side assignment", typedBinary.position());
+	}
+
+	@Override
+	public void visitTypedUnary(final TypedUnary typedUnary) {
+		throw new InterpreterException("Invalid left-side assignment", typedUnary.position());
 	}
 
 }

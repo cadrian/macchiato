@@ -32,7 +32,7 @@ public class MetaMessageCreationFunction implements Function {
 	}
 
 	@Override
-	public void run(final Context context) {
+	public void run(final Context context, final int position) {
 		final String[] argNames = getArgNames();
 		final Object[] args = new Object[argNames.length];
 		for (int i = 0; i < argNames.length; i++) {

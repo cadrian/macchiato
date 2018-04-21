@@ -11,7 +11,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class ManifestArray implements TypedExpression {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(ManifestArray manifestArray);
+		void visitManifestArray(ManifestArray manifestArray);
 	}
 
 	private final List<Expression> expressions = new ArrayList<>();
@@ -45,7 +45,7 @@ public class ManifestArray implements TypedExpression {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitManifestArray(this);
 	}
 
 	public List<Expression> getExpressions() {

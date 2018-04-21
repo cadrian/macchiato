@@ -7,7 +7,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class While implements Instruction {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(While w);
+		void visitWhile(While w);
 	}
 
 	private final int position;
@@ -42,7 +42,7 @@ public class While implements Instruction {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitWhile(this);
 	}
 
 	@Override

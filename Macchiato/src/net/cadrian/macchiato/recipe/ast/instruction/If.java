@@ -7,7 +7,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class If implements Instruction {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(If i);
+		void visitIf(If i);
 	}
 
 	private final int position;
@@ -42,7 +42,7 @@ public class If implements Instruction {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitIf(this);
 	}
 
 	@Override

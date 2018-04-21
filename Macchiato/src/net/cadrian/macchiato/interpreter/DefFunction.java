@@ -40,9 +40,13 @@ public class DefFunction implements Function {
 	}
 
 	@Override
-	public void run(final Context context) {
-		final InstructionEvaluationVisitor v = new InstructionEvaluationVisitor(context);
-		def.getInstruction().accept(v);
+	public void run(final Context context, final int position) {
+		try {
+			final InstructionEvaluationVisitor v = new InstructionEvaluationVisitor(context);
+			def.getInstruction().accept(v);
+		} catch (final InterpreterException e) {
+			throw new InterpreterException(e.getMessage(), position, e);
+		}
 	}
 
 }

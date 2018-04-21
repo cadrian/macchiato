@@ -5,7 +5,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class ManifestString implements TypedExpression {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(ManifestString manifestString);
+		void visitManifestString(ManifestString manifestString);
 	}
 
 	private final String value;
@@ -40,7 +40,7 @@ public class ManifestString implements TypedExpression {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitManifestString(this);
 	}
 
 	@Override

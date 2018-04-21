@@ -36,6 +36,8 @@ class GlobalContext extends Context {
 		for (final ControlChange mpc : ControlChange.values()) {
 			global.put(mpc.name(), mpc);
 		}
+		final RandomFunction randomFunction = new RandomFunction();
+		nativeFunctions.put(randomFunction.name(), randomFunction);
 	}
 
 	@Override
@@ -51,6 +53,7 @@ class GlobalContext extends Context {
 		this.event = new MetaEvent(tick, type, message);
 		final Dictionary eventData = new Dictionary();
 		eventData.set("type", type);
+		eventData.set("tick", tick);
 		type.fill(eventData, event.createMessage());
 		global.put("event", eventData);
 	}

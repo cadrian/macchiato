@@ -6,7 +6,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class Identifier implements Expression {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(Identifier identifier);
+		void visitIdentifier(Identifier identifier);
 	}
 
 	private final String name;
@@ -36,7 +36,7 @@ public class Identifier implements Expression {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitIdentifier(this);
 	}
 
 	@Override

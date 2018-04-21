@@ -5,7 +5,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class TypedUnary extends Unary implements TypedExpression {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(TypedUnary typedUnary);
+		void visitTypedUnary(TypedUnary typedUnary);
 	}
 
 	private final TypedExpression operand;
@@ -44,7 +44,7 @@ public class TypedUnary extends Unary implements TypedExpression {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitTypedUnary(this);
 	}
 
 	@Override

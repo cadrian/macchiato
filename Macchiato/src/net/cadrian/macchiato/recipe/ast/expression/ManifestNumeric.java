@@ -7,7 +7,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class ManifestNumeric implements TypedExpression {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(ManifestNumeric manifestNumeric);
+		void visitManifestNumeric(ManifestNumeric manifestNumeric);
 	}
 
 	private final BigInteger value;
@@ -42,7 +42,7 @@ public class ManifestNumeric implements TypedExpression {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitManifestNumeric(this);
 	}
 
 	@Override

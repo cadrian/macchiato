@@ -73,7 +73,7 @@ public class Interpreter {
 					context.setEvent(tick, type, shortMessage);
 					filter(context);
 				} else {
-					throw new RuntimeException("unknown type of MIDI message: " + message.getClass());
+					throw new RuntimeException("Unknown type of MIDI message: " + message.getClass());
 				}
 			}
 			filter(Bound.END_TRACK, context);

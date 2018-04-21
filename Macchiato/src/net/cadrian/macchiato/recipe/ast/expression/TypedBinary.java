@@ -5,7 +5,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class TypedBinary extends Binary implements TypedExpression {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(TypedBinary typedBinary);
+		void visitTypedBinary(TypedBinary typedBinary);
 	}
 
 	private final TypedExpression leftOperand;
@@ -48,7 +48,7 @@ public class TypedBinary extends Binary implements TypedExpression {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitTypedBinary(this);
 	}
 
 	@Override

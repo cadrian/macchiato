@@ -10,6 +10,6 @@ public interface Function {
 
 	Class<?> getResultType();
 
-	void run(final Context context);
+	void run(final Context context, int position);
 
 }

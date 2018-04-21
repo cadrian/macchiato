@@ -7,7 +7,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class ProcedureCall extends AbstractCall implements Instruction {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(ProcedureCall procedureCall);
+		void visitProcedureCall(ProcedureCall procedureCall);
 	}
 
 	public ProcedureCall(final int position, final String name) {
@@ -16,7 +16,7 @@ public class ProcedureCall extends AbstractCall implements Instruction {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitProcedureCall(this);
 	}
 
 }

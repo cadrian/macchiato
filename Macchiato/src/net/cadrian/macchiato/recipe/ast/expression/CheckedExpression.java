@@ -6,7 +6,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class CheckedExpression implements TypedExpression {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(CheckedExpression e);
+		void visitCheckedExpression(CheckedExpression e);
 	}
 
 	private final Class<?> type;
@@ -38,7 +38,7 @@ public class CheckedExpression implements TypedExpression {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitCheckedExpression(this);
 	}
 
 	@Override

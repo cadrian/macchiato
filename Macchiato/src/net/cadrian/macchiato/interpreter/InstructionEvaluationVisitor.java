@@ -30,7 +30,7 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 	}
 
 	@Override
-	public void visit(final While w) {
+	public void visitWhile(final While w) {
 		LOGGER.debug("<-- {}", w);
 		boolean looped = false;
 		while (true) {
@@ -51,37 +51,38 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 	}
 
 	@Override
-	public void visit(final ProcedureCall procedureCall) {
+	public void visitProcedureCall(final ProcedureCall procedureCall) {
 		LOGGER.debug("<-- {}", procedureCall);
 		final Function fn = context.getFunction(procedureCall.getName());
+		final int position = procedureCall.position();
 		if (fn == null) {
-			throw new InterpreterException("unknown procedure " + procedureCall.getName());
+			throw new InterpreterException("unknown procedure " + procedureCall.getName(), position);
 		}
 		final LocalContext callContext = new LocalContext(context);
 		final String[] argNames = fn.getArgNames();
 		final Class<?>[] argTypes = fn.getArgTypes();
 		final List<Expression> arguments = procedureCall.getArguments();
 		if (argNames.length != arguments.size()) {
-			throw new InterpreterException("invalid parameters");
+			throw new InterpreterException("invalid parameters", position);
 		}
 		for (int i = 0; i < argNames.length; i++) {
 			final Expression argument = arguments.get(i);
 			final Object value = context.eval(argument.typed(argTypes[i]));
 			callContext.set(argNames[i], value);
 		}
-		fn.run(callContext);
+		fn.run(callContext, position);
 		LOGGER.debug("--> {}", procedureCall);
 	}
 
 	@Override
-	public void visit(final Next next) {
+	public void visitNext(final Next next) {
 		LOGGER.debug("<-- {}", next);
 		context.setNext(true);
 		LOGGER.debug("--> {}", next);
 	}
 
 	@Override
-	public void visit(final If i) {
+	public void visitIf(final If i) {
 		LOGGER.debug("<-- {}", i);
 		final boolean value = (Boolean) context.eval(i.getCondition().typed(Boolean.class));
 		if (value) {
@@ -116,7 +117,7 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 	}
 
 	@Override
-	public void visit(final Block block) {
+	public void visitBlock(final Block block) {
 		LOGGER.debug("<-- {}", block);
 		for (final Instruction instruction : block.getInstructions()) {
 			if (context.isNext()) {
@@ -128,7 +129,7 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 	}
 
 	@Override
-	public void visit(final Assignment assignment) {
+	public void visitAssignment(final Assignment assignment) {
 		LOGGER.debug("<-- {}", assignment);
 		final Object value = context.eval(assignment.getRightSide().typed(Object.class));
 		new AssignmentVisitor(context).assign(assignment.getLeftSide(), value);

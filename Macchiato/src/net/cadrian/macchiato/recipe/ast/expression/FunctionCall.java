@@ -7,7 +7,7 @@ import net.cadrian.macchiato.recipe.ast.Node;
 public class FunctionCall extends AbstractCall implements Expression {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(FunctionCall functionCall);
+		void visitFunctionCall(FunctionCall functionCall);
 	}
 
 	public FunctionCall(final int position, final String name) {
@@ -21,7 +21,7 @@ public class FunctionCall extends AbstractCall implements Expression {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitFunctionCall(this);
 	}
 
 }
