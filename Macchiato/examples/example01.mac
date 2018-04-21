@@ -1,12 +1,19 @@
 # Called at each beginning of track. Other special markers are BEGIN SEQUENCE, END SEQUENCE, and END TRACK.
 BEGIN TRACK {
     # reset global variables at track beginning
-	notes = [];
+    
+    # velocity records the velocity of playing notes, per channel, per pitch
+	velocity = [];
+	
+	# expression records the current expression, per channel 
 	expression = [];
-	i = 0;
-	while (i < 16) {
-		expression[i] = 127;
-		i = i + 1;
+	
+	# fill default values
+	channel = 0;
+	while (channel < 16) {
+		velocity[channel] = [];
+		expression[channel] = 127;
+		channel = channel + 1;
 	}
 }
 
@@ -19,8 +26,9 @@ BEGIN TRACK {
 }
 
 (event.type == NOTE_ON) and (event.velocity > 0) {
-	notes[event.pitch] = event.velocity;
-	emit NOTE_ON(event.channel, event.pitch, (event.velocity * expression[event.channel]) / 127);
+	velocity[event.channel][event.pitch] = event.velocity;
+	emit NOTE_ON(event.channel, event.pitch, (velocity[event.channel][event.pitch] * expression[event.channel]) / 127)
+		at event.tick + random(5);
 	next;
 }
 
@@ -28,13 +36,15 @@ BEGIN TRACK {
 	# emits a new event (instead of the analyzed one)
 	# Note that expression may have changed so the release velocity is not
 	# necessarily equal to the press velocity
-	emit NOTE_OFF(event.channel, event.pitch, (notes[event.pitch] * expression[event.channel]) / 127);
+	emit NOTE_OFF(event.channel, event.pitch, (velocity[event.channel][event.pitch] * expression[event.channel]) / 127)
+		at event.tick - random(5);
 	next;
 }
 
 (event.type == NOTE_OFF) {
-	emit NOTE_OFF(event.channel, event.pitch, (event.velocity * expression[event.channel]) / 127);
+	emit NOTE_OFF(event.channel, event.pitch, (event.velocity * expression[event.channel]) / 127)
+		at event.tick - random(5);
 	next;
 }
 
-# the event is emitted if there were no next before
+# the current event is emitted if there were no next before
