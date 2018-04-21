@@ -39,6 +39,9 @@ public class TypedUnary extends Unary implements TypedExpression {
 		if (type.isAssignableFrom(resultType)) {
 			return this;
 		}
+		if (resultType.isAssignableFrom(type)) {
+			return new CheckedExpression(this, type);
+		}
 		return null;
 	}
 

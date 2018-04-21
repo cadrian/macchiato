@@ -7,6 +7,9 @@ import java.util.Map;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.ShortMessage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.cadrian.macchiato.midi.ControlChange;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
@@ -14,6 +17,8 @@ import net.cadrian.macchiato.midi.ShortMessageType;
 import net.cadrian.macchiato.recipe.ast.Def;
 
 class GlobalContext extends Context {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalContext.class);
 
 	private final Interpreter interpreter;
 	private final Map<String, Object> global = new HashMap<>();
@@ -50,6 +55,7 @@ class GlobalContext extends Context {
 	}
 
 	void setEvent(final BigInteger tick, final MetaMessageType type, final MetaMessage message) {
+		LOGGER.debug("Setting meta event {} at {}", type, message);
 		this.event = new MetaEvent(tick, type, message);
 		final Dictionary eventData = new Dictionary();
 		eventData.set("type", type);
@@ -59,15 +65,18 @@ class GlobalContext extends Context {
 	}
 
 	void setEvent(final BigInteger tick, final ShortMessageType type, final ShortMessage message) {
+		LOGGER.debug("Setting short event {} at {}", type, message);
 		this.event = new ShortEvent(tick, type, message);
 		final Dictionary eventData = new Dictionary();
 		eventData.set("type", type);
+		eventData.set("tick", tick);
 		type.fill(eventData, event.createMessage());
 		global.put("event", eventData);
 	}
 
 	@Override
 	void emit(final Message message, final BigInteger tick) {
+		LOGGER.debug("Emitting message {} at {}", message, tick);
 		track.add(message.toEvent(tick));
 	}
 
@@ -93,6 +102,7 @@ class GlobalContext extends Context {
 
 	@Override
 	Function getFunction(final String name) {
+		LOGGER.debug("<-- {}", name);
 		final Function fn = functions.get(name);
 		if (fn != null) {
 			return fn;
@@ -105,6 +115,7 @@ class GlobalContext extends Context {
 			result = new DefFunction(def);
 		}
 		functions.put(name, result);
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 

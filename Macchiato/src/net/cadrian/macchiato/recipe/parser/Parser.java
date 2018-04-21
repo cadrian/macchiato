@@ -240,7 +240,8 @@ public class Parser {
 			final TypedExpression tickExpression;
 			skipBlanks();
 			if (readKeyword("at")) {
-				tickExpression = parseExpression().typed(BigInteger.class);
+				final Expression te = parseExpression();
+				tickExpression = te.typed(BigInteger.class);
 			} else {
 				tickExpression = null;
 			}

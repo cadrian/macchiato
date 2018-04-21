@@ -105,9 +105,11 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 		} else {
 			final Message message = (Message) context.eval(eventExpression);
 			final TypedExpression tickExpression = emit.getTick();
+			LOGGER.debug("tickExpression={}", tickExpression);
 			final BigInteger tick;
 			if (tickExpression != null) {
 				tick = (BigInteger) context.eval(tickExpression);
+				LOGGER.debug("tick={}", tick);
 			} else {
 				tick = context.getEvent().getTick();
 			}
