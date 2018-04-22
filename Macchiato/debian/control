@@ -1,19 +1,23 @@
 Source: macchiato
 Section: java
 Priority: optional
-Maintainer: Debian Java Maintainers <pkg-java-maintainers@lists.alioth.debian.org>
-Uploaders: Cyril Adrian <cyril.adrian+apt@gmail.com>
-Build-Depends: debhelper (>= 11), default-jdk, maven-debian-helper (>= 2.1)
-Build-Depends-Indep: liblogback-java (>= 1.2.3), libslf4j-java (>= 1.7.25) 
+Maintainer: Cyril Adrian <cyril.adrian@gmail.com>
+Build-Depends: debhelper (>= 11), default-jdk, maven-debian-helper (>= 2.1), maven-repo-helper (>= 1.9)
+Build-Depends-Indep: liblogback-java (>= 1.2.3), libslf4j-java (>= 1.7.25)
 Standards-Version: 4.1.3
-Vcs-Git: https://salsa.debian.org/java-team/macchiato.git
-Vcs-Browser: https://salsa.debian.org/java-team/macchiato
-Homepage: 
+#Vcs-Git: https://salsa.debian.org/java-team/macchiato.git
+#Vcs-Browser: https://salsa.debian.org/java-team/macchiato
+Homepage:
 
 Package: libmacchiato-java
 Architecture: all
 Depends: ${misc:Depends}, ${maven:Depends}
 Suggests: ${maven:OptionalDepends}
-Description: Macchiato
+Description: Macchiato library
  TODO - fill the description
 
+Package: macchiato
+Architecture: all
+Depends: ${misc:Depends}, libmacchiato-java
+Description: Macchiato launcher
+ TODO - fill the description
