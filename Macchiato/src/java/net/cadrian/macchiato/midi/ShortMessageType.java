@@ -187,8 +187,9 @@ public enum ShortMessageType {
 		public void fill(final Dictionary messageData, final Message message) {
 			final ControlChangeMessage m = (ControlChangeMessage) message;
 			messageData.set("channel", BigInteger.valueOf(m.getChannel()));
-			messageData.set("mpc", m.getMpc());
-			messageData.set("value", BigInteger.valueOf(m.getValue()));
+			final ControlChange mpc = m.getMpc();
+			messageData.set("mpc", mpc);
+			messageData.set("value", mpc.valueOf(m.getValue()));
 		}
 
 		@Override
@@ -205,8 +206,7 @@ public enum ShortMessageType {
 		public Message create(final Object... args) {
 			final BigInteger channel = (BigInteger) args[0];
 			final ControlChange mpc = (ControlChange) args[1];
-			final BigInteger value = (BigInteger) args[2];
-			return new ControlChangeMessage(channel.intValueExact(), mpc, value.intValueExact());
+			return new ControlChangeMessage(channel.intValueExact(), mpc, mpc.midiValueOf(args[2]));
 		}
 	},
 	PROGRAM_CHANGE(0xC0) {

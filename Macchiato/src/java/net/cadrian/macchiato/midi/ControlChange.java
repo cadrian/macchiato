@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.midi;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,6 +86,32 @@ public enum ControlChange {
 			return (data > 63) ? "on" : "off";
 		}
 		return Integer.toString(data);
+	}
+
+	public Object valueOf(final int midiValue) {
+		switch (this) {
+		case DAMPER_PEDAL:
+		case PORTAMENTO:
+		case SOSTENUTO:
+		case SOFT_PEDAL:
+		case LEGATO_PEDAL:
+			return Boolean.valueOf(midiValue < 64);
+		default:
+			return BigInteger.valueOf(midiValue);
+		}
+	}
+
+	public int midiValueOf(final Object value) {
+		switch (this) {
+		case DAMPER_PEDAL:
+		case PORTAMENTO:
+		case SOSTENUTO:
+		case SOFT_PEDAL:
+		case LEGATO_PEDAL:
+			return Boolean.TRUE.equals(value) ? 127 : 0;
+		default:
+			return ((BigInteger) value).intValueExact();
+		}
 	}
 
 }
