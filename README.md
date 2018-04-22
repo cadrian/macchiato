@@ -136,7 +136,6 @@ AtomicExpression ::= ManifestString
                   |  ManifestArray
                   |  ManifestDictionary
                   |  ManifestNumber
-                  |  "result"
                   |  Call
                   |  Identifier
                   |  "result"
@@ -155,5 +154,5 @@ ManifestDictionary ::= "{" (Expression ":" Expression ("," Expression ":" Expres
 ManifestNumber ::= /[0-9]+/
 ```
 
-Convention: the `result` identifier is used to assign a value that
+Note: the `result` reserved identifier is used to assign a value that
 will be returned from a `def` function.
