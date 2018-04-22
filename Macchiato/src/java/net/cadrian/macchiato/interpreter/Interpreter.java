@@ -24,6 +24,7 @@ import java.math.BigInteger;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
+import javax.sound.midi.MidiFileFormat;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
@@ -55,12 +56,44 @@ public class Interpreter {
 	}
 
 	public void run(final InputStream in, final OutputStream out) throws InvalidMidiDataException, IOException {
+		final int inputMidiType;
+		if (in.markSupported()) {
+			in.mark(16);
+			final MidiFileFormat midiFileFormat = MidiSystem.getMidiFileFormat(in);
+			inputMidiType = midiFileFormat.getType();
+			in.reset();
+		} else {
+			inputMidiType = -1;
+		}
+
 		final Sequence sequenceIn = MidiSystem.getSequence(in);
 		final Sequence sequenceOut = new Sequence(sequenceIn.getDivisionType(), sequenceIn.getResolution(),
 				sequenceIn.getTracks().length);
-		final GlobalContext context = new GlobalContext(this);
 		final Track[] tracksIn = sequenceIn.getTracks();
 		final Track[] tracksOut = sequenceOut.getTracks();
+
+		final int outputMidiType;
+		if (inputMidiType == -1) {
+			if (tracksIn.length > 1) {
+				LOGGER.info("Cannot mark input stream, will emit MIDI file type 1");
+				outputMidiType = 1;
+			} else {
+				LOGGER.warn("Cannot mark input stream, will emit MIDI file type 0");
+				outputMidiType = 0;
+			}
+		} else {
+			outputMidiType = inputMidiType;
+			LOGGER.info("Could read input MIDI file type, will emit MIDI file type {}", outputMidiType);
+		}
+
+		run(tracksIn, tracksOut);
+
+		MidiSystem.write(sequenceOut, outputMidiType, out);
+	}
+
+	private void run(final Track[] tracksIn, final Track[] tracksOut) {
+		final GlobalContext context = new GlobalContext(this);
+
 		filter(Bound.BEGIN_SEQUENCE, context);
 		for (int trackIndex = 0; trackIndex < tracksIn.length; trackIndex++) {
 			final Track trackIn = tracksIn[trackIndex];
@@ -95,8 +128,6 @@ public class Interpreter {
 			filter(Bound.END_TRACK, context);
 		}
 		filter(Bound.END_SEQUENCE, context);
-		// TODO: determine file type from input
-		MidiSystem.write(sequenceOut, 0, out);
 	}
 
 	private void filter(final Bound bound, final GlobalContext context) {

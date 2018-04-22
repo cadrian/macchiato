@@ -16,6 +16,8 @@
  */
 package net.cadrian.macchiato;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -39,7 +41,12 @@ public class Run {
 				final Ruleset ruleset = parser.parse();
 				final Interpreter interpreter = new Interpreter(ruleset);
 				if (args.length > 1) {
-					interpreter.run(new FileInputStream(args[1]), new FileOutputStream(args[1] + ".out"));
+					try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(args[1]))) {
+						try (final BufferedOutputStream out = new BufferedOutputStream(
+								new FileOutputStream(args[1] + ".out"))) {
+							interpreter.run(in, out);
+						}
+					}
 				} else {
 					interpreter.run();
 				}
