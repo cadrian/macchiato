@@ -546,8 +546,8 @@ public class Parser {
 				if (rightOperand == null) {
 					throw new ParserException(error("Expected comparable expression", right.position()));
 				}
-				@SuppressWarnings("unchecked")
-				final Class<? extends Comparable<?>> resultType = (Class<? extends Comparable<?>>) Comparable.class;
+				@SuppressWarnings("rawtypes")
+				final Class<Comparable> resultType = Comparable.class;
 				result = parseAdditionRight(
 						new TypedBinary(leftOperand, Binary.Operator.ADD, rightOperand, resultType));
 				break;
