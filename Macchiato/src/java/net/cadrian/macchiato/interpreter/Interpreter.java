@@ -75,7 +75,7 @@ public class Interpreter {
 		final int outputMidiType;
 		if (inputMidiType == -1) {
 			if (tracksIn.length > 1) {
-				LOGGER.info("Cannot mark input stream, will emit MIDI file type 1");
+				LOGGER.warn("Cannot mark input stream, will emit MIDI file type 1");
 				outputMidiType = 1;
 			} else {
 				LOGGER.warn("Cannot mark input stream, will emit MIDI file type 0");
@@ -83,19 +83,26 @@ public class Interpreter {
 			}
 		} else {
 			outputMidiType = inputMidiType;
-			LOGGER.info("Could read input MIDI file type, will emit MIDI file type {}", outputMidiType);
+			LOGGER.debug("Could read input MIDI file type, will emit MIDI file type {}", outputMidiType);
 		}
 
 		run(tracksIn, tracksOut);
 
+		LOGGER.info("Writing out file");
 		MidiSystem.write(sequenceOut, outputMidiType, out);
+
+		LOGGER.info("Done.");
 	}
 
 	private void run(final Track[] tracksIn, final Track[] tracksOut) {
 		final GlobalContext context = new GlobalContext(this);
 
+		final int tracksCount = tracksIn.length;
+
+		LOGGER.info("Starting sequence ({} {})", tracksCount, tracksCount == 1 ? "track" : "tracks");
 		filter(Bound.BEGIN_SEQUENCE, context);
-		for (int trackIndex = 0; trackIndex < tracksIn.length; trackIndex++) {
+		for (int trackIndex = 0; trackIndex < tracksCount; trackIndex++) {
+			LOGGER.info("Starting track {}/{}", trackIndex + 1, tracksCount);
 			final Track trackIn = tracksIn[trackIndex];
 			final Track trackOut = tracksOut[trackIndex];
 			context.setTrack(trackIndex, trackIn, trackOut);

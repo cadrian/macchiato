@@ -18,9 +18,14 @@ package net.cadrian.macchiato;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.Reader;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.interpreter.Interpreter;
 import net.cadrian.macchiato.interpreter.InterpreterException;
@@ -30,15 +35,25 @@ import net.cadrian.macchiato.ruleset.parser.ParserException;
 
 public class Run {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(Run.class);
+
 	public static void main(final String[] args) {
 		if (args.length < 1) {
 			System.err.println("Usage: " + Run.class.getSimpleName() + " <mac file> (<midi file>)");
 			System.exit(1);
 		}
-		try (final FileReader reader = new FileReader(args[0])) {
-			final Parser parser = new Parser(reader);
+
+		try {
+			final String rulesetName = args[0];
+			final Parser parser;
+			final Ruleset ruleset;
+			try (final Reader reader = new BufferedReader(new FileReader(rulesetName))) {
+				parser = new Parser(reader);
+				LOGGER.info("Parsing ruleset: {}", rulesetName);
+				ruleset = parser.parse();
+			}
+			LOGGER.debug("Parsed ruleset: {}", ruleset);
 			try {
-				final Ruleset ruleset = parser.parse();
 				final Interpreter interpreter = new Interpreter(ruleset);
 				if (args.length > 1) {
 					try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(args[1]))) {
