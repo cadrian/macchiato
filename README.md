@@ -21,9 +21,9 @@ rules are run for each MIDI event, and at some special points:
 beginning of sequence, beginning of each track, end of each track, end
 of sequence.
 
-Example: transform `NOTE\_ON` events with a velocity equal to 0 into
-`NOTE\_OFF` events with the same velocity as the corresponding
-`NOTE\_ON` event.
+Example: transform `NOTE_ON` events with a velocity equal to 0 into
+`NOTE_OFF` events with the same velocity as the corresponding
+`NOTE_ON` event.
 
 ```javascript
 # Called at each beginning of track. Other special markers are BEGIN SEQUENCE, END SEQUENCE, and END TRACK.
