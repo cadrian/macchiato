@@ -36,7 +36,7 @@ BEGIN TRACK {
     // velocity records the velocity of playing notes, per channel, per pitch
     velocity = [];
 
-    # fill default values
+    // fill default values
     channel = 0;
     while (channel < 16) {
         velocity[channel] = [];
