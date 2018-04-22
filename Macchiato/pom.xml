@@ -1,36 +1,34 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-        <modelVersion>4.0.0</modelVersion>
-        <groupId>net.cadrian.macchiato</groupId>
-        <artifactId>Macchiato</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-        <packaging>jar</packaging>
-        <properties>
-                <debian.hasPackageVersion>
-                </debian.hasPackageVersion>
-                <debian.originalVersion>0.0.1-SNAPSHOT</debian.originalVersion>
-                <debian.package>libmacchiato-java</debian.package>
-                <debian.mavenRules>
-                  net.cadrian.macchiato Macchiato jar * * *,
-                  net.cadrian.macchiato Macchiato jar s/.*/debian/ * *
-                </debian.mavenRules>
-                <maven.compiler.source>1.8</maven.compiler.source>
-                <maven.compiler.target>1.8</maven.compiler.target>
-        </properties>
-        <build>
-                <sourceDirectory>src</sourceDirectory>
-        </build>
-        <dependencies>
-                <dependency>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                        <version>debian</version>
-                </dependency>
-                <dependency>
-                        <groupId>ch.qos.logback</groupId>
-                        <artifactId>logback-classic</artifactId>
-                        <version>debian</version>
-                        <scope>runtime</scope>
-                </dependency>
-        </dependencies>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>net.cadrian.macchiato</groupId>
+	<artifactId>Macchiato</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<properties>
+		<debian.hasPackageVersion>
+		</debian.hasPackageVersion>
+		<debian.originalVersion>0.0.1-SNAPSHOT</debian.originalVersion>
+		<debian.package>libmacchiato-java</debian.package>
+		<debian.mavenRules>net.cadrian.macchiato Macchiato jar * * *,
+                  net.cadrian.macchiato Macchiato jar s/.*/debian/ * *</debian.mavenRules>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
+	<build>
+		<sourceDirectory>src/java</sourceDirectory>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>debian</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>debian</version>
+			<scope>runtime</scope>
+		</dependency>
+	</dependencies>
 </project>

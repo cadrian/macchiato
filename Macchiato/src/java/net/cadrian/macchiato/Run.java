@@ -1,4 +1,4 @@
-package net.cadrian.macchiato.recipe;
+package net.cadrian.macchiato;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
