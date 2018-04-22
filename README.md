@@ -86,6 +86,8 @@ Instruction ::= If
              |  Call
              |  Block
 
+Block ::= "{" (Instruction)* "}"
+
 Assignment ::= (Identifier | "result") IdentifierSuffix "=" Expression ";"
 
 Call ::= Identifier "(" (Expression ("," Expression)*)? ")" ";"
