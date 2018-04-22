@@ -1,42 +1,45 @@
-#
-# This file is part of Macchiato.
-#
-# Macchiato is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, version 3 of the License.
-#
-# Macchiato is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
-#
+/*
+ * This file is part of Macchiato.
+ *
+ * Macchiato is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * Macchiato is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
-# Advanced example, used by Rex Potam
-# http://www.cadrian.net/rex-potam/
-#
-# This ruleset fixes a few shortcomings of the MIDI production chain
-# used by the songwriter:
-#
-# - NoteWorthy Composer emits NOTE_ON(velocity=0) instead of NOTE_OFF
-#   events
-#
-# - fluidsynth uses the Expression MPC as a simple volume switch,
-#   whereas Rex uses it for actual dynamics, and rough velocities for
-#   musicality (e.g. strong vs weak beats, musical phrases); these
-#   rules combine the expression and velocity to emit actual note
-#   velocities
+/*
+ * Advanced example, used by Rex Potam
+ * http://www.cadrian.net/rex-potam/
+ *
+ * This ruleset fixes a few shortcomings of the MIDI production chain
+ * used by the songwriter:
+ *
+ * - NoteWorthy Composer emits NOTE_ON(velocity=0) instead of NOTE_OFF
+ *   events
+ *
+ * - fluidsynth uses the Expression MPC as a simple volume switch,
+ *   whereas Rex uses it for actual dynamics, and rough velocities for
+ *   musicality (e.g. strong vs weak beats, musical phrases); these
+ *   rules combine the expression and velocity to emit actual note
+ *   velocities
+ */
 
 BEGIN TRACK {
-    # velocity records the current velocity, per channel, per pitch
+    // velocity records the current velocity, per channel, per pitch
     velocity = [];
 
-    # expression records the current expression, per channel
+    // expression records the current expression, per channel
     expression = [];
 
-    # fill default values
+    // fill default values
     channel = 0;
     while (channel < 16) {
         # no notes yet...
@@ -50,18 +53,18 @@ BEGIN TRACK {
 }
 
 (event.type == CONTROL_CHANGE) and (event.mpc == EXPRESSION) {
-    # Record the expression value
+    // Record the expression value
     expression[event.channel] = event.value;
 
     next;
 }
 
 (event.type == NOTE_ON) and (event.velocity > 0) {
-    # Record the velocity
+    // Record the velocity
     velocity[event.channel][event.pitch] = event.velocity;
 
-    # Emit an event with a velocity that depends on the expression,
-    # and with a bit of random for rough "humanization"
+    // Emit an event with a velocity that depends on the expression,
+    // and with a bit of random for rough "humanization"
     emit NOTE_ON(event.channel, event.pitch, (velocity[event.channel][event.pitch] * expression[event.channel]) / 127)
         at event.tick + random(5);
 
@@ -69,10 +72,10 @@ BEGIN TRACK {
 }
 
 (event.type == NOTE_ON) and (event.velocity == 0) {
-    # Emit an event with a velocity that depends on the expression,
-    # and with a bit of random for rough "humanization"
-    # Note that expression may have changed so the release velocity is not
-    # necessarily equal to the press velocity
+    // Emit an event with a velocity that depends on the expression,
+    // and with a bit of random for rough "humanization"
+    // Note that expression may have changed so the release velocity is not
+    // necessarily equal to the press velocity
     emit NOTE_OFF(event.channel, event.pitch, (velocity[event.channel][event.pitch] * expression[event.channel]) / 127)
         at event.tick - random(5);
 
@@ -80,10 +83,10 @@ BEGIN TRACK {
 }
 
 (event.type == NOTE_OFF) {
-    # Emit an event with a velocity that depends on the expression,
-    # and with a bit of random for rough "humanization"
-    # Note that expression may have changed so the release velocity is not
-    # necessarily equal to the press velocity
+    // Emit an event with a velocity that depends on the expression,
+    // and with a bit of random for rough "humanization"
+    // Note that expression may have changed so the release velocity is not
+    // necessarily equal to the press velocity
     emit NOTE_OFF(event.channel, event.pitch, (event.velocity * expression[event.channel]) / 127)
         at event.tick - random(5);
 

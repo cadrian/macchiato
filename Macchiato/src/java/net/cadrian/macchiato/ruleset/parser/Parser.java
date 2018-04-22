@@ -1191,6 +1191,7 @@ public class Parser {
 	private void skipBlanks() {
 		LOGGER.debug("<-- {}", error("skip"));
 		int state = 0;
+		int pos = 0;
 		while (!buffer.off()) {
 			switch (state) {
 			case 0: // normal text
@@ -1199,26 +1200,64 @@ public class Parser {
 				case '\t':
 				case '\r':
 				case '\n':
-					buffer.next();
 					break;
 				case '#':
+					state = 10;
+					break;
+				case '/':
+					pos = buffer.position();
 					state = 1;
-					buffer.next();
 					break;
 				default:
 					LOGGER.debug("--> {}", error("skip"));
 					return;
 				}
 				break;
-			case 1: // in comment
+			case 1: // after '/'
+				switch (buffer.current()) {
+				case '/':
+					state = 10;
+					break;
+				case '*':
+					state = 20;
+					break;
+				default:
+					buffer.rewind(pos);
+					LOGGER.debug("--> {}", error("skip"));
+					return;
+				}
+				break;
+			case 10: // in one-line comment
 				switch (buffer.current()) {
 				case '\r':
 				case '\n':
 					state = 0;
 					break;
 				}
-				buffer.next();
+				break;
+			case 20: // block comment
+				switch (buffer.current()) {
+				case '*':
+					state = 21;
+					break;
+				default:
+					break;
+				}
+				break;
+			case 21: // block comment after '*'
+				switch (buffer.current()) {
+				case '/':
+					state = 0;
+					break;
+				default:
+					state = 20;
+					break;
+				}
+				break;
+			default:
+				throw new ParserException("BUG: invalid state " + state);
 			}
+			buffer.next();
 		}
 	}
 

@@ -26,11 +26,31 @@ Example: transform `NOTE_ON` events with a velocity equal to 0 into
 `NOTE_ON` event.
 
 ```javascript
-# Called at each beginning of track. Other special markers are BEGIN SEQUENCE, END SEQUENCE, and END TRACK.
-BEGIN TRACK {
-    # reset global variables at track beginning
+/*
+ * This file is part of Macchiato.
+ *
+ * Macchiato is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * Macchiato is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
-    # velocity records the velocity of playing notes, per channel, per pitch
+// This simple example is basically a tutorial, with a lot of comments.
+
+// Called at each beginning of track. Other special markers are BEGIN
+// SEQUENCE, END SEQUENCE, and END TRACK.
+BEGIN TRACK {
+    // reset global variables at track beginning
+
+    // velocity records the velocity of playing notes, per channel, per pitch
     velocity = [];
 
     # fill default values
@@ -48,12 +68,12 @@ BEGIN TRACK {
 }
 
 (event.type == NOTE_ON) and (event.velocity == 0) {
-    # emits a new event (instead of the analyzed one)
+    // emits a new event (instead of the analyzed one)
     emit NOTE_OFF(event.channel, event.pitch, velocity[event.channel][event.pitch]);
     next;
 }
 
-# the current event is emitted if there were no next before
+// the current event is emitted if there were no next before
 ```
 
 ## Language grammar
