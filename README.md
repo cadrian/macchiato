@@ -160,6 +160,8 @@ ManifestNumber ::= /[0-9]+/
 Note: the `result` reserved identifier is used to assign a value that
 will be returned from a `def` function.
 
+Comments are either bash-style (lines starting with a hashtag) or C-style (`//` and `/*`…`*/`)
+
 ## Native values and functions
 
 Some functions and values are provided natively by the interpreter.
