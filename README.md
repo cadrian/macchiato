@@ -55,3 +55,103 @@ BEGIN TRACK {
 
 # the current event is emitted if there were no next before
 ```
+
+## Language grammar
+
+The language is derived from C, with stricter conventions (notably,
+blocks are mandatory in some cases).
+
+```
+Recipe ::= (Def | Filter)*
+
+Def ::= "def" Identifier FormalArgs Block
+
+Identifier ::= /[A-Za-z_][0-9A-Za-z]*/
+
+FormalArgs ::= "(" (Identifier ("," Identifier)*)? ")"
+
+Filter ::= Condition Block
+
+Condition ::= "BEGIN" "SEQUENCE"
+           | "BEGIN" "TRACK"
+           | "END" "SEQUENCE"
+           | "END" "TRACK"
+           | Expression
+
+Instruction ::= If
+             |  While
+             |  Emit
+             |  Next
+             |  Assignment
+             |  Call
+             |  Block
+
+Assignment ::= (Identifier | "result") IdentifierSuffix "=" Expression ";"
+
+Call ::= Identifier "(" (Expression ("," Expression)*)? ")" ";"
+
+If ::= "if" Block ("else" (If | Block))?
+
+While ::= "while" Block ("else" Block)?
+
+Emit ::= "emit" (Expression ("at" Expression)?)? ";"
+
+Next ::= "next" ";"
+
+Expression ::= OrLeft (OrRight)*
+
+OrLeft ::= AndLeft (AndRight)*
+
+OrRight ::= ("or" | "xor") OrLeft
+
+AndLeft ::= ComparatorLeft (ComparatorRight)*
+
+AndRight ::= "and" AndLeft
+
+ComparatorLeft ::= AdditionLeft (AdditionRight)*
+
+ComparatorRight ::= ("~" | "=" | "!=" | "<" | "<=" | ">" | ">=") ComparatorLeft
+
+AdditionLeft ::= MultiplicationLeft (MultiplicationRight)*
+
+AdditionRight ::= ("+" | "-") AdditionLeft
+
+MultiplicationLeft ::= PowerLeft (PowerRight)*
+
+MultiplicationRight ::= ("*" | "/" | "\") MultiplicationLeft
+
+PowerLeft ::= Unary
+
+PowerRight ::= "^" PowerLeft
+
+Unary ::= ("not" | "+" | "-") Unary
+       | AtomicExpressionWithSuffix
+
+AtomicExpressionWithSuffix ::= AtomicExpression IdentifierSuffix
+
+AtomicExpression ::= ManifestString
+                  |  ManifestRegex
+                  |  ManifestArray
+                  |  ManifestDictionary
+                  |  ManifestNumber
+                  |  "result"
+                  |  Call
+                  |  Identifier
+                  |  "result"
+                  |  "(" Expression ")"
+
+IdentifierSuffix ::= ("[" Expression "]" | "." Identifier)*
+
+ManifestString ::= /"([^"]|\\.)*"/
+
+ManifestRegex ::= /\/([^/]|\\.)*\//
+
+ManifestArray ::= "[" (Expression ("," Expression)*)? "]"
+
+ManifestDictionary ::= "{" (Expression ":" Expression ("," Expression ":" Expression)*)? "}"
+
+ManifestNumber ::= /[0-9]+/
+```
+
+Convention: the `result` identifier is used to assign a value that
+will be returned from a `def` function.

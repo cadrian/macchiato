@@ -16,6 +16,8 @@
  */
 package net.cadrian.macchiato.recipe.ast;
 
+import net.cadrian.macchiato.recipe.ast.instruction.Block;
+
 public class Def implements Node {
 
 	public static interface Visitor extends Node.Visitor {
@@ -24,14 +26,14 @@ public class Def implements Node {
 
 	private final String name;
 	private final FormalArgs args;
-	private final Instruction instruction;
+	private final Block block;
 	private final int position;
 
-	public Def(final int position, final String name, final FormalArgs args, final Instruction instruction) {
+	public Def(final int position, final String name, final FormalArgs args, final Block block) {
 		this.position = position;
 		this.name = name;
 		this.args = args;
-		this.instruction = instruction;
+		this.block = block;
 	}
 
 	public String name() {
@@ -42,8 +44,8 @@ public class Def implements Node {
 		return args;
 	}
 
-	public Instruction getInstruction() {
-		return instruction;
+	public Block getBlock() {
+		return block;
 	}
 
 	@Override
