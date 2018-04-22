@@ -7,3 +7,5 @@ log.txt
 debian
 *.deb
 *.build
+*.buildinfo
+*.changes

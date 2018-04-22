@@ -1,6 +1,5 @@
 macchiato (0.0.1-SNAPSHOT-1) UNRELEASED; urgency=medium
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your
-    ITP>
+  * Initial release
 
- -- Cyril Adrian <cyril.adrian+apt@gmail.com>  Wed, 18 Apr 2018 22:37:25 +0200
+ -- Cyril Adrian <cyril.adrian@gmail.com>  Wed, 18 Apr 2018 22:37:25 +0200
