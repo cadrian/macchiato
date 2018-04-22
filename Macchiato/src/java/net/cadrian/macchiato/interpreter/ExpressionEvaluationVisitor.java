@@ -22,20 +22,20 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.cadrian.macchiato.recipe.ast.Expression;
-import net.cadrian.macchiato.recipe.ast.expression.CheckedExpression;
-import net.cadrian.macchiato.recipe.ast.expression.ExpressionVisitor;
-import net.cadrian.macchiato.recipe.ast.expression.FunctionCall;
-import net.cadrian.macchiato.recipe.ast.expression.Identifier;
-import net.cadrian.macchiato.recipe.ast.expression.IndexedExpression;
-import net.cadrian.macchiato.recipe.ast.expression.ManifestArray;
-import net.cadrian.macchiato.recipe.ast.expression.ManifestDictionary;
-import net.cadrian.macchiato.recipe.ast.expression.ManifestNumeric;
-import net.cadrian.macchiato.recipe.ast.expression.ManifestRegex;
-import net.cadrian.macchiato.recipe.ast.expression.ManifestString;
-import net.cadrian.macchiato.recipe.ast.expression.Result;
-import net.cadrian.macchiato.recipe.ast.expression.TypedBinary;
-import net.cadrian.macchiato.recipe.ast.expression.TypedUnary;
+import net.cadrian.macchiato.ruleset.ast.Expression;
+import net.cadrian.macchiato.ruleset.ast.expression.CheckedExpression;
+import net.cadrian.macchiato.ruleset.ast.expression.ExpressionVisitor;
+import net.cadrian.macchiato.ruleset.ast.expression.FunctionCall;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.ast.expression.IndexedExpression;
+import net.cadrian.macchiato.ruleset.ast.expression.ManifestArray;
+import net.cadrian.macchiato.ruleset.ast.expression.ManifestDictionary;
+import net.cadrian.macchiato.ruleset.ast.expression.ManifestNumeric;
+import net.cadrian.macchiato.ruleset.ast.expression.ManifestRegex;
+import net.cadrian.macchiato.ruleset.ast.expression.ManifestString;
+import net.cadrian.macchiato.ruleset.ast.expression.Result;
+import net.cadrian.macchiato.ruleset.ast.expression.TypedBinary;
+import net.cadrian.macchiato.ruleset.ast.expression.TypedUnary;
 
 public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 

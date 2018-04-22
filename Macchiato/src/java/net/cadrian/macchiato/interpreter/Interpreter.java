@@ -36,18 +36,18 @@ import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.ShortMessageType;
-import net.cadrian.macchiato.recipe.ast.BoundFilter.Bound;
-import net.cadrian.macchiato.recipe.ast.Filter;
-import net.cadrian.macchiato.recipe.ast.Recipe;
+import net.cadrian.macchiato.ruleset.ast.BoundFilter.Bound;
+import net.cadrian.macchiato.ruleset.ast.Filter;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
 public class Interpreter {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Interpreter.class);
 
-	final Recipe recipe;
+	final Ruleset ruleset;
 
-	public Interpreter(final Recipe recipe) {
-		this.recipe = recipe;
+	public Interpreter(final Ruleset ruleset) {
+		this.ruleset = ruleset;
 	}
 
 	public void run() throws InvalidMidiDataException, IOException {
@@ -103,7 +103,7 @@ public class Interpreter {
 		LOGGER.debug("<-- {}", bound);
 		context.setNext(false);
 		final BoundFilterVisitor visitor = new BoundFilterVisitor(context, bound);
-		for (final Filter filter : recipe.getFilters()) {
+		for (final Filter filter : ruleset.getFilters()) {
 			filter.accept(visitor);
 		}
 		LOGGER.debug("-->");
@@ -113,7 +113,7 @@ public class Interpreter {
 		LOGGER.debug("<--");
 		context.setNext(false);
 		final ConditionFilterVisitor visitor = new ConditionFilterVisitor(context);
-		for (final Filter filter : recipe.getFilters()) {
+		for (final Filter filter : ruleset.getFilters()) {
 			filter.accept(visitor);
 			if (context.isNext()) {
 				return;

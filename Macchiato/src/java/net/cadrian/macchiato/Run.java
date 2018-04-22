@@ -22,9 +22,9 @@ import java.io.FileReader;
 
 import net.cadrian.macchiato.interpreter.Interpreter;
 import net.cadrian.macchiato.interpreter.InterpreterException;
-import net.cadrian.macchiato.recipe.ast.Recipe;
-import net.cadrian.macchiato.recipe.parser.Parser;
-import net.cadrian.macchiato.recipe.parser.ParserException;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.parser.Parser;
+import net.cadrian.macchiato.ruleset.parser.ParserException;
 
 public class Run {
 
@@ -36,8 +36,8 @@ public class Run {
 		try (final FileReader reader = new FileReader(args[0])) {
 			final Parser parser = new Parser(reader);
 			try {
-				final Recipe recipe = parser.parse();
-				final Interpreter interpreter = new Interpreter(recipe);
+				final Ruleset ruleset = parser.parse();
+				final Interpreter interpreter = new Interpreter(ruleset);
 				if (args.length > 1) {
 					interpreter.run(new FileInputStream(args[1]), new FileOutputStream(args[1] + ".out"));
 				} else {

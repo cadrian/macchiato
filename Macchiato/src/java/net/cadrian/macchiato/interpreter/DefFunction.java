@@ -18,8 +18,8 @@ package net.cadrian.macchiato.interpreter;
 
 import java.util.Arrays;
 
-import net.cadrian.macchiato.recipe.ast.Def;
-import net.cadrian.macchiato.recipe.ast.FormalArgs;
+import net.cadrian.macchiato.ruleset.ast.Def;
+import net.cadrian.macchiato.ruleset.ast.FormalArgs;
 
 public class DefFunction implements Function {
 

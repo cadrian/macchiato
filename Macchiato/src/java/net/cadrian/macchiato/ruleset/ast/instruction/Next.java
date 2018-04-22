@@ -14,30 +14,36 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter;
+package net.cadrian.macchiato.ruleset.ast.instruction;
 
-import net.cadrian.macchiato.ruleset.ast.BoundFilter;
-import net.cadrian.macchiato.ruleset.ast.ConditionFilter;
+import net.cadrian.macchiato.ruleset.ast.Instruction;
+import net.cadrian.macchiato.ruleset.ast.Node;
 
-class ConditionFilterVisitor implements BoundFilter.Visitor, ConditionFilter.Visitor {
+public class Next implements Instruction {
 
-	private final GlobalContext context;
+	public static interface Visitor extends Node.Visitor {
+		void visitNext(Next next);
+	}
 
-	public ConditionFilterVisitor(final GlobalContext context) {
-		this.context = context;
+	private final int position;
+
+	public Next(final int position) {
+		this.position = position;
 	}
 
 	@Override
-	public void visit(final ConditionFilter conditionFilter) {
-		final boolean condition = (Boolean) context.eval(conditionFilter.getCondition());
-		if (condition) {
-			context.eval(conditionFilter.getInstructions());
-		}
+	public int position() {
+		return position;
 	}
 
 	@Override
-	public void visit(final BoundFilter boundFilter) {
-		// do nothing
+	public void accept(final Node.Visitor v) {
+		((Visitor) v).visitNext(this);
+	}
+
+	@Override
+	public String toString() {
+		return "{Next}";
 	}
 
 }

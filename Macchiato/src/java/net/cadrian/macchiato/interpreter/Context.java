@@ -19,8 +19,8 @@ package net.cadrian.macchiato.interpreter;
 import java.math.BigInteger;
 
 import net.cadrian.macchiato.midi.Message;
-import net.cadrian.macchiato.recipe.ast.Instruction;
-import net.cadrian.macchiato.recipe.ast.expression.TypedExpression;
+import net.cadrian.macchiato.ruleset.ast.Instruction;
+import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
 
 abstract class Context {
 

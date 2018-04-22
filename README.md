@@ -62,7 +62,7 @@ The language is derived from C, with stricter conventions (notably,
 blocks are mandatory in some cases).
 
 ```
-Recipe ::= (Def | Filter)*
+Ruleset ::= (Def | Filter)*
 
 Def ::= "def" Identifier FormalArgs Block
 

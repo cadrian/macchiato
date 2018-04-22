@@ -16,9 +16,9 @@
  */
 package net.cadrian.macchiato.interpreter;
 
-import net.cadrian.macchiato.recipe.ast.BoundFilter;
-import net.cadrian.macchiato.recipe.ast.BoundFilter.Bound;
-import net.cadrian.macchiato.recipe.ast.ConditionFilter;
+import net.cadrian.macchiato.ruleset.ast.BoundFilter;
+import net.cadrian.macchiato.ruleset.ast.BoundFilter.Bound;
+import net.cadrian.macchiato.ruleset.ast.ConditionFilter;
 
 class BoundFilterVisitor implements BoundFilter.Visitor, ConditionFilter.Visitor {
 

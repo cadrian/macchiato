@@ -30,7 +30,7 @@ import net.cadrian.macchiato.midi.ControlChange;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.ShortMessageType;
-import net.cadrian.macchiato.recipe.ast.Def;
+import net.cadrian.macchiato.ruleset.ast.Def;
 
 class GlobalContext extends Context {
 
@@ -124,7 +124,7 @@ class GlobalContext extends Context {
 			return fn;
 		}
 		final Function result;
-		final Def def = interpreter.recipe.getDef(name);
+		final Def def = interpreter.ruleset.getDef(name);
 		if (def == null) {
 			result = nativeFunctions.get(name);
 		} else {

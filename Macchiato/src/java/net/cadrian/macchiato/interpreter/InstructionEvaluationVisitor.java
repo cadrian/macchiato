@@ -23,17 +23,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.midi.Message;
-import net.cadrian.macchiato.recipe.ast.Expression;
-import net.cadrian.macchiato.recipe.ast.Instruction;
-import net.cadrian.macchiato.recipe.ast.expression.TypedExpression;
-import net.cadrian.macchiato.recipe.ast.instruction.Assignment;
-import net.cadrian.macchiato.recipe.ast.instruction.Block;
-import net.cadrian.macchiato.recipe.ast.instruction.Emit;
-import net.cadrian.macchiato.recipe.ast.instruction.If;
-import net.cadrian.macchiato.recipe.ast.instruction.InstructionVisitor;
-import net.cadrian.macchiato.recipe.ast.instruction.Next;
-import net.cadrian.macchiato.recipe.ast.instruction.ProcedureCall;
-import net.cadrian.macchiato.recipe.ast.instruction.While;
+import net.cadrian.macchiato.ruleset.ast.Expression;
+import net.cadrian.macchiato.ruleset.ast.Instruction;
+import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
+import net.cadrian.macchiato.ruleset.ast.instruction.Assignment;
+import net.cadrian.macchiato.ruleset.ast.instruction.Block;
+import net.cadrian.macchiato.ruleset.ast.instruction.Emit;
+import net.cadrian.macchiato.ruleset.ast.instruction.If;
+import net.cadrian.macchiato.ruleset.ast.instruction.InstructionVisitor;
+import net.cadrian.macchiato.ruleset.ast.instruction.Next;
+import net.cadrian.macchiato.ruleset.ast.instruction.ProcedureCall;
+import net.cadrian.macchiato.ruleset.ast.instruction.While;
 
 class InstructionEvaluationVisitor implements InstructionVisitor {
 
