@@ -16,4 +16,6 @@
 # along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-java -cp /usr/share/java/Macchiato.jar:/usr/share/java/logback-classic.jar:/usr/share/java/slf4j-api.jar net.cadrian.macchiato.Run "$@"
+java -cp /usr/share/java/Macchiato.jar:/usr/share/java/logback-classic.jar:/usr/share/java/slf4j-api.jar \
+     -Dlogback.configurationFile=/usr/share/macchiato/logback.xml \
+     net.cadrian.macchiato.Run "$@"
