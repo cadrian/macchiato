@@ -26,23 +26,6 @@ Example: transform `NOTE_ON` events with a velocity equal to 0 into
 `NOTE_ON` event.
 
 ```javascript
-/*
- * This file is part of Macchiato.
- *
- * Macchiato is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3 of the License.
- *
- * Macchiato is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
-
 // This simple example is basically a tutorial, with a lot of comments.
 
 // Called at each beginning of track. Other special markers are BEGIN
