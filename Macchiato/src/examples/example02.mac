@@ -34,13 +34,10 @@
  * This also adds a bit of random for "humanization".
  */
 
+import h "humanize.mac";
+
 def humanize(value, anchor, percent) {
-	max = anchor * percent;
-	if (max == 0) {
-		result = value;
-	} else {
-		result = value + ((max / 2) - random(max)) / 100;
-	}
+	result = h.anchored(value, anchor, percent);
 }
 
 BEGIN TRACK {

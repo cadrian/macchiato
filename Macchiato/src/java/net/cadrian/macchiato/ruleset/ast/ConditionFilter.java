@@ -26,11 +26,13 @@ public class ConditionFilter extends Filter {
 	}
 
 	private final TypedExpression condition;
+	private final int position;
 
-	public ConditionFilter(final TypedExpression condition, final Block instructions) {
+	public ConditionFilter(final int position, final TypedExpression condition, final Block instructions) {
 		super(instructions);
 		assert (condition.getType() == Boolean.class);
 		this.condition = condition;
+		this.position = position;
 	}
 
 	public TypedExpression getCondition() {
@@ -39,7 +41,7 @@ public class ConditionFilter extends Filter {
 
 	@Override
 	public int position() {
-		return condition.position();
+		return position;
 	}
 
 	@Override

@@ -65,7 +65,9 @@ The language is derived from C, with stricter conventions (notably,
 blocks are mandatory in some cases).
 
 ```
-Ruleset ::= (Def | Filter)*
+Ruleset ::= (Import | Def | Filter)*
+
+Import ::= "import" Identifier ManifestString
 
 Def ::= "def" Identifier FormalArgs Block
 
@@ -76,10 +78,10 @@ FormalArgs ::= "(" (Identifier ("," Identifier)*)? ")"
 Filter ::= Condition Block
 
 Condition ::= "BEGIN" "SEQUENCE"
-           | "BEGIN" "TRACK"
-           | "END" "SEQUENCE"
-           | "END" "TRACK"
-           | Expression
+           |  "BEGIN" "TRACK"
+           |  "END" "SEQUENCE"
+           |  "END" "TRACK"
+           |  Expression
 
 Instruction ::= If
              |  While
@@ -93,7 +95,9 @@ Block ::= "{" (Instruction)* "}"
 
 Assignment ::= (Identifier | "result") IdentifierSuffix "=" Expression ";"
 
-Call ::= Identifier "(" (Expression ("," Expression)*)? ")" ";"
+Call ::= CallName "(" (Expression ("," Expression)*)? ")" ";"
+
+CallName ::= Identifier ("." Identifier)*
 
 If ::= "if" Block ("else" (If | Block))?
 
@@ -157,8 +161,19 @@ ManifestDictionary ::= "{" (Expression ":" Expression ("," Expression ":" Expres
 ManifestNumber ::= /[0-9]+/
 ```
 
-Note: the `result` reserved identifier is used to assign a value that
-will be returned from a `def` function.
+Notes:
+
+ * The `result` reserved identifier is used to assign a value that
+   will be returned from a `def` function.
+ * The `import` clauses help modularize complex rulesets. They import
+   sub-rulesets within a specific scope. The identifier identifies the
+   scope within the importing ruleset, and must be unique. The string
+   is the path of the ruleset to import. The `import` clauses cannot
+   be defined after filters (but they can be mixed with `def`
+   clauses).  The functions `def`ined in the scope are callable via
+   their name prefixed with the scope identifier and a dot. The
+   filters are imported in order, and before those of the importing
+   ruleset. Imports can be nested, the rules still apply recursively.
 
 Comments are either bash-style (lines starting with a hashtag) or C-style (`//` and `/*`…`*/`)
 

@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.ruleset.parser;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -25,6 +26,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cadrian.macchiato.conf.Platform;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.ruleset.ast.BoundFilter;
 import net.cadrian.macchiato.ruleset.ast.ConditionFilter;
@@ -62,26 +64,40 @@ public class Parser {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Parser.class);
 
+	private final File relativeDirectory;
 	private final ParserBuffer buffer;
 
-	public Parser(final Reader reader) throws IOException {
+	public Parser(final File relativeDirectory, final Reader reader) throws IOException {
+		this.relativeDirectory = relativeDirectory;
 		this.buffer = new ParserBuffer(reader);
 	}
 
 	public Ruleset parse() {
+		return parse(0);
+	}
+
+	Ruleset parse(final int position) {
 		LOGGER.debug("<-- {}", buffer.position());
-		final Ruleset result = new Ruleset();
+		final Ruleset result = new Ruleset(position);
 		try {
+			boolean allowImport = true;
 			while (!buffer.off()) {
-				if (readKeyword("def")) {
-					skipBlanks();
-					final int position = buffer.position();
-					final Def old = result.addDef(parseDef());
+				skipBlanks();
+				final int p = buffer.position();
+				if (readKeyword("import")) {
+					if (!allowImport) {
+						throw new ParserException(error("Cannot import files after filters", p));
+					}
+					parseImport(result, p);
+				} else if (readKeyword("def")) {
+					final Def def = parseDef(p);
+					final Def old = result.addDef(def);
 					if (old != null) {
-						throw new ParserException(error("Duplicate def " + old.name(), old.position(), position));
+						throw new ParserException(error("Duplicate def " + old.name(), old.position(), def.position()));
 					}
 				} else {
-					result.addFilter(parseFilter());
+					result.addFilter(parseFilter(p));
+					allowImport = false;
 				}
 				skipBlanks();
 			}
@@ -92,10 +108,68 @@ public class Parser {
 		return result;
 	}
 
-	private Def parseDef() {
+	private void parseImport(final Ruleset result, final int p) {
+		LOGGER.debug("<--");
+		skipBlanks();
+		final String name = readIdentifier();
+
+		skipBlanks();
+		final int p1 = buffer.position();
+		final ManifestString scopePath = parseManifestString();
+		final File scopeFile = findFile(p1, scopePath.getValue());
+		if (scopeFile == null) {
+			throw new ParserException(error("Could not import scope " + name + " from " + scopePath.getValue()
+					+ ": file not found (relative directory: " + relativeDirectory.getPath() + ")", p1));
+		}
+		LOGGER.debug("Found {} at {}", scopePath.getValue(), scopeFile.getAbsolutePath());
+
+		final Ruleset scope;
+		try (final FileReader scopeReader = new FileReader(scopeFile)) {
+			final Parser scopeParser = new Parser(scopeFile.getParentFile(), scopeReader);
+			try {
+				scope = scopeParser.parse(p);
+			} catch (final ParserException e) {
+				throw new ParserException(error("In " + scopePath.getValue(), p1) + '\n' + e.getMessage(), e);
+			}
+		} catch (final IOException e) {
+			throw new ParserException(error("Could read " + scopeFile.getPath(), p1), e);
+		}
+		final Ruleset old = result.addScope(name, scope);
+		if (old != null) {
+			throw new ParserException(error("Duplicate scope " + name, old.position(), scope.position()));
+		}
+		skipBlanks();
+		if (!buffer.off() && buffer.current() == ';') {
+			buffer.next();
+		}
+
+		LOGGER.debug("--> {}", scope);
+	}
+
+	private File findFile(final int position, final String scopePath) {
+		if (scopePath.isEmpty()) {
+			throw new ParserException(error("empty path", position));
+		}
+
+		final File raw = new File(scopePath);
+		if (raw.isAbsolute()) {
+			if (raw.exists()) {
+				return raw;
+			}
+			return null;
+		}
+
+		final File relative = new File(relativeDirectory, scopePath);
+		if (relative.exists()) {
+			return relative;
+		}
+
+		return Platform.getConfigFile(scopePath);
+	}
+
+	private Def parseDef(final int position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		skipBlanks();
-		final int position = buffer.position();
 		final String name = readIdentifier();
 		if (name == null) {
 			throw new ParserException(error("Expected def name"));
@@ -206,6 +280,14 @@ public class Parser {
 				throw new ParserException(error("Unexpected keyword " + name, position));
 			}
 		} else {
+			skipBlanks();
+			final String scopedName = parseScopedCallName(name);
+			if (scopedName != null) {
+				assert !buffer.off() && buffer.current() == '(';
+				final ProcedureCall result = parseProcedureCall(position, scopedName);
+				LOGGER.debug("--> {}", result);
+				return result;
+			}
 			indexable = new Identifier(position, name);
 		}
 		skipBlanks();
@@ -235,15 +317,6 @@ public class Parser {
 				buffer.next();
 			}
 			final Assignment result = new Assignment(indexable, exp);
-			LOGGER.debug("--> {}", result);
-			return result;
-		}
-		case '(': {
-			if (isReserved(name)) {
-				// this is result, not a function!
-				throw new ParserException(error("Expected function call on " + name));
-			}
-			final ProcedureCall result = parseProcedureCall(position, name);
 			LOGGER.debug("--> {}", result);
 			return result;
 		}
@@ -782,13 +855,59 @@ public class Parser {
 				} else {
 					final String name = readIdentifier();
 					skipBlanks();
-					if (buffer.off() || buffer.current() != '(') {
-						result = new Identifier(position, name);
+					final String scopedName = parseScopedCallName(name);
+					if (scopedName != null) {
+						assert !buffer.off() && buffer.current() == '(';
+						result = parseFunctionCall(position, scopedName);
 					} else {
-						result = parseFunctionCall(position, name);
+						result = new Identifier(position, name);
 					}
 				}
 			}
+		}
+		LOGGER.debug("--> {}", result);
+		return result;
+	}
+
+	private String parseScopedCallName(final String name) {
+		LOGGER.debug("<--");
+		final String result;
+		final int positionAfterFirstName = buffer.position();
+		final StringBuilder scopedName = new StringBuilder(name);
+		boolean foundParenthesis = !buffer.off() && buffer.current() == '(';
+		boolean more = !buffer.off() && !foundParenthesis;
+		while (more) {
+			skipBlanks();
+			if (buffer.off()) {
+				more = false;
+			} else {
+				switch (buffer.current()) {
+				case '.':
+					scopedName.append('.');
+					buffer.next();
+					skipBlanks();
+					final int p0 = buffer.position();
+					final String subname = readIdentifier();
+					if (subname == null) {
+						throw new ParserException(error("Expected identifier", p0));
+					}
+					scopedName.append(subname);
+					break;
+				case '(':
+					foundParenthesis = true;
+					more = false;
+					break;
+				default:
+					more = false;
+				}
+			}
+		}
+		if (foundParenthesis) {
+			assert !buffer.off() && buffer.current() == '(';
+			result = scopedName.toString();
+		} else {
+			buffer.rewind(positionAfterFirstName);
+			result = null;
 		}
 		LOGGER.debug("--> {}", result);
 		return result;
@@ -849,7 +968,7 @@ public class Parser {
 		return result;
 	}
 
-	private TypedExpression parseManifestString() {
+	private ManifestString parseManifestString() {
 		LOGGER.debug("<-- {}", buffer.position());
 		assert buffer.current() == '"';
 		final int position = buffer.position();
@@ -895,7 +1014,7 @@ public class Parser {
 		return result;
 	}
 
-	private TypedExpression parseManifestRegex() {
+	private ManifestRegex parseManifestRegex() {
 		LOGGER.debug("<-- {}", buffer.position());
 		assert buffer.current() == '/';
 		final int position = buffer.position();
@@ -1018,7 +1137,7 @@ public class Parser {
 		return result;
 	}
 
-	private TypedExpression parseManifestNumber() {
+	private ManifestNumeric parseManifestNumber() {
 		LOGGER.debug("<-- {}", buffer.position());
 		assert Character.isDigit(buffer.current());
 		final int position = buffer.position();
@@ -1063,11 +1182,11 @@ public class Parser {
 		return result;
 	}
 
-	private Filter parseFilter() {
+	private Filter parseFilter(final int position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		skipBlanks();
 		final Filter result;
-		final int position = buffer.position();
+		final int p1 = buffer.position();
 		final BoundFilter.Bound bound;
 		if (readKeyword("BEGIN")) {
 			if (readKeyword("SEQUENCE")) {
@@ -1096,7 +1215,7 @@ public class Parser {
 			final Block instr = parseBlock();
 			result = new BoundFilter(position, bound, instr);
 		} else {
-			buffer.rewind(position);
+			buffer.rewind(p1);
 			final Expression expr = parseExpression();
 			final TypedExpression condition = expr.typed(Boolean.class);
 			if (condition == null) {
@@ -1107,7 +1226,7 @@ public class Parser {
 				throw new ParserException(error("Expected block"));
 			}
 			final Block instr = parseBlock();
-			result = new ConditionFilter(condition, instr);
+			result = new ConditionFilter(position, condition, instr);
 		}
 		LOGGER.debug("--> {}", result);
 		return result;
@@ -1168,6 +1287,7 @@ public class Parser {
 		case "emit":
 		case "for":
 		case "if":
+		case "import":
 		case "next":
 		case "not":
 		case "or":
@@ -1276,8 +1396,9 @@ public class Parser {
 	}
 
 	public static void main(final String[] args) throws IOException {
-		final FileReader fileReader = new FileReader(args[0]);
-		final Parser parser = new Parser(fileReader);
+		final File file = new File(args[0]);
+		final FileReader fileReader = new FileReader(file);
+		final Parser parser = new Parser(file.getParentFile(), fileReader);
 		final Ruleset ruleset = parser.parse();
 		System.out.println("Ruleset: " + ruleset);
 	}

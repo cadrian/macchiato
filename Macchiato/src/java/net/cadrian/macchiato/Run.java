@@ -19,6 +19,7 @@ package net.cadrian.macchiato;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -45,10 +46,11 @@ public class Run {
 
 		try {
 			final String rulesetName = args[0];
+			final File rulesetFile = new File(rulesetName);
 			final Parser parser;
 			final Ruleset ruleset;
 			try (final Reader reader = new BufferedReader(new FileReader(rulesetName))) {
-				parser = new Parser(reader);
+				parser = new Parser(rulesetFile.getParentFile(), reader);
 				LOGGER.info("Parsing ruleset: {}", rulesetName);
 				ruleset = parser.parse();
 			}
