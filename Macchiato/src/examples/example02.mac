@@ -60,6 +60,11 @@ def initTrack() {
     }
 }
 
+BEGIN SEQUENCE {
+	record = [];
+	tracknum = 0;
+}
+
 BEGIN TRACK {
 	initTrack();
 }
@@ -103,4 +108,16 @@ BEGIN TRACK {
     emit NOTE_OFF(event.channel, event.pitch, humanize(v, v, 10)) at event.tick - humanize(0, v, 5);
 
     next;
+}
+
+END TRACK {
+	record[tracknum] = {
+		"velocity": velocity,
+		"expression": expression
+	};
+	tracknum = tracknum + 1;
+}
+
+END SEQUENCE {
+	write("record", record);
 }

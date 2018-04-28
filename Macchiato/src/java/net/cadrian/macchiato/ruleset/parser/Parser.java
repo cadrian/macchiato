@@ -1149,6 +1149,7 @@ public class Parser {
 				if (buffer.off() || buffer.current() != ':') {
 					throw new ParserException(error("Invalid dictionary", buffer.position()));
 				}
+				buffer.next();
 				final TypedExpression typedKey = key.typed(Comparable.class);
 				if (typedKey == null) {
 					throw new ParserException(error("Invalid dictionary key", key.position()));

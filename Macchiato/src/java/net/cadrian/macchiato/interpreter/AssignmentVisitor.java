@@ -181,6 +181,8 @@ class AssignmentVisitor implements ExpressionVisitor {
 			LOGGER.debug("previous value dictionary: {}", previousValue);
 			setter = new DictionarySetter((Dictionary) previousValue, indexedSetter, (String) index);
 			previousValue = previousValue == null ? null : ((Dictionary) previousValue).get((String) index);
+		} else if (index == null) {
+			throw new InterpreterException("Cannot use inexistent index", indexedExpression.position());
 		} else {
 			throw new InterpreterException("Cannot use " + index.getClass().getSimpleName() + " as index",
 					indexedExpression.position());
