@@ -16,18 +16,16 @@
  */
 package net.cadrian.macchiato.ruleset.ast;
 
-import net.cadrian.macchiato.ruleset.ast.instruction.Block;
-
 public abstract class Filter implements Node {
 
-	protected final Block instructions;
+	protected final Instruction instruction;
 
-	public Filter(final Block instructions) {
-		this.instructions = instructions;
+	public Filter(final Instruction instructions) {
+		this.instruction = instructions;
 	}
 
-	public Block getInstructions() {
-		return instructions;
+	public Instruction getInstruction() {
+		return instruction;
 	}
 
 }

@@ -21,7 +21,7 @@ def valued(value, percent) {
 
 def anchored(value, anchor, percent) {
 	max = anchor * percent;
-	if (max == 0) {
+	if max == 0 {
 		result = value;
 	} else {
 		result = value + ((max / 2) - random(max)) / 100;

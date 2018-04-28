@@ -31,7 +31,7 @@ class ConditionFilterVisitor implements BoundFilter.Visitor, ConditionFilter.Vis
 	public void visit(final ConditionFilter conditionFilter) {
 		final boolean condition = (Boolean) context.eval(conditionFilter.getCondition());
 		if (condition) {
-			context.eval(conditionFilter.getInstructions());
+			context.eval(conditionFilter.getInstruction());
 		}
 	}
 

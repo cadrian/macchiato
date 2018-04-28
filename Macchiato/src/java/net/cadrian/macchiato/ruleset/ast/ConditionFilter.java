@@ -17,7 +17,6 @@
 package net.cadrian.macchiato.ruleset.ast;
 
 import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
-import net.cadrian.macchiato.ruleset.ast.instruction.Block;
 
 public class ConditionFilter extends Filter {
 
@@ -28,8 +27,8 @@ public class ConditionFilter extends Filter {
 	private final TypedExpression condition;
 	private final int position;
 
-	public ConditionFilter(final int position, final TypedExpression condition, final Block instructions) {
-		super(instructions);
+	public ConditionFilter(final int position, final TypedExpression condition, final Instruction instruction) {
+		super(instruction);
 		assert (condition.getType() == Boolean.class);
 		this.condition = condition;
 		this.position = position;
@@ -51,7 +50,7 @@ public class ConditionFilter extends Filter {
 
 	@Override
 	public String toString() {
-		return "{Filter condition:" + condition + " " + instructions + "}";
+		return "{Filter condition:" + condition + " " + instruction + "}";
 	}
 
 }

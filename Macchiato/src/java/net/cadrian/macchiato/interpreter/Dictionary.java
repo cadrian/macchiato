@@ -18,6 +18,7 @@ package net.cadrian.macchiato.interpreter;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,6 +41,11 @@ public class Dictionary implements Container<String> {
 	@Override
 	public Object get(final String index) {
 		return dictionary.get(index);
+	}
+
+	@Override
+	public Iterator<String> keys() {
+		return dictionary.keySet().iterator();
 	}
 
 	@Override

@@ -14,32 +14,43 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.ruleset.ast;
+package net.cadrian.macchiato.ruleset.ast.instruction;
 
-public class Def implements Node {
+import net.cadrian.macchiato.ruleset.ast.Expression;
+import net.cadrian.macchiato.ruleset.ast.Instruction;
+import net.cadrian.macchiato.ruleset.ast.Node;
+
+public class For implements Instruction {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(Def def);
+		void visitFor(For f);
 	}
 
-	private final String name;
-	private final FormalArgs args;
-	private final Instruction instruction;
 	private final int position;
+	private final Expression name1;
+	private final Expression name2;
+	private final Expression loop;
+	private final Instruction instruction;
 
-	public Def(final int position, final String name, final FormalArgs args, final Instruction instruction) {
+	public For(final int position, final Expression name1, final Expression name2, final Expression loop,
+			final Instruction instruction) {
 		this.position = position;
-		this.name = name;
-		this.args = args;
+		this.name1 = name1;
+		this.name2 = name2;
+		this.loop = loop;
 		this.instruction = instruction;
 	}
 
-	public String name() {
-		return name;
+	public Expression getName1() {
+		return name1;
 	}
 
-	public FormalArgs getArgs() {
-		return args;
+	public Expression getName2() {
+		return name2;
+	}
+
+	public Expression getLoop() {
+		return loop;
 	}
 
 	public Instruction getInstruction() {
@@ -53,7 +64,12 @@ public class Def implements Node {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visit(this);
+		((Visitor) v).visitFor(this);
+	}
+
+	@Override
+	public String toString() {
+		return "{For " + name1 + (name2 == null ? "" : ", " + name2) + " in " + loop + " do " + instruction + "}";
 	}
 
 }

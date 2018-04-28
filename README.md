@@ -67,7 +67,7 @@ blocks are mandatory in some cases).
 ```
 Ruleset ::= (Import | Def | Filter)*
 
-Import ::= "import" Identifier ManifestString
+Import ::= "import" Identifier ManifestString ";"
 
 Def ::= "def" Identifier FormalArgs Block
 
@@ -83,13 +83,14 @@ Condition ::= "BEGIN" "SEQUENCE"
            |  "END" "TRACK"
            |  Expression
 
-Instruction ::= If
-             |  While
-             |  Emit
-             |  Next
-             |  Assignment
-             |  Call
+Instruction ::= Assignment
              |  Block
+             |  Call
+             |  Emit
+             |  For
+             |  If
+             |  Next
+             |  While
 
 Block ::= "{" (Instruction)* "}"
 
@@ -102,6 +103,8 @@ CallName ::= Identifier ("." Identifier)*
 If ::= "if" Block ("else" (If | Block))?
 
 While ::= "while" Block ("else" Block)?
+
+For ::= "for" Identifier ("," Identifier)? "in" Expression Block
 
 Emit ::= "emit" (Expression ("at" Expression)?)? ";"
 

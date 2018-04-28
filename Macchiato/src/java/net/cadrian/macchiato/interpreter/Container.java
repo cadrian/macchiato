@@ -16,10 +16,14 @@
  */
 package net.cadrian.macchiato.interpreter;
 
+import java.util.Iterator;
+
 public interface Container<I> {
 
 	Object set(I index, final Object value);
 
 	Object get(final I index);
+
+	Iterator<I> keys();
 
 }

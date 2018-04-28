@@ -17,6 +17,7 @@
 package net.cadrian.macchiato.interpreter;
 
 import java.math.BigInteger;
+import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
 import net.cadrian.macchiato.ruleset.ast.instruction.Assignment;
 import net.cadrian.macchiato.ruleset.ast.instruction.Block;
 import net.cadrian.macchiato.ruleset.ast.instruction.Emit;
+import net.cadrian.macchiato.ruleset.ast.instruction.For;
 import net.cadrian.macchiato.ruleset.ast.instruction.If;
 import net.cadrian.macchiato.ruleset.ast.instruction.InstructionVisitor;
 import net.cadrian.macchiato.ruleset.ast.instruction.Next;
@@ -110,6 +112,38 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 			}
 		}
 		LOGGER.debug("--> {}", i);
+	}
+
+	@Override
+	public void visitFor(final For f) {
+		LOGGER.debug("<-- {}", f);
+		final Container<?> loop = (Container<?>) context.eval(f.getLoop().typed(Container.class));
+		if (loop == null) {
+			throw new InterpreterException("undefined loop", f.getLoop().position());
+		}
+		runLoop(loop, f.getName1(), f.getName2(), f.getInstruction());
+		LOGGER.debug("--> {}", f);
+	}
+
+	private <I> void runLoop(final Container<I> loop, final Expression name1, final Expression name2,
+			final Instruction instruction) {
+		final AssignmentVisitor assignmentVisitor = new AssignmentVisitor(context);
+		final Iterator<I> keys = loop.keys();
+		if (name2 == null) {
+			while (keys.hasNext()) {
+				final Object value = loop.get(keys.next());
+				assignmentVisitor.assign(name1, value);
+			}
+			instruction.accept(this);
+		} else {
+			while (keys.hasNext()) {
+				final I key = keys.next();
+				final Object value = loop.get(key);
+				assignmentVisitor.assign(name1, key);
+				assignmentVisitor.assign(name2, value);
+			}
+			instruction.accept(this);
+		}
 	}
 
 	@Override

@@ -18,6 +18,7 @@ package net.cadrian.macchiato.interpreter;
 
 import java.math.BigInteger;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -41,6 +42,11 @@ public class Array implements Container<BigInteger> {
 	@Override
 	public Object get(final BigInteger index) {
 		return array.get(index);
+	}
+
+	@Override
+	public Iterator<BigInteger> keys() {
+		return array.keySet().iterator();
 	}
 
 	@Override

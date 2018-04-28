@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.conf.Platform;
+import net.cadrian.macchiato.interpreter.Container;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.ruleset.ast.BoundFilter;
 import net.cadrian.macchiato.ruleset.ast.ConditionFilter;
@@ -55,6 +56,7 @@ import net.cadrian.macchiato.ruleset.ast.expression.Unary;
 import net.cadrian.macchiato.ruleset.ast.instruction.Assignment;
 import net.cadrian.macchiato.ruleset.ast.instruction.Block;
 import net.cadrian.macchiato.ruleset.ast.instruction.Emit;
+import net.cadrian.macchiato.ruleset.ast.instruction.For;
 import net.cadrian.macchiato.ruleset.ast.instruction.If;
 import net.cadrian.macchiato.ruleset.ast.instruction.Next;
 import net.cadrian.macchiato.ruleset.ast.instruction.ProcedureCall;
@@ -243,27 +245,21 @@ public class Parser {
 		final Expression indexable;
 		if (isReserved(name)) {
 			switch (name) {
-			case "if": {
-				final If result = parseIf(position);
-				LOGGER.debug("--> {}", result);
-				return result;
-			}
-			case "switch":
-				// TODO return parseSwitch();
-				throw new ParserException(error("not yet implemented"));
 			case "do":
 				// TODO return parseDo();
 				throw new ParserException(error("not yet implemented"));
-			case "for":
-				// TODO return parseFor();
-				throw new ParserException(error("not yet implemented"));
-			case "while": {
-				final While result = parseWhile(position);
+			case "emit": {
+				final Emit result = parseEmit(position);
 				LOGGER.debug("--> {}", result);
 				return result;
 			}
-			case "emit": {
-				final Emit result = parseEmit(position);
+			case "for": {
+				final For result = parseFor(position);
+				LOGGER.debug("--> {}", result);
+				return result;
+			}
+			case "if": {
+				final If result = parseIf(position);
 				LOGGER.debug("--> {}", result);
 				return result;
 			}
@@ -275,6 +271,14 @@ public class Parser {
 			case "result": {
 				indexable = new Result(position);
 				break;
+			}
+			case "switch":
+				// TODO return parseSwitch();
+				throw new ParserException(error("not yet implemented"));
+			case "while": {
+				final While result = parseWhile(position);
+				LOGGER.debug("--> {}", result);
+				return result;
 			}
 			default:
 				throw new ParserException(error("Unexpected keyword " + name, position));
@@ -393,6 +397,52 @@ public class Parser {
 		return result;
 	}
 
+	private For parseFor(final int position) {
+		LOGGER.debug("<-- {}", buffer.position());
+		skipBlanks();
+		final int p1 = buffer.position();
+		final String id1 = readIdentifier();
+		if (id1 == null) {
+			throw new ParserException(error("Expected identifier"));
+		}
+		final Expression name1 = new Identifier(p1, id1);
+
+		skipBlanks();
+		final int p2 = buffer.position();
+		final Expression name2;
+		if (buffer.off()) {
+			throw new ParserException(error("Unexpected end of file"));
+		}
+		if (buffer.current() == ',') {
+			buffer.next();
+			final String id2 = readIdentifier();
+			if (id2 == null) {
+				throw new ParserException(error("Expected identifier"));
+			}
+			name2 = new Identifier(p2, id2);
+		} else {
+			name2 = null;
+		}
+
+		if (!readKeyword("in")) {
+			throw new ParserException(error("Expected \"in\""));
+		}
+
+		skipBlanks();
+		final int p3 = buffer.position();
+		final Expression loop = parseExpression().typed(Container.class);
+		if (loop == null) {
+			throw new ParserException(error("Invalid expression", p3));
+		}
+
+		skipBlanks();
+		final Instruction instruction = parseBlock();
+
+		final For result = new For(position, name1, name2, loop, instruction);
+		LOGGER.debug("--> {}", result);
+		return result;
+	}
+
 	private If parseIf(final int position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		final Expression cond = parseExpression();
@@ -400,21 +450,21 @@ public class Parser {
 		if (buffer.off() || buffer.current() != '{') {
 			throw new ParserException(error("Expected block"));
 		}
-		final Instruction inst = parseBlock();
-		final Instruction other;
+		final Instruction instruction = parseBlock();
+		final Instruction otherwise;
 		skipBlanks();
 		if (readKeyword("else")) {
 			skipBlanks();
 			final int pos = buffer.position();
 			if (readKeyword("if")) {
-				other = parseIf(pos);
+				otherwise = parseIf(pos);
 			} else {
-				other = parseBlock();
+				otherwise = parseBlock();
 			}
 		} else {
-			other = null;
+			otherwise = null;
 		}
-		final If result = new If(position, cond, inst, other);
+		final If result = new If(position, cond, instruction, otherwise);
 		LOGGER.debug("--> {}", result);
 		return result;
 	}
@@ -426,15 +476,15 @@ public class Parser {
 		if (buffer.off() || buffer.current() != '{') {
 			throw new ParserException(error("Expected block"));
 		}
-		final Block inst = parseBlock();
-		final Block other;
+		final Block instruction = parseBlock();
+		final Block otherwise;
 		skipBlanks();
 		if (readKeyword("else")) {
-			other = parseBlock();
+			otherwise = parseBlock();
 		} else {
-			other = null;
+			otherwise = null;
 		}
-		final While result = new While(position, cond, inst, other);
+		final While result = new While(position, cond, instruction, otherwise);
 		LOGGER.debug("--> {}", result);
 		return result;
 	}
@@ -1212,8 +1262,8 @@ public class Parser {
 			if (buffer.off() || buffer.current() != '{') {
 				throw new ParserException(error("Expected block"));
 			}
-			final Block instr = parseBlock();
-			result = new BoundFilter(position, bound, instr);
+			final Instruction instruction = parseBlock();
+			result = new BoundFilter(position, bound, instruction);
 		} else {
 			buffer.rewind(p1);
 			final Expression expr = parseExpression();
@@ -1225,8 +1275,8 @@ public class Parser {
 			if (buffer.off() || buffer.current() != '{') {
 				throw new ParserException(error("Expected block"));
 			}
-			final Block instr = parseBlock();
-			result = new ConditionFilter(position, condition, instr);
+			final Instruction instruction = parseBlock();
+			result = new ConditionFilter(position, condition, instruction);
 		}
 		LOGGER.debug("--> {}", result);
 		return result;
@@ -1288,6 +1338,7 @@ public class Parser {
 		case "for":
 		case "if":
 		case "import":
+		case "in":
 		case "next":
 		case "not":
 		case "or":

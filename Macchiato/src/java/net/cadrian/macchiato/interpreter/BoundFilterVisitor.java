@@ -38,7 +38,7 @@ class BoundFilterVisitor implements BoundFilter.Visitor, ConditionFilter.Visitor
 	@Override
 	public void visit(final BoundFilter boundFilter) {
 		if (boundFilter.getBound() == bound) {
-			context.eval(boundFilter.getInstructions());
+			context.eval(boundFilter.getInstruction());
 		}
 	}
 

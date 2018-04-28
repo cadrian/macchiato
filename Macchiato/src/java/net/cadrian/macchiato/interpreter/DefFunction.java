@@ -59,7 +59,7 @@ public class DefFunction implements Function {
 	public void run(final Context context, final int position) {
 		try {
 			final InstructionEvaluationVisitor v = new InstructionEvaluationVisitor(context);
-			def.getBlock().accept(v);
+			def.getInstruction().accept(v);
 		} catch (final InterpreterException e) {
 			throw new InterpreterException(e.getMessage(), position, e);
 		}
