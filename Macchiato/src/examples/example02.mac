@@ -30,7 +30,18 @@
  *   musicality (e.g. strong vs weak beats, musical phrases); these
  *   rules combine the expression and velocity to emit actual note
  *   velocities
+ *
+ * This also adds a bit of random for "humanization".
  */
+
+def humanize(value, anchor, percent) {
+	max = anchor * percent;
+	if (max == 0) {
+		result = value;
+	} else {
+		result = value + ((max / 2) - random(max)) / 100;
+	}
+}
 
 BEGIN TRACK {
     // velocity records the current velocity, per channel, per pitch
@@ -65,8 +76,8 @@ BEGIN TRACK {
 
     // Emit an event with a velocity that depends on the expression,
     // and with a bit of random for rough "humanization"
-    emit NOTE_ON(event.channel, event.pitch, (velocity[event.channel][event.pitch] * expression[event.channel]) / 127)
-        at event.tick + random(5);
+    v = (velocity[event.channel][event.pitch] * expression[event.channel]) / 127;
+    emit NOTE_ON(event.channel, event.pitch, humanize(v, v, 10)) at event.tick + humanize(0, v, 5);
 
     next;
 }
@@ -76,8 +87,8 @@ BEGIN TRACK {
     // and with a bit of random for rough "humanization"
     // Note that expression may have changed so the release velocity is not
     // necessarily equal to the press velocity
-    emit NOTE_OFF(event.channel, event.pitch, (velocity[event.channel][event.pitch] * expression[event.channel]) / 127)
-        at event.tick - random(5);
+    v = (velocity[event.channel][event.pitch] * expression[event.channel]) / 127;
+    emit NOTE_OFF(event.channel, event.pitch, humanize(v, v, 10)) at event.tick - humanize(0, v, 5);
 
     next;
 }
@@ -87,8 +98,8 @@ BEGIN TRACK {
     // and with a bit of random for rough "humanization"
     // Note that expression may have changed so the release velocity is not
     // necessarily equal to the press velocity
-    emit NOTE_OFF(event.channel, event.pitch, (event.velocity * expression[event.channel]) / 127)
-        at event.tick - random(5);
+    v = (event.velocity * expression[event.channel]) / 127;
+    emit NOTE_OFF(event.channel, event.pitch, humanize(v, v, 10)) at event.tick - humanize(0, v, 5);
 
     next;
 }
