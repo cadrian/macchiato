@@ -44,6 +44,7 @@ import net.cadrian.macchiato.ruleset.ast.expression.FunctionCall;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 import net.cadrian.macchiato.ruleset.ast.expression.IndexedExpression;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestArray;
+import net.cadrian.macchiato.ruleset.ast.expression.ManifestBoolean;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestDictionary;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestNumeric;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestRegex;
@@ -900,17 +901,30 @@ public class Parser {
 			default:
 				if (Character.isDigit(buffer.current())) {
 					result = parseManifestNumber();
-				} else if (readKeyword("result")) {
-					result = new Result(position);
 				} else {
-					final String name = readIdentifier();
-					skipBlanks();
-					final String scopedName = parseScopedCallName(name);
-					if (scopedName != null) {
-						assert !buffer.off() && buffer.current() == '(';
-						result = parseFunctionCall(position, scopedName);
-					} else {
-						result = new Identifier(position, name);
+					final String name = readRawIdentifier();
+					switch (name) {
+					case "result":
+						result = new Result(position);
+						break;
+					case "true":
+						result = new ManifestBoolean(position, true);
+						break;
+					case "false":
+						result = new ManifestBoolean(position, false);
+						break;
+					default:
+						if (isReserved(name)) {
+							throw new ParserException("unexpected keyword " + name);
+						}
+						skipBlanks();
+						final String scopedName = parseScopedCallName(name);
+						if (scopedName != null) {
+							assert !buffer.off() && buffer.current() == '(';
+							result = parseFunctionCall(position, scopedName);
+						} else {
+							result = new Identifier(position, name);
+						}
 					}
 				}
 			}
@@ -1335,6 +1349,7 @@ public class Parser {
 		case "do":
 		case "else":
 		case "emit":
+		case "false":
 		case "for":
 		case "if":
 		case "import":
@@ -1344,6 +1359,7 @@ public class Parser {
 		case "or":
 		case "result":
 		case "switch":
+		case "true":
 		case "while":
 		case "xor":
 			return true;

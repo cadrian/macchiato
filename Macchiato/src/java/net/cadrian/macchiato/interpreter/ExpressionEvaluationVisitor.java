@@ -29,6 +29,7 @@ import net.cadrian.macchiato.ruleset.ast.expression.FunctionCall;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 import net.cadrian.macchiato.ruleset.ast.expression.IndexedExpression;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestArray;
+import net.cadrian.macchiato.ruleset.ast.expression.ManifestBoolean;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestDictionary;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestNumeric;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestRegex;
@@ -282,6 +283,13 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			dictionary.set(key, lastValue);
 		}
 		lastValue = dictionary;
+		LOGGER.debug("--> {}", lastValue);
+	}
+
+	@Override
+	public void visitManifestBoolean(final ManifestBoolean manifestBoolean) {
+		LOGGER.debug("<-- {}", manifestBoolean);
+		lastValue = Boolean.valueOf(manifestBoolean.getValue());
 		LOGGER.debug("--> {}", lastValue);
 	}
 

@@ -149,6 +149,8 @@ AtomicExpression ::= ManifestString
                   |  Call
                   |  Identifier
                   |  "result"
+                  |  "false"
+                  |  "true"
                   |  "(" Expression ")"
 
 IdentifierSuffix ::= ("[" Expression "]" | "." Identifier)*

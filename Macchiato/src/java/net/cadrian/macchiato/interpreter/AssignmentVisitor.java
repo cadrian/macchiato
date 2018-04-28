@@ -28,6 +28,7 @@ import net.cadrian.macchiato.ruleset.ast.expression.FunctionCall;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 import net.cadrian.macchiato.ruleset.ast.expression.IndexedExpression;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestArray;
+import net.cadrian.macchiato.ruleset.ast.expression.ManifestBoolean;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestDictionary;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestNumeric;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestRegex;
@@ -188,6 +189,12 @@ class AssignmentVisitor implements ExpressionVisitor {
 	@Override
 	public void visitManifestArray(final ManifestArray array) {
 		throw new InterpreterException("Invalid left-side assignment", array.position());
+	}
+
+	@Override
+	public void visitManifestBoolean(final ManifestBoolean manifestBoolean) {
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
