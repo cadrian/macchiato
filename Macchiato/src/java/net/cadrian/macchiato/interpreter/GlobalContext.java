@@ -26,6 +26,7 @@ import javax.sound.midi.ShortMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cadrian.macchiato.interpreter.natfun.Native;
 import net.cadrian.macchiato.midi.ControlChange;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
@@ -57,8 +58,10 @@ class GlobalContext extends Context {
 		for (final ControlChange mpc : ControlChange.values()) {
 			global.put(mpc.name(), mpc);
 		}
-		final RandomFunction randomFunction = new RandomFunction();
-		nativeFunctions.put(randomFunction.name(), randomFunction);
+		for (final Native fun : Native.values()) {
+			final Function function = fun.getFunction();
+			nativeFunctions.put(function.name(), function);
+		}
 	}
 
 	@Override
@@ -136,24 +139,24 @@ class GlobalContext extends Context {
 	}
 
 	@Override
-	boolean has(String key) {
+	public boolean has(final String key) {
 		return global.containsKey(key);
 	}
 
 	@Override
-	<T> T get(final String key) {
+	public <T> T get(final String key) {
 		LOGGER.debug("<-- {}", key);
 		@SuppressWarnings("unchecked")
-		T result = (T) global.get(key);
+		final T result = (T) global.get(key);
 		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	@Override
-	<T> T set(final String key, final T value) {
+	public <T> T set(final String key, final T value) {
 		LOGGER.debug("<-- {} = {}", key, value);
 		@SuppressWarnings("unchecked")
-		T result = (T) global.put(key, value);
+		final T result = (T) global.put(key, value);
 		LOGGER.debug("--> {}", result);
 		return result;
 	}

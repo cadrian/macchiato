@@ -32,7 +32,6 @@ import net.cadrian.macchiato.interpreter.Interpreter;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.parser.Parser;
-import net.cadrian.macchiato.ruleset.parser.ParserException;
 
 public class Run {
 

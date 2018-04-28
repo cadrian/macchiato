@@ -91,7 +91,9 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 			callContext.declareLocal(argNames[i]);
 			callContext.set(argNames[i], value);
 		}
-		callContext.declareLocal("result");
+		if (fn.getResultType() != null) {
+			callContext.declareLocal("result");
+		}
 		fn.run(callContext, position);
 		LOGGER.debug("--> {}", procedureCall);
 	}

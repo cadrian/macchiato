@@ -14,7 +14,7 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter;
+package net.cadrian.macchiato.interpreter.natfun;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -23,7 +23,11 @@ import java.security.SecureRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class RandomFunction implements Function {
+import net.cadrian.macchiato.interpreter.Context;
+import net.cadrian.macchiato.interpreter.Function;
+import net.cadrian.macchiato.interpreter.InterpreterException;
+
+public class RandomFunction implements Function {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RandomFunction.class);
 
@@ -40,6 +44,9 @@ class RandomFunction implements Function {
 
 	private static final Class<?>[] ARG_TYPES = { BigInteger.class };
 	private static final String[] ARG_NAMES = { "max" };
+
+	RandomFunction() {
+	}
 
 	@Override
 	public String name() {

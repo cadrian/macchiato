@@ -72,7 +72,7 @@ class LocalContext extends Context {
 	}
 
 	@Override
-	boolean has(String key) {
+	public boolean has(final String key) {
 		if (local.containsKey(key)) {
 			return true;
 		}
@@ -80,7 +80,7 @@ class LocalContext extends Context {
 	}
 
 	@Override
-	<T> T get(final String key) {
+	public <T> T get(final String key) {
 		LOGGER.debug("<-- {}", key);
 		T result;
 		if (local.containsKey(key)) {
@@ -95,7 +95,7 @@ class LocalContext extends Context {
 	}
 
 	@Override
-	<T> T set(final String key, final T value) {
+	public <T> T set(final String key, final T value) {
 		LOGGER.debug("<-- {} = {}", key, value);
 		T result;
 		if (local.containsKey(key)) {

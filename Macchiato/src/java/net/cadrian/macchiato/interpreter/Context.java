@@ -22,7 +22,7 @@ import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
 
-abstract class Context {
+public abstract class Context {
 
 	abstract Interpreter getInterpreter();
 
@@ -53,11 +53,11 @@ abstract class Context {
 
 	abstract Function getFunction(String name);
 
-	abstract boolean has(String key);
+	public abstract boolean has(String key);
 
-	abstract <T> T get(String key);
+	public abstract <T> T get(String key);
 
-	abstract <T> T set(String key, T value);
+	public abstract <T> T set(String key, T value);
 
 	abstract void declareLocal(String name);
 

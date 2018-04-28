@@ -355,6 +355,9 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		if (fn == null) {
 			throw new InterpreterException("unknown function " + functionCall.getName(), position);
 		}
+		if (fn.getResultType() == null) {
+			throw new InterpreterException("cannot assign this function: no result", position);
+		}
 		final LocalContext callContext = new LocalContext(context);
 		final String[] argNames = fn.getArgNames();
 		final Class<?>[] argTypes = fn.getArgTypes();

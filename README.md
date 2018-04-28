@@ -61,8 +61,9 @@ BEGIN TRACK {
 
 ## Language grammar
 
-The language is derived from C, with stricter conventions (notably,
-blocks are mandatory in some cases).
+The language has many influences: C, Python, Go, Eiffel… There are
+quite strict conventions (notably, blocks are mandatory in some
+cases).
 
 ```
 Ruleset ::= (Import | Def | Filter)*
@@ -171,6 +172,8 @@ ManifestNumber ::= /[0-9]+/
 
 Notes:
 
+ * Arrays are sparse: it is possible to add elements at any index
+   without intervening indices.
  * The `result` reserved identifier is used to assign a value that
    will be returned from a `def` function.
  * The `import` clauses help modularize complex rulesets. They import
@@ -184,6 +187,7 @@ Notes:
    ruleset. Imports can be nested, the rules still apply recursively.
  * `local` variables have meaning only in `def` functions, not in
    filters.
+ * There is no `null`. By design.
 
 Comments are either bash-style (lines starting with a hashtag) or C-style (`//` and `/*`…`*/`)
 
@@ -252,3 +256,10 @@ Other functions are natively defined by the interpreter:
 Function name | Arguments
 ------------- | ---------
 `random`      | `max`: the upper bound of the random to draw. The value actually returned will be between 0 and `max`-1 inclusive.
+`read`        | `file`: the file name. The returned value is the content of the file, which must be a valid object.
+`write`       | `file`: the file name. `value`: the object to write. Nothing is returned.
+
+Note: `read` and `write` handle file writing of complete objects. The
+notation used is similar to (yet different from) JSON. The difference
+is that the array indexes are also recorded (because they are sparse
+arrays); and, still, no `null`.

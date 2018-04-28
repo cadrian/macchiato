@@ -88,7 +88,7 @@ public class Parser {
 		try {
 			boolean allowImport = true;
 			while (!buffer.off()) {
-				skipBlanks();
+				buffer.skipBlanks();
 				final int p = buffer.position();
 				if (readKeyword("import")) {
 					if (!allowImport) {
@@ -105,7 +105,7 @@ public class Parser {
 					result.addFilter(parseFilter(p));
 					allowImport = false;
 				}
-				skipBlanks();
+				buffer.skipBlanks();
 			}
 		} catch (final Exception e) {
 			throw new ParserException(error(e.getMessage()), e);
@@ -116,10 +116,10 @@ public class Parser {
 
 	private void parseImport(final Ruleset result, final int p) {
 		LOGGER.debug("<--");
-		skipBlanks();
+		buffer.skipBlanks();
 		final String name = readIdentifier();
 
-		skipBlanks();
+		buffer.skipBlanks();
 		final int p1 = buffer.position();
 		final ManifestString scopePath = parseManifestString();
 		final File scopeFile = findFile(p1, scopePath.getValue());
@@ -144,7 +144,7 @@ public class Parser {
 		if (old != null) {
 			throw new ParserException(error("Duplicate scope " + name, old.position(), scope.position()));
 		}
-		skipBlanks();
+		buffer.skipBlanks();
 		if (!buffer.off() && buffer.current() == ';') {
 			buffer.next();
 		}
@@ -176,13 +176,13 @@ public class Parser {
 	private Def parseDef(final int position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		inDef = true;
-		skipBlanks();
+		buffer.skipBlanks();
 		final String name = readIdentifier();
 		if (name == null) {
 			throw new ParserException(error("Expected def name"));
 		}
 		final FormalArgs args = parseFormalArgs();
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.off() || buffer.current() != '{') {
 			throw new ParserException(error("Expected block"));
 		}
@@ -195,13 +195,13 @@ public class Parser {
 
 	private FormalArgs parseFormalArgs() {
 		LOGGER.debug("<-- {}", buffer.position());
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.current() != '(') {
 			throw new ParserException(error("Expected formal arguments"));
 		}
 		final FormalArgs result = new FormalArgs();
 		buffer.next();
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.current() == ')') {
 			buffer.next();
 		} else {
@@ -212,7 +212,7 @@ public class Parser {
 					throw new ParserException(error("Expected arg name"));
 				} else {
 					result.add(arg);
-					skipBlanks();
+					buffer.skipBlanks();
 					switch (buffer.current()) {
 					case ',':
 						buffer.next();
@@ -233,7 +233,7 @@ public class Parser {
 
 	private Instruction parseInstruction() {
 		LOGGER.debug("<-- {}", buffer.position());
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.off()) {
 			throw new ParserException(error("Expected instruction"));
 		}
@@ -295,7 +295,7 @@ public class Parser {
 				throw new ParserException(error("Unexpected keyword " + name, position));
 			}
 		} else {
-			skipBlanks();
+			buffer.skipBlanks();
 			final String scopedName = parseScopedCallName(name);
 			if (scopedName != null) {
 				assert !buffer.off() && buffer.current() == '(';
@@ -305,18 +305,18 @@ public class Parser {
 			}
 			indexable = new Identifier(position, name);
 		}
-		skipBlanks();
+		buffer.skipBlanks();
 		switch (buffer.current()) {
 		case '[':
 		case '.': {
 			final Expression indexed = parseIdentifierSuffix(indexable);
-			skipBlanks();
+			buffer.skipBlanks();
 			if (buffer.off() || buffer.current() != '=') {
 				throw new ParserException(error("Expected assignment"));
 			}
 			buffer.next();
 			final Expression exp = parseExpression();
-			skipBlanks();
+			buffer.skipBlanks();
 			if (buffer.current() == ';') {
 				buffer.next();
 			}
@@ -327,7 +327,7 @@ public class Parser {
 		case '=': {
 			buffer.next();
 			final Expression exp = parseExpression();
-			skipBlanks();
+			buffer.skipBlanks();
 			if (buffer.current() == ';') {
 				buffer.next();
 			}
@@ -350,7 +350,7 @@ public class Parser {
 			throw new ParserException(error("Expected indentifier"));
 		}
 		final Identifier local = new Identifier(position, localId);
-		skipBlanks();
+		buffer.skipBlanks();
 		final Expression initializer;
 		if (buffer.off() || buffer.current() != '=') {
 			initializer = null;
@@ -361,7 +361,7 @@ public class Parser {
 				throw new ParserException(error("Expected expression"));
 			}
 		}
-		skipBlanks();
+		buffer.skipBlanks();
 		if (!buffer.off() && buffer.current() == ';') {
 			buffer.next();
 		}
@@ -372,7 +372,7 @@ public class Parser {
 
 	private Next parseNext(final int position) {
 		LOGGER.debug("<-- {}", buffer.position());
-		skipBlanks();
+		buffer.skipBlanks();
 		if (!buffer.off() && buffer.current() == ';') {
 			buffer.next();
 		}
@@ -384,14 +384,14 @@ public class Parser {
 	private Emit parseEmit(final int position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		final Emit result;
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.off() || buffer.current() == ';') {
 			result = new Emit(position, null, null);
 		} else {
 			final Expression expression = parseExpression();
 			final TypedExpression messageExpression = expression.typed(Message.class);
 			final TypedExpression tickExpression;
-			skipBlanks();
+			buffer.skipBlanks();
 			if (readKeyword("at")) {
 				final Expression te = parseExpression();
 				tickExpression = te.typed(BigInteger.class);
@@ -400,7 +400,7 @@ public class Parser {
 			}
 			result = new Emit(position, messageExpression, tickExpression);
 		}
-		skipBlanks();
+		buffer.skipBlanks();
 		if (!buffer.off() && buffer.current() == ';') {
 			buffer.next();
 		}
@@ -413,7 +413,7 @@ public class Parser {
 		final ProcedureCall result = new ProcedureCall(position, name);
 		assert buffer.current() == '(';
 		buffer.next();
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.off()) {
 			throw new ParserException("Invalid arguments list");
 		}
@@ -424,7 +424,7 @@ public class Parser {
 			do {
 				final Expression exp = parseExpression();
 				result.add(exp);
-				skipBlanks();
+				buffer.skipBlanks();
 				switch (buffer.current()) {
 				case ',':
 					buffer.next();
@@ -438,7 +438,7 @@ public class Parser {
 				}
 			} while (more);
 		}
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.current() == ';') {
 			buffer.next();
 		}
@@ -448,7 +448,7 @@ public class Parser {
 
 	private For parseFor(final int position) {
 		LOGGER.debug("<-- {}", buffer.position());
-		skipBlanks();
+		buffer.skipBlanks();
 		final int p1 = buffer.position();
 		final String id1 = readIdentifier();
 		if (id1 == null) {
@@ -456,7 +456,7 @@ public class Parser {
 		}
 		final Expression name1 = new Identifier(p1, id1);
 
-		skipBlanks();
+		buffer.skipBlanks();
 		final int p2 = buffer.position();
 		final Expression name2;
 		if (buffer.off()) {
@@ -477,14 +477,14 @@ public class Parser {
 			throw new ParserException(error("Expected \"in\""));
 		}
 
-		skipBlanks();
+		buffer.skipBlanks();
 		final int p3 = buffer.position();
 		final Expression loop = parseExpression().typed(Container.class);
 		if (loop == null) {
 			throw new ParserException(error("Invalid expression", p3));
 		}
 
-		skipBlanks();
+		buffer.skipBlanks();
 		final Instruction instruction = parseBlock();
 
 		final For result = new For(position, name1, name2, loop, instruction);
@@ -495,15 +495,15 @@ public class Parser {
 	private If parseIf(final int position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		final Expression cond = parseExpression();
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.off() || buffer.current() != '{') {
 			throw new ParserException(error("Expected block"));
 		}
 		final Instruction instruction = parseBlock();
 		final Instruction otherwise;
-		skipBlanks();
+		buffer.skipBlanks();
 		if (readKeyword("else")) {
-			skipBlanks();
+			buffer.skipBlanks();
 			final int pos = buffer.position();
 			if (readKeyword("if")) {
 				otherwise = parseIf(pos);
@@ -521,13 +521,13 @@ public class Parser {
 	private While parseWhile(final int position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		final Expression cond = parseExpression();
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.off() || buffer.current() != '{') {
 			throw new ParserException(error("Expected block"));
 		}
 		final Block instruction = parseBlock();
 		final Block otherwise;
-		skipBlanks();
+		buffer.skipBlanks();
 		if (readKeyword("else")) {
 			otherwise = parseBlock();
 		} else {
@@ -546,7 +546,7 @@ public class Parser {
 		buffer.next();
 		boolean more = true;
 		do {
-			skipBlanks();
+			buffer.skipBlanks();
 			if (buffer.off()) {
 				throw new ParserException(error("Unexpected end of text in block"));
 			}
@@ -682,7 +682,7 @@ public class Parser {
 	}
 
 	private Binary.Operator readComparator() {
-		skipBlanks();
+		buffer.skipBlanks();
 		final int position = buffer.position();
 		if (buffer.off()) {
 			return null;
@@ -741,7 +741,7 @@ public class Parser {
 
 	private Expression parseAdditionRight(final Expression left) {
 		LOGGER.debug("<-- {}", buffer.position());
-		skipBlanks();
+		buffer.skipBlanks();
 		final Expression result;
 		if (buffer.off()) {
 			result = left;
@@ -796,7 +796,7 @@ public class Parser {
 
 	private Expression parseMultiplicationRight(final Expression left) {
 		LOGGER.debug("<-- {}", buffer.position());
-		skipBlanks();
+		buffer.skipBlanks();
 		final Expression result;
 		if (buffer.off()) {
 			result = left;
@@ -845,7 +845,7 @@ public class Parser {
 
 	private Expression parsePowerRight(final Expression left) {
 		LOGGER.debug("<-- {}", buffer.position());
-		skipBlanks();
+		buffer.skipBlanks();
 		final Expression result;
 		if (buffer.off() || buffer.current() != '^') {
 			result = left;
@@ -867,7 +867,7 @@ public class Parser {
 
 	private Expression parseUnary() {
 		LOGGER.debug("<-- {}", buffer.position());
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.off()) {
 			throw new ParserException(error("Expected expression"));
 		}
@@ -927,7 +927,7 @@ public class Parser {
 		if (buffer.current() == '(') {
 			buffer.next();
 			result = parseExpression();
-			skipBlanks();
+			buffer.skipBlanks();
 			if (buffer.off() || buffer.current() != ')') {
 				throw new ParserException(error("Unfinished expresssion"));
 			}
@@ -965,7 +965,7 @@ public class Parser {
 						if (isReserved(name)) {
 							throw new ParserException(error("Unexpected keyword " + name, position));
 						}
-						skipBlanks();
+						buffer.skipBlanks();
 						final String scopedName = parseScopedCallName(name);
 						if (scopedName != null) {
 							assert !buffer.off() && buffer.current() == '(';
@@ -989,7 +989,7 @@ public class Parser {
 		boolean foundParenthesis = !buffer.off() && buffer.current() == '(';
 		boolean more = !buffer.off() && !foundParenthesis;
 		while (more) {
-			skipBlanks();
+			buffer.skipBlanks();
 			if (buffer.off()) {
 				more = false;
 			} else {
@@ -997,7 +997,7 @@ public class Parser {
 				case '.':
 					scopedName.append('.');
 					buffer.next();
-					skipBlanks();
+					buffer.skipBlanks();
 					final int p0 = buffer.position();
 					final String subname = readIdentifier();
 					if (subname == null) {
@@ -1030,7 +1030,7 @@ public class Parser {
 		Expression result = expression;
 		boolean more = !buffer.off();
 		while (more) {
-			skipBlanks();
+			buffer.skipBlanks();
 			switch (buffer.current()) {
 			case '[':
 				result = parseIndexed(result);
@@ -1051,7 +1051,7 @@ public class Parser {
 		assert buffer.current() == '[';
 		buffer.next();
 		final Expression index = parseExpression();
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.off() || buffer.current() != ']') {
 			throw new ParserException(error("Missing closing bracket"));
 		}
@@ -1069,7 +1069,7 @@ public class Parser {
 		LOGGER.debug("<-- {}", buffer.position());
 		assert buffer.current() == '.';
 		buffer.next();
-		skipBlanks();
+		buffer.skipBlanks();
 		final int position = buffer.position();
 		final String identifier = readIdentifier();
 		if (identifier == null) {
@@ -1082,92 +1082,16 @@ public class Parser {
 
 	private ManifestString parseManifestString() {
 		LOGGER.debug("<-- {}", buffer.position());
-		assert buffer.current() == '"';
 		final int position = buffer.position();
-		buffer.next();
-		final StringBuilder b = new StringBuilder();
-		int state = 0;
-		do {
-			if (buffer.off()) {
-				throw new ParserException(error("Unfinished string", position));
-			}
-			switch (state) {
-			case 0: // normal
-				switch (buffer.current()) {
-				case '\\':
-					state = 1;
-					break;
-				case '"':
-					state = -1;
-					break;
-				default:
-					b.append(buffer.current());
-				}
-				break;
-			case 1: // backslash
-				switch (buffer.current()) {
-				case 't':
-					b.append('\t');
-					break;
-				case 'n':
-					b.append('\n');
-					break;
-				default:
-					b.append(buffer.current());
-				}
-				break;
-			default:
-				throw new ParserException(error("BUG: unexpected state " + state, position));
-			}
-			buffer.next();
-		} while (state >= 0);
-		final ManifestString result = new ManifestString(position, b.toString());
+		final ManifestString result = new ManifestString(position, buffer.readString());
 		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	private ManifestRegex parseManifestRegex() {
 		LOGGER.debug("<-- {}", buffer.position());
-		assert buffer.current() == '/';
 		final int position = buffer.position();
-		buffer.next();
-		final StringBuilder b = new StringBuilder();
-		int state = 0;
-		do {
-			if (buffer.off()) {
-				throw new ParserException(error("Unfinished string", position));
-			}
-			switch (state) {
-			case 0: // normal
-				switch (buffer.current()) {
-				case '\\':
-					state = 1;
-					break;
-				case '/':
-					state = -1;
-					break;
-				default:
-					b.append(buffer.current());
-				}
-				break;
-			case 1: // backslash
-				switch (buffer.current()) {
-				case 't':
-					b.append('\t');
-					break;
-				case 'n':
-					b.append('\n');
-					break;
-				default:
-					b.append(buffer.current());
-				}
-				break;
-			default:
-				throw new ParserException(error("BUG: unexpected state " + state, position));
-			}
-			buffer.next();
-		} while (state >= 0);
-		final ManifestRegex result = new ManifestRegex(position, Pattern.compile(b.toString()));
+		final ManifestRegex result = new ManifestRegex(position, buffer.readRegex());
 		LOGGER.debug("--> {}", result);
 		return result;
 	}
@@ -1177,7 +1101,7 @@ public class Parser {
 		assert buffer.current() == '[';
 		final ManifestArray result = new ManifestArray(buffer.position());
 		buffer.next();
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.off()) {
 			throw new ParserException(error("Invalid array"));
 		}
@@ -1188,7 +1112,7 @@ public class Parser {
 			do {
 				final Expression exp = parseExpression();
 				result.add(exp);
-				skipBlanks();
+				buffer.skipBlanks();
 				switch (buffer.current()) {
 				case ',':
 					buffer.next();
@@ -1211,7 +1135,7 @@ public class Parser {
 		assert buffer.current() == '{';
 		final ManifestDictionary result = new ManifestDictionary(buffer.position());
 		buffer.next();
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.off()) {
 			throw new ParserException(error("Invalid array"));
 		}
@@ -1221,7 +1145,7 @@ public class Parser {
 			boolean more = true;
 			do {
 				final Expression key = parseExpression();
-				skipBlanks();
+				buffer.skipBlanks();
 				if (buffer.off() || buffer.current() != ':') {
 					throw new ParserException(error("Invalid dictionary", buffer.position()));
 				}
@@ -1231,7 +1155,7 @@ public class Parser {
 				}
 				final Expression exp = parseExpression();
 				result.put(typedKey, exp);
-				skipBlanks();
+				buffer.skipBlanks();
 				switch (buffer.current()) {
 				case ',':
 					buffer.next();
@@ -1251,15 +1175,8 @@ public class Parser {
 
 	private ManifestNumeric parseManifestNumber() {
 		LOGGER.debug("<-- {}", buffer.position());
-		assert Character.isDigit(buffer.current());
 		final int position = buffer.position();
-		final StringBuilder b = new StringBuilder();
-		while (!buffer.off() && Character.isDigit(buffer.current())) {
-			b.append(buffer.current());
-			buffer.next();
-		}
-		final BigInteger value = new BigInteger(b.toString());
-		final ManifestNumeric result = new ManifestNumeric(position, value);
+		final ManifestNumeric result = new ManifestNumeric(position, buffer.readBigInteger());
 		LOGGER.debug("--> {}", result);
 		return result;
 	}
@@ -1269,7 +1186,7 @@ public class Parser {
 		final FunctionCall result = new FunctionCall(position, name);
 		assert buffer.current() == '(';
 		buffer.next();
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.off()) {
 			throw new ParserException("Invalid arguments list");
 		}
@@ -1280,7 +1197,7 @@ public class Parser {
 			do {
 				final Expression exp = parseExpression();
 				result.add(exp);
-				skipBlanks();
+				buffer.skipBlanks();
 				switch (buffer.current()) {
 				case ',':
 					buffer.next();
@@ -1294,7 +1211,7 @@ public class Parser {
 				}
 			} while (more);
 		}
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.current() == ';') {
 			buffer.next();
 		}
@@ -1304,7 +1221,7 @@ public class Parser {
 
 	private Filter parseFilter(final int position) {
 		LOGGER.debug("<-- {}", buffer.position());
-		skipBlanks();
+		buffer.skipBlanks();
 		final Filter result;
 		final int p1 = buffer.position();
 		final BoundFilter.Bound bound;
@@ -1328,7 +1245,7 @@ public class Parser {
 			bound = null;
 		}
 		if (bound != null) {
-			skipBlanks();
+			buffer.skipBlanks();
 			if (buffer.off() || buffer.current() != '{') {
 				throw new ParserException(error("Expected block"));
 			}
@@ -1341,7 +1258,7 @@ public class Parser {
 			if (condition == null) {
 				throw new ParserException(error("Expected boolean condition", expr.position()));
 			}
-			skipBlanks();
+			buffer.skipBlanks();
 			if (buffer.off() || buffer.current() != '{') {
 				throw new ParserException(error("Expected block"));
 			}
@@ -1354,7 +1271,7 @@ public class Parser {
 
 	private String readIdentifier() {
 		LOGGER.debug("<-- {}", buffer.position());
-		skipBlanks();
+		buffer.skipBlanks();
 		if (buffer.off()) {
 			return null;
 		}
@@ -1427,96 +1344,9 @@ public class Parser {
 
 	private boolean readKeyword(final String keyword) {
 		LOGGER.debug("<-- {} at {}", keyword, buffer.position());
-		skipBlanks();
-		final int position = buffer.position();
-		for (final char kw : keyword.toCharArray()) {
-			if (buffer.off() || buffer.current() != kw) {
-				buffer.rewind(position);
-				LOGGER.debug("--> false");
-				return false;
-			}
-			buffer.next();
-		}
-		if (!(buffer.off() || !Character.isJavaIdentifierPart(buffer.current()))) {
-			buffer.rewind(position);
-			LOGGER.debug("--> false");
-			return false;
-		}
-		LOGGER.debug("--> true");
-		return true;
-	}
-
-	private void skipBlanks() {
-		LOGGER.debug("<-- {}", error("skip"));
-		int state = 0;
-		int pos = 0;
-		while (!buffer.off()) {
-			switch (state) {
-			case 0: // normal text
-				switch (buffer.current()) {
-				case ' ':
-				case '\t':
-				case '\r':
-				case '\n':
-					break;
-				case '#':
-					state = 10;
-					break;
-				case '/':
-					pos = buffer.position();
-					state = 1;
-					break;
-				default:
-					LOGGER.debug("--> {}", error("skip"));
-					return;
-				}
-				break;
-			case 1: // after '/'
-				switch (buffer.current()) {
-				case '/':
-					state = 10;
-					break;
-				case '*':
-					state = 20;
-					break;
-				default:
-					buffer.rewind(pos);
-					LOGGER.debug("--> {}", error("skip"));
-					return;
-				}
-				break;
-			case 10: // in one-line comment
-				switch (buffer.current()) {
-				case '\r':
-				case '\n':
-					state = 0;
-					break;
-				}
-				break;
-			case 20: // block comment
-				switch (buffer.current()) {
-				case '*':
-					state = 21;
-					break;
-				default:
-					break;
-				}
-				break;
-			case 21: // block comment after '*'
-				switch (buffer.current()) {
-				case '/':
-					state = 0;
-					break;
-				default:
-					state = 20;
-					break;
-				}
-				break;
-			default:
-				throw new ParserException("BUG: invalid state " + state);
-			}
-			buffer.next();
-		}
+		final boolean result = buffer.readKeyword(keyword);
+		LOGGER.debug("--> {}", result);
+		return result;
 	}
 
 	public static void main(final String[] args) throws IOException {
@@ -1527,7 +1357,7 @@ public class Parser {
 		System.out.println("Ruleset: " + ruleset);
 	}
 
-	private String error(final String message) {
+	String error(final String message) {
 		return buffer.error(message);
 	}
 
