@@ -101,6 +101,10 @@ public class Parser {
 			throw new ParserException(error("Expected def name"));
 		}
 		final FormalArgs args = parseFormalArgs();
+		skipBlanks();
+		if (buffer.off() || buffer.current() != '{') {
+			throw new ParserException(error("Expected block"));
+		}
 		final Block inst = parseBlock();
 		final Def result = new Def(position, name, args, inst);
 		LOGGER.debug("--> {}", result);
@@ -162,6 +166,7 @@ public class Parser {
 		if (name == null) {
 			throw new ParserException(error("Expected instruction", position));
 		}
+		final Expression indexable;
 		if (isReserved(name)) {
 			switch (name) {
 			case "if": {
@@ -174,6 +179,9 @@ public class Parser {
 				throw new ParserException(error("not yet implemented"));
 			case "do":
 				// TODO return parseDo();
+				throw new ParserException(error("not yet implemented"));
+			case "for":
+				// TODO return parseFor();
 				throw new ParserException(error("not yet implemented"));
 			case "while": {
 				final While result = parseWhile(position);
@@ -190,53 +198,57 @@ public class Parser {
 				LOGGER.debug("--> {}", result);
 				return result;
 			}
+			case "result": {
+				indexable = new Result(position);
+				break;
+			}
 			default:
 				throw new ParserException(error("Unexpected keyword " + name, position));
 			}
 		} else {
+			indexable = new Identifier(position, name);
+		}
+		skipBlanks();
+		switch (buffer.current()) {
+		case '[':
+		case '.': {
+			final Expression indexed = parseIdentifierSuffix(indexable);
 			skipBlanks();
-			switch (buffer.current()) {
-			case '[':
-			case '.': {
-				final Expression indexed = parseIdentifierSuffix(new Identifier(position, name));
-				skipBlanks();
-				if (buffer.off() || buffer.current() != '=') {
-					throw new ParserException(error("Expected assignment"));
-				}
+			if (buffer.off() || buffer.current() != '=') {
+				throw new ParserException(error("Expected assignment"));
+			}
+			buffer.next();
+			final Expression exp = parseExpression();
+			skipBlanks();
+			if (buffer.current() == ';') {
 				buffer.next();
-				final Expression exp = parseExpression();
-				skipBlanks();
-				if (buffer.current() == ';') {
-					buffer.next();
-				}
-				final Assignment result = new Assignment(indexed, exp);
-				LOGGER.debug("--> {}", result);
-				return result;
 			}
-			case '=': {
+			final Assignment result = new Assignment(indexed, exp);
+			LOGGER.debug("--> {}", result);
+			return result;
+		}
+		case '=': {
+			buffer.next();
+			final Expression exp = parseExpression();
+			skipBlanks();
+			if (buffer.current() == ';') {
 				buffer.next();
-				final Expression exp = parseExpression();
-				skipBlanks();
-				if (buffer.current() == ';') {
-					buffer.next();
-				}
-				final Assignment result = new Assignment(new Identifier(position, name), exp);
-				LOGGER.debug("--> {}", result);
-				return result;
 			}
-			case '(': {
-				final ProcedureCall result = parseProcedureCall(position, name);
-				LOGGER.debug("--> {}", result);
-				return result;
+			final Assignment result = new Assignment(indexable, exp);
+			LOGGER.debug("--> {}", result);
+			return result;
+		}
+		case '(': {
+			if (isReserved(name)) {
+				// this is result, not a function!
+				throw new ParserException(error("Expected function call on " + name));
 			}
-			case '{': {
-				final Block result = parseBlock();
-				LOGGER.debug("--> {}", result);
-				return result;
-			}
-			default:
-				throw new ParserException(error("Expected assignment or function call"));
-			}
+			final ProcedureCall result = parseProcedureCall(position, name);
+			LOGGER.debug("--> {}", result);
+			return result;
+		}
+		default:
+			throw new ParserException(error("Expected assignment or function call"));
 		}
 	}
 
@@ -367,6 +379,7 @@ public class Parser {
 				throw new ParserException(error("Unexpected end of text in block"));
 			}
 			if (buffer.current() == '}') {
+				LOGGER.debug("end of block");
 				buffer.next();
 				more = false;
 			} else {
@@ -1153,6 +1166,7 @@ public class Parser {
 		case "do":
 		case "else":
 		case "emit":
+		case "for":
 		case "if":
 		case "next":
 		case "not":
