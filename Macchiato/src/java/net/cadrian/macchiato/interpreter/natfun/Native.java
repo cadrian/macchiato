@@ -21,7 +21,9 @@ import net.cadrian.macchiato.interpreter.Function;
 public enum Native {
 	random(new RandomFunction()),
 	read(new ReadFunction()),
-	write(new WriteFunction());
+	write(new WriteFunction()),
+	toString(new ToStringFunction()),
+	fromString(new FromStringFunction());
 
 	private final Function function;
 

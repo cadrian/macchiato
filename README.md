@@ -258,8 +258,13 @@ Function name | Arguments
 `random`      | `max`: the upper bound of the random to draw. The value actually returned will be between 0 and `max`-1 inclusive.
 `read`        | `file`: the file name. The returned value is the content of the file, which must be a valid object.
 `write`       | `file`: the file name. `value`: the object to write. Nothing is returned.
+`toString`    | `value`: the value to convert. The returned value is a string that contains the serialized object.
+`fromString`  | `data`: the serialized value to convert. The returned value is the deserialized object.
 
-Note: `read` and `write` handle file writing of complete objects. The
-notation used is similar to (yet different from) JSON. The difference
-is that the array indexes are also recorded (because they are sparse
-arrays); and, still, no `null`.
+Notes:
+ * `read` and `write` handle file writing of complete objects. The
+   notation used is similar to (yet different from) JSON. The
+   difference is that the array indexes are also recorded (because
+   they are sparse arrays); and, still, no `null`.
+ * `toString` and `fromString` work in a similar way; but the data is
+   kept in a string instead of being read from / written to a file.

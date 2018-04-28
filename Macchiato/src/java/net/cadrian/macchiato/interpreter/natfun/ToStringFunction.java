@@ -16,10 +16,8 @@
  */
 package net.cadrian.macchiato.interpreter.natfun;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
+import java.io.StringWriter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,19 +26,19 @@ import net.cadrian.macchiato.interpreter.Context;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 
-public class WriteFunction extends AbstractObjectWriter implements Function {
+public class ToStringFunction extends AbstractObjectWriter implements Function {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(WriteFunction.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ToStringFunction.class);
 
-	private static final Class<?>[] ARG_TYPES = { String.class, Object.class };
-	private static final String[] ARG_NAMES = { "file", "value" };
+	private static final Class<?>[] ARG_TYPES = { Object.class };
+	private static final String[] ARG_NAMES = { "value" };
 
-	WriteFunction() {
+	ToStringFunction() {
 	}
 
 	@Override
 	public String name() {
-		return "write";
+		return "toString";
 	}
 
 	@Override
@@ -55,28 +53,30 @@ public class WriteFunction extends AbstractObjectWriter implements Function {
 
 	@Override
 	public Class<?> getResultType() {
-		return null;
+		return String.class;
 	}
 
 	@Override
 	public void run(final Context context, final int position) {
-		final String file = context.get("file");
 		final Object value = context.get("value");
-		LOGGER.debug("<-- {}: {}", file, value);
+		LOGGER.debug("<-- {}", value);
 
 		if (value == null) {
 			throw new InterpreterException("invalid value", position);
 		}
 
-		try (final Writer writer = new BufferedWriter(new FileWriter(file))) {
+		final String result;
+		try (final StringWriter writer = new StringWriter()) {
 			if (!writeObject(writer, value)) {
 				throw new InterpreterException("invalid value", position);
 			}
+			result = writer.getBuffer().toString();
 		} catch (final IOException e) {
 			throw new InterpreterException(e.getMessage(), position, e);
 		}
 
-		LOGGER.debug("-->");
+		context.set("result", result);
+		LOGGER.debug("--> {}", result);
 	}
 
 }

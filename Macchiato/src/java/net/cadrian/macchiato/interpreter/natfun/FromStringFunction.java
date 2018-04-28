@@ -16,10 +16,9 @@
  */
 package net.cadrian.macchiato.interpreter.natfun;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
+import java.io.Reader;
+import java.io.StringReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,20 +26,21 @@ import org.slf4j.LoggerFactory;
 import net.cadrian.macchiato.interpreter.Context;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.InterpreterException;
+import net.cadrian.macchiato.ruleset.parser.ParserBuffer;
 
-public class WriteFunction extends AbstractObjectWriter implements Function {
+public class FromStringFunction extends AbstractObjectReader implements Function {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(WriteFunction.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FromStringFunction.class);
 
-	private static final Class<?>[] ARG_TYPES = { String.class, Object.class };
-	private static final String[] ARG_NAMES = { "file", "value" };
+	private static final Class<?>[] ARG_TYPES = { String.class };
+	private static final String[] ARG_NAMES = { "data" };
 
-	WriteFunction() {
+	FromStringFunction() {
 	}
 
 	@Override
 	public String name() {
-		return "write";
+		return "fromString";
 	}
 
 	@Override
@@ -55,28 +55,24 @@ public class WriteFunction extends AbstractObjectWriter implements Function {
 
 	@Override
 	public Class<?> getResultType() {
-		return null;
+		return Object.class;
 	}
 
 	@Override
 	public void run(final Context context, final int position) {
-		final String file = context.get("file");
-		final Object value = context.get("value");
-		LOGGER.debug("<-- {}: {}", file, value);
+		final String data = context.get("data");
+		LOGGER.debug("<-- {}", data);
+		final Object result;
 
-		if (value == null) {
-			throw new InterpreterException("invalid value", position);
-		}
-
-		try (final Writer writer = new BufferedWriter(new FileWriter(file))) {
-			if (!writeObject(writer, value)) {
-				throw new InterpreterException("invalid value", position);
-			}
+		try (final Reader reader = new StringReader(data)) {
+			final ParserBuffer buffer = new ParserBuffer(reader);
+			result = parseObject(buffer);
 		} catch (final IOException e) {
 			throw new InterpreterException(e.getMessage(), position, e);
 		}
 
-		LOGGER.debug("-->");
+		context.set("result", result);
+		LOGGER.debug("--> {}", result);
 	}
 
 }
