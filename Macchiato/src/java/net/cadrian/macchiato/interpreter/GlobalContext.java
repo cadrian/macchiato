@@ -135,21 +135,32 @@ class GlobalContext extends Context {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override
+	boolean has(String key) {
+		return global.containsKey(key);
+	}
+
 	@Override
 	<T> T get(final String key) {
-		return (T) global.get(key);
+		LOGGER.debug("<-- {}", key);
+		@SuppressWarnings("unchecked")
+		T result = (T) global.get(key);
+		LOGGER.debug("--> {}", result);
+		return result;
 	}
 
 	@Override
 	<T> T set(final String key, final T value) {
-		return setGlobal(key, value);
+		LOGGER.debug("<-- {} = {}", key, value);
+		@SuppressWarnings("unchecked")
+		T result = (T) global.put(key, value);
+		LOGGER.debug("--> {}", result);
+		return result;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	<T> T setGlobal(final String key, final T value) {
-		return (T) global.put(key, value);
+	void declareLocal(final String name) {
+		throw new InterpreterException("BUG: unexpected local declaration in global context", 0);
 	}
 
 }

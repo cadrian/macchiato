@@ -17,20 +17,25 @@
 
 // This simple example is basically a tutorial, with a lot of comments.
 
-// Called at each beginning of track. Other special markers are BEGIN
-// SEQUENCE, END SEQUENCE, and END TRACK.
-BEGIN TRACK {
-    // reset global variables at track beginning
-
+def initTrack() {
     // velocity records the velocity of playing notes, per channel, per pitch
     velocity = [];
 
-    // fill default values
-    channel = 0;
+    // fill default values, using a local variable
+    local channel = 0;
     while (channel < 16) {
         velocity[channel] = [];
         channel = channel + 1;
     }
+}
+
+// Called at each beginning of track. Other special markers are BEGIN
+// SEQUENCE, END SEQUENCE, and END TRACK.
+BEGIN TRACK {
+    // reset global variables at track beginning
+    // This is deferred to a function in order to allow local variables
+    // (we cannot have local variables in filter blocks)
+	initTrack();
 }
 
 (event.type == NOTE_ON) and (event.velocity > 0) {

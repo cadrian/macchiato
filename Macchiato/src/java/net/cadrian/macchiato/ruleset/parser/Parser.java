@@ -59,6 +59,7 @@ import net.cadrian.macchiato.ruleset.ast.instruction.Block;
 import net.cadrian.macchiato.ruleset.ast.instruction.Emit;
 import net.cadrian.macchiato.ruleset.ast.instruction.For;
 import net.cadrian.macchiato.ruleset.ast.instruction.If;
+import net.cadrian.macchiato.ruleset.ast.instruction.Local;
 import net.cadrian.macchiato.ruleset.ast.instruction.Next;
 import net.cadrian.macchiato.ruleset.ast.instruction.ProcedureCall;
 import net.cadrian.macchiato.ruleset.ast.instruction.While;
@@ -69,6 +70,8 @@ public class Parser {
 
 	private final File relativeDirectory;
 	private final ParserBuffer buffer;
+
+	private boolean inDef;
 
 	public Parser(final File relativeDirectory, final Reader reader) throws IOException {
 		this.relativeDirectory = relativeDirectory;
@@ -172,6 +175,7 @@ public class Parser {
 
 	private Def parseDef(final int position) {
 		LOGGER.debug("<-- {}", buffer.position());
+		inDef = true;
 		skipBlanks();
 		final String name = readIdentifier();
 		if (name == null) {
@@ -184,6 +188,7 @@ public class Parser {
 		}
 		final Block inst = parseBlock();
 		final Def result = new Def(position, name, args, inst);
+		inDef = false;
 		LOGGER.debug("--> {}", result);
 		return result;
 	}
@@ -264,6 +269,11 @@ public class Parser {
 				LOGGER.debug("--> {}", result);
 				return result;
 			}
+			case "local": {
+				final Local result = parseLocal(position);
+				LOGGER.debug("--> {}", result);
+				return result;
+			}
 			case "next": {
 				final Next result = parseNext(position);
 				LOGGER.debug("--> {}", result);
@@ -330,6 +340,36 @@ public class Parser {
 		}
 	}
 
+	private Local parseLocal(final int position) {
+		LOGGER.debug("<-- {}", buffer.position());
+		if (!inDef) {
+			throw new ParserException(error("Unexpected local out of def", position));
+		}
+		final String localId = readIdentifier();
+		if (localId == null) {
+			throw new ParserException(error("Expected indentifier"));
+		}
+		final Identifier local = new Identifier(position, localId);
+		skipBlanks();
+		final Expression initializer;
+		if (buffer.off() || buffer.current() != '=') {
+			initializer = null;
+		} else {
+			buffer.next();
+			initializer = parseExpression();
+			if (initializer == null) {
+				throw new ParserException(error("Expected expression"));
+			}
+		}
+		skipBlanks();
+		if (!buffer.off() && buffer.current() == ';') {
+			buffer.next();
+		}
+		final Local result = new Local(position, local, initializer);
+		LOGGER.debug("--> {}", result);
+		return result;
+	}
+
 	private Next parseNext(final int position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		skipBlanks();
@@ -373,23 +413,31 @@ public class Parser {
 		final ProcedureCall result = new ProcedureCall(position, name);
 		assert buffer.current() == '(';
 		buffer.next();
-		boolean more = true;
-		do {
-			final Expression exp = parseExpression();
-			result.add(exp);
-			skipBlanks();
-			switch (buffer.current()) {
-			case ',':
-				buffer.next();
-				break;
-			case ')':
-				buffer.next();
-				more = false;
-				break;
-			default:
-				throw new ParserException(error("Unexpected character"));
-			}
-		} while (more);
+		skipBlanks();
+		if (buffer.off()) {
+			throw new ParserException("Invalid arguments list");
+		}
+		if (buffer.current() == ')') {
+			buffer.next();
+		} else {
+			boolean more = true;
+			do {
+				final Expression exp = parseExpression();
+				result.add(exp);
+				skipBlanks();
+				switch (buffer.current()) {
+				case ',':
+					buffer.next();
+					break;
+				case ')':
+					buffer.next();
+					more = false;
+					break;
+				default:
+					throw new ParserException(error("Unexpected character"));
+				}
+			} while (more);
+		}
 		skipBlanks();
 		if (buffer.current() == ';') {
 			buffer.next();
@@ -915,7 +963,7 @@ public class Parser {
 						break;
 					default:
 						if (isReserved(name)) {
-							throw new ParserException("unexpected keyword " + name);
+							throw new ParserException(error("Unexpected keyword " + name, position));
 						}
 						skipBlanks();
 						final String scopedName = parseScopedCallName(name);
@@ -1221,23 +1269,31 @@ public class Parser {
 		final FunctionCall result = new FunctionCall(position, name);
 		assert buffer.current() == '(';
 		buffer.next();
-		boolean more = true;
-		do {
-			final Expression exp = parseExpression();
-			result.add(exp);
-			skipBlanks();
-			switch (buffer.current()) {
-			case ',':
-				buffer.next();
-				break;
-			case ')':
-				buffer.next();
-				more = false;
-				break;
-			default:
-				throw new ParserException(error("Unexpected character"));
-			}
-		} while (more);
+		skipBlanks();
+		if (buffer.off()) {
+			throw new ParserException("Invalid arguments list");
+		}
+		if (buffer.current() == ')') {
+			buffer.next();
+		} else {
+			boolean more = true;
+			do {
+				final Expression exp = parseExpression();
+				result.add(exp);
+				skipBlanks();
+				switch (buffer.current()) {
+				case ',':
+					buffer.next();
+					break;
+				case ')':
+					buffer.next();
+					more = false;
+					break;
+				default:
+					throw new ParserException(error("Unexpected character"));
+				}
+			} while (more);
+		}
 		skipBlanks();
 		if (buffer.current() == ';') {
 			buffer.next();
@@ -1354,6 +1410,7 @@ public class Parser {
 		case "if":
 		case "import":
 		case "in":
+		case "local":
 		case "next":
 		case "not":
 		case "or":

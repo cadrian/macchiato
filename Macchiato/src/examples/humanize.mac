@@ -20,7 +20,7 @@ def valued(value, percent) {
 }
 
 def anchored(value, anchor, percent) {
-	max = anchor * percent;
+	local max = anchor * percent;
 	if max == 0 {
 		result = value;
 	} else {

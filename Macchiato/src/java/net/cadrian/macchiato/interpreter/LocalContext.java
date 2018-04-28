@@ -20,9 +20,14 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.cadrian.macchiato.midi.Message;
 
 class LocalContext extends Context {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(LocalContext.class);
 
 	private final Context parent;
 	private final Map<String, Object> local = new HashMap<>();
@@ -67,28 +72,50 @@ class LocalContext extends Context {
 	}
 
 	@Override
+	boolean has(String key) {
+		if (local.containsKey(key)) {
+			return true;
+		}
+		return parent.has(key);
+	}
+
+	@Override
 	<T> T get(final String key) {
-		@SuppressWarnings("unchecked")
-		T result = (T) local.get(key);
-		if (result == null) {
+		LOGGER.debug("<-- {}", key);
+		T result;
+		if (local.containsKey(key)) {
+			@SuppressWarnings("unchecked")
+			final T old = (T) local.get(key);
+			result = old;
+		} else {
 			result = parent.get(key);
 		}
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	@Override
 	<T> T set(final String key, final T value) {
-		@SuppressWarnings("unchecked")
-		T result = (T) local.put(key, value);
-		if (result == null) {
-			result = parent.get(key);
+		LOGGER.debug("<-- {} = {}", key, value);
+		T result;
+		if (local.containsKey(key)) {
+			@SuppressWarnings("unchecked")
+			final T old = (T) local.put(key, value);
+			result = old;
+		} else {
+			result = parent.set(key, value);
 		}
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	@Override
-	<T> T setGlobal(final String key, final T value) {
-		return parent.setGlobal(key, value);
+	void declareLocal(final String name) {
+		LOGGER.debug("<-- {}", name);
+		if (!local.containsKey(name)) {
+			local.put(name, null);
+		}
+		LOGGER.debug("-->");
 	}
 
 }

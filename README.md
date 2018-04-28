@@ -89,6 +89,7 @@ Instruction ::= Assignment
              |  Emit
              |  For
              |  If
+             |  Local
              |  Next
              |  While
 
@@ -105,6 +106,8 @@ If ::= "if" Block ("else" (If | Block))?
 While ::= "while" Block ("else" Block)?
 
 For ::= "for" Identifier ("," Identifier)? "in" Expression Block
+
+Local ::= "local" Identifier ("=" Expression);
 
 Emit ::= "emit" (Expression ("at" Expression)?)? ";"
 
@@ -179,6 +182,8 @@ Notes:
    their name prefixed with the scope identifier and a dot. The
    filters are imported in order, and before those of the importing
    ruleset. Imports can be nested, the rules still apply recursively.
+ * `local` variables have meaning only in `def` functions, not in
+   filters.
 
 Comments are either bash-style (lines starting with a hashtag) or C-style (`//` and `/*`…`*/`)
 

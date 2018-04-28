@@ -83,8 +83,8 @@ class AssignmentVisitor implements ExpressionVisitor {
 		@Override
 		public void set(final Object value) {
 			final String key = identifier.getName();
-			LOGGER.debug("Setting global {} to {}", key, value);
-			context.setGlobal(key, value);
+			LOGGER.debug("Setting {} to {}", key, value);
+			context.set(key, value);
 		}
 	}
 
@@ -171,14 +171,16 @@ class AssignmentVisitor implements ExpressionVisitor {
 			if (previousValue != null && !(previousValue instanceof Array)) {
 				throw new InterpreterException("invalid index", indexedExpression.getIndex().position());
 			}
+			LOGGER.debug("previous value array: {}", previousValue);
 			setter = new ArraySetter((Array) previousValue, indexedSetter, (BigInteger) index);
-			previousValue = ((Array) previousValue).get((BigInteger) index);
+			previousValue = previousValue == null ? null : ((Array) previousValue).get((BigInteger) index);
 		} else if (index instanceof String) {
 			if (previousValue != null && !(previousValue instanceof Dictionary)) {
 				throw new InterpreterException("invalid index", indexedExpression.getIndex().position());
 			}
+			LOGGER.debug("previous value dictionary: {}", previousValue);
 			setter = new DictionarySetter((Dictionary) previousValue, indexedSetter, (String) index);
-			previousValue = ((Dictionary) previousValue).get((String) index);
+			previousValue = previousValue == null ? null : ((Dictionary) previousValue).get((String) index);
 		} else {
 			throw new InterpreterException("Cannot use " + index.getClass().getSimpleName() + " as index",
 					indexedExpression.position());

@@ -40,7 +40,7 @@ def humanize(value, anchor, percent) {
 	result = h.anchored(value, anchor, percent);
 }
 
-BEGIN TRACK {
+def initTrack() {
     // velocity records the current velocity, per channel, per pitch
     velocity = [];
 
@@ -48,7 +48,7 @@ BEGIN TRACK {
     expression = [];
 
     // fill default values
-    channel = 0;
+    local channel = 0;
     while (channel < 16) {
         # no notes yet...
         velocity[channel] = [];
@@ -58,6 +58,10 @@ BEGIN TRACK {
 
         channel = channel + 1;
     }
+}
+
+BEGIN TRACK {
+	initTrack();
 }
 
 (event.type == CONTROL_CHANGE) and (event.mpc == EXPRESSION) {

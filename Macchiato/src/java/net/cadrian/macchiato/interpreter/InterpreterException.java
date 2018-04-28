@@ -32,6 +32,10 @@ public class InterpreterException extends RuntimeException {
 		this.position = position;
 	}
 
+	public InterpreterException(final String msg, final InterpreterException e) {
+		this(msg, e.getPosition(), e);
+	}
+
 	public int getPosition() {
 		return position;
 	}

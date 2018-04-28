@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
 import net.cadrian.macchiato.ruleset.ast.instruction.Assignment;
 import net.cadrian.macchiato.ruleset.ast.instruction.Block;
@@ -33,6 +34,7 @@ import net.cadrian.macchiato.ruleset.ast.instruction.Emit;
 import net.cadrian.macchiato.ruleset.ast.instruction.For;
 import net.cadrian.macchiato.ruleset.ast.instruction.If;
 import net.cadrian.macchiato.ruleset.ast.instruction.InstructionVisitor;
+import net.cadrian.macchiato.ruleset.ast.instruction.Local;
 import net.cadrian.macchiato.ruleset.ast.instruction.Next;
 import net.cadrian.macchiato.ruleset.ast.instruction.ProcedureCall;
 import net.cadrian.macchiato.ruleset.ast.instruction.While;
@@ -86,8 +88,10 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 		for (int i = 0; i < argNames.length; i++) {
 			final Expression argument = arguments.get(i);
 			final Object value = context.eval(argument.typed(argTypes[i]));
+			callContext.declareLocal(argNames[i]);
 			callContext.set(argNames[i], value);
 		}
+		callContext.declareLocal("result");
 		fn.run(callContext, position);
 		LOGGER.debug("--> {}", procedureCall);
 	}
@@ -97,6 +101,20 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 		LOGGER.debug("<-- {}", next);
 		context.setNext(true);
 		LOGGER.debug("--> {}", next);
+	}
+
+	@Override
+	public void visitLocal(final Local local) {
+		LOGGER.debug("<-- {}", local);
+		final Identifier id = local.getLocal();
+		final String name = id.getName();
+		context.declareLocal(name);
+		final Expression initializer = local.getInitializer();
+		if (initializer != null) {
+			final Object value = context.eval(initializer.typed(Object.class));
+			new AssignmentVisitor(context).assign(id, value);
+		}
+		LOGGER.debug("--> {}", local);
 	}
 
 	@Override

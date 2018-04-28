@@ -79,7 +79,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		default:
 			throw new InterpreterException("BUG: not implemented", typedUnary.getOperand().position());
 		}
-		LOGGER.debug("--> {}", lastValue);
+		LOGGER.debug("--> {} => {}", typedUnary, lastValue);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -248,7 +248,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		default:
 			throw new InterpreterException("BUG: not implemented", typedBinary.getLeftOperand().position());
 		}
-		LOGGER.debug("--> {}", lastValue);
+		LOGGER.debug("--> {} => {}", typedBinary, lastValue);
 	}
 
 	@Override
@@ -330,7 +330,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		} else {
 			throw new InterpreterException("invalid index type", indexedExpression.getIndexed().position());
 		}
-		LOGGER.debug("--> {}", lastValue);
+		LOGGER.debug("--> {} => {}", indexedExpression, lastValue);
 	}
 
 	@Override
@@ -365,11 +365,13 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		for (int i = 0; i < argNames.length; i++) {
 			final Expression argument = arguments.get(i);
 			final Object value = context.eval(argument.typed(argTypes[i]));
+			callContext.declareLocal(argNames[i]);
 			callContext.set(argNames[i], value);
 		}
+		callContext.declareLocal("result");
 		fn.run(callContext, position);
 		lastValue = fn.getResultType().cast(callContext.get("result"));
-		LOGGER.debug("--> {}", lastValue);
+		LOGGER.debug("--> {} => {}", functionCall, lastValue);
 	}
 
 	@Override

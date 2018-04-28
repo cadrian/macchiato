@@ -53,10 +53,12 @@ abstract class Context {
 
 	abstract Function getFunction(String name);
 
+	abstract boolean has(String key);
+
 	abstract <T> T get(String key);
 
 	abstract <T> T set(String key, T value);
 
-	abstract <T> T setGlobal(String key, T value);
+	abstract void declareLocal(String name);
 
 }
