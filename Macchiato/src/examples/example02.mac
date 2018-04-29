@@ -83,7 +83,7 @@ BEGIN TRACK {
     // Emit an event with a velocity that depends on the expression,
     // and with a bit of random for rough "humanization"
     v = (velocity[event.channel][event.pitch] * expression[event.channel]) / 127;
-    emit NOTE_ON(event.channel, event.pitch, humanize(v, v, 10)) at event.tick + humanize(0, v, 5);
+    emit NOTE_ON(event.channel, event.pitch, humanize(v, v, 10)) at event.tick + random(5);
 
     next;
 }
@@ -94,7 +94,7 @@ BEGIN TRACK {
     // Note that expression may have changed so the release velocity is not
     // necessarily equal to the press velocity
     v = (velocity[event.channel][event.pitch] * expression[event.channel]) / 127;
-    emit NOTE_OFF(event.channel, event.pitch, humanize(v, v, 10)) at event.tick - humanize(0, v, 5);
+    emit NOTE_OFF(event.channel, event.pitch, humanize(v, v, 10)) at event.tick - random(5);
 
     next;
 }
@@ -105,7 +105,7 @@ BEGIN TRACK {
     // Note that expression may have changed so the release velocity is not
     // necessarily equal to the press velocity
     v = (event.velocity * expression[event.channel]) / 127;
-    emit NOTE_OFF(event.channel, event.pitch, humanize(v, v, 10)) at event.tick - humanize(0, v, 5);
+    emit NOTE_OFF(event.channel, event.pitch, humanize(v, v, 10)) at event.tick - random(5);
 
     next;
 }
