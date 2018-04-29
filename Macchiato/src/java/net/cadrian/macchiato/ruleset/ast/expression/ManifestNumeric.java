@@ -18,9 +18,10 @@ package net.cadrian.macchiato.ruleset.ast.expression;
 
 import java.math.BigInteger;
 
+import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
-public class ManifestNumeric implements TypedExpression {
+public class ManifestNumeric implements ManifestExpression<BigInteger> {
 
 	public static interface Visitor extends Node.Visitor {
 		void visitManifestNumeric(ManifestNumeric manifestNumeric);
@@ -47,6 +48,7 @@ public class ManifestNumeric implements TypedExpression {
 		return BigInteger.class;
 	}
 
+	@Override
 	public BigInteger getValue() {
 		return value;
 	}
@@ -59,6 +61,21 @@ public class ManifestNumeric implements TypedExpression {
 	@Override
 	public void accept(final Node.Visitor v) {
 		((Visitor) v).visitManifestNumeric(this);
+	}
+
+	@Override
+	public TypedExpression simplify() {
+		return this;
+	}
+
+	@Override
+	public boolean isStatic() {
+		return true;
+	}
+
+	@Override
+	public Expression getStaticValue() {
+		return this;
 	}
 
 	@Override

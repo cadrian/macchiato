@@ -47,6 +47,21 @@ public class Result implements Expression {
 	}
 
 	@Override
+	public Expression simplify() {
+		return this;
+	}
+
+	@Override
+	public boolean isStatic() {
+		return false;
+	}
+
+	@Override
+	public Expression getStaticValue() {
+		return null;
+	}
+
+	@Override
 	public String toString() {
 		return "{Result}";
 	}

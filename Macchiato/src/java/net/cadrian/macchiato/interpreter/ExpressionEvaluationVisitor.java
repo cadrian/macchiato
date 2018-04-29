@@ -22,6 +22,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cadrian.macchiato.container.Array;
+import net.cadrian.macchiato.container.Dictionary;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.expression.CheckedExpression;
 import net.cadrian.macchiato.ruleset.ast.expression.ExpressionVisitor;

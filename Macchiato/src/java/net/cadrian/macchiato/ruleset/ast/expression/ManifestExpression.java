@@ -14,16 +14,10 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter;
+package net.cadrian.macchiato.ruleset.ast.expression;
 
-import java.util.Iterator;
+public interface ManifestExpression<V> extends TypedExpression {
 
-public interface Container<I> {
-
-	Object set(I index, final Object value);
-
-	Object get(final I index);
-
-	Iterator<I> keys();
+	V getValue();
 
 }

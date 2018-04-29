@@ -40,4 +40,26 @@ public class FunctionCall extends AbstractCall implements Expression {
 		((Visitor) v).visitFunctionCall(this);
 	}
 
+	@Override
+	public Expression simplify() {
+		boolean changed = false;
+		final FunctionCall result = new FunctionCall(position, name);
+		for (final Expression arg : arguments) {
+			final Expression simplifyArg = arg.simplify();
+			result.add(simplifyArg);
+			changed |= simplifyArg != arg;
+		}
+		return changed ? result : this;
+	}
+
+	@Override
+	public boolean isStatic() {
+		return false;
+	}
+
+	@Override
+	public Expression getStaticValue() {
+		return null;
+	}
+
 }

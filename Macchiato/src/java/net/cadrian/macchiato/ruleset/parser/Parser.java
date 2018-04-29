@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.conf.Platform;
-import net.cadrian.macchiato.interpreter.Container;
+import net.cadrian.macchiato.container.Container;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.ruleset.ast.BoundFilter;
 import net.cadrian.macchiato.ruleset.ast.ConditionFilter;
@@ -36,7 +36,6 @@ import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Filter;
 import net.cadrian.macchiato.ruleset.ast.FormalArgs;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
-import net.cadrian.macchiato.ruleset.ast.RegexMatcher;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Binary;
 import net.cadrian.macchiato.ruleset.ast.expression.Binary.Operator;
@@ -664,7 +663,8 @@ public class Parser {
 				if (rightOperand == null) {
 					throw new ParserException(error("Expected regular expression", right.position()));
 				}
-				result = parseComparatorRight(new RegexMatcher(leftOperand, rightOperand));
+				result = parseComparatorRight(
+						new TypedBinary(leftOperand, Binary.Operator.MATCH, rightOperand, Boolean.class));
 			} else {
 				final TypedExpression leftOperand = left.typed(Comparable.class);
 				if (leftOperand == null) {

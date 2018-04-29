@@ -26,6 +26,7 @@ import javax.sound.midi.ShortMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cadrian.macchiato.container.Dictionary;
 import net.cadrian.macchiato.interpreter.natfun.Native;
 import net.cadrian.macchiato.midi.ControlChange;
 import net.cadrian.macchiato.midi.Message;

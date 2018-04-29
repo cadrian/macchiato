@@ -42,6 +42,11 @@ public class Next implements Instruction {
 	}
 
 	@Override
+	public Instruction simplify() {
+		return this;
+	}
+
+	@Override
 	public String toString() {
 		return "{Next}";
 	}

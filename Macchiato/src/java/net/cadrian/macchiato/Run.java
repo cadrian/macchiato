@@ -51,7 +51,7 @@ public class Run {
 			try (final Reader reader = new BufferedReader(new FileReader(rulesetName))) {
 				parser = new Parser(rulesetFile.getParentFile(), reader);
 				LOGGER.info("Parsing ruleset: {}", rulesetName);
-				ruleset = parser.parse();
+				ruleset = parser.parse().simplify();
 			}
 			LOGGER.debug("Parsed ruleset: {}", ruleset);
 			try {

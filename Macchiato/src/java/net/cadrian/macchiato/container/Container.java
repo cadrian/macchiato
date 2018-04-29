@@ -14,18 +14,16 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.ruleset.ast;
+package net.cadrian.macchiato.container;
 
-import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
+import java.util.Iterator;
 
-public interface Expression extends Node {
+public interface Container<I> {
 
-	TypedExpression typed(Class<?> type);
+	Object set(I index, final Object value);
 
-	Expression simplify();
+	Object get(final I index);
 
-	boolean isStatic();
-
-	public Expression getStaticValue();
+	Iterator<I> keys();
 
 }

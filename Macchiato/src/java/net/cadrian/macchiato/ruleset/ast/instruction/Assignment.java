@@ -53,6 +53,16 @@ public class Assignment implements Instruction {
 	}
 
 	@Override
+	public Instruction simplify() {
+		final Expression left = leftSide.simplify();
+		final Expression right = rightSide.simplify();
+		if (left == leftSide && right == rightSide) {
+			return this;
+		}
+		return new Assignment(left, right);
+	}
+
+	@Override
 	public String toString() {
 		return "{Assignment " + leftSide + " = " + rightSide + "}";
 	}

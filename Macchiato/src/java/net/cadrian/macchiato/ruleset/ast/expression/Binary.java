@@ -39,7 +39,7 @@ public abstract class Binary implements Expression {
 		POWER;
 	}
 
-	private final Operator operator;
+	protected final Operator operator;
 
 	protected Binary(final Operator operator) {
 		this.operator = operator;

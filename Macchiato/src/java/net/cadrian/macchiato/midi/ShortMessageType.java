@@ -24,7 +24,7 @@ import java.util.Map;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.ShortMessage;
 
-import net.cadrian.macchiato.interpreter.Dictionary;
+import net.cadrian.macchiato.container.Dictionary;
 import net.cadrian.macchiato.midi.message.s.ChannelPressureMessage;
 import net.cadrian.macchiato.midi.message.s.ControlChangeMessage;
 import net.cadrian.macchiato.midi.message.s.NoteOffMessage;

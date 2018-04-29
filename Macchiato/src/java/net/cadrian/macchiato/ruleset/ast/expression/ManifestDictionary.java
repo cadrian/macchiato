@@ -20,11 +20,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.cadrian.macchiato.interpreter.Dictionary;
+import net.cadrian.macchiato.container.Dictionary;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
-public class ManifestDictionary implements TypedExpression {
+public class ManifestDictionary implements ManifestExpression<Void> {
 
 	public static interface Visitor extends Node.Visitor {
 		void visitManifestDictionary(ManifestDictionary manifestDictionary);
@@ -69,6 +69,11 @@ public class ManifestDictionary implements TypedExpression {
 	}
 
 	@Override
+	public Void getValue() {
+		return null;
+	}
+
+	@Override
 	public int position() {
 		return position;
 	}
@@ -84,6 +89,50 @@ public class ManifestDictionary implements TypedExpression {
 
 	public List<Entry> getExpressions() {
 		return Collections.unmodifiableList(expressions);
+	}
+
+	Expression getExpression(final ManifestString index) {
+		final String key = index.getValue();
+		for (final Entry entry : expressions) {
+			final ManifestString entryKey = (ManifestString) entry.key.getStaticValue();
+			if (entryKey.getValue().equals(key)) {
+				return entry.expression;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public TypedExpression simplify() {
+		boolean changed = false;
+		final ManifestDictionary result = new ManifestDictionary(position);
+		for (final Entry entry : expressions) {
+			final TypedExpression key = entry.key;
+			final TypedExpression simplifyKey = key.simplify();
+			final Expression expression = entry.expression;
+			final Expression simplifyExpression = expression.simplify();
+			result.put(simplifyKey, simplifyExpression);
+			changed |= simplifyKey != key || simplifyExpression != expression;
+		}
+		return changed ? result : this;
+	}
+
+	@Override
+	public boolean isStatic() {
+		for (final Entry entry : expressions) {
+			if (!entry.getKey().isStatic()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public Expression getStaticValue() {
+		if (isStatic()) {
+			return this;
+		}
+		return null;
 	}
 
 	@Override

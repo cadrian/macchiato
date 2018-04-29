@@ -53,6 +53,15 @@ public class BoundFilter extends Filter {
 	}
 
 	@Override
+	public Filter simplify() {
+		final Instruction simplifyInstruction = instruction.simplify();
+		if (simplifyInstruction == instruction) {
+			return this;
+		}
+		return new BoundFilter(position, bound, simplifyInstruction);
+	}
+
+	@Override
 	public String toString() {
 		return "{Filter bound:" + bound + " " + instruction + "}";
 	}

@@ -56,4 +56,12 @@ public class Def implements Node {
 		((Visitor) v).visit(this);
 	}
 
+	public Def simplify() {
+		final Instruction simplifyInstruction = instruction.simplify();
+		if (simplifyInstruction == instruction) {
+			return this;
+		}
+		return new Def(position, name, args, simplifyInstruction);
+	}
+
 }

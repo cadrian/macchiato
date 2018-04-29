@@ -20,10 +20,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
 public class Block implements Instruction {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Block.class);
 
 	public static interface Visitor extends Node.Visitor {
 		void visitBlock(Block block);
@@ -52,6 +57,31 @@ public class Block implements Instruction {
 
 	public List<Instruction> getInstructions() {
 		return Collections.unmodifiableList(instructions);
+	}
+
+	@Override
+	public Instruction simplify() {
+		switch (instructions.size()) {
+		case 0:
+			LOGGER.debug("remove empty block");
+			return null;
+		case 1:
+			LOGGER.debug("replace block by unique instruction");
+			return instructions.get(0).simplify();
+		default:
+			final Block result = new Block(position);
+			boolean changed = false;
+			for (final Instruction instruction : instructions) {
+				final Instruction simplifyInstruction = instruction.simplify();
+				if (simplifyInstruction == null) {
+					changed = true;
+				} else {
+					result.add(simplifyInstruction);
+					changed |= simplifyInstruction != instruction;
+				}
+			}
+			return changed ? result : this;
+		}
 	}
 
 	@Override

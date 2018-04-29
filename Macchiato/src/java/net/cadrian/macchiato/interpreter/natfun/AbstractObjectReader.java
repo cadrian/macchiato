@@ -18,8 +18,8 @@ package net.cadrian.macchiato.interpreter.natfun;
 
 import java.math.BigInteger;
 
-import net.cadrian.macchiato.interpreter.Array;
-import net.cadrian.macchiato.interpreter.Dictionary;
+import net.cadrian.macchiato.container.Array;
+import net.cadrian.macchiato.container.Dictionary;
 import net.cadrian.macchiato.ruleset.parser.ParserBuffer;
 import net.cadrian.macchiato.ruleset.parser.ParserException;
 

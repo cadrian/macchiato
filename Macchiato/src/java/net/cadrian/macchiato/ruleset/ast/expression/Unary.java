@@ -25,7 +25,7 @@ public abstract class Unary implements Expression {
 		MINUS;
 	}
 
-	private final Operator operator;
+	protected final Operator operator;
 
 	protected Unary(final Operator operator) {
 		this.operator = operator;

@@ -21,8 +21,8 @@ import java.io.Writer;
 import java.math.BigInteger;
 import java.util.Iterator;
 
-import net.cadrian.macchiato.interpreter.Array;
-import net.cadrian.macchiato.interpreter.Dictionary;
+import net.cadrian.macchiato.container.Array;
+import net.cadrian.macchiato.container.Dictionary;
 
 abstract class AbstractObjectWriter {
 

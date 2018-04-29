@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.ruleset.ast.expression;
 
+import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
@@ -55,6 +56,31 @@ public class CheckedExpression implements TypedExpression {
 	@Override
 	public void accept(final Node.Visitor v) {
 		((Visitor) v).visitCheckedExpression(this);
+	}
+
+	@Override
+	public TypedExpression simplify() {
+		final TypedExpression result;
+		final Expression simplifyToCheck = toCheck.simplify();
+		if (simplifyToCheck == toCheck) {
+			result = this;
+		} else {
+			result = simplifyToCheck.typed(type);
+			if (result == null) {
+				throw new InterpreterException("invalid expression type: expected " + type.getSimpleName(), position());
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public boolean isStatic() {
+		return toCheck.isStatic();
+	}
+
+	@Override
+	public Expression getStaticValue() {
+		return toCheck.getStaticValue();
 	}
 
 	@Override

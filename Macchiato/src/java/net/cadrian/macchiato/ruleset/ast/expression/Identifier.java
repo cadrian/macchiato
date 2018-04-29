@@ -56,6 +56,21 @@ public class Identifier implements Expression {
 	}
 
 	@Override
+	public Identifier simplify() {
+		return this;
+	}
+
+	@Override
+	public boolean isStatic() {
+		return false;
+	}
+
+	@Override
+	public Expression getStaticValue() {
+		return null;
+	}
+
+	@Override
 	public String toString() {
 		return "{Identifier:" + name + "}";
 	}

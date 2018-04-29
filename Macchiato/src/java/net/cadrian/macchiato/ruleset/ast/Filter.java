@@ -20,12 +20,14 @@ public abstract class Filter implements Node {
 
 	protected final Instruction instruction;
 
-	public Filter(final Instruction instructions) {
-		this.instruction = instructions;
+	public Filter(final Instruction instruction) {
+		this.instruction = instruction;
 	}
 
 	public Instruction getInstruction() {
 		return instruction;
 	}
+
+	public abstract Filter simplify();
 
 }

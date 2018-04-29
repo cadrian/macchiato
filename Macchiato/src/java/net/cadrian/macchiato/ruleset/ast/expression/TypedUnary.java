@@ -16,9 +16,15 @@
  */
 package net.cadrian.macchiato.ruleset.ast.expression;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
 public class TypedUnary extends Unary implements TypedExpression {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(TypedUnary.class);
 
 	public static interface Visitor extends Node.Visitor {
 		void visitTypedUnary(TypedUnary typedUnary);
@@ -59,6 +65,44 @@ public class TypedUnary extends Unary implements TypedExpression {
 			return new CheckedExpression(this, type);
 		}
 		return null;
+	}
+
+	@Override
+	public TypedExpression simplify() {
+		final TypedExpression simplifyOperand = operand.simplify();
+		TypedUnary result;
+		if (operand == simplifyOperand) {
+			result = this;
+		} else {
+			result = new TypedUnary(position(), operator, simplifyOperand, resultType);
+		}
+		if (result.isStatic()) {
+			LOGGER.debug("Simplify unary {}",operator);
+			return result.getStaticValue().typed(resultType);
+		}
+		return result;
+	}
+
+	@Override
+	public boolean isStatic() {
+		return operand.isStatic();
+	}
+
+	@Override
+	public Expression getStaticValue() {
+		final Expression op = operand.getStaticValue();
+		switch (operator) {
+		case NOT: {
+			final ManifestBoolean o = (ManifestBoolean) op;
+			return new ManifestBoolean(position(), !o.getValue());
+		}
+		case MINUS: {
+			final ManifestNumeric o = (ManifestNumeric) op;
+			return new ManifestNumeric(position(), o.getValue().negate());
+		}
+		default:
+			return null;
+		}
 	}
 
 	@Override

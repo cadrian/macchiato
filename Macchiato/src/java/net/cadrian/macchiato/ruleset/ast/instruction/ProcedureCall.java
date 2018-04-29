@@ -17,6 +17,7 @@
 package net.cadrian.macchiato.ruleset.ast.instruction;
 
 import net.cadrian.macchiato.ruleset.ast.AbstractCall;
+import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
@@ -33,6 +34,18 @@ public class ProcedureCall extends AbstractCall implements Instruction {
 	@Override
 	public void accept(final Node.Visitor v) {
 		((Visitor) v).visitProcedureCall(this);
+	}
+
+	@Override
+	public Instruction simplify() {
+		boolean changed = false;
+		final ProcedureCall result = new ProcedureCall(position, name);
+		for (final Expression arg : arguments) {
+			final Expression simplifyArg = arg.simplify();
+			result.add(simplifyArg);
+			changed |= simplifyArg != arg;
+		}
+		return changed ? result : this;
 	}
 
 }

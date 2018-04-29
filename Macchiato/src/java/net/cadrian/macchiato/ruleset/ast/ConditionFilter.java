@@ -49,6 +49,15 @@ public class ConditionFilter extends Filter {
 	}
 
 	@Override
+	public Filter simplify() {
+		final Instruction simplifyInstruction = instruction.simplify();
+		if (simplifyInstruction == instruction) {
+			return this;
+		}
+		return new ConditionFilter(position, condition.simplify(), simplifyInstruction);
+	}
+
+	@Override
 	public String toString() {
 		return "{Filter condition:" + condition + " " + instruction + "}";
 	}

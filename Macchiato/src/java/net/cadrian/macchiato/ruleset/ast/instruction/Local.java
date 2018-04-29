@@ -56,6 +56,16 @@ public class Local implements Instruction {
 	}
 
 	@Override
+	public Instruction simplify() {
+		final Identifier simplifyLocal = local.simplify();
+		final Expression simplifyInitializer = initializer.simplify();
+		if (simplifyLocal == local && simplifyInitializer == initializer) {
+			return this;
+		}
+		return new Local(position, simplifyLocal, simplifyInitializer);
+	}
+
+	@Override
 	public String toString() {
 		return "{Local " + local + (initializer == null ? "" : " = " + initializer) + "}";
 	}

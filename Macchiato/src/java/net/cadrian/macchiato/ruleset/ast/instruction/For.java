@@ -16,11 +16,23 @@
  */
 package net.cadrian.macchiato.ruleset.ast.instruction;
 
+import java.math.BigInteger;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.ast.expression.ManifestArray;
+import net.cadrian.macchiato.ruleset.ast.expression.ManifestDictionary;
+import net.cadrian.macchiato.ruleset.ast.expression.ManifestDictionary.Entry;
+import net.cadrian.macchiato.ruleset.ast.expression.ManifestNumeric;
 
 public class For implements Instruction {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(For.class);
 
 	public static interface Visitor extends Node.Visitor {
 		void visitFor(For f);
@@ -65,6 +77,69 @@ public class For implements Instruction {
 	@Override
 	public void accept(final Node.Visitor v) {
 		((Visitor) v).visitFor(this);
+	}
+
+	@Override
+	public Instruction simplify() {
+		final Expression simplifyName1 = name1.simplify();
+		final Expression simplifyName2 = name2 == null ? null : name2.simplify();
+		final Expression simplifyLoop = loop.simplify();
+		final Instruction simplifyInstruction = instruction.simplify();
+		if (simplifyInstruction == null) {
+			return null;
+		}
+		final For result;
+		if (simplifyName1 == name1 && simplifyName2 == name2 && simplifyLoop == loop
+				&& simplifyInstruction == instruction) {
+			result = this;
+		} else {
+			result = new For(position, simplifyName1, simplifyName2, simplifyLoop, simplifyInstruction);
+		}
+		if (simplifyLoop.isStatic()) {
+			final Expression container = simplifyLoop.getStaticValue();
+			if (container instanceof ManifestArray) {
+				final List<Expression> expressions = ((ManifestArray) container).getExpressions();
+				switch (expressions.size()) {
+				case 0:
+					LOGGER.debug("remove empty loop");
+					return null;
+				case 1:
+					LOGGER.debug("replace one-run loop by block");
+					final Block b = new Block(position);
+					final Expression firstExpression = expressions.get(0);
+					if (name2 == null) {
+						b.add(new Assignment(simplifyName1, firstExpression));
+					} else {
+						b.add(new Assignment(simplifyName1,
+								new ManifestNumeric(simplifyName1.position(), BigInteger.ZERO)));
+						b.add(new Assignment(simplifyName2, firstExpression));
+					}
+					b.add(simplifyInstruction);
+					return b;
+				}
+			} else if (container instanceof ManifestDictionary) {
+				final ManifestDictionary dictionary = (ManifestDictionary) container;
+				final List<Entry> expressions = dictionary.getExpressions();
+				switch (expressions.size()) {
+				case 0:
+					LOGGER.debug("remove empty loop");
+					return null;
+				case 1:
+					LOGGER.debug("replace one-run loop by block");
+					final Block b = new Block(position);
+					final Entry firstExpression = expressions.get(0);
+					if (name2 == null) {
+						b.add(new Assignment(simplifyName1, firstExpression.getExpression()));
+					} else {
+						b.add(new Assignment(simplifyName1, firstExpression.getKey()));
+						b.add(new Assignment(simplifyName2, firstExpression.getExpression()));
+					}
+					b.add(simplifyInstruction);
+					return b;
+				}
+			}
+		}
+		return result;
 	}
 
 	@Override

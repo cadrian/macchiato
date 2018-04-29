@@ -18,9 +18,10 @@ package net.cadrian.macchiato.ruleset.ast.expression;
 
 import java.util.regex.Pattern;
 
+import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
-public class ManifestRegex implements TypedExpression {
+public class ManifestRegex implements ManifestExpression<Pattern> {
 
 	public static interface Visitor extends Node.Visitor {
 		void visitManifestRegex(ManifestRegex manifestRegex);
@@ -47,6 +48,7 @@ public class ManifestRegex implements TypedExpression {
 		return Pattern.class;
 	}
 
+	@Override
 	public Pattern getValue() {
 		return value;
 	}
@@ -59,6 +61,21 @@ public class ManifestRegex implements TypedExpression {
 	@Override
 	public void accept(final Node.Visitor v) {
 		((Visitor) v).visitManifestRegex(this);
+	}
+
+	@Override
+	public TypedExpression simplify() {
+		return this;
+	}
+
+	@Override
+	public boolean isStatic() {
+		return true;
+	}
+
+	@Override
+	public Expression getStaticValue() {
+		return this;
 	}
 
 	@Override

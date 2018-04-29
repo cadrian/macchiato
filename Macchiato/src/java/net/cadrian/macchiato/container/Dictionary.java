@@ -14,59 +14,58 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter;
+package net.cadrian.macchiato.container;
 
-import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
-public class Array implements Container<BigInteger> {
+public class Dictionary implements Container<String> {
 
-	private static final ThreadLocal<Set<Array>> TO_STRING_GATE = new ThreadLocal<Set<Array>>() {
+	private static final ThreadLocal<Set<Dictionary>> TO_STRING_GATE = new ThreadLocal<Set<Dictionary>>() {
 		@Override
-		protected Set<Array> initialValue() {
+		protected Set<Dictionary> initialValue() {
 			return new HashSet<>();
 		}
 	};
 
-	private final Map<BigInteger, Object> array = new TreeMap<>();
+	private final Map<String, Object> dictionary = new HashMap<>();
 
 	@Override
-	public Object set(final BigInteger index, final Object value) {
-		return array.put(index, value);
+	public Object set(final String index, final Object value) {
+		return dictionary.put(index, value);
 	}
 
 	@Override
-	public Object get(final BigInteger index) {
-		return array.get(index);
+	public Object get(final String index) {
+		return dictionary.get(index);
 	}
 
 	@Override
-	public Iterator<BigInteger> keys() {
-		return array.keySet().iterator();
+	public Iterator<String> keys() {
+		return dictionary.keySet().iterator();
 	}
 
 	@Override
 	public String toString() {
-		final Set<Array> gate = TO_STRING_GATE.get();
+		final Set<Dictionary> gate = TO_STRING_GATE.get();
 		if (gate.contains(this)) {
-			return "RECURSIVE ARRAY";
+			return "RECURSIVE DICTIONARY";
 		}
 
 		gate.add(this);
 		try {
 			final StringBuilder result = new StringBuilder();
-			result.append('[');
-			for (final Map.Entry<BigInteger, Object> entry : array.entrySet()) {
+			result.append('{');
+			for (final Map.Entry<String, Object> entry : dictionary.entrySet()) {
 				if (result.length() > 1) {
 					result.append(", ");
 				}
 				result.append(entry.getKey()).append('=').append(entry.getValue());
 			}
-			result.append(']');
+			result.append('}');
 			return result.toString();
 		} finally {
 			gate.remove(this);

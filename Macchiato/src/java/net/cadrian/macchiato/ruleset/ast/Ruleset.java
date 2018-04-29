@@ -23,7 +23,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Ruleset {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Ruleset.class);
 
 	private final Map<String, Def> defs = new HashMap<>();
 	private final List<Filter> filters = new ArrayList<>();
@@ -91,6 +96,43 @@ public class Ruleset {
 	@Override
 	public String toString() {
 		return "{Ruleset defs=" + defs + " filters=" + filters + " scopes=" + scopes + "}";
+	}
+
+	public Ruleset simplify() {
+		LOGGER.debug("<-- {}", this);
+		Ruleset result = this;
+		for (int simplifyCount = 256; simplifyCount-- > 0;) {
+			LOGGER.debug("Simplify #{}", 256 - simplifyCount, result);
+			boolean changed = false;
+			final Ruleset simplifyRuleset = new Ruleset(position);
+			for (final Map.Entry<String, Ruleset> scope : result.scopes.entrySet()) {
+				final String scopeName = scope.getKey();
+				LOGGER.debug("Simplify nested scope {}", scopeName);
+				final Ruleset value = scope.getValue();
+				final Ruleset simplifyValue = value.simplify();
+				simplifyRuleset.addScope(scopeName, simplifyValue);
+				changed |= simplifyValue != value;
+			}
+			for (final Def def : result.defs.values()) {
+				LOGGER.debug("Simplify def {}", def.name());
+				final Def simplifyDef = def.simplify();
+				simplifyRuleset.addDef(simplifyDef);
+				changed |= simplifyDef != def;
+			}
+			for (final Filter filter : result.filters) {
+				LOGGER.debug("Simplify filter");
+				final Filter simplifyFilter = filter.simplify();
+				simplifyRuleset.addFilter(simplifyFilter);
+				changed |= simplifyFilter != filter;
+			}
+			if (!changed) {
+				LOGGER.debug("Found simplify fix point");
+				break;
+			}
+			result = simplifyRuleset;
+		}
+		LOGGER.debug("--> {}", result);
+		return result;
 	}
 
 }

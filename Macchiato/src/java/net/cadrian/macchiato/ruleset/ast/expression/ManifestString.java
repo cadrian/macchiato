@@ -16,9 +16,10 @@
  */
 package net.cadrian.macchiato.ruleset.ast.expression;
 
+import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
-public class ManifestString implements TypedExpression {
+public class ManifestString implements ManifestExpression<String> {
 
 	public static interface Visitor extends Node.Visitor {
 		void visitManifestString(ManifestString manifestString);
@@ -45,6 +46,7 @@ public class ManifestString implements TypedExpression {
 		return String.class;
 	}
 
+	@Override
 	public String getValue() {
 		return value;
 	}
@@ -57,6 +59,21 @@ public class ManifestString implements TypedExpression {
 	@Override
 	public void accept(final Node.Visitor v) {
 		((Visitor) v).visitManifestString(this);
+	}
+
+	@Override
+	public TypedExpression simplify() {
+		return this;
+	}
+
+	@Override
+	public boolean isStatic() {
+		return true;
+	}
+
+	@Override
+	public Expression getStaticValue() {
+		return this;
 	}
 
 	@Override

@@ -18,4 +18,6 @@ package net.cadrian.macchiato.ruleset.ast;
 
 public interface Instruction extends Node {
 
+	Instruction simplify();
+
 }

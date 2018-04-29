@@ -58,6 +58,16 @@ public class Emit implements Instruction {
 	}
 
 	@Override
+	public Instruction simplify() {
+		final TypedExpression simplifyMessage = message.simplify();
+		final TypedExpression simplifyTick = tick.simplify();
+		if (simplifyMessage == message && simplifyTick == tick) {
+			return this;
+		}
+		return new Emit(position, simplifyMessage, simplifyTick);
+	}
+
+	@Override
 	public String toString() {
 		if (message == null) {
 			return "{Emit}";

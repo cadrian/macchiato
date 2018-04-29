@@ -20,11 +20,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.cadrian.macchiato.interpreter.Array;
+import net.cadrian.macchiato.container.Array;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
-public class ManifestArray implements TypedExpression {
+public class ManifestArray implements ManifestExpression<Void> {
 
 	public static interface Visitor extends Node.Visitor {
 		void visitManifestArray(ManifestArray manifestArray);
@@ -51,6 +51,11 @@ public class ManifestArray implements TypedExpression {
 	}
 
 	@Override
+	public Void getValue() {
+		return null;
+	}
+
+	@Override
 	public int position() {
 		return position;
 	}
@@ -66,6 +71,33 @@ public class ManifestArray implements TypedExpression {
 
 	public List<Expression> getExpressions() {
 		return Collections.unmodifiableList(expressions);
+	}
+
+	Expression getExpression(final ManifestNumeric index) {
+		final int i = index.getValue().intValueExact();
+		return expressions.get(i);
+	}
+
+	@Override
+	public TypedExpression simplify() {
+		boolean changed = false;
+		final ManifestArray result = new ManifestArray(position);
+		for (final Expression value : expressions) {
+			final Expression simplifyValue = value.simplify();
+			result.add(simplifyValue);
+			changed |= simplifyValue != value;
+		}
+		return changed ? result : this;
+	}
+
+	@Override
+	public boolean isStatic() {
+		return true;
+	}
+
+	@Override
+	public Expression getStaticValue() {
+		return this;
 	}
 
 	@Override

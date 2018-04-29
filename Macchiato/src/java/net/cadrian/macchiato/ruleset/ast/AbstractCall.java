@@ -22,9 +22,9 @@ import java.util.List;
 
 public abstract class AbstractCall {
 
-	private final String name;
-	private final int position;
-	private final List<Expression> arguments = new ArrayList<>();
+	protected final String name;
+	protected final int position;
+	protected final List<Expression> arguments = new ArrayList<>();
 
 	public AbstractCall(final int position, final String name) {
 		this.name = name;

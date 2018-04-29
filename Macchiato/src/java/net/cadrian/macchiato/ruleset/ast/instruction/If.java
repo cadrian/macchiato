@@ -16,11 +16,17 @@
  */
 package net.cadrian.macchiato.ruleset.ast.instruction;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.ast.expression.ManifestBoolean;
 
 public class If implements Instruction {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(If.class);
 
 	public static interface Visitor extends Node.Visitor {
 		void visitIf(If i);
@@ -59,6 +65,30 @@ public class If implements Instruction {
 	@Override
 	public void accept(final Node.Visitor v) {
 		((Visitor) v).visitIf(this);
+	}
+
+	@Override
+	public Instruction simplify() {
+		final Expression simplifyCondition = condition.simplify();
+		final Instruction simplifyInstruction = instruction.simplify();
+		final Instruction simplifyOtherwise = otherwise == null ? null : otherwise.simplify();
+		If result;
+		if (simplifyCondition == condition && simplifyInstruction == instruction && simplifyOtherwise == otherwise) {
+			result = this;
+		} else {
+			result = new If(position, simplifyCondition, simplifyInstruction, simplifyOtherwise);
+		}
+		if (simplifyCondition.isStatic()) {
+			final ManifestBoolean cond = (ManifestBoolean) simplifyCondition.getStaticValue();
+			if (cond.getValue()) {
+				LOGGER.debug("replace if-else by always-true");
+				return simplifyInstruction;
+			} else {
+				LOGGER.debug("replace if-else by always-false");
+				return simplifyOtherwise;
+			}
+		}
+		return result;
 	}
 
 	@Override

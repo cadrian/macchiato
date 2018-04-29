@@ -22,4 +22,7 @@ public abstract interface TypedExpression extends Expression {
 
 	public Class<?> getType();
 
+	@Override
+	public abstract TypedExpression simplify();
+
 }
