@@ -274,8 +274,8 @@ Notes:
 # Technical design
 
 Macchiatto is split in two parts:
- # The parser
- # The interpreter
+1. The parser
+2. The interpreter
 
 ## The parser
 
@@ -289,8 +289,8 @@ tokenizers that work without knowledge from the analyzer.
 ## The interpreter
 
 The interpreter runs in two stages:
- # Simplify
- # Run
+1. Simplify
+2. Run
 
 ### Simplify
 
