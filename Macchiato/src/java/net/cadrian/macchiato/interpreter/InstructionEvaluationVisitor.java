@@ -29,6 +29,7 @@ import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
+import net.cadrian.macchiato.ruleset.ast.instruction.Abort;
 import net.cadrian.macchiato.ruleset.ast.instruction.Assignment;
 import net.cadrian.macchiato.ruleset.ast.instruction.Block;
 import net.cadrian.macchiato.ruleset.ast.instruction.Emit;
@@ -207,6 +208,11 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 		final Object value = context.eval(assignment.getRightSide().typed(Object.class));
 		new AssignmentVisitor(context).assign(assignment.getLeftSide(), value);
 		LOGGER.debug("--> {}", assignment);
+	}
+
+	@Override
+	public void visitAbort(Abort abort) {
+		throw new InterpreterException("ABORTING: " + abort.getMessage(), abort.position());
 	}
 
 }

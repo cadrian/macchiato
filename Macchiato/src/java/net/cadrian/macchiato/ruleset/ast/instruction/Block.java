@@ -64,7 +64,7 @@ public class Block implements Instruction {
 		switch (instructions.size()) {
 		case 0:
 			LOGGER.debug("remove empty block");
-			return null;
+			return DoNothing.instance;
 		case 1:
 			LOGGER.debug("replace block by unique instruction");
 			return instructions.get(0).simplify();
@@ -73,7 +73,7 @@ public class Block implements Instruction {
 			boolean changed = false;
 			for (final Instruction instruction : instructions) {
 				final Instruction simplifyInstruction = instruction.simplify();
-				if (simplifyInstruction == null) {
+				if (simplifyInstruction == DoNothing.instance) {
 					changed = true;
 				} else {
 					result.add(simplifyInstruction);

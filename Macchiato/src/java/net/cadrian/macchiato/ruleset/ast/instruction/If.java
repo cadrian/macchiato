@@ -42,7 +42,7 @@ public class If implements Instruction {
 		this.position = position;
 		this.condition = condition;
 		this.instruction = instruction;
-		this.otherwise = otherwise;
+		this.otherwise = otherwise == null ? DoNothing.instance : otherwise;
 	}
 
 	public Expression getCondition() {

@@ -19,7 +19,6 @@ package net.cadrian.macchiato.ruleset.ast.instruction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Node;
@@ -43,7 +42,7 @@ public class While implements Instruction {
 		this.position = position;
 		this.condition = condition;
 		this.instruction = instruction;
-		this.otherwise = otherwise;
+		this.otherwise = otherwise == null ? DoNothing.instance : otherwise;
 	}
 
 	public Expression getCondition() {
@@ -82,7 +81,7 @@ public class While implements Instruction {
 		if (simplifyCondition.isStatic()) {
 			final ManifestBoolean cond = (ManifestBoolean) simplifyCondition.getStaticValue();
 			if (cond.getValue()) {
-				throw new InterpreterException("Infinite loop detected...", position);
+				return new Abort(position, "Infinite loop detected");
 			}
 			LOGGER.debug("replace while loop by never-run");
 			return simplifyOtherwise;

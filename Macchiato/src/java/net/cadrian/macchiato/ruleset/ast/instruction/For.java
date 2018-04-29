@@ -85,8 +85,8 @@ public class For implements Instruction {
 		final Expression simplifyName2 = name2 == null ? null : name2.simplify();
 		final Expression simplifyLoop = loop.simplify();
 		final Instruction simplifyInstruction = instruction.simplify();
-		if (simplifyInstruction == null) {
-			return null;
+		if (simplifyInstruction == DoNothing.instance) {
+			return DoNothing.instance;
 		}
 		final For result;
 		if (simplifyName1 == name1 && simplifyName2 == name2 && simplifyLoop == loop
@@ -102,7 +102,7 @@ public class For implements Instruction {
 				switch (expressions.size()) {
 				case 0:
 					LOGGER.debug("remove empty loop");
-					return null;
+					return DoNothing.instance;
 				case 1:
 					LOGGER.debug("replace one-run loop by block");
 					final Block b = new Block(position);
@@ -123,7 +123,7 @@ public class For implements Instruction {
 				switch (expressions.size()) {
 				case 0:
 					LOGGER.debug("remove empty loop");
-					return null;
+					return DoNothing.instance;
 				case 1:
 					LOGGER.debug("replace one-run loop by block");
 					final Block b = new Block(position);
