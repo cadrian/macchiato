@@ -45,7 +45,7 @@ public class Interpreter {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Interpreter.class);
 
-	final Ruleset ruleset;
+	private final Ruleset ruleset;
 
 	public Interpreter(final Ruleset ruleset) {
 		this.ruleset = ruleset;
@@ -95,7 +95,7 @@ public class Interpreter {
 	}
 
 	private void run(final Track[] tracksIn, final Track[] tracksOut) {
-		final GlobalContext context = new GlobalContext(this);
+		final GlobalContext context = new GlobalContext(this, ruleset);
 
 		final int tracksCount = tracksIn.length;
 

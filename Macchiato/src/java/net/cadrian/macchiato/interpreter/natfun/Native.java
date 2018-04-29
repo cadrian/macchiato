@@ -17,21 +17,39 @@
 package net.cadrian.macchiato.interpreter.natfun;
 
 import net.cadrian.macchiato.interpreter.Function;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
 public enum Native {
-	random(new RandomFunction()),
-	read(new ReadFunction()),
-	write(new WriteFunction()),
-	toString(new ToStringFunction()),
-	fromString(new FromStringFunction());
+	random {
+		@Override
+		public Function getFunction(final Ruleset ruleset) {
+			return new RandomFunction(ruleset);
+		};
+	},
+	read {
+		@Override
+		public Function getFunction(final Ruleset ruleset) {
+			return new ReadFunction(ruleset);
+		}
+	},
+	write {
+		@Override
+		public Function getFunction(final Ruleset ruleset) {
+			return new WriteFunction(ruleset);
+		}
+	},
+	toString {
+		@Override
+		public Function getFunction(final Ruleset ruleset) {
+			return new ToStringFunction(ruleset);
+		}
+	},
+	fromString {
+		@Override
+		public Function getFunction(final Ruleset ruleset) {
+			return new FromStringFunction(ruleset);
+		}
+	};
 
-	private final Function function;
-
-	private Native(final Function function) {
-		this.function = function;
-	}
-
-	public Function getFunction() {
-		return function;
-	}
+	public abstract Function getFunction(Ruleset ruleset);
 }

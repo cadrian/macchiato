@@ -26,16 +26,18 @@ import org.slf4j.LoggerFactory;
 import net.cadrian.macchiato.interpreter.Context;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.InterpreterException;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.parser.ParserBuffer;
 
-public class FromStringFunction extends AbstractObjectReader implements Function {
+public class FromStringFunction extends AbstractObjectReaderFunction implements Function {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FromStringFunction.class);
 
 	private static final Class<?>[] ARG_TYPES = { String.class };
 	private static final String[] ARG_NAMES = { "data" };
 
-	FromStringFunction() {
+	FromStringFunction(final Ruleset ruleset) {
+		super(ruleset);
 	}
 
 	@Override

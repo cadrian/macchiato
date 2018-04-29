@@ -360,7 +360,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		if (fn.getResultType() == null) {
 			throw new InterpreterException("cannot assign this function: no result", position);
 		}
-		final LocalContext callContext = new LocalContext(context);
+		final LocalContext callContext = new LocalContext(context, fn.getRuleset());
 		final String[] argNames = fn.getArgNames();
 		final Class<?>[] argTypes = fn.getArgTypes();
 		final List<Expression> arguments = functionCall.getArguments();

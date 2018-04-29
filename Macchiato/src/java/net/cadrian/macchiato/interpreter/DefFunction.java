@@ -18,18 +18,19 @@ package net.cadrian.macchiato.interpreter;
 
 import java.util.Arrays;
 
-import net.cadrian.macchiato.ruleset.ast.Def;
 import net.cadrian.macchiato.ruleset.ast.FormalArgs;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedDef;
 
 public class DefFunction implements Function {
 
-	private final Def def;
+	private final LocalizedDef def;
 	private final Class<?>[] argsType;
 	private final String[] argNames;
 
-	public DefFunction(final Def def) {
+	public DefFunction(final LocalizedDef def) {
 		this.def = def;
-		final FormalArgs args = def.getArgs();
+		final FormalArgs args = def.def.getArgs();
 		argsType = new Class<?>[args.size()];
 		Arrays.fill(argsType, Object.class);
 		argNames = args.toArray();
@@ -37,7 +38,12 @@ public class DefFunction implements Function {
 
 	@Override
 	public String name() {
-		return def.name();
+		return def.def.name();
+	}
+
+	@Override
+	public Ruleset getRuleset() {
+		return def.ruleset;
 	}
 
 	@Override
@@ -59,7 +65,7 @@ public class DefFunction implements Function {
 	public void run(final Context context, final int position) {
 		try {
 			final InstructionEvaluationVisitor v = new InstructionEvaluationVisitor(context);
-			def.getInstruction().accept(v);
+			def.def.getInstruction().accept(v);
 		} catch (final InterpreterException e) {
 			throw new InterpreterException(e.getMessage(), position, e);
 		}

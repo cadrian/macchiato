@@ -16,6 +16,8 @@
  */
 package net.cadrian.macchiato.interpreter;
 
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
+
 public interface Function {
 
 	String name();
@@ -27,5 +29,7 @@ public interface Function {
 	Class<?> getResultType();
 
 	void run(final Context context, int position);
+
+	Ruleset getRuleset();
 
 }

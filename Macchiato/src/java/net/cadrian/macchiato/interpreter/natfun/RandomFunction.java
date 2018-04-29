@@ -24,10 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.interpreter.Context;
-import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.InterpreterException;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
-public class RandomFunction implements Function {
+public class RandomFunction extends AbstractNativeFunction {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RandomFunction.class);
 
@@ -45,7 +45,8 @@ public class RandomFunction implements Function {
 	private static final Class<?>[] ARG_TYPES = { BigInteger.class };
 	private static final String[] ARG_NAMES = { "max" };
 
-	RandomFunction() {
+	RandomFunction(final Ruleset ruleset) {
+		super(ruleset);
 	}
 
 	@Override

@@ -77,7 +77,7 @@ public class TypedUnary extends Unary implements TypedExpression {
 			result = new TypedUnary(position(), operator, simplifyOperand, resultType);
 		}
 		if (result.isStatic()) {
-			LOGGER.debug("Simplify unary {}",operator);
+			LOGGER.debug("Simplify unary {}", operator);
 			return result.getStaticValue().typed(resultType);
 		}
 		return result;

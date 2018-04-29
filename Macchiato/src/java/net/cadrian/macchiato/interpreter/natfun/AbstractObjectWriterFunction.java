@@ -23,10 +23,12 @@ import java.util.Iterator;
 
 import net.cadrian.macchiato.container.Array;
 import net.cadrian.macchiato.container.Dictionary;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
-abstract class AbstractObjectWriter {
+abstract class AbstractObjectWriterFunction extends AbstractNativeFunction {
 
-	AbstractObjectWriter() {
+	AbstractObjectWriterFunction(final Ruleset ruleset) {
+		super(ruleset);
 	}
 
 	protected boolean writeObject(final Writer writer, final Object value) throws IOException {

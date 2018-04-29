@@ -30,6 +30,16 @@ public class Ruleset {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Ruleset.class);
 
+	public static class LocalizedDef {
+		public final Def def;
+		public final Ruleset ruleset;
+
+		LocalizedDef(final Def def, final Ruleset ruleset) {
+			this.def = def;
+			this.ruleset = ruleset;
+		}
+	}
+
 	private final Map<String, Def> defs = new HashMap<>();
 	private final List<Filter> filters = new ArrayList<>();
 	private final Map<String, Ruleset> scopes = new LinkedHashMap<>();
@@ -54,13 +64,20 @@ public class Ruleset {
 		filters.add(filter);
 	}
 
-	public Def getDef(final String name) {
-		Def result = defs.get(name);
-		if (result == null) {
+	public LocalizedDef getDef(final String name) {
+		final LocalizedDef result;
+		final Def def = defs.get(name);
+		if (def != null) {
+			result = new LocalizedDef(def, this);
+		} else {
 			final int i = name.indexOf('.');
-			if (i != -1) {
+			if (i == -1) {
+				result = null;
+			} else {
 				final Ruleset scope = scopes.get(name.substring(0, i));
-				if (scope != null) {
+				if (scope == null) {
+					result = null;
+				} else {
 					result = scope.getDef(name.substring(i + 1));
 				}
 			}

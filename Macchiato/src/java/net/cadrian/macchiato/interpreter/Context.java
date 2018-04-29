@@ -17,14 +17,27 @@
 package net.cadrian.macchiato.interpreter;
 
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedDef;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
 
 public abstract class Context {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(Context.class);
+
+	private final Map<String, Function> functions = new HashMap<>();
+
 	abstract Interpreter getInterpreter();
+
+	abstract Ruleset getRuleset();
 
 	abstract Track getTrack();
 
@@ -51,7 +64,30 @@ public abstract class Context {
 		return v.getLastValue();
 	}
 
-	abstract Function getFunction(String name);
+	final Function getFunction(final String name) {
+		LOGGER.debug("<-- {}", name);
+		final Function fn = functions.get(name);
+		if (fn != null) {
+			return fn;
+		}
+		final Function result = getUncachedFunction(name);
+		functions.put(name, result);
+		LOGGER.debug("--> {}", result);
+		return result;
+	}
+
+	protected Function getUncachedFunction(final String name) {
+		LOGGER.debug("<-- {}", name);
+		final Function result;
+		final LocalizedDef def = getRuleset().getDef(name);
+		if (def == null) {
+			result = null;
+		} else {
+			result = new DefFunction(def);
+		}
+		LOGGER.debug("--> {}", result);
+		return result;
+	}
 
 	public abstract boolean has(String key);
 

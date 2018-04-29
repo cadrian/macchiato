@@ -32,7 +32,7 @@ import net.cadrian.macchiato.midi.ControlChange;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.ShortMessageType;
-import net.cadrian.macchiato.ruleset.ast.Def;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
 class GlobalContext extends Context {
 
@@ -41,26 +41,27 @@ class GlobalContext extends Context {
 	private final Interpreter interpreter;
 	private final Map<String, Object> global = new HashMap<>();
 	private final Map<String, Function> nativeFunctions = new HashMap<>();
-	private final Map<String, Function> functions = new HashMap<>();
+	private final Ruleset ruleset;
 	private Track track;
 	private AbstractEvent event;
 	private boolean next;
 
-	public GlobalContext(final Interpreter interpreter) {
+	public GlobalContext(final Interpreter interpreter, final Ruleset ruleset) {
 		this.interpreter = interpreter;
+		this.ruleset = ruleset;
 		for (final MetaMessageType type : MetaMessageType.values()) {
 			global.put(type.name(), type);
-			nativeFunctions.put(type.name(), new MetaMessageCreationFunction(type));
+			nativeFunctions.put(type.name(), new MetaMessageCreationFunction(type, ruleset));
 		}
 		for (final ShortMessageType type : ShortMessageType.values()) {
 			global.put(type.name(), type);
-			nativeFunctions.put(type.name(), new ShortMessageCreationFunction(type));
+			nativeFunctions.put(type.name(), new ShortMessageCreationFunction(type, ruleset));
 		}
 		for (final ControlChange mpc : ControlChange.values()) {
 			global.put(mpc.name(), mpc);
 		}
 		for (final Native fun : Native.values()) {
-			final Function function = fun.getFunction();
+			final Function function = fun.getFunction(ruleset);
 			nativeFunctions.put(function.name(), function);
 		}
 	}
@@ -68,6 +69,11 @@ class GlobalContext extends Context {
 	@Override
 	Interpreter getInterpreter() {
 		return interpreter;
+	}
+
+	@Override
+	Ruleset getRuleset() {
+		return ruleset;
 	}
 
 	void setTrack(final int trackIndex, final javax.sound.midi.Track trackIn, final javax.sound.midi.Track trackOut) {
@@ -121,20 +127,12 @@ class GlobalContext extends Context {
 	}
 
 	@Override
-	Function getFunction(final String name) {
+	protected Function getUncachedFunction(final String name) {
 		LOGGER.debug("<-- {}", name);
-		final Function fn = functions.get(name);
-		if (fn != null) {
-			return fn;
-		}
-		final Function result;
-		final Def def = interpreter.ruleset.getDef(name);
-		if (def == null) {
+		Function result = super.getUncachedFunction(name);
+		if (result == null) {
 			result = nativeFunctions.get(name);
-		} else {
-			result = new DefFunction(def);
 		}
-		functions.put(name, result);
 		LOGGER.debug("--> {}", result);
 		return result;
 	}

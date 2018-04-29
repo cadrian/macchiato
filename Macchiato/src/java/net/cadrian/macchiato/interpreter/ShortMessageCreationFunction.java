@@ -18,18 +18,26 @@ package net.cadrian.macchiato.interpreter;
 
 import net.cadrian.macchiato.midi.ShortMessageType;
 import net.cadrian.macchiato.midi.message.ShortMessage;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
 public class ShortMessageCreationFunction implements Function {
 
 	private final ShortMessageType type;
+	private final Ruleset ruleset;
 
-	public ShortMessageCreationFunction(final ShortMessageType type) {
+	public ShortMessageCreationFunction(final ShortMessageType type, final Ruleset ruleset) {
 		this.type = type;
+		this.ruleset = ruleset;
 	}
 
 	@Override
 	public String name() {
 		return type.name();
+	}
+
+	@Override
+	public Ruleset getRuleset() {
+		return ruleset;
 	}
 
 	@Override

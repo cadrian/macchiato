@@ -79,7 +79,7 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 		if (fn == null) {
 			throw new InterpreterException("unknown procedure " + procedureCall.getName(), position);
 		}
-		final LocalContext callContext = new LocalContext(context);
+		final LocalContext callContext = new LocalContext(context, fn.getRuleset());
 		final String[] argNames = fn.getArgNames();
 		final Class<?>[] argTypes = fn.getArgTypes();
 		final List<Expression> arguments = procedureCall.getArguments();

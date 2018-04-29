@@ -24,21 +24,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.midi.Message;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
 class LocalContext extends Context {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(LocalContext.class);
 
+	private final Ruleset ruleset;
 	private final Context parent;
 	private final Map<String, Object> local = new HashMap<>();
 
-	public LocalContext(final Context parent) {
+	public LocalContext(final Context parent, final Ruleset ruleset) {
 		this.parent = parent;
+		this.ruleset = ruleset;
 	}
 
 	@Override
 	Interpreter getInterpreter() {
 		return parent.getInterpreter();
+	}
+
+	@Override
+	Ruleset getRuleset() {
+		return ruleset;
 	}
 
 	@Override
@@ -67,8 +75,12 @@ class LocalContext extends Context {
 	}
 
 	@Override
-	Function getFunction(final String name) {
-		return parent.getFunction(name);
+	protected Function getUncachedFunction(final String name) {
+		final Function result = super.getUncachedFunction(name);
+		if (result == null) {
+			return parent.getFunction(name);
+		}
+		return result;
 	}
 
 	@Override

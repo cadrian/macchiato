@@ -25,15 +25,17 @@ import org.slf4j.LoggerFactory;
 import net.cadrian.macchiato.interpreter.Context;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.InterpreterException;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
-public class ToStringFunction extends AbstractObjectWriter implements Function {
+public class ToStringFunction extends AbstractObjectWriterFunction implements Function {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ToStringFunction.class);
 
 	private static final Class<?>[] ARG_TYPES = { Object.class };
 	private static final String[] ARG_NAMES = { "value" };
 
-	ToStringFunction() {
+	ToStringFunction(final Ruleset ruleset) {
+		super(ruleset);
 	}
 
 	@Override

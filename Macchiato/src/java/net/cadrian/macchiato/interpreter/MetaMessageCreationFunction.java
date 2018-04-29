@@ -18,18 +18,26 @@ package net.cadrian.macchiato.interpreter;
 
 import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.message.MetaMessage;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
 public class MetaMessageCreationFunction implements Function {
 
 	private final MetaMessageType type;
+	private final Ruleset ruleset;
 
-	public MetaMessageCreationFunction(final MetaMessageType type) {
+	public MetaMessageCreationFunction(final MetaMessageType type, final Ruleset ruleset) {
 		this.type = type;
+		this.ruleset = ruleset;
 	}
 
 	@Override
 	public String name() {
 		return type.name();
+	}
+
+	@Override
+	public Ruleset getRuleset() {
+		return ruleset;
 	}
 
 	@Override

@@ -20,12 +20,14 @@ import java.math.BigInteger;
 
 import net.cadrian.macchiato.container.Array;
 import net.cadrian.macchiato.container.Dictionary;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.parser.ParserBuffer;
 import net.cadrian.macchiato.ruleset.parser.ParserException;
 
-public class AbstractObjectReader {
+abstract class AbstractObjectReaderFunction extends AbstractNativeFunction {
 
-	AbstractObjectReader() {
+	AbstractObjectReaderFunction(final Ruleset ruleset) {
+		super(ruleset);
 	}
 
 	protected Object parseObject(final ParserBuffer buffer) {
