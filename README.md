@@ -171,9 +171,11 @@ ManifestNumber ::= /[0-9]+/
 ```
 
 Notes:
-
  * Arrays are sparse: it is possible to add elements at any index
-   without intervening indices.
+   without intervening indices. Manifest arrays don't have indices:
+   they are created starting from index 0, with incrementing
+   indices. When iterating on sparse arrays, the values are given in
+   ascending order.
  * The `result` reserved identifier is used to assign a value that
    will be returned from a `def` function.
  * The `import` clauses help modularize complex rulesets. They import
@@ -195,7 +197,7 @@ Comments are either bash-style (lines starting with a hashtag) or C-style (`//` 
 
 Some functions and values are provided natively by the interpreter.
 
-### event
+### Event value
 
 The `event` variable contains all the information necessary to
 identify the event currently being treated. It contains the following
@@ -268,3 +270,42 @@ Notes:
    they are sparse arrays); and, still, no `null`.
  * `toString` and `fromString` work in a similar way; but the data is
    kept in a string instead of being read from / written to a file.
+
+# Technical design
+
+Macchiatto is split in two parts:
+ # The parser
+ # The interpreter
+
+## The parser
+
+It is a simple descending parser. There is an ambiguity in the grammar
+(see identifiers with dots: assignment vs call).
+
+Its design is a blend of the "tokenizer" and the "analyzer". The
+analyzer drives the tokenizer, which is more flexible than traditional
+tokenizers that work without knowledge from the analyzer.
+
+## The interpreter
+
+The interpreter runs in two stages:
+ # Simplify
+ # Run
+
+### Simplify
+
+This stage simplifies the AST as much as possible, trying to discover
+constant things and inlining them.
+
+There is much work that can be done in this stage (loop unrolling and
+such).
+
+For the moment the work is minimal: removing dead branches wherever
+possible, executing operations on known static data (such as
+concatenating constant strings, or doing arithmetic operations on
+numeric constants).
+
+### Run
+
+In this stage the MIDI file is opened and the filters are run on each
+MIDI event.
