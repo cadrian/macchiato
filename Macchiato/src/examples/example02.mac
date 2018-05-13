@@ -38,27 +38,17 @@
 import h "humanize.mac";
 
 def humanize(value, anchor, percent) {
-        result = h.anchored(value, anchor, percent);
+    result = h.anchored(value, anchor, percent);
 }
 
 def initTrack() {
     // velocity records the current velocity, per channel, per pitch
-    velocity = [];
+    velocity = [[], [], [], [], [], [], [], [],
+                [], [], [], [], [], [], [], []];
 
     // expression records the current expression, per channel
-    expression = [];
-
-    // fill default values
-    local channel = 0;
-    while (channel < 16) {
-        # no notes yet...
-        velocity[channel] = [];
-
-        # default expression is full on
-        expression[channel] = 127;
-
-        channel = channel + 1;
-    }
+    expression = [127, 127, 127, 127, 127, 127, 127, 127,
+                  127, 127, 127, 127, 127, 127, 127, 127];
 }
 
 def tick(event) {
