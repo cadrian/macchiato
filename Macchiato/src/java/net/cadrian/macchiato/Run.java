@@ -59,7 +59,7 @@ public class Run {
 				if (args.length > 1) {
 					try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(args[1]))) {
 						try (final BufferedOutputStream out = new BufferedOutputStream(
-								new FileOutputStream(args[1] + ".out"))) {
+								new FileOutputStream(args[1] + ".out.mid"))) {
 							interpreter.run(in, out);
 						}
 					}
