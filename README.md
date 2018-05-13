@@ -14,7 +14,7 @@ using some rules, and outputs a MIDI file.
 # Macchiato rules
 
 The Macchiato rules resemble the `awk` rules: blocks that are run when
-a condition is set.
+a condition is met.
 
 Whereas the `awk` conditions are run for each text line, Macchiato
 rules are run for each MIDI event, and at some special points:
@@ -56,7 +56,7 @@ BEGIN TRACK {
     next;
 }
 
-// the current event is emitted if there were no next before
+// the current event is emitted if there no "next" was triggered before
 ```
 
 ## Language grammar
@@ -172,10 +172,10 @@ ManifestNumber ::= /[0-9]+/
 
 Notes:
  * Arrays are sparse: it is possible to add elements at any index
-   without intervening indices. Manifest arrays don't have indices:
-   they are created starting from index 0, with incrementing
-   indices. When iterating on sparse arrays, the values are given in
-   ascending order.
+   (even negative) without intervening indices. Manifest arrays don't
+   have indices: they are created starting from index 0, with
+   incrementing indices. When iterating on sparse arrays, the values
+   are given in ascending index order.
  * The `result` reserved identifier is used to assign a value that
    will be returned from a `def` function.
  * The `import` clauses help modularize complex rulesets. They import
@@ -186,12 +186,12 @@ Notes:
    clauses).  The functions `def`ined in the scope are callable via
    their name prefixed with the scope identifier and a dot. The
    filters are imported in order, and before those of the importing
-   ruleset. Imports can be nested, the rules still apply recursively.
+   ruleset. Imports can be nested, the same rules apply recursively.
  * `local` variables have meaning only in `def` functions, not in
    filters.
  * There is no `null`. By design.
-
-Comments are either bash-style (lines starting with a hashtag) or C-style (`//` and `/*`…`*/`)
+ * Comments are either bash-style (lines starting with a hashtag) or
+   C-style (`//` and `/*`…`*/`)
 
 ## Native values and functions
 
@@ -221,7 +221,7 @@ Identifier | Content
 `event.pitch` | Only for `NOTE_ON` and `NOTE_OFF` events: the pitch of the note being resp. pushed or released
 `event.pressure` | Only for `POLY_PRESSURE` and `CHANNEL_PRESSURE` events: the pressure to apply
 `event.mpc` | Only for `CONTROL_CHANGE` events: the type of Multi-Point Controller: either sliding controllers: `BANK`, `MODULATION_WHEEL`, `BREATH`, `FOOT`, `PORTAMENTO_TIME`, `CHANNEL_VOLUME`, `BALANCE`, `PAN`, `EXPRESSION`, `EFFECT_1`, `EFFECT_2`, `GENERAL_PURPOSE_1`, `GENERAL_PURPOSE_2`, `GENERAL_PURPOSE_3`, `GENERAL_PURPOSE_4`, `FINE_BANK`, `FINE_MODULATION_WHEEL`, `FINE_BREATH`, `FINE_FOOT`, `FINE_PORTAMENTO_TIME`, `FINE_CHANNEL_VOLUME`, `FINE_BALANCE`, `FINE_PAN`, `FINE_EXPRESSION`, `FINE_EFFECT_1`, `FINE_EFFECT_2`, `FINE_GENERAL_PURPOSE_1`, `FINE_GENERAL_PURPOSE_2`, `FINE_GENERAL_PURPOSE_3`, `FINE_GENERAL_PURPOSE_4`; or switch controllers: `DAMPER_PEDAL`, `PORTAMENTO`, `SOSTENUTO`, `SOFT_PEDAL`, `LEGATO_PEDAL`
-`event.value` | For `CONTROL_CHANGE` events: the value of the Multi-Point Controller (either a number between 0 and 127for sliding controllers; or a boolean for switch controllers); for `PITCH_BEND` events: the value of the pitch bend (between -8192 and 8191)
+`event.value` | For `CONTROL_CHANGE` events: the value of the Multi-Point Controller (either a number between 0 and 127 for sliding controllers; or a boolean for switch controllers); for `PITCH_BEND` events: the value of the pitch bend (between -8192 and 8191)
 `event.patch` | Only for `PROGRAM_CHANGE` events: the patch number
 
 ### Event functions
