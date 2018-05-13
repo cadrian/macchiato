@@ -8,7 +8,7 @@ same kind. The UNIX/Linux command line uses a lot of filters: `grep`,
 file, apply some rules to transform it, and output the resulting text
 file.
 
-Macchiato works in the same way: it takes a MIDI file, transform it
+Macchiato works in the same way: it takes a MIDI file, transforms it
 using some rules, and outputs a MIDI file.
 
 # Macchiato rules
