@@ -60,6 +60,46 @@ def initTrack() {
     }
 }
 
+def tick(event) {
+	// humanize tick, except for the drummer (that sounds drunk)
+	if event.channel == 10 {
+		result = event.tick;
+	} else {
+		result = event.tick + random(5);
+	}
+}
+
+def note_on(event) {
+    // Record the velocity
+    velocity[event.channel][event.pitch] = event.velocity;
+
+    // Emit an event with a velocity that depends on the expression,
+    // and with a bit of random for rough "humanization"
+    local v = (velocity[event.channel][event.pitch] * expression[event.channel]) / 127;
+   	v = humanize(v, v, 10);
+    emit NOTE_ON(event.channel, event.pitch, v) at tick(event);
+}
+
+def note_on_off(event) {
+    // Emit an event with a velocity that depends on the expression,
+    // and with a bit of random for rough "humanization"
+    // Note that expression may have changed so the release velocity is not
+    // necessarily equal to the press velocity
+    local v = (velocity[event.channel][event.pitch] * expression[event.channel]) / 127;
+   	v = humanize(v, v, 10);
+    emit NOTE_OFF(event.channel, event.pitch, v) at tick(event);
+}
+
+def note_off(event) {
+    // Emit an event with a velocity that depends on the expression,
+    // and with a bit of random for rough "humanization"
+    // Note that expression may have changed so the release velocity is not
+    // necessarily equal to the press velocity
+    local v = (event.velocity * expression[event.channel]) / 127;
+   	v = humanize(v, v, 10);
+    emit NOTE_OFF(event.channel, event.pitch, v) at tick(event);
+}
+
 BEGIN SEQUENCE {
 	record = [];
 	tracknum = 0;
@@ -72,41 +112,21 @@ BEGIN TRACK {
 (event.type == CONTROL_CHANGE) and (event.mpc == EXPRESSION) {
     // Record the expression value
     expression[event.channel] = event.value;
-
     next;
 }
 
 (event.type == NOTE_ON) and (event.velocity > 0) {
-    // Record the velocity
-    velocity[event.channel][event.pitch] = event.velocity;
-
-    // Emit an event with a velocity that depends on the expression,
-    // and with a bit of random for rough "humanization"
-    v = (velocity[event.channel][event.pitch] * expression[event.channel]) / 127;
-    emit NOTE_ON(event.channel, event.pitch, humanize(v, v, 10)) at event.tick + random(5);
-
+    note_on(event);
     next;
 }
 
 (event.type == NOTE_ON) and (event.velocity == 0) {
-    // Emit an event with a velocity that depends on the expression,
-    // and with a bit of random for rough "humanization"
-    // Note that expression may have changed so the release velocity is not
-    // necessarily equal to the press velocity
-    v = (velocity[event.channel][event.pitch] * expression[event.channel]) / 127;
-    emit NOTE_OFF(event.channel, event.pitch, humanize(v, v, 10)) at event.tick - random(5);
-
+    note_on_off(event);
     next;
 }
 
 (event.type == NOTE_OFF) {
-    // Emit an event with a velocity that depends on the expression,
-    // and with a bit of random for rough "humanization"
-    // Note that expression may have changed so the release velocity is not
-    // necessarily equal to the press velocity
-    v = (event.velocity * expression[event.channel]) / 127;
-    emit NOTE_OFF(event.channel, event.pitch, humanize(v, v, 10)) at event.tick - random(5);
-
+    note_off(event);
     next;
 }
 
