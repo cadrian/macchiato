@@ -221,7 +221,7 @@ Identifier | Content
 `event.pitch` | Only for `NOTE_ON` and `NOTE_OFF` events: the pitch of the note being resp. pushed or released
 `event.pressure` | Only for `POLY_PRESSURE` and `CHANNEL_PRESSURE` events: the pressure to apply
 `event.mpc` | Only for `CONTROL_CHANGE` events: the type of Multi-Point Controller: either sliding controllers: `BANK`, `MODULATION_WHEEL`, `BREATH`, `FOOT`, `PORTAMENTO_TIME`, `CHANNEL_VOLUME`, `BALANCE`, `PAN`, `EXPRESSION`, `EFFECT_1`, `EFFECT_2`, `GENERAL_PURPOSE_1`, `GENERAL_PURPOSE_2`, `GENERAL_PURPOSE_3`, `GENERAL_PURPOSE_4`, `FINE_BANK`, `FINE_MODULATION_WHEEL`, `FINE_BREATH`, `FINE_FOOT`, `FINE_PORTAMENTO_TIME`, `FINE_CHANNEL_VOLUME`, `FINE_BALANCE`, `FINE_PAN`, `FINE_EXPRESSION`, `FINE_EFFECT_1`, `FINE_EFFECT_2`, `FINE_GENERAL_PURPOSE_1`, `FINE_GENERAL_PURPOSE_2`, `FINE_GENERAL_PURPOSE_3`, `FINE_GENERAL_PURPOSE_4`; or switch controllers: `DAMPER_PEDAL`, `PORTAMENTO`, `SOSTENUTO`, `SOFT_PEDAL`, `LEGATO_PEDAL`
-`event.value` | For `CONTROL_CHANGE` events: the value of the Multi-Point Controller (either a number between 0 and 127 for sliding controllers; or a boolean for switch controllers); for `PITCH_BEND` events: the value of the pitch bend (between -8192 and 8191)
+`event.value` | For `CONTROL_CHANGE` events: the value of the Multi-Point Controller (either a number between 0 and 127 for sliding controllers; or a boolean for switch controllers); for `PITCH_BEND` events: the value of the pitch bend (between -8192 and 8191); for `MODULATION` events: the value of the modulation wheel (between 0 and 127)
 `event.patch` | Only for `PROGRAM_CHANGE` events: the patch number
 
 ### Event functions
@@ -230,26 +230,27 @@ New events can be emitted. Those events are built using the following functions:
 
 Function name | Arguments
 ------------- | ---------
-`SEQUENCE_NUMBER` | `sequence`: number between 0 and 127
-`TEXT` | `text`: the text string
+`CHANNEL_PREFIX` | not yet implemented
+`CHANNEL_PRESSURE` | `channel` the event channel; `pressure`: the pressure between 0 and 127
+`CONTROL_CHANGE` | `channel` the event channel; `mpc`: the Multi-Point Controller (either sliding controllers: `BANK`, `MODULATION_WHEEL`, `BREATH`, `FOOT`, `PORTAMENTO_TIME`, `CHANNEL_VOLUME`, `BALANCE`, `PAN`, `EXPRESSION`, `EFFECT_1`, `EFFECT_2`, `GENERAL_PURPOSE_1`, `GENERAL_PURPOSE_2`, `GENERAL_PURPOSE_3`, `GENERAL_PURPOSE_4`, `FINE_BANK`, `FINE_MODULATION_WHEEL`, `FINE_BREATH`, `FINE_FOOT`, `FINE_PORTAMENTO_TIME`, `FINE_CHANNEL_VOLUME`, `FINE_BALANCE`, `FINE_PAN`, `FINE_EXPRESSION`, `FINE_EFFECT_1`, `FINE_EFFECT_2`, `FINE_GENERAL_PURPOSE_1`, `FINE_GENERAL_PURPOSE_2`, `FINE_GENERAL_PURPOSE_3`, `FINE_GENERAL_PURPOSE_4`; or switch controllers: `DAMPER_PEDAL`, `PORTAMENTO`, `SOSTENUTO`, `SOFT_PEDAL`, `LEGATO_PEDAL`); `value`: either a number between 0 and 127 (for sliding controllers) or a boolean (for switch controllers)
 `COPYRIGHT` | `text`: the text string
-`TRACK_NAME` | `text`: the text string
+`CUE_POINT` | `text`: the text string
+`END_OF_TRACK` | no arguments
 `INSTRUMENT_NAME` | `text`: the text string
+`KEY_SIGNATURE` | `keysig`: the key signature, between -7 and 7 (Cb to C# major, or Ab to A# minor); `mode`: 0 for major or 1 for minor
 `LYRICS` | `text`: the text string
 `MARKER_TEXT` | `text`: the text string
-`CUE_POINT` | `text`: the text string
-`CHANNEL_PREFIX` | not yet implemented
-`END_OF_TRACK` | no arguments
-`TEMPO` | `bpm`: number of beats per minute
-`TIME_SIGNATURE` | `numerator`: the signature numerator; `denominator`: the signature denominator; `metronome`: the number of MIDI ticks per metronome beat; `ticks`: the number of 32ths that happen per quarter note
-`KEY_SIGNATURE` | `keysig`: the key signature, between -7 and 7 (Cb to C# major, or Ab to A# minor); `mode`: 0 for major or 1 for minor
+`MODULATION` | `value`: the modulation wheel value between 0 and 127
 `NOTE_OFF` | `channel` the event channel; `velocity`: the velocity between 0 and 127; `pitch` the note pitch netween 0 and 127
 `NOTE_ON` | `channel` the event channel; `velocity`: the velocity between 0 and 127; `pitch` the note pitch netween 0 and 127
-`POLY_PRESSURE` | `channel` the event channel; `pressure`: the pressure between 0 and 127
-`CONTROL_CHANGE` | `channel` the event channel; `mpc`: the Multi-Point Controller (either sliding controllers: `BANK`, `MODULATION_WHEEL`, `BREATH`, `FOOT`, `PORTAMENTO_TIME`, `CHANNEL_VOLUME`, `BALANCE`, `PAN`, `EXPRESSION`, `EFFECT_1`, `EFFECT_2`, `GENERAL_PURPOSE_1`, `GENERAL_PURPOSE_2`, `GENERAL_PURPOSE_3`, `GENERAL_PURPOSE_4`, `FINE_BANK`, `FINE_MODULATION_WHEEL`, `FINE_BREATH`, `FINE_FOOT`, `FINE_PORTAMENTO_TIME`, `FINE_CHANNEL_VOLUME`, `FINE_BALANCE`, `FINE_PAN`, `FINE_EXPRESSION`, `FINE_EFFECT_1`, `FINE_EFFECT_2`, `FINE_GENERAL_PURPOSE_1`, `FINE_GENERAL_PURPOSE_2`, `FINE_GENERAL_PURPOSE_3`, `FINE_GENERAL_PURPOSE_4`; or switch controllers: `DAMPER_PEDAL`, `PORTAMENTO`, `SOSTENUTO`, `SOFT_PEDAL`, `LEGATO_PEDAL`); `value`: either a number between 0 and 127 (for sliding controllers) or a boolean (for switch controllers)
-`PROGRAM_CHANGE` | `channel` the event channel; `patch`: the patch number between 0 and 127
-`CHANNEL_PRESSURE` | `channel` the event channel; `pressure`: the pressure between 0 and 127
 `PITCH_BEND` | `channel` the event channel; `value`: the pitch bend value between -8192 and 8191
+`POLY_PRESSURE` | `channel` the event channel; `pressure`: the pressure between 0 and 127
+`PROGRAM_CHANGE` | `channel` the event channel; `patch`: the patch number between 0 and 127
+`SEQUENCE_NUMBER` | `sequence`: number between 0 and 127
+`TEMPO` | `bpm`: number of beats per minute
+`TEXT` | `text`: the text string
+`TIME_SIGNATURE` | `numerator`: the signature numerator; `denominator`: the signature denominator; `metronome`: the number of MIDI ticks per metronome beat; `ticks`: the number of 32ths that happen per quarter note
+`TRACK_NAME` | `text`: the text string
 
 ### Other functions
 

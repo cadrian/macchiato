@@ -20,7 +20,7 @@ public class DoNothing implements Instruction {
 	}
 
 	@Override
-	public void accept(Visitor v) {
+	public void accept(final Visitor v) {
 	}
 
 	@Override

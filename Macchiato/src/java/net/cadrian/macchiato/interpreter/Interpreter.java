@@ -115,6 +115,10 @@ public class Interpreter {
 					// Meta message
 					final MetaMessage metaMessage = (MetaMessage) message;
 					final MetaMessageType type = MetaMessageType.at(metaMessage.getType());
+					if (type == null) {
+						throw new RuntimeException(
+								"Unknown type of MIDI meta message: 0x" + Integer.toHexString(metaMessage.getType()));
+					}
 					context.setEvent(tick, type, metaMessage);
 					filter(context);
 				} else if (message instanceof SysexMessage) {
@@ -126,6 +130,10 @@ public class Interpreter {
 					// According to javadoc, any other type of message
 					final ShortMessage shortMessage = (ShortMessage) message;
 					final ShortMessageType type = ShortMessageType.at(shortMessage.getCommand());
+					if (type == null) {
+						throw new RuntimeException("Unknown type of MIDI short message: 0x"
+								+ Integer.toHexString(shortMessage.getCommand()));
+					}
 					context.setEvent(tick, type, shortMessage);
 					filter(context);
 				} else {

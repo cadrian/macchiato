@@ -31,6 +31,9 @@ public class MetaEvent extends AbstractEvent {
 
 	public MetaEvent(final BigInteger tick, final MetaMessageType type, final MetaMessage message) {
 		super(tick);
+		if (type == null) {
+			throw new NullPointerException("BUG: null type");
+		}
 		this.type = type;
 		this.midiMessage = message;
 	}

@@ -211,7 +211,7 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 	}
 
 	@Override
-	public void visitAbort(Abort abort) {
+	public void visitAbort(final Abort abort) {
 		throw new InterpreterException("ABORTING: " + abort.getMessage(), abort.position());
 	}
 

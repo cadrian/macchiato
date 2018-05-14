@@ -31,6 +31,9 @@ public class ShortEvent extends AbstractEvent {
 
 	public ShortEvent(final BigInteger tick, final ShortMessageType type, final ShortMessage message) {
 		super(tick);
+		if (type == null) {
+			throw new NullPointerException("BUG: null type");
+		}
 		this.type = type;
 		this.midiMessage = message;
 	}

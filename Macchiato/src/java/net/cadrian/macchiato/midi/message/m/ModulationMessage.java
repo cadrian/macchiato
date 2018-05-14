@@ -20,31 +20,31 @@ import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.message.MetaMessage;
 
-public class SequenceNumberMessage extends MetaMessage {
+public class ModulationMessage extends MetaMessage {
 
 	public static interface Visitor extends Message.Visitor {
-		void visitSequenceNumber(SequenceNumberMessage message);
+		void visitModulation(ModulationMessage message);
 	}
 
-	private final int sequence;
+	private final int value;
 
-	public SequenceNumberMessage(final int sequence) {
-		super(MetaMessageType.SEQUENCE_NUMBER);
-		this.sequence = sequence;
+	public ModulationMessage(final int value) {
+		super(MetaMessageType.MODULATION);
+		this.value = value;
 	}
 
-	public int getSequence() {
-		return sequence;
+	public int getValue() {
+		return value;
 	}
 
 	@Override
 	public void accept(final Message.Visitor v) {
-		((Visitor) v).visitSequenceNumber(this);
+		((Visitor) v).visitModulation(this);
 	}
 
 	@Override
 	public String toString() {
-		return "SEQUENCE_NUMBER(" + sequence + ")";
+		return "MODULATION(" + value + ")";
 	}
 
 }

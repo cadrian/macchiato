@@ -32,6 +32,7 @@ import net.cadrian.macchiato.midi.message.m.InstrumentNameMessage;
 import net.cadrian.macchiato.midi.message.m.KeySignatureMessage;
 import net.cadrian.macchiato.midi.message.m.LyricsMessage;
 import net.cadrian.macchiato.midi.message.m.MarkerTextMessage;
+import net.cadrian.macchiato.midi.message.m.ModulationMessage;
 import net.cadrian.macchiato.midi.message.m.SequenceNumberMessage;
 import net.cadrian.macchiato.midi.message.m.TempoMessage;
 import net.cadrian.macchiato.midi.message.m.TextMessage;
@@ -401,6 +402,45 @@ public enum MetaMessageType {
 			return null;
 		}
 	},
+	MODULATION(0x21) {
+		@Override
+		public String toString(final byte[] data) {
+			return new BigInteger(1, data).toString();
+		}
+
+		@Override
+		public Message createMessage(final byte[] data) {
+			return new ModulationMessage(new BigInteger(1, data).intValueExact());
+		}
+
+		@Override
+		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+			final byte[] data = BigInteger.valueOf(((ModulationMessage) message).getValue()).toByteArray();
+			return new MetaMessage(type, data, data.length);
+		}
+
+		@Override
+		public void fill(final Dictionary messageData, final Message message) {
+			final ModulationMessage e = (ModulationMessage) message;
+			messageData.set("value", BigInteger.valueOf(e.getValue()));
+		}
+
+		@Override
+		public Class<?>[] getArgTypes() {
+			return TYPE_INT1;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_VALUE;
+		}
+
+		@Override
+		public Message create(final Object... args) {
+			final BigInteger value = (BigInteger) args[0];
+			return new ModulationMessage(value.intValueExact());
+		}
+	},
 	END_OF_TRACK(0x2F) {
 		@Override
 		public String toString(final byte[] data) {
@@ -675,6 +715,7 @@ public enum MetaMessageType {
 	private static final String[] ARG_TEXT = new String[] { "text" };
 	private static final Class<?>[] TYPE_STR1 = new Class<?>[] { String.class };
 	private static final String[] ARG_SEQUENCE = new String[] { "sequence" };
+	private static final String[] ARG_VALUE = new String[] { "value" };
 	private static final Class<?>[] TYPE_INT1 = new Class<?>[] { BigInteger.class };
 	private static final Class<?>[] TYPE_INT2 = new Class<?>[] { BigInteger.class, BigInteger.class };
 	private static final Class<?>[] TYPE_INT4 = new Class<?>[] { BigInteger.class, BigInteger.class, BigInteger.class,
