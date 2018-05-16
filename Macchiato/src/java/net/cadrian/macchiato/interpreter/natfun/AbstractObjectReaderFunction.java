@@ -52,6 +52,9 @@ abstract class AbstractObjectReaderFunction extends AbstractNativeFunction {
 			case '"':
 				result = parseString(buffer);
 				break;
+			case '-':
+				result = parseNumber(buffer);
+				break;
 			default:
 				if (Character.isDigit(buffer.current())) {
 					result = parseNumber(buffer);
@@ -71,8 +74,8 @@ abstract class AbstractObjectReaderFunction extends AbstractNativeFunction {
 		final Dictionary result = new Dictionary();
 		buffer.next();
 		buffer.skipBlanks();
-		boolean more = true;
-		do {
+		boolean more = !buffer.off() && buffer.current() != '}';
+		while (more) {
 			if (buffer.off()) {
 				return null;
 			}
@@ -105,7 +108,7 @@ abstract class AbstractObjectReaderFunction extends AbstractNativeFunction {
 					return null;
 				}
 			}
-		} while (more);
+		}
 		return result;
 	}
 
@@ -114,8 +117,8 @@ abstract class AbstractObjectReaderFunction extends AbstractNativeFunction {
 		final Array result = new Array();
 		buffer.next();
 		buffer.skipBlanks();
-		boolean more = true;
-		do {
+		boolean more = !buffer.off() && buffer.current() != ']';
+		while (more) {
 			if (buffer.off()) {
 				return null;
 			}
@@ -148,7 +151,7 @@ abstract class AbstractObjectReaderFunction extends AbstractNativeFunction {
 					return null;
 				}
 			}
-		} while (more);
+		}
 		return result;
 	}
 

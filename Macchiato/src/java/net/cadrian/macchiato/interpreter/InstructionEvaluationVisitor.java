@@ -140,10 +140,9 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 	public void visitFor(final For f) {
 		LOGGER.debug("<-- {}", f);
 		final Container<?> loop = (Container<?>) context.eval(f.getLoop().typed(Container.class));
-		if (loop == null) {
-			throw new InterpreterException("undefined loop", f.getLoop().position());
+		if (loop != null) {
+			runLoop(loop, f.getName1(), f.getName2(), f.getInstruction());
 		}
-		runLoop(loop, f.getName1(), f.getName2(), f.getInstruction());
 		LOGGER.debug("--> {}", f);
 	}
 

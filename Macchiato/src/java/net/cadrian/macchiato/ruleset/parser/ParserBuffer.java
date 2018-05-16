@@ -230,12 +230,19 @@ public class ParserBuffer {
 	}
 
 	public BigInteger readBigInteger() {
-		assert Character.isDigit(current());
+		assert Character.isDigit(current()) || current() == '-';
 		final StringBuilder b = new StringBuilder();
-		while (!off() && Character.isDigit(current())) {
-			b.append(current());
+		if (current() == '-') {
+			b.append('-');
 			next();
 		}
+		if (off() || !Character.isDigit(current())) {
+			throw new ParserException("Invalid number: " + current() + " at " + position);
+		}
+		do {
+			b.append(current());
+			next();
+		} while (!off() && Character.isDigit(current()));
 		return new BigInteger(b.toString());
 	}
 
