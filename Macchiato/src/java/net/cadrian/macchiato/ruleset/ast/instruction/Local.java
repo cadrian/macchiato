@@ -58,7 +58,7 @@ public class Local implements Instruction {
 	@Override
 	public Instruction simplify() {
 		final Identifier simplifyLocal = local.simplify();
-		final Expression simplifyInitializer = initializer.simplify();
+		final Expression simplifyInitializer = initializer == null ? null : initializer.simplify();
 		if (simplifyLocal == local && simplifyInitializer == initializer) {
 			return this;
 		}
