@@ -58,7 +58,15 @@ public enum ControlChange {
 	PORTAMENTO(65),
 	SOSTENUTO(66),
 	SOFT_PEDAL(67),
-	LEGATO_PEDAL(68);
+	LEGATO_PEDAL(68),
+
+	// Non-Registered and Registered Parameters
+	NRPN_MSB(99),
+	NRPN_LSB(98),
+	RPN_MSB(101),
+	RPN_LSB(100),
+	PARAMETER_VALUE(6),
+	FINE_PARAMETER_VALUE(38);
 
 	private static final Map<Integer, ControlChange> MAP;
 	static {

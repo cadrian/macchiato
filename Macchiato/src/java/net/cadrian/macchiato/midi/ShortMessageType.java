@@ -174,7 +174,11 @@ public enum ShortMessageType {
 
 		@Override
 		public Message createMessage(final int channel, final int code, final int value) {
-			return new ControlChangeMessage(channel, ControlChange.at(code), value);
+			final ControlChange mpc = ControlChange.at(code);
+			if (mpc == null) {
+				throw new NullPointerException("unknown MPC 0x" + Integer.toHexString(code));
+			}
+			return new ControlChangeMessage(channel, mpc, value);
 		}
 
 		@Override
