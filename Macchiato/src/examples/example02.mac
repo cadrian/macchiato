@@ -49,14 +49,26 @@ def initTrack() {
     // expression records the current expression, per channel
     expression = [127, 127, 127, 127, 127, 127, 127, 127,
                   127, 127, 127, 127, 127, 127, 127, 127];
+
+    // running records the currently running notes per channel
+    // For each channel, the array index is the pitch of the note;
+    // its value is the start tick of the note
+    running = [[], [], [], [], [], [], [], [],
+               [], [], [], [], [], [], [], []];
+
+    // notes records the note lengths per track, per channel
+    // For each track, each channel, the array index is the start tick of each note;
+    // its value is an array: index = pitch, value = length
+    notes[tracknum] = [[], [], [], [], [], [], [], [],
+             [], [], [], [], [], [], [], []];
 }
 
-def tick(event) {
+def tick(event, sign) {
     // humanize tick, except for the drummer (that sounds drunk)
     if event.channel == 10 {
         result = event.tick;
     } else {
-        result = event.tick + random(5);
+        result = event.tick + random(5) * sign;
     }
 }
 
@@ -68,7 +80,15 @@ def note_on(event) {
     // and with a bit of random for rough "humanization"
     local v = (velocity[event.channel][event.pitch] * expression[event.channel]) / 127;
     v = humanize(v, v, 10);
-    emit NOTE_ON(event.channel, event.pitch, v) at tick(event);
+    local t = tick(event, 1);
+    running[event.channel][event.pitch] = t;
+    emit NOTE_ON(event.channel, event.pitch, v) at t;
+}
+
+def record_note_length(channel, pitch, tick) {
+    local start = running[channel][pitch];
+    local length = tick - start;
+    notes[tracknum][channel][start][pitch] = length;
 }
 
 def note_on_off(event) {
@@ -78,7 +98,9 @@ def note_on_off(event) {
     // necessarily equal to the press velocity
     local v = (velocity[event.channel][event.pitch] * expression[event.channel]) / 127;
     v = humanize(v, v, 10);
-    emit NOTE_OFF(event.channel, event.pitch, v) at tick(event);
+    local t = tick(event, -1);
+    record_note_length(event.channel, event.pitch, t);
+    emit NOTE_OFF(event.channel, event.pitch, v) at t;
 }
 
 def note_off(event) {
@@ -88,7 +110,9 @@ def note_off(event) {
     // necessarily equal to the press velocity
     local v = (event.velocity * expression[event.channel]) / 127;
     v = humanize(v, v, 10);
-    emit NOTE_OFF(event.channel, event.pitch, v) at tick(event);
+    local t = tick(event, -1);
+    record_note_length(event.channel, event.pitch, t);
+    emit NOTE_OFF(event.channel, event.pitch, v) at t;
 }
 
 BEGIN SEQUENCE {
@@ -131,4 +155,5 @@ END TRACK {
 
 END SEQUENCE {
     write("record", record);
+    write("notes", notes);
 }
