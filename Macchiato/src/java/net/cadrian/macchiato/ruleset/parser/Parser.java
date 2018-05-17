@@ -722,6 +722,7 @@ public class Parser {
 		case '>':
 			switch (c2) {
 			case '=':
+				buffer.next();
 				return Binary.Operator.GE;
 			default:
 				return Binary.Operator.GT;
@@ -951,6 +952,9 @@ public class Parser {
 					result = parseManifestNumber();
 				} else {
 					final String name = readRawIdentifier();
+					if (name == null) {
+						throw new ParserException(error("Expected identifier"));
+					}
 					switch (name) {
 					case "result":
 						result = new Result(position);
