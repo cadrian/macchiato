@@ -65,4 +65,9 @@ public class MetaMessageCreationFunction implements Function {
 		context.set("result", type.create(args));
 	}
 
+	@Override
+	public String toString() {
+		return "Native function: create meta message " + type;
+	}
+
 }

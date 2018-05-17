@@ -24,18 +24,16 @@ import javax.sound.midi.MidiEvent;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
 
-public class MetaEvent extends AbstractEvent {
+public class MetaEvent extends AbstractEvent<MetaMessage> {
 
 	private final MetaMessageType type;
-	private final MetaMessage midiMessage;
 
 	public MetaEvent(final BigInteger tick, final MetaMessageType type, final MetaMessage message) {
-		super(tick);
+		super(tick, message);
 		if (type == null) {
 			throw new NullPointerException("BUG: null type");
 		}
 		this.type = type;
-		this.midiMessage = message;
 	}
 
 	public MetaMessageType getType() {
@@ -43,18 +41,18 @@ public class MetaEvent extends AbstractEvent {
 	}
 
 	@Override
-	public MetaMessage getMidiMessage() {
-		return midiMessage;
-	}
-
-	@Override
-	public Message createMessage() {
+	public Message<MetaMessage> createMessage() {
 		return type.createMessage(midiMessage.getData());
 	}
 
 	@Override
 	public MidiEvent createMidiEvent() {
-		return new MidiEvent(midiMessage, getTick().longValueExact());
+		return new MidiEvent(midiMessage, tick.longValueExact());
+	}
+
+	@Override
+	public String toString() {
+		return midiMessage + " at " + tick;
 	}
 
 }

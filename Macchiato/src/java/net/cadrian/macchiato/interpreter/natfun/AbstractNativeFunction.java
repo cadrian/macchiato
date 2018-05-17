@@ -16,4 +16,9 @@ abstract class AbstractNativeFunction implements Function {
 		return ruleset;
 	}
 
+	@Override
+	public String toString() {
+		return "Native function: " + name();
+	}
+
 }

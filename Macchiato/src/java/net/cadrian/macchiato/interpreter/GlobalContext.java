@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.sound.midi.MetaMessage;
+import javax.sound.midi.MidiMessage;
 import javax.sound.midi.ShortMessage;
 
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ class GlobalContext extends Context {
 	private final Map<String, Function> nativeFunctions = new HashMap<>();
 	private final Ruleset ruleset;
 	private Track track;
-	private AbstractEvent event;
+	private AbstractEvent<? extends MidiMessage> event;
 	private boolean next;
 
 	public GlobalContext(final Interpreter interpreter, final Ruleset ruleset) {
@@ -81,27 +82,29 @@ class GlobalContext extends Context {
 	}
 
 	void setEvent(final BigInteger tick, final MetaMessageType type, final MetaMessage message) {
-		LOGGER.debug("Setting meta event {} at {}", type, message);
-		this.event = new MetaEvent(tick, type, message);
+		final MetaEvent metaEvent = new MetaEvent(tick, type, message);
 		final Dictionary eventData = new Dictionary();
 		eventData.set("type", type);
 		eventData.set("tick", tick);
-		type.fill(eventData, event.createMessage());
+		type.fill(eventData, metaEvent.createMessage());
+		LOGGER.debug("Setting meta event {}", eventData);
 		global.put("event", eventData);
+		this.event = metaEvent;
 	}
 
 	void setEvent(final BigInteger tick, final ShortMessageType type, final ShortMessage message) {
-		LOGGER.debug("Setting short event {} at {}", type, message);
-		this.event = new ShortEvent(tick, type, message);
+		final ShortEvent shortEvent = new ShortEvent(tick, type, message);
 		final Dictionary eventData = new Dictionary();
 		eventData.set("type", type);
 		eventData.set("tick", tick);
-		type.fill(eventData, event.createMessage());
+		type.fill(eventData, shortEvent.createMessage());
+		LOGGER.debug("Setting short event {}", eventData);
 		global.put("event", eventData);
+		this.event = shortEvent;
 	}
 
 	@Override
-	void emit(final Message message, final BigInteger tick) {
+	<M extends MidiMessage> void emit(final Message<M> message, final BigInteger tick) {
 		LOGGER.debug("Emitting message {} at {}", message, tick);
 		track.add(message.toEvent(tick));
 	}
@@ -121,9 +124,10 @@ class GlobalContext extends Context {
 		return track;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	AbstractEvent getEvent() {
-		return event;
+	<M extends MidiMessage> AbstractEvent<M> getEvent() {
+		return (AbstractEvent<M>) event;
 	}
 
 	@Override

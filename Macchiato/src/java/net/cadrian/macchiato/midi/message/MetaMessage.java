@@ -25,7 +25,7 @@ import net.cadrian.macchiato.interpreter.MetaEvent;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
 
-public abstract class MetaMessage implements Message {
+public abstract class MetaMessage implements Message<javax.sound.midi.MetaMessage> {
 
 	private final MetaMessageType messageType;
 
@@ -38,7 +38,7 @@ public abstract class MetaMessage implements Message {
 	}
 
 	@Override
-	public AbstractEvent toEvent(final BigInteger tick) {
+	public AbstractEvent<javax.sound.midi.MetaMessage> toEvent(final BigInteger tick) {
 		try {
 			return new MetaEvent(tick, messageType, messageType.createMidiMessage(this));
 		} catch (final InvalidMidiDataException e) {

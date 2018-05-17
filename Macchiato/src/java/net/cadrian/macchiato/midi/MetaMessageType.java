@@ -47,18 +47,18 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message createMessage(final byte[] data) {
+		public Message<MetaMessage> createMessage(final byte[] data) {
 			return new SequenceNumberMessage(new BigInteger(1, data).intValueExact());
 		}
 
 		@Override
-		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final byte[] data = BigInteger.valueOf(((SequenceNumberMessage) message).getSequence()).toByteArray();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
 			final SequenceNumberMessage e = (SequenceNumberMessage) message;
 			messageData.set("sequence", BigInteger.valueOf(e.getSequence()));
 		}
@@ -74,7 +74,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<MetaMessage> create(final Object... args) {
 			final BigInteger sequence = (BigInteger) args[0];
 			return new SequenceNumberMessage(sequence.intValueExact());
 		}
@@ -86,19 +86,19 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message createMessage(final byte[] data) {
+		public Message<MetaMessage> createMessage(final byte[] data) {
 			return new TextMessage(new String(data));
 		}
 
 		@Override
-		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final TextMessage m = (TextMessage) message;
 			final byte[] data = m.getText().getBytes();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
 			final TextMessage m = (TextMessage) message;
 			messageData.set("text", m.getText());
 		}
@@ -114,7 +114,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<MetaMessage> create(final Object... args) {
 			final String text = (String) args[0];
 			return new TextMessage(text);
 		}
@@ -126,19 +126,19 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message createMessage(final byte[] data) {
+		public Message<MetaMessage> createMessage(final byte[] data) {
 			return new CopyrightMessage(new String(data));
 		}
 
 		@Override
-		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final CopyrightMessage m = (CopyrightMessage) message;
 			final byte[] data = m.getText().getBytes();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
 			final CopyrightMessage m = (CopyrightMessage) message;
 			messageData.set("text", m.getText());
 		}
@@ -154,7 +154,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<MetaMessage> create(final Object... args) {
 			final String text = (String) args[0];
 			return new CopyrightMessage(text);
 		}
@@ -166,19 +166,19 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message createMessage(final byte[] data) {
+		public Message<MetaMessage> createMessage(final byte[] data) {
 			return new TrackNameMessage(new String(data));
 		}
 
 		@Override
-		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final TrackNameMessage m = (TrackNameMessage) message;
 			final byte[] data = m.getText().getBytes();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
 			final TrackNameMessage m = (TrackNameMessage) message;
 			messageData.set("text", m.getText());
 		}
@@ -194,7 +194,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<MetaMessage> create(final Object... args) {
 			final String text = (String) args[0];
 			return new TrackNameMessage(text);
 		}
@@ -206,19 +206,19 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message createMessage(final byte[] data) {
+		public Message<MetaMessage> createMessage(final byte[] data) {
 			return new InstrumentNameMessage(new String(data));
 		}
 
 		@Override
-		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final InstrumentNameMessage m = (InstrumentNameMessage) message;
 			final byte[] data = m.getText().getBytes();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
 			final InstrumentNameMessage m = (InstrumentNameMessage) message;
 			messageData.set("text", m.getText());
 		}
@@ -234,7 +234,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<MetaMessage> create(final Object... args) {
 			final String text = (String) args[0];
 			return new InstrumentNameMessage(text);
 		}
@@ -246,19 +246,19 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message createMessage(final byte[] data) {
+		public Message<MetaMessage> createMessage(final byte[] data) {
 			return new LyricsMessage(new String(data));
 		}
 
 		@Override
-		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final LyricsMessage m = (LyricsMessage) message;
 			final byte[] data = m.getText().getBytes();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
 			final LyricsMessage m = (LyricsMessage) message;
 			messageData.set("text", m.getText());
 		}
@@ -274,7 +274,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<MetaMessage> create(final Object... args) {
 			final String text = (String) args[0];
 			return new LyricsMessage(text);
 		}
@@ -286,19 +286,19 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message createMessage(final byte[] data) {
+		public Message<MetaMessage> createMessage(final byte[] data) {
 			return new MarkerTextMessage(new String(data));
 		}
 
 		@Override
-		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final MarkerTextMessage m = (MarkerTextMessage) message;
 			final byte[] data = m.getText().getBytes();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
 			final MarkerTextMessage m = (MarkerTextMessage) message;
 			messageData.set("text", m.getText());
 		}
@@ -314,7 +314,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<MetaMessage> create(final Object... args) {
 			final String text = (String) args[0];
 			return new MarkerTextMessage(text);
 		}
@@ -326,19 +326,19 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message createMessage(final byte[] data) {
+		public Message<MetaMessage> createMessage(final byte[] data) {
 			return new CuePointMessage(new String(data));
 		}
 
 		@Override
-		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final CuePointMessage m = (CuePointMessage) message;
 			final byte[] data = m.getText().getBytes();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
 			final CuePointMessage m = (CuePointMessage) message;
 			messageData.set("text", m.getText());
 		}
@@ -354,7 +354,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<MetaMessage> create(final Object... args) {
 			final String text = (String) args[0];
 			return new CuePointMessage(text);
 		}
@@ -367,19 +367,19 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message createMessage(final byte[] data) {
+		public Message<MetaMessage> createMessage(final byte[] data) {
 			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
-		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
 			// TODO Auto-generated method stub
 
 		}
@@ -397,7 +397,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<MetaMessage> create(final Object... args) {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -409,18 +409,18 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message createMessage(final byte[] data) {
+		public Message<MetaMessage> createMessage(final byte[] data) {
 			return new ModulationMessage(new BigInteger(1, data).intValueExact());
 		}
 
 		@Override
-		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final byte[] data = BigInteger.valueOf(((ModulationMessage) message).getValue()).toByteArray();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
 			final ModulationMessage e = (ModulationMessage) message;
 			messageData.set("value", BigInteger.valueOf(e.getValue()));
 		}
@@ -436,7 +436,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<MetaMessage> create(final Object... args) {
 			final BigInteger value = (BigInteger) args[0];
 			return new ModulationMessage(value.intValueExact());
 		}
@@ -449,17 +449,17 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message createMessage(final byte[] data) {
+		public Message<MetaMessage> createMessage(final byte[] data) {
 			return new EndOfTrackMessage();
 		}
 
 		@Override
-		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			return new MetaMessage(type, new byte[0], 0);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
 		}
 
 		@Override
@@ -473,7 +473,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<MetaMessage> create(final Object... args) {
 			return new EndOfTrackMessage();
 		}
 	},
@@ -487,14 +487,14 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message createMessage(final byte[] data) {
+		public Message<MetaMessage> createMessage(final byte[] data) {
 			final BigInteger mpq = new BigInteger(1, data);
 			final BigInteger bpm = BPM_MPQ_FACTOR.divide(mpq);
 			return new TempoMessage(bpm.intValueExact());
 		}
 
 		@Override
-		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final TempoMessage m = (TempoMessage) message;
 			final BigInteger bpm = BigInteger.valueOf(m.getBpm());
 			final BigInteger mpq = BPM_MPQ_FACTOR.divide(bpm);
@@ -503,7 +503,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
 			final TempoMessage m = (TempoMessage) message;
 			messageData.set("bpm", BigInteger.valueOf(m.getBpm()));
 		}
@@ -519,7 +519,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<MetaMessage> create(final Object... args) {
 			final BigInteger mpq = (BigInteger) args[0];
 			return new TempoMessage(mpq.intValueExact());
 		}
@@ -543,7 +543,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message createMessage(final byte[] data) {
+		public Message<MetaMessage> createMessage(final byte[] data) {
 			final byte n = data[0];
 			final byte d = data[1];
 			final byte m = data[2];
@@ -552,14 +552,14 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final TimeSignatureMessage m = (TimeSignatureMessage) message;
 			final byte[] data = new byte[] { m.getNumerator(), m.getDenominator(), m.getMetronome(), m.getTicks() };
 			return new MetaMessage(type, data, 4);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
 			final TimeSignatureMessage m = (TimeSignatureMessage) message;
 			messageData.set("numerator", BigInteger.valueOf(m.getNumerator()));
 			messageData.set("denominator", BigInteger.valueOf(m.getDenominator()));
@@ -578,7 +578,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<MetaMessage> create(final Object... args) {
 			final BigInteger numerator = (BigInteger) args[0];
 			final BigInteger denominator = (BigInteger) args[1];
 			final BigInteger metronome = (BigInteger) args[2];
@@ -669,21 +669,21 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message createMessage(final byte[] data) {
+		public Message<MetaMessage> createMessage(final byte[] data) {
 			final byte keysig = data[0];
 			final byte mode = data[1];
 			return new KeySignatureMessage(keysig, mode);
 		}
 
 		@Override
-		public MetaMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final KeySignatureMessage m = (KeySignatureMessage) message;
 			final byte[] data = { m.getKeysig(), m.getMode() };
 			return new MetaMessage(type, data, 2);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
 			final KeySignatureMessage m = (KeySignatureMessage) message;
 			messageData.set("keysig", BigInteger.valueOf(m.getKeysig()));
 			messageData.set("mode", BigInteger.valueOf(m.getMode()));
@@ -700,7 +700,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<MetaMessage> create(final Object... args) {
 			final BigInteger keysig = (BigInteger) args[0];
 			final BigInteger mode = (BigInteger) args[1];
 			return new KeySignatureMessage(keysig.byteValueExact(), mode.byteValueExact());
@@ -742,15 +742,15 @@ public enum MetaMessageType {
 
 	public abstract String toString(byte[] data);
 
-	public abstract Message createMessage(byte[] data);
+	public abstract Message<MetaMessage> createMessage(byte[] data);
 
-	public abstract MetaMessage createMidiMessage(Message message) throws InvalidMidiDataException;
+	public abstract MetaMessage createMidiMessage(Message<MetaMessage> message) throws InvalidMidiDataException;
 
-	public abstract void fill(final Dictionary messageData, final Message message);
+	public abstract void fill(final Dictionary messageData, final Message<MetaMessage> message);
 
 	public abstract Class<?>[] getArgTypes();
 
 	public abstract String[] getArgNames();
 
-	public abstract Message create(Object... args);
+	public abstract Message<MetaMessage> create(Object... args);
 }

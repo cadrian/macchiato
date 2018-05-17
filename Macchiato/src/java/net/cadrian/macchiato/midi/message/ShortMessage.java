@@ -25,7 +25,7 @@ import net.cadrian.macchiato.interpreter.ShortEvent;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.ShortMessageType;
 
-public abstract class ShortMessage implements Message {
+public abstract class ShortMessage implements Message<javax.sound.midi.ShortMessage> {
 
 	private final ShortMessageType messageType;
 	protected final int channel;
@@ -44,7 +44,7 @@ public abstract class ShortMessage implements Message {
 	}
 
 	@Override
-	public AbstractEvent toEvent(final BigInteger tick) {
+	public AbstractEvent<javax.sound.midi.ShortMessage> toEvent(final BigInteger tick) {
 		try {
 			return new ShortEvent(tick, messageType, messageType.createMidiMessage(this));
 		} catch (final InvalidMidiDataException e) {

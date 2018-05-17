@@ -16,6 +16,8 @@
  */
 package net.cadrian.macchiato.interpreter;
 
+import javax.sound.midi.MidiMessage;
+
 class Track {
 
 	private final int index;
@@ -36,7 +38,7 @@ class Track {
 		return input;
 	}
 
-	public void add(final AbstractEvent event) {
+	public <M extends MidiMessage> void add(final AbstractEvent<M> event) {
 		output.add(event.createMidiEvent());
 	}
 

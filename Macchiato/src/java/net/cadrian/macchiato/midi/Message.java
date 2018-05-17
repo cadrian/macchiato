@@ -18,15 +18,17 @@ package net.cadrian.macchiato.midi;
 
 import java.math.BigInteger;
 
+import javax.sound.midi.MidiMessage;
+
 import net.cadrian.macchiato.interpreter.AbstractEvent;
 
-public interface Message {
+public interface Message<M extends MidiMessage> {
 
 	interface Visitor {
 	}
 
 	void accept(Visitor v);
 
-	AbstractEvent toEvent(BigInteger tick);
+	AbstractEvent<M> toEvent(BigInteger tick);
 
 }

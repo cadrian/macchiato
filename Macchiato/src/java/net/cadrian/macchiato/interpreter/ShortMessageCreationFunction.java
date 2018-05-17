@@ -65,4 +65,9 @@ public class ShortMessageCreationFunction implements Function {
 		context.set("result", type.create(args));
 	}
 
+	@Override
+	public String toString() {
+		return "Native function: create short message " + type;
+	}
+
 }

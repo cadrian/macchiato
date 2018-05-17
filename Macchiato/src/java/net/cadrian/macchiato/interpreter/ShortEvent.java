@@ -24,18 +24,16 @@ import javax.sound.midi.ShortMessage;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.ShortMessageType;
 
-public class ShortEvent extends AbstractEvent {
+public class ShortEvent extends AbstractEvent<ShortMessage> {
 
 	private final ShortMessageType type;
-	private final ShortMessage midiMessage;
 
 	public ShortEvent(final BigInteger tick, final ShortMessageType type, final ShortMessage message) {
-		super(tick);
+		super(tick, message);
 		if (type == null) {
 			throw new NullPointerException("BUG: null type");
 		}
 		this.type = type;
-		this.midiMessage = message;
 	}
 
 	public ShortMessageType getType() {
@@ -43,12 +41,7 @@ public class ShortEvent extends AbstractEvent {
 	}
 
 	@Override
-	public ShortMessage getMidiMessage() {
-		return midiMessage;
-	}
-
-	@Override
-	public Message createMessage() {
+	public Message<ShortMessage> createMessage() {
 		return type.createMessage(midiMessage.getChannel(), midiMessage.getData1(), midiMessage.getData2());
 	}
 

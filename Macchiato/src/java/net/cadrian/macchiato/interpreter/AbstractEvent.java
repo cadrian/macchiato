@@ -23,22 +23,37 @@ import javax.sound.midi.MidiMessage;
 
 import net.cadrian.macchiato.midi.Message;
 
-public abstract class AbstractEvent {
+public abstract class AbstractEvent<M extends MidiMessage> {
 
-	private final BigInteger tick;
+	protected final BigInteger tick;
+	protected final M midiMessage;
 
-	public AbstractEvent(final BigInteger tick) {
+	public AbstractEvent(final BigInteger tick, final M midiMessage) {
+		if (tick == null) {
+			throw new NullPointerException("BUG: null tick");
+		}
+		if (midiMessage == null) {
+			throw new NullPointerException("BUG: null midiMessage");
+		}
 		this.tick = tick;
+		this.midiMessage = midiMessage;
 	}
 
 	public BigInteger getTick() {
 		return tick;
 	}
 
-	public abstract MidiMessage getMidiMessage();
+	public M getMidiMessage() {
+		return midiMessage;
+	}
 
-	public abstract Message createMessage();
+	public abstract Message<M> createMessage();
 
 	public abstract MidiEvent createMidiEvent();
+
+	@Override
+	public String toString() {
+		return midiMessage + " at " + tick;
+	}
 
 }

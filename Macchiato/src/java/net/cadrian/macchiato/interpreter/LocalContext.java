@@ -20,6 +20,8 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.sound.midi.MidiMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,12 +67,12 @@ class LocalContext extends Context {
 	}
 
 	@Override
-	AbstractEvent getEvent() {
+	<M extends MidiMessage> AbstractEvent<M> getEvent() {
 		return parent.getEvent();
 	}
 
 	@Override
-	void emit(final Message message, final BigInteger tick) {
+	<M extends MidiMessage> void emit(final Message<M> message, final BigInteger tick) {
 		parent.emit(message, tick);
 	}
 

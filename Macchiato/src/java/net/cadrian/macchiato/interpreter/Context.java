@@ -20,6 +20,8 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.sound.midi.MidiMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,14 +43,14 @@ public abstract class Context {
 
 	abstract Track getTrack();
 
-	abstract AbstractEvent getEvent();
+	abstract <M extends MidiMessage> AbstractEvent<M> getEvent();
 
-	void emit() {
-		final AbstractEvent event = getEvent();
+	<M extends MidiMessage> void emit() {
+		final AbstractEvent<M> event = getEvent();
 		emit(event.createMessage(), event.getTick());
 	}
 
-	abstract void emit(Message message, BigInteger tick);
+	abstract <M extends MidiMessage> void emit(Message<M> message, BigInteger tick);
 
 	abstract boolean isNext();
 

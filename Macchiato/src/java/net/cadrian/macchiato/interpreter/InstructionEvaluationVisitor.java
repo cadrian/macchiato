@@ -20,6 +20,8 @@ import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.sound.midi.MidiMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,7 +176,8 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 		if (eventExpression == null) {
 			context.emit();
 		} else {
-			final Message message = (Message) context.eval(eventExpression);
+			@SuppressWarnings("unchecked")
+			final Message<MidiMessage> message = (Message<MidiMessage>) context.eval(eventExpression);
 			final TypedExpression tickExpression = emit.getTick();
 			LOGGER.debug("tickExpression={}", tickExpression);
 			final BigInteger tick;

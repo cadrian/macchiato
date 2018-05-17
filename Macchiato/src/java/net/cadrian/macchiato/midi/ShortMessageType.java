@@ -41,18 +41,18 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public Message createMessage(final int channel, final int pitch, final int velocity) {
+		public Message<ShortMessage> createMessage(final int channel, final int pitch, final int velocity) {
 			return new NoteOffMessage(channel, pitch, velocity);
 		}
 
 		@Override
-		public ShortMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public ShortMessage createMidiMessage(final Message<ShortMessage> message) throws InvalidMidiDataException {
 			final NoteOffMessage m = (NoteOffMessage) message;
 			return new ShortMessage(command, m.getChannel(), m.getPitch(), m.getVelocity());
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<ShortMessage> message) {
 			final NoteOffMessage m = (NoteOffMessage) message;
 			messageData.set("channel", BigInteger.valueOf(m.getChannel()));
 			messageData.set("velocity", BigInteger.valueOf(m.getVelocity()));
@@ -70,7 +70,7 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<ShortMessage> create(final Object... args) {
 			final BigInteger channel = (BigInteger) args[0];
 			final BigInteger velocity = (BigInteger) args[1];
 			final BigInteger pitch = (BigInteger) args[2];
@@ -84,18 +84,18 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public Message createMessage(final int channel, final int pitch, final int velocity) {
+		public Message<ShortMessage> createMessage(final int channel, final int pitch, final int velocity) {
 			return new NoteOnMessage(channel, pitch, velocity);
 		}
 
 		@Override
-		public ShortMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public ShortMessage createMidiMessage(final Message<ShortMessage> message) throws InvalidMidiDataException {
 			final NoteOnMessage m = (NoteOnMessage) message;
 			return new ShortMessage(command, m.getChannel(), m.getPitch(), m.getVelocity());
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<ShortMessage> message) {
 			final NoteOnMessage m = (NoteOnMessage) message;
 			messageData.set("channel", BigInteger.valueOf(m.getChannel()));
 			messageData.set("velocity", BigInteger.valueOf(m.getVelocity()));
@@ -113,7 +113,7 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<ShortMessage> create(final Object... args) {
 			final BigInteger channel = (BigInteger) args[0];
 			final BigInteger velocity = (BigInteger) args[1];
 			final BigInteger pitch = (BigInteger) args[2];
@@ -128,18 +128,18 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public Message createMessage(final int channel, final int pressure, final int unused) {
+		public Message<ShortMessage> createMessage(final int channel, final int pressure, final int unused) {
 			return new PolyPressureMessage(channel, pressure);
 		}
 
 		@Override
-		public ShortMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public ShortMessage createMidiMessage(final Message<ShortMessage> message) throws InvalidMidiDataException {
 			final PolyPressureMessage m = (PolyPressureMessage) message;
 			return new ShortMessage(command, m.getChannel(), m.getPressure(), 0);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<ShortMessage> message) {
 			final PolyPressureMessage m = (PolyPressureMessage) message;
 			messageData.set("channel", BigInteger.valueOf(m.getChannel()));
 			messageData.set("pressure", BigInteger.valueOf(m.getPressure()));
@@ -156,7 +156,7 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<ShortMessage> create(final Object... args) {
 			final BigInteger channel = (BigInteger) args[0];
 			final BigInteger pressure = (BigInteger) args[1];
 			return new PolyPressureMessage(channel.intValueExact(), pressure.intValueExact());
@@ -173,7 +173,7 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public Message createMessage(final int channel, final int code, final int value) {
+		public Message<ShortMessage> createMessage(final int channel, final int code, final int value) {
 			final ControlChange mpc = ControlChange.at(code);
 			if (mpc == null) {
 				throw new NullPointerException("unknown MPC 0x" + Integer.toHexString(code));
@@ -182,13 +182,13 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public ShortMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public ShortMessage createMidiMessage(final Message<ShortMessage> message) throws InvalidMidiDataException {
 			final ControlChangeMessage m = (ControlChangeMessage) message;
 			return new ShortMessage(command, m.getChannel(), m.getMpc().code, m.getValue());
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<ShortMessage> message) {
 			final ControlChangeMessage m = (ControlChangeMessage) message;
 			messageData.set("channel", BigInteger.valueOf(m.getChannel()));
 			final ControlChange mpc = m.getMpc();
@@ -207,7 +207,7 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<ShortMessage> create(final Object... args) {
 			final BigInteger channel = (BigInteger) args[0];
 			final ControlChange mpc = (ControlChange) args[1];
 			return new ControlChangeMessage(channel.intValueExact(), mpc, mpc.midiValueOf(args[2]));
@@ -221,18 +221,18 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public Message createMessage(final int channel, final int patch, final int unused) {
+		public Message<ShortMessage> createMessage(final int channel, final int patch, final int unused) {
 			return new ProgramChangeMessage(channel, patch);
 		}
 
 		@Override
-		public ShortMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public ShortMessage createMidiMessage(final Message<ShortMessage> message) throws InvalidMidiDataException {
 			final ProgramChangeMessage m = (ProgramChangeMessage) message;
 			return new ShortMessage(command, m.getChannel(), m.getPatch(), 0);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<ShortMessage> message) {
 			final ProgramChangeMessage m = (ProgramChangeMessage) message;
 			messageData.set("channel", BigInteger.valueOf(m.getChannel()));
 			messageData.set("patch", BigInteger.valueOf(m.getPatch()));
@@ -249,7 +249,7 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<ShortMessage> create(final Object... args) {
 			final BigInteger channel = (BigInteger) args[0];
 			final BigInteger patch = (BigInteger) args[1];
 			return new ProgramChangeMessage(channel.intValueExact(), patch.intValueExact());
@@ -263,18 +263,18 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public Message createMessage(final int channel, final int pressure, final int unused) {
+		public Message<ShortMessage> createMessage(final int channel, final int pressure, final int unused) {
 			return new ChannelPressureMessage(channel, pressure);
 		}
 
 		@Override
-		public ShortMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public ShortMessage createMidiMessage(final Message<ShortMessage> message) throws InvalidMidiDataException {
 			final ChannelPressureMessage m = (ChannelPressureMessage) message;
 			return new ShortMessage(command, m.getChannel(), m.getPressure(), 0);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<ShortMessage> message) {
 			final ChannelPressureMessage m = (ChannelPressureMessage) message;
 			messageData.set("channel", BigInteger.valueOf(m.getChannel()));
 			messageData.set("pressure", BigInteger.valueOf(m.getPressure()));
@@ -291,7 +291,7 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<ShortMessage> create(final Object... args) {
 			final BigInteger channel = (BigInteger) args[0];
 			final BigInteger pressure = (BigInteger) args[1];
 			return new ChannelPressureMessage(channel.intValueExact(), pressure.intValueExact());
@@ -304,7 +304,7 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public Message createMessage(final int channel, final int data1, final int data2) {
+		public Message<ShortMessage> createMessage(final int channel, final int data1, final int data2) {
 			return new PitchBendMessage(channel, value(data1, data2));
 		}
 
@@ -313,7 +313,7 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public ShortMessage createMidiMessage(final Message message) throws InvalidMidiDataException {
+		public ShortMessage createMidiMessage(final Message<ShortMessage> message) throws InvalidMidiDataException {
 			final PitchBendMessage m = (PitchBendMessage) message;
 			final int data1 = (m.getValue() >>> 7);
 			final int data2 = (m.getValue() & 0x7f);
@@ -321,7 +321,7 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message message) {
+		public void fill(final Dictionary messageData, final Message<ShortMessage> message) {
 			final PitchBendMessage m = (PitchBendMessage) message;
 			messageData.set("channel", BigInteger.valueOf(m.getChannel()));
 			messageData.set("value", BigInteger.valueOf(m.getValue()));
@@ -338,7 +338,7 @@ public enum ShortMessageType {
 		}
 
 		@Override
-		public Message create(final Object... args) {
+		public Message<ShortMessage> create(final Object... args) {
 			final BigInteger channel = (BigInteger) args[0];
 			final BigInteger value = (BigInteger) args[1];
 			return new PitchBendMessage(channel.intValueExact(), value.intValueExact());
@@ -377,16 +377,16 @@ public enum ShortMessageType {
 
 	public abstract String toString(int data1, int data2);
 
-	public abstract Message createMessage(int channel, int data1, int data2);
+	public abstract Message<ShortMessage> createMessage(int channel, int data1, int data2);
 
-	public abstract ShortMessage createMidiMessage(Message message) throws InvalidMidiDataException;
+	public abstract ShortMessage createMidiMessage(Message<ShortMessage> message) throws InvalidMidiDataException;
 
-	public abstract void fill(Dictionary messageData, Message message);
+	public abstract void fill(Dictionary messageData, Message<ShortMessage> message);
 
 	public abstract Class<?>[] getArgTypes();
 
 	public abstract String[] getArgNames();
 
-	public abstract Message create(Object... args);
+	public abstract Message<ShortMessage> create(Object... args);
 
 }
