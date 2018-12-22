@@ -59,8 +59,8 @@ public class Emit implements Instruction {
 
 	@Override
 	public Instruction simplify() {
-		final TypedExpression simplifyMessage = message.simplify();
-		final TypedExpression simplifyTick = tick.simplify();
+		final TypedExpression simplifyMessage = message == null ? null : message.simplify();
+		final TypedExpression simplifyTick = tick == null ? null : tick.simplify();
 		if (simplifyMessage == message && simplifyTick == tick) {
 			return this;
 		}
