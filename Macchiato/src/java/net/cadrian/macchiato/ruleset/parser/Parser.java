@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.conf.Platform;
 import net.cadrian.macchiato.container.Container;
+import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.ruleset.ast.BoundFilter;
 import net.cadrian.macchiato.ruleset.ast.ConditionFilter;
@@ -1372,6 +1373,21 @@ public class Parser {
 
 	public String error(final String message, final int... positions) {
 		return buffer.error(message, positions);
+	}
+
+	public String error(final InterpreterException e) {
+		final StringBuilder result = new StringBuilder();
+		fillError(e, result);
+		return result.toString();
+	}
+
+	private void fillError(final InterpreterException e, final StringBuilder error) {
+		error.append(buffer.error(e.getMessage(), e.getPosition())).append('\n');
+		final Throwable cause = e.getCause();
+		if (cause instanceof InterpreterException) {
+			error.append("Caused by:\n");
+			fillError((InterpreterException) cause, error);
+		}
 	}
 
 }

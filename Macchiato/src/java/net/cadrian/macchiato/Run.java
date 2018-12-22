@@ -67,7 +67,8 @@ public class Run {
 					interpreter.run();
 				}
 			} catch (final InterpreterException e) {
-				throw new InterpreterException(parser.error(e.getMessage(), e.getPosition()), e);
+				System.err.println(parser.error(e));
+				System.exit(1);
 			}
 		} catch (final Exception e) {
 			e.printStackTrace();
