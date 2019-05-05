@@ -188,6 +188,7 @@ BEGIN TRACK {
 (event.type == CONTROL_CHANGE) and (event.mpc == CHANNEL_VOLUME) {
     // Record the volume value
     volume[event.channel] = event.value;
+    emit;
     next;
 }
 
