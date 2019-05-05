@@ -17,10 +17,8 @@
  */
 
 /*
- * Advanced example, formerly used by Rex Potam
+ * Advanced example, used by Rex Potam
  * http://rex-potam.cadrian.net/
- *
- * (See rex-potam.mac)
  *
  * This ruleset fixes a few shortcomings of the MIDI production chain
  * used by the songwriter:
@@ -54,7 +52,32 @@ def humanize(value, anchor, percent) {
     }
 }
 
-def initTrack() {
+def load_channel_array() {
+    channel_array = [];
+    local args = arguments();
+    if (args exists and args[0] exists) {
+        local p = /map=(?<file>.*)/;
+        local m = p.matcher(args[0]);
+        if m.matches() {
+            local file = m.group("file");
+            channel_array = read(file);
+        }
+    }
+    print("channel_array=" + toString(channel_array));
+}
+
+def fix_event_channel(channel) {
+    local c = channel_array[event.channel]
+    if c exists {
+        if c < 0 {
+            // forget this event as it is not mapped
+            next;
+        }
+        event.channel = c;
+    }
+}
+
+def init_track() {
     // velocity records the current velocity, per channel, per pitch
     velocity = [[], [], [], [], [], [], [], [],
                 [], [], [], [], [], [], [], []];
@@ -168,13 +191,19 @@ def portamento_time(event) {
     emit CONTROL_CHANGE(event.channel, PORTAMENTO_TIME, v) at t;
 }
 
+true {
+    if event.channel exists {
+        fix_event_channel(channel);
+    }
+}
+
 BEGIN SEQUENCE {
     tracknum = 0;
-    channel_map = [];
+    load_channel_array();
 }
 
 BEGIN TRACK {
-    initTrack();
+    init_track();
 }
 
 (event.type == CONTROL_CHANGE) and (event.mpc == PORTAMENTO) {
