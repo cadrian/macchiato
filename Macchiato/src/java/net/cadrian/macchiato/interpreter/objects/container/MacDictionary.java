@@ -24,6 +24,7 @@ import java.util.Set;
 
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.impl.Context;
+import net.cadrian.macchiato.interpreter.objects.AbstractMethod;
 import net.cadrian.macchiato.interpreter.objects.MacBoolean;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;

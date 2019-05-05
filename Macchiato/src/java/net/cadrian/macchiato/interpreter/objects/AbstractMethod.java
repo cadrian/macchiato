@@ -14,17 +14,16 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter.objects.container;
+package net.cadrian.macchiato.interpreter.objects;
 
 import net.cadrian.macchiato.interpreter.Method;
-import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
 public abstract class AbstractMethod<T extends MacObject> implements Method<T> {
 
 	protected final Ruleset ruleset;
 
-	AbstractMethod(final Ruleset ruleset) {
+	protected AbstractMethod(final Ruleset ruleset) {
 		this.ruleset = ruleset;
 	}
 
