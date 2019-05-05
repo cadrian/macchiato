@@ -55,6 +55,12 @@ public enum Native {
 		public Function getFunction(final Ruleset ruleset) {
 			return new ArgumentsFunction(ruleset);
 		}
+	},
+	print {
+		@Override
+		public Function getFunction(final Ruleset ruleset) {
+			return new PrintFunction(ruleset);
+		}
 	};
 
 	public abstract Function getFunction(Ruleset ruleset);
