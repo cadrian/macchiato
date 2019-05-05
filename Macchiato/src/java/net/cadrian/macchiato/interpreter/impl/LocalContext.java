@@ -32,7 +32,7 @@ import net.cadrian.macchiato.interpreter.objects.container.MacArray;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
-class LocalContext extends Context {
+public class LocalContext extends Context {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(LocalContext.class);
 

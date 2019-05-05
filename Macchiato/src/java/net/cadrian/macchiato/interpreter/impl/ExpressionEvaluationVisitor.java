@@ -23,7 +23,9 @@ import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.InterpreterException;
+import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.objects.MacBoolean;
+import net.cadrian.macchiato.interpreter.objects.MacCallable;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacPattern;
@@ -336,10 +338,17 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			}
 			lastValue = ((MacArray) target).get((MacNumber) index);
 		} else if (index instanceof MacString) {
-			if (!(target instanceof MacDictionary)) {
-				throw new InterpreterException("invalid target type", indexedExpression.getIndexed().position());
+			final MacString name = (MacString) index;
+			final Method<? extends MacObject> method = target.getMethod(context.getRuleset(), name.getValue());
+			if (method != null) {
+				lastValue = new MacCallable(method, target);
+			} else {
+				if (!(target instanceof MacDictionary)) {
+					throw new InterpreterException("invalid target type or unknown method " + name,
+							indexedExpression.getIndexed().position());
+				}
+				lastValue = ((MacDictionary) target).get(name);
 			}
-			lastValue = ((MacDictionary) target).get((MacString) index);
 		} else {
 			throw new InterpreterException("invalid index type", indexedExpression.getIndexed().position());
 		}
@@ -349,7 +358,18 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	@Override
 	public void visitIdentifier(final Identifier identifier) {
 		LOGGER.debug("<-- {}", identifier);
-		lastValue = context.get(identifier.getName());
+		final String name = identifier.getName();
+		final MacObject value = context.get(name);
+		if (value != null) {
+			lastValue = value;
+		} else {
+			final Function function = context.getFunction(name);
+			if (function != null) {
+				lastValue = new MacCallable(function);
+			} else {
+				throw new InterpreterException(name + " does not exist", identifier.position());
+			}
+		}
 		LOGGER.debug("--> {}", lastValue);
 	}
 

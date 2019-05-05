@@ -1,3 +1,19 @@
+/*
+ * This file is part of Macchiato.
+ *
+ * Macchiato is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * Macchiato is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package net.cadrian.macchiato.interpreter.objects;
 
 import java.util.regex.Matcher;
@@ -58,7 +74,7 @@ public class MacMatcher implements MacObject {
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacComparable.class };
 		private static final String[] ARG_NAMES = { "group" };
 
-		protected GroupMethod(Ruleset ruleset) {
+		protected GroupMethod(final Ruleset ruleset) {
 			super(ruleset);
 		}
 
@@ -68,14 +84,14 @@ public class MacMatcher implements MacObject {
 		}
 
 		@Override
-		public void run(MacMatcher target, Context context, int position) {
+		public void run(final MacMatcher target, final Context context, final int position) {
 			final MacString result;
-			MacComparable<?> group = context.get("group");
+			final MacComparable<?> group = context.get("group");
 			if (group instanceof MacNumber) {
-				MacNumber index = (MacNumber) group;
+				final MacNumber index = (MacNumber) group;
 				result = MacString.valueOf(target.value.group(index.getValue().intValueExact()));
 			} else if (group instanceof MacString) {
-				MacString name = (MacString) group;
+				final MacString name = (MacString) group;
 				result = MacString.valueOf(target.value.group(name.getValue()));
 			} else {
 				throw new InterpreterException("invalid group value: must be a number or a string", position);

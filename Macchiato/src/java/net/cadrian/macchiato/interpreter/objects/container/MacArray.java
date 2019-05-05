@@ -22,10 +22,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.impl.Context;
+import net.cadrian.macchiato.interpreter.impl.LocalContext;
 import net.cadrian.macchiato.interpreter.objects.AbstractMethod;
 import net.cadrian.macchiato.interpreter.objects.MacBoolean;
+import net.cadrian.macchiato.interpreter.objects.MacCallable;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
@@ -124,6 +127,70 @@ public class MacArray implements MacContainer<MacNumber> {
 
 	}
 
+	private static class ForEachMethod extends AbstractMethod<MacArray> {
+
+		@SuppressWarnings("unchecked")
+		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacCallable.class };
+		private static final String[] ARG_NAMES = { "callable" };
+
+		protected ForEachMethod(final Ruleset ruleset) {
+			super(ruleset);
+		}
+
+		@Override
+		public Class<MacArray> getTargetType() {
+			return MacArray.class;
+		}
+
+		@Override
+		public void run(final MacArray target, final Context context, final int position) {
+			final MacCallable callable = context.get("callable");
+			final String[] argNames = callable.getArgNames();
+			switch (argNames.length) {
+			case 1:
+				for (final MacObject value : target.array.values()) {
+					final LocalContext c = new LocalContext(context, getRuleset());
+					c.set(argNames[0], value);
+					callable.invoke(c, position);
+				}
+				break;
+			case 2:
+				for (final Map.Entry<MacNumber, MacObject> entry : target.array.entrySet()) {
+					final LocalContext c = new LocalContext(context, getRuleset());
+					c.set(argNames[0], entry.getKey());
+					c.set(argNames[1], entry.getValue());
+					callable.invoke(c, position);
+				}
+				break;
+			default:
+				throw new InterpreterException(
+						"invalid 'forEach' function call: the function must have exactly one or two arguments",
+						position);
+			}
+		}
+
+		@Override
+		public String name() {
+			return "forEach";
+		}
+
+		@Override
+		public Class<? extends MacObject>[] getArgTypes() {
+			return ARG_TYPES;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_NAMES;
+		}
+
+		@Override
+		public Class<? extends MacObject> getResultType() {
+			return null;
+		}
+
+	};
+
 	private final Map<MacNumber, MacObject> array = new TreeMap<>();
 
 	@Override
@@ -153,6 +220,8 @@ public class MacArray implements MacContainer<MacNumber> {
 			return new SizeMethod(ruleset);
 		case "has":
 			return new HasMethod(ruleset);
+		case "forEach":
+			return new ForEachMethod(ruleset);
 		}
 		return null;
 	}
