@@ -43,6 +43,7 @@ import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Binary;
 import net.cadrian.macchiato.ruleset.ast.expression.Binary.Operator;
+import net.cadrian.macchiato.ruleset.ast.expression.ExistsExpression;
 import net.cadrian.macchiato.ruleset.ast.expression.FunctionCall;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 import net.cadrian.macchiato.ruleset.ast.expression.IndexedExpression;
@@ -917,7 +918,12 @@ public class Parser {
 
 	private Expression parseAtomicExpressionWithSuffix() {
 		LOGGER.debug("<-- {}", buffer.position());
-		final Expression result = parseIdentifierSuffix(parseAtomicExpression());
+		Expression result = parseIdentifierSuffix(parseAtomicExpression());
+		buffer.skipBlanks();
+		final int position = buffer.position();
+		if (readKeyword("exists")) {
+			result = new ExistsExpression(position, result);
+		}
 		LOGGER.debug("--> {}", result);
 		return result;
 	}
@@ -1331,6 +1337,7 @@ public class Parser {
 		case "do":
 		case "else":
 		case "emit":
+		case "exists":
 		case "false":
 		case "for":
 		case "if":

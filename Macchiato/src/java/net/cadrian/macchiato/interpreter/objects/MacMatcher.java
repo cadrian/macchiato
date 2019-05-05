@@ -87,6 +87,9 @@ public class MacMatcher implements MacObject {
 		public void run(final MacMatcher target, final Context context, final int position) {
 			final MacString result;
 			final MacComparable<?> group = context.get("group");
+			if (group == null) {
+				throw new InterpreterException("group does not exist", position);
+			}
 			if (group instanceof MacNumber) {
 				final MacNumber index = (MacNumber) group;
 				result = MacString.valueOf(target.value.group(index.getValue().intValueExact()));

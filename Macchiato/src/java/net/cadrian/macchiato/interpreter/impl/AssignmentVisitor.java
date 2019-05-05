@@ -28,6 +28,7 @@ import net.cadrian.macchiato.interpreter.objects.container.MacContainer;
 import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.expression.CheckedExpression;
+import net.cadrian.macchiato.ruleset.ast.expression.ExistsExpression;
 import net.cadrian.macchiato.ruleset.ast.expression.ExpressionVisitor;
 import net.cadrian.macchiato.ruleset.ast.expression.FunctionCall;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
@@ -71,6 +72,11 @@ class AssignmentVisitor implements ExpressionVisitor {
 		LOGGER.debug("<-- {}", e);
 		e.getToCheck().accept(this);
 		LOGGER.debug("-->");
+	}
+
+	@Override
+	public void visitExistsExpression(final ExistsExpression existsExpression) {
+		throw new InterpreterException("Invalid left-side assignment", existsExpression.position());
 	}
 
 	@Override
@@ -187,7 +193,7 @@ class AssignmentVisitor implements ExpressionVisitor {
 			setter = new DictionarySetter((MacDictionary) previousValue, indexedSetter, (MacString) index);
 			previousValue = previousValue == null ? null : ((MacDictionary) previousValue).get((MacString) index);
 		} else if (index == null) {
-			throw new InterpreterException("Cannot use inexistent index", indexedExpression.position());
+			throw new InterpreterException("Cannot assign: index does not exist", indexedExpression.position());
 		} else {
 			throw new InterpreterException("Cannot use " + index.getClass().getSimpleName() + " as index",
 					indexedExpression.position());
@@ -202,8 +208,7 @@ class AssignmentVisitor implements ExpressionVisitor {
 
 	@Override
 	public void visitManifestBoolean(final ManifestBoolean manifestBoolean) {
-		// TODO Auto-generated method stub
-
+		throw new InterpreterException("Invalid left-side assignment", manifestBoolean.position());
 	}
 
 	@Override

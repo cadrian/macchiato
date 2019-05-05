@@ -34,6 +34,7 @@ import net.cadrian.macchiato.interpreter.objects.container.MacArray;
 import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.expression.CheckedExpression;
+import net.cadrian.macchiato.ruleset.ast.expression.ExistsExpression;
 import net.cadrian.macchiato.ruleset.ast.expression.ExpressionVisitor;
 import net.cadrian.macchiato.ruleset.ast.expression.FunctionCall;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
@@ -71,7 +72,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		typedUnary.getOperand().accept(this);
 		final MacObject operand = lastValue;
 		if (operand == null) {
-			throw new InterpreterException("invalid null expression", typedUnary.getOperand().position());
+			throw new InterpreterException("expression does not exist", typedUnary.getOperand().position());
 		}
 		switch (typedUnary.getOperator()) {
 		case NOT:
@@ -99,7 +100,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		typedBinary.getLeftOperand().accept(this);
 		final MacObject left = lastValue;
 		if (left == null) {
-			throw new InterpreterException("invalid null left expression", typedBinary.getLeftOperand().position());
+			throw new InterpreterException("left expression does not exist", typedBinary.getLeftOperand().position());
 		}
 		switch (typedBinary.getOperator()) {
 		case ADD:
@@ -107,6 +108,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
+			if (lastValue == null) {
+				throw new InterpreterException("right expression does not exist",
+						typedBinary.getLeftOperand().position());
+			}
 			if (lastValue.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types", typedBinary.getLeftOperand().position());
 			}
@@ -124,6 +129,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			}
 			if (MacBoolean.TRUE.equals(lastValue)) {
 				typedBinary.getRightOperand().accept(this);
+				if (lastValue == null) {
+					throw new InterpreterException("right expression does not exist",
+							typedBinary.getLeftOperand().position());
+				}
 				if (!(lastValue instanceof MacBoolean)) {
 					throw new InterpreterException("invalid right operand type",
 							typedBinary.getLeftOperand().position());
@@ -135,6 +144,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
+			if (lastValue == null) {
+				throw new InterpreterException("right expression does not exist",
+						typedBinary.getLeftOperand().position());
+			}
 			if (!(lastValue instanceof MacNumber)) {
 				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
 			}
@@ -142,6 +155,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			break;
 		case EQ:
 			typedBinary.getRightOperand().accept(this);
+			if (lastValue == null) {
+				throw new InterpreterException("right expression does not exist",
+						typedBinary.getLeftOperand().position());
+			}
 			lastValue = MacBoolean.valueOf(left.equals(lastValue));
 			break;
 		case GE:
@@ -149,6 +166,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
+			if (lastValue == null) {
+				throw new InterpreterException("right expression does not exist",
+						typedBinary.getLeftOperand().position());
+			}
 			if (lastValue.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types", typedBinary.getLeftOperand().position());
 			}
@@ -159,6 +180,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
+			if (lastValue == null) {
+				throw new InterpreterException("right expression does not exist",
+						typedBinary.getLeftOperand().position());
+			}
 			if (lastValue.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types", typedBinary.getLeftOperand().position());
 			}
@@ -169,6 +194,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
+			if (lastValue == null) {
+				throw new InterpreterException("right expression does not exist",
+						typedBinary.getLeftOperand().position());
+			}
 			if (lastValue.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types", typedBinary.getLeftOperand().position());
 			}
@@ -179,6 +208,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
+			if (lastValue == null) {
+				throw new InterpreterException("right expression does not exist",
+						typedBinary.getLeftOperand().position());
+			}
 			if (lastValue.getClass() != left.getClass()) {
 				throw new InterpreterException("incompatible types", typedBinary.getLeftOperand().position());
 			}
@@ -189,6 +222,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
+			if (lastValue == null) {
+				throw new InterpreterException("right expression does not exist",
+						typedBinary.getLeftOperand().position());
+			}
 			if (!(lastValue instanceof MacPattern)) {
 				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
 			}
@@ -199,6 +236,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
+			if (lastValue == null) {
+				throw new InterpreterException("right expression does not exist",
+						typedBinary.getLeftOperand().position());
+			}
 			if (!(lastValue instanceof MacNumber)) {
 				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
 			}
@@ -206,6 +247,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			break;
 		case NE:
 			typedBinary.getRightOperand().accept(this);
+			if (lastValue == null) {
+				throw new InterpreterException("right expression does not exist",
+						typedBinary.getLeftOperand().position());
+			}
 			lastValue = MacBoolean.valueOf(!left.equals(lastValue));
 			break;
 		case OR:
@@ -214,6 +259,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			}
 			if (MacBoolean.FALSE.equals(lastValue)) {
 				typedBinary.getRightOperand().accept(this);
+				if (lastValue == null) {
+					throw new InterpreterException("right expression does not exist",
+							typedBinary.getLeftOperand().position());
+				}
 				if (!(lastValue instanceof MacBoolean)) {
 					throw new InterpreterException("invalid right operand type",
 							typedBinary.getLeftOperand().position());
@@ -225,6 +274,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
+			if (lastValue == null) {
+				throw new InterpreterException("right expression does not exist",
+						typedBinary.getLeftOperand().position());
+			}
 			if (!(lastValue instanceof MacNumber)) {
 				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
 			}
@@ -235,6 +288,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
+			if (lastValue == null) {
+				throw new InterpreterException("right expression does not exist",
+						typedBinary.getLeftOperand().position());
+			}
 			if (!(lastValue instanceof MacNumber)) {
 				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
 			}
@@ -245,6 +302,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
+			if (lastValue == null) {
+				throw new InterpreterException("right expression does not exist",
+						typedBinary.getLeftOperand().position());
+			}
 			if (!(lastValue instanceof MacNumber)) {
 				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
 			}
@@ -255,6 +316,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
+			if (lastValue == null) {
+				throw new InterpreterException("right expression does not exist",
+						typedBinary.getLeftOperand().position());
+			}
 			if (!(lastValue instanceof MacBoolean)) {
 				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
 			}
@@ -328,10 +393,13 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		indexedExpression.getIndexed().accept(this);
 		final MacObject target = lastValue;
 		if (target == null) {
-			throw new InterpreterException("invalid target", indexedExpression.getIndexed().position());
+			throw new InterpreterException("target does not exist", indexedExpression.getIndexed().position());
 		}
 		indexedExpression.getIndex().accept(this);
 		final MacObject index = lastValue;
+		if (index == null) {
+			throw new InterpreterException("index does not exist", indexedExpression.getIndex().position());
+		}
 		if (index instanceof MacNumber) {
 			if (!(target instanceof MacArray)) {
 				throw new InterpreterException("invalid target type", indexedExpression.getIndexed().position());
@@ -367,7 +435,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (function != null) {
 				lastValue = new MacCallable(function);
 			} else {
-				throw new InterpreterException(name + " does not exist", identifier.position());
+				lastValue = null;
 			}
 		}
 		LOGGER.debug("--> {}", lastValue);
@@ -389,14 +457,14 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			throw new InterpreterException("unknown function " + functionCall.getName(), position);
 		}
 		if (fn.getResultType() == null) {
-			throw new InterpreterException("cannot assign this function: no result", position);
+			throw new InterpreterException("cannot assign this function because it does not return anything", position);
 		}
 		final LocalContext callContext = new LocalContext(context, fn.getRuleset());
 		final String[] argNames = fn.getArgNames();
 		final Class<? extends MacObject>[] argTypes = fn.getArgTypes();
 		final List<Expression> arguments = functionCall.getArguments();
 		if (argNames.length != arguments.size()) {
-			throw new InterpreterException("invalid parameters", position);
+			throw new InterpreterException("invalid parameters (wrong arguments count)", position);
 		}
 		for (int i = 0; i < argNames.length; i++) {
 			final Expression argument = arguments.get(i);
@@ -411,12 +479,20 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	}
 
 	@Override
-	public void visitCheckedExpression(final CheckedExpression e) {
-		LOGGER.debug("<-- {}", e);
-		e.getToCheck().accept(this);
-		if (lastValue != null && !e.getType().isAssignableFrom(lastValue.getClass())) {
-			throw new InterpreterException("bad result type: expected " + e.getType().getSimpleName() + " but got "
-					+ lastValue.getClass().getSimpleName(), e.position());
+	public void visitExistsExpression(final ExistsExpression existsExpression) {
+		LOGGER.debug("<-- {}", existsExpression);
+		existsExpression.getExpression().accept(this);
+		lastValue = MacBoolean.valueOf(lastValue != null);
+		LOGGER.debug("--> {}", lastValue);
+	}
+
+	@Override
+	public void visitCheckedExpression(final CheckedExpression checkedExpression) {
+		LOGGER.debug("<-- {}", checkedExpression);
+		checkedExpression.getToCheck().accept(this);
+		if (lastValue != null && !checkedExpression.getType().isAssignableFrom(lastValue.getClass())) {
+			throw new InterpreterException("bad result type: expected " + checkedExpression.getType().getSimpleName()
+					+ " but got " + lastValue.getClass().getSimpleName(), checkedExpression.position());
 		}
 		LOGGER.debug("--> {}", lastValue);
 	}

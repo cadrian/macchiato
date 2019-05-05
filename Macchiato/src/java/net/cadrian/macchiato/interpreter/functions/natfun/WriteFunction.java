@@ -70,12 +70,12 @@ class WriteFunction extends AbstractObjectWriterFunction implements Function {
 		LOGGER.debug("<-- {}: {}", file, value);
 
 		if (value == null) {
-			throw new InterpreterException("invalid value", position);
+			throw new InterpreterException("value does not exist", position);
 		}
 
 		try (final Writer writer = new BufferedWriter(new FileWriter(file.getValue()))) {
 			if (!writeObject(writer, value)) {
-				throw new InterpreterException("invalid value", position);
+				throw new InterpreterException("invalid value: not writable", position);
 			}
 		} catch (final IOException e) {
 			throw new InterpreterException(e.getMessage(), position, e);

@@ -123,7 +123,7 @@ public class LocalContext extends Context {
 	}
 
 	@Override
-	void declareLocal(final String name) {
+	public void declareLocal(final String name) {
 		LOGGER.debug("<-- {}", name);
 		if (!local.containsKey(name)) {
 			local.put(name, null);

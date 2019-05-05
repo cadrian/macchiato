@@ -16,9 +16,9 @@
  */
 package net.cadrian.macchiato.ruleset.ast.expression;
 
-public interface ExpressionVisitor
-		extends CheckedExpression.Visitor, FunctionCall.Visitor, Identifier.Visitor, IndexedExpression.Visitor,
-		ManifestArray.Visitor, ManifestBoolean.Visitor, ManifestDictionary.Visitor, ManifestNumeric.Visitor,
-		ManifestRegex.Visitor, ManifestString.Visitor, Result.Visitor, TypedBinary.Visitor, TypedUnary.Visitor {
+public interface ExpressionVisitor extends CheckedExpression.Visitor, ExistsExpression.Visitor, FunctionCall.Visitor,
+		Identifier.Visitor, IndexedExpression.Visitor, ManifestArray.Visitor, ManifestBoolean.Visitor,
+		ManifestDictionary.Visitor, ManifestNumeric.Visitor, ManifestRegex.Visitor, ManifestString.Visitor,
+		Result.Visitor, TypedBinary.Visitor, TypedUnary.Visitor {
 
 }
