@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.midi.message.m;
 
+import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
 
@@ -25,7 +26,7 @@ public class InstrumentNameMessage extends AbstractTextMessage {
 		void visitInstrumentName(InstrumentNameMessage message);
 	}
 
-	public InstrumentNameMessage(final String text) {
+	public InstrumentNameMessage(final MacString text) {
 		super(MetaMessageType.INSTRUMENT_NAME, text);
 	}
 

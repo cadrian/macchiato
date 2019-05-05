@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.midi.message.m;
 
+import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
 
@@ -25,7 +26,7 @@ public class CopyrightMessage extends AbstractTextMessage {
 		void visitCopyright(CopyrightMessage message);
 	}
 
-	public CopyrightMessage(final String text) {
+	public CopyrightMessage(final MacString text) {
 		super(MetaMessageType.COPYRIGHT, text);
 	}
 

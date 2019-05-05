@@ -16,11 +16,12 @@
  */
 package net.cadrian.macchiato.ruleset.ast.expression;
 
-import java.math.BigInteger;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cadrian.macchiato.interpreter.objects.MacNumber;
+import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
@@ -54,7 +55,7 @@ public class IndexedExpression implements Expression {
 	}
 
 	@Override
-	public TypedExpression typed(final Class<?> type) {
+	public TypedExpression typed(final Class<? extends MacObject> type) {
 		return new CheckedExpression(this, type);
 	}
 
@@ -83,13 +84,13 @@ public class IndexedExpression implements Expression {
 
 	@Override
 	public Expression getStaticValue() {
-		if (index.getType() == BigInteger.class) {
+		if (index.getType() == MacNumber.class) {
 			LOGGER.debug("replace indexed array by the actual element");
 			final ManifestArray array = (ManifestArray) indexed.getStaticValue();
 			final ManifestNumeric key = (ManifestNumeric) index.getStaticValue();
 			return array.getExpression(key);
 		}
-		if (index.getType() == String.class) {
+		if (index.getType() == MacString.class) {
 			LOGGER.debug("replace indexed dictionary by the actual element");
 			final ManifestDictionary dictionary = (ManifestDictionary) indexed.getStaticValue();
 			final ManifestString key = (ManifestString) index.getStaticValue();

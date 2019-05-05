@@ -20,7 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.cadrian.macchiato.container.Array;
+import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.interpreter.objects.container.MacArray;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
@@ -38,7 +39,7 @@ public class ManifestArray implements ManifestExpression<Void> {
 	}
 
 	@Override
-	public TypedExpression typed(final Class<?> type) {
+	public TypedExpression typed(final Class<? extends MacObject> type) {
 		if (type.isAssignableFrom(ManifestArray.class)) {
 			return this;
 		}
@@ -46,8 +47,8 @@ public class ManifestArray implements ManifestExpression<Void> {
 	}
 
 	@Override
-	public Class<?> getType() {
-		return Array.class;
+	public Class<? extends MacObject> getType() {
+		return MacArray.class;
 	}
 
 	@Override

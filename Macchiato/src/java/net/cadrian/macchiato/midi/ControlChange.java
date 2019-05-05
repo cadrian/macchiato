@@ -16,12 +16,18 @@
  */
 package net.cadrian.macchiato.midi;
 
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum ControlChange {
+import net.cadrian.macchiato.interpreter.Method;
+import net.cadrian.macchiato.interpreter.objects.MacBoolean;
+import net.cadrian.macchiato.interpreter.objects.MacComparable;
+import net.cadrian.macchiato.interpreter.objects.MacNumber;
+import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
+
+public enum ControlChange implements MacComparable<ControlChange> {
 	BANK(0),
 	MODULATION_WHEEL(1),
 	BREATH(2),
@@ -96,30 +102,36 @@ public enum ControlChange {
 		return Integer.toString(data);
 	}
 
-	public Object valueOf(final int midiValue) {
+	public MacObject valueOf(final int midiValue) {
 		switch (this) {
 		case DAMPER_PEDAL:
 		case PORTAMENTO:
 		case SOSTENUTO:
 		case SOFT_PEDAL:
 		case LEGATO_PEDAL:
-			return Boolean.valueOf(midiValue < 64);
+			return MacBoolean.valueOf(midiValue < 64);
 		default:
-			return BigInteger.valueOf(midiValue);
+			return MacNumber.valueOf(midiValue);
 		}
 	}
 
-	public int midiValueOf(final Object value) {
+	public int midiValueOf(final MacObject value) {
 		switch (this) {
 		case DAMPER_PEDAL:
 		case PORTAMENTO:
 		case SOSTENUTO:
 		case SOFT_PEDAL:
 		case LEGATO_PEDAL:
-			return Boolean.TRUE.equals(value) ? 127 : 0;
+			return MacBoolean.TRUE.equals(value) ? 127 : 0;
 		default:
-			return ((BigInteger) value).intValueExact();
+			return ((MacNumber) value).getValue().intValueExact();
 		}
+	}
+
+	@Override
+	public Method<? extends MacObject> getMethod(final Ruleset ruleset, final String name) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

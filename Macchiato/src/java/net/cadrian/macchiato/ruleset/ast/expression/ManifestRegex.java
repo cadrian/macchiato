@@ -18,6 +18,8 @@ package net.cadrian.macchiato.ruleset.ast.expression;
 
 import java.util.regex.Pattern;
 
+import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.interpreter.objects.MacPattern;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
@@ -36,16 +38,16 @@ public class ManifestRegex implements ManifestExpression<Pattern> {
 	}
 
 	@Override
-	public TypedExpression typed(final Class<?> type) {
-		if (type.isAssignableFrom(Pattern.class)) {
+	public TypedExpression typed(final Class<? extends MacObject> type) {
+		if (type.isAssignableFrom(MacPattern.class)) {
 			return this;
 		}
 		return null;
 	}
 
 	@Override
-	public Class<?> getType() {
-		return Pattern.class;
+	public Class<? extends MacObject> getType() {
+		return MacPattern.class;
 	}
 
 	@Override

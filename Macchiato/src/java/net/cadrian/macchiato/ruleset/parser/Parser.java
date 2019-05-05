@@ -20,15 +20,18 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.math.BigInteger;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.conf.Platform;
-import net.cadrian.macchiato.container.Container;
 import net.cadrian.macchiato.interpreter.InterpreterException;
+import net.cadrian.macchiato.interpreter.objects.MacBoolean;
+import net.cadrian.macchiato.interpreter.objects.MacComparable;
+import net.cadrian.macchiato.interpreter.objects.MacNumber;
+import net.cadrian.macchiato.interpreter.objects.MacPattern;
+import net.cadrian.macchiato.interpreter.objects.MacString;
+import net.cadrian.macchiato.interpreter.objects.container.MacContainer;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.ruleset.ast.BoundFilter;
 import net.cadrian.macchiato.ruleset.ast.ConditionFilter;
@@ -394,7 +397,7 @@ public class Parser {
 			buffer.skipBlanks();
 			if (readKeyword("at")) {
 				final Expression te = parseExpression();
-				tickExpression = te.typed(BigInteger.class);
+				tickExpression = te.typed(MacNumber.class);
 			} else {
 				tickExpression = null;
 			}
@@ -479,7 +482,7 @@ public class Parser {
 
 		buffer.skipBlanks();
 		final int p3 = buffer.position();
-		final Expression loop = parseExpression().typed(Container.class);
+		final Expression loop = parseExpression().typed(MacContainer.class);
 		if (loop == null) {
 			throw new ParserException(error("Invalid expression", p3));
 		}
@@ -593,16 +596,16 @@ public class Parser {
 
 	private Expression parseOrRight(final Expression left, final Operator operator) {
 		final Expression result;
-		final TypedExpression leftOperand = left.typed(Boolean.class);
+		final TypedExpression leftOperand = left.typed(MacBoolean.class);
 		if (leftOperand == null) {
 			throw new ParserException(error("Expected boolean expression", left.position()));
 		}
 		final Expression right = parseExpression();
-		final TypedExpression rightOperand = right.typed(Boolean.class);
+		final TypedExpression rightOperand = right.typed(MacBoolean.class);
 		if (rightOperand == null) {
 			throw new ParserException(error("Expected boolean expression", right.position()));
 		}
-		result = parseOrRight(new TypedBinary(leftOperand, operator, rightOperand, Boolean.class));
+		result = parseOrRight(new TypedBinary(leftOperand, operator, rightOperand, MacBoolean.class));
 		return result;
 	}
 
@@ -627,16 +630,16 @@ public class Parser {
 
 	private Expression parseAndRight(final Expression left, final Operator operator) {
 		final Expression result;
-		final TypedExpression leftOperand = left.typed(Boolean.class);
+		final TypedExpression leftOperand = left.typed(MacBoolean.class);
 		if (leftOperand == null) {
 			throw new ParserException(error("Expected boolean expression", left.position()));
 		}
 		final Expression right = parseExpression();
-		final TypedExpression rightOperand = right.typed(Boolean.class);
+		final TypedExpression rightOperand = right.typed(MacBoolean.class);
 		if (rightOperand == null) {
 			throw new ParserException(error("Expected boolean expression", right.position()));
 		}
-		result = parseAndRight(new TypedBinary(leftOperand, operator, rightOperand, Boolean.class));
+		result = parseAndRight(new TypedBinary(leftOperand, operator, rightOperand, MacBoolean.class));
 		return result;
 	}
 
@@ -656,26 +659,26 @@ public class Parser {
 		} else {
 			final Expression right = parseExpression();
 			if (comparator == Binary.Operator.MATCH) {
-				final TypedExpression leftOperand = left.typed(String.class);
+				final TypedExpression leftOperand = left.typed(MacString.class);
 				if (leftOperand == null) {
 					throw new ParserException(error("Expected string", left.position()));
 				}
-				final TypedExpression rightOperand = right.typed(Pattern.class);
+				final TypedExpression rightOperand = right.typed(MacPattern.class);
 				if (rightOperand == null) {
 					throw new ParserException(error("Expected regular expression", right.position()));
 				}
 				result = parseComparatorRight(
-						new TypedBinary(leftOperand, Binary.Operator.MATCH, rightOperand, Boolean.class));
+						new TypedBinary(leftOperand, Binary.Operator.MATCH, rightOperand, MacBoolean.class));
 			} else {
-				final TypedExpression leftOperand = left.typed(Comparable.class);
+				final TypedExpression leftOperand = left.typed(MacComparable.class);
 				if (leftOperand == null) {
 					throw new ParserException(error("Expected comparable expression", left.position()));
 				}
-				final TypedExpression rightOperand = right.typed(Comparable.class);
+				final TypedExpression rightOperand = right.typed(MacComparable.class);
 				if (rightOperand == null) {
 					throw new ParserException(error("Expected comparable expression", right.position()));
 				}
-				result = parseComparatorRight(new TypedBinary(leftOperand, comparator, rightOperand, Boolean.class));
+				result = parseComparatorRight(new TypedBinary(leftOperand, comparator, rightOperand, MacBoolean.class));
 			}
 		}
 		LOGGER.debug("--> {}", result);
@@ -751,34 +754,34 @@ public class Parser {
 			switch (buffer.current()) {
 			case '+': {
 				buffer.next();
-				final TypedExpression leftOperand = left.typed(Comparable.class);
+				final TypedExpression leftOperand = left.typed(MacComparable.class);
 				if (leftOperand == null) {
 					throw new ParserException(error("Expected comparable expression", left.position()));
 				}
 				final Expression right = parseExpression();
-				final TypedExpression rightOperand = right.typed(Comparable.class);
+				final TypedExpression rightOperand = right.typed(MacComparable.class);
 				if (rightOperand == null) {
 					throw new ParserException(error("Expected comparable expression", right.position()));
 				}
 				@SuppressWarnings("rawtypes")
-				final Class<Comparable> resultType = Comparable.class;
+				final Class<MacComparable> resultType = MacComparable.class;
 				result = parseAdditionRight(
 						new TypedBinary(leftOperand, Binary.Operator.ADD, rightOperand, resultType));
 				break;
 			}
 			case '-': {
 				buffer.next();
-				final TypedExpression leftOperand = left.typed(BigInteger.class);
+				final TypedExpression leftOperand = left.typed(MacNumber.class);
 				if (leftOperand == null) {
 					throw new ParserException(error("Expected numeric expression", left.position()));
 				}
 				final Expression right = parseExpression();
-				final TypedExpression rightOperand = right.typed(BigInteger.class);
+				final TypedExpression rightOperand = right.typed(MacNumber.class);
 				if (rightOperand == null) {
 					throw new ParserException(error("Expected numeric expression", right.position()));
 				}
 				result = parseAdditionRight(
-						new TypedBinary(leftOperand, Binary.Operator.SUBTRACT, rightOperand, BigInteger.class));
+						new TypedBinary(leftOperand, Binary.Operator.SUBTRACT, rightOperand, MacNumber.class));
 				break;
 			}
 			default:
@@ -821,17 +824,17 @@ public class Parser {
 				result = left;
 			} else {
 				buffer.next();
-				final TypedExpression leftOperand = left.typed(BigInteger.class);
+				final TypedExpression leftOperand = left.typed(MacNumber.class);
 				if (leftOperand == null) {
 					throw new ParserException(error("Expected comparable expression", left.position()));
 				}
 				final Expression right = parseExpression();
-				final TypedExpression rightOperand = right.typed(BigInteger.class);
+				final TypedExpression rightOperand = right.typed(MacNumber.class);
 				if (rightOperand == null) {
 					throw new ParserException(error("Expected comparable expression", right.position()));
 				}
 				result = parseMultiplicationRight(
-						new TypedBinary(leftOperand, operator, rightOperand, BigInteger.class));
+						new TypedBinary(leftOperand, operator, rightOperand, MacNumber.class));
 			}
 		}
 		LOGGER.debug("--> {}", result);
@@ -852,16 +855,16 @@ public class Parser {
 		if (buffer.off() || buffer.current() != '^') {
 			result = left;
 		} else {
-			final TypedExpression leftOperand = left.typed(BigInteger.class);
+			final TypedExpression leftOperand = left.typed(MacNumber.class);
 			if (leftOperand == null) {
 				throw new ParserException(error("Expected numeric expression", left.position()));
 			}
 			final Expression right = parsePowerRight(parsePowerLeft());
-			final TypedExpression rightOperand = right.typed(BigInteger.class);
+			final TypedExpression rightOperand = right.typed(MacNumber.class);
 			if (rightOperand == null) {
 				throw new ParserException(error("Expected comparable expression", right.position()));
 			}
-			result = new TypedBinary(leftOperand, Binary.Operator.POWER, rightOperand, BigInteger.class);
+			result = new TypedBinary(leftOperand, Binary.Operator.POWER, rightOperand, MacNumber.class);
 		}
 		LOGGER.debug("--> {}", result);
 		return result;
@@ -877,17 +880,17 @@ public class Parser {
 		final int position = buffer.position();
 		if (readKeyword("not")) {
 			final Expression operand = parseUnary();
-			final TypedExpression typedOperand = operand.typed(Boolean.class);
+			final TypedExpression typedOperand = operand.typed(MacBoolean.class);
 			if (typedOperand == null) {
 				throw new ParserException(error("Expected boolean expression", operand.position()));
 			}
-			result = new TypedUnary(position, Unary.Operator.NOT, typedOperand, Boolean.class);
+			result = new TypedUnary(position, Unary.Operator.NOT, typedOperand, MacBoolean.class);
 		} else {
 			switch (buffer.current()) {
 			case '+': {
 				buffer.next();
 				final Expression operand = parseUnary();
-				final TypedExpression typedOperand = operand.typed(BigInteger.class);
+				final TypedExpression typedOperand = operand.typed(MacNumber.class);
 				if (typedOperand == null) {
 					throw new ParserException(error("Expected comparable expression", operand.position()));
 				}
@@ -897,11 +900,11 @@ public class Parser {
 			case '-':
 				buffer.next(); {
 				final Expression operand = parseUnary();
-				final TypedExpression typedOperand = operand.typed(BigInteger.class);
+				final TypedExpression typedOperand = operand.typed(MacNumber.class);
 				if (typedOperand == null) {
 					throw new ParserException(error("Expected comparable expression", operand.position()));
 				}
-				result = new TypedUnary(position, Unary.Operator.MINUS, typedOperand, BigInteger.class);
+				result = new TypedUnary(position, Unary.Operator.MINUS, typedOperand, MacNumber.class);
 				break;
 			}
 			default:
@@ -1061,7 +1064,7 @@ public class Parser {
 			throw new ParserException(error("Missing closing bracket"));
 		}
 		buffer.next();
-		final TypedExpression typedIndex = index.typed(Comparable.class);
+		final TypedExpression typedIndex = index.typed(MacComparable.class);
 		if (typedIndex == null) {
 			throw new ParserException(error("Expected numeric or string index", index.position()));
 		}
@@ -1155,7 +1158,7 @@ public class Parser {
 					throw new ParserException(error("Invalid dictionary", buffer.position()));
 				}
 				buffer.next();
-				final TypedExpression typedKey = key.typed(Comparable.class);
+				final TypedExpression typedKey = key.typed(MacComparable.class);
 				if (typedKey == null) {
 					throw new ParserException(error("Invalid dictionary key", key.position()));
 				}
@@ -1260,7 +1263,7 @@ public class Parser {
 		} else {
 			buffer.rewind(p1);
 			final Expression expr = parseExpression();
-			final TypedExpression condition = expr.typed(Boolean.class);
+			final TypedExpression condition = expr.typed(MacBoolean.class);
 			if (condition == null) {
 				throw new ParserException(error("Expected boolean condition", expr.position()));
 			}

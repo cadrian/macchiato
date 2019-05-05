@@ -16,11 +16,12 @@
  */
 package net.cadrian.macchiato.ruleset.ast;
 
+import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
 
 public interface Expression extends Node {
 
-	TypedExpression typed(Class<?> type);
+	TypedExpression typed(Class<? extends MacObject> type);
 
 	Expression simplify();
 

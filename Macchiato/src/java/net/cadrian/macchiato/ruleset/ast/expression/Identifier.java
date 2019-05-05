@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.ruleset.ast.expression;
 
+import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
@@ -37,7 +38,7 @@ public class Identifier implements Expression {
 	}
 
 	@Override
-	public TypedExpression typed(final Class<?> type) {
+	public TypedExpression typed(final Class<? extends MacObject> type) {
 		return new CheckedExpression(this, type);
 	}
 

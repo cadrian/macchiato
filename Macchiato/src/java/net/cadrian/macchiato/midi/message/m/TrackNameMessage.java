@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.midi.message.m;
 
+import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
 
@@ -25,7 +26,7 @@ public class TrackNameMessage extends AbstractTextMessage {
 		void visitTrackName(TrackNameMessage message);
 	}
 
-	public TrackNameMessage(final String text) {
+	public TrackNameMessage(final MacString text) {
 		super(MetaMessageType.TRACK_NAME, text);
 	}
 

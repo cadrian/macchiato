@@ -20,12 +20,17 @@ import java.math.BigInteger;
 
 import javax.sound.midi.InvalidMidiDataException;
 
-import net.cadrian.macchiato.interpreter.AbstractEvent;
-import net.cadrian.macchiato.interpreter.MetaEvent;
+import net.cadrian.macchiato.interpreter.Event;
+import net.cadrian.macchiato.interpreter.Method;
+import net.cadrian.macchiato.interpreter.event.MetaEvent;
+import net.cadrian.macchiato.interpreter.objects.MacComparable;
+import net.cadrian.macchiato.interpreter.objects.MacNumber;
+import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
-public abstract class MetaMessage implements Message<javax.sound.midi.MetaMessage> {
+public abstract class MetaMessage implements MacComparable<MetaMessage>, Message<javax.sound.midi.MetaMessage> {
 
 	private final MetaMessageType messageType;
 
@@ -38,12 +43,23 @@ public abstract class MetaMessage implements Message<javax.sound.midi.MetaMessag
 	}
 
 	@Override
-	public AbstractEvent<javax.sound.midi.MetaMessage> toEvent(final BigInteger tick) {
+	public Event<javax.sound.midi.MetaMessage> toEvent(final BigInteger tick) {
 		try {
-			return new MetaEvent(tick, messageType, messageType.createMidiMessage(this));
+			return new MetaEvent(MacNumber.valueOf(tick), messageType, messageType.createMidiMessage(this));
 		} catch (final InvalidMidiDataException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public Method<? extends MacObject> getMethod(final Ruleset ruleset, final String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int compareTo(final MetaMessage other) {
+		return messageType.compareTo(other.messageType);
 	}
 
 }

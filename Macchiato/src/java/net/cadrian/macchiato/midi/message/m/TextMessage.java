@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.midi.message.m;
 
+import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
 
@@ -25,7 +26,7 @@ public class TextMessage extends AbstractTextMessage {
 		void visitText(TextMessage message);
 	}
 
-	public TextMessage(final String text) {
+	public TextMessage(final MacString text) {
 		super(MetaMessageType.TEXT, text);
 	}
 

@@ -16,6 +16,8 @@
  */
 package net.cadrian.macchiato.ruleset.ast.expression;
 
+import net.cadrian.macchiato.interpreter.objects.MacBoolean;
+import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
@@ -34,16 +36,16 @@ public class ManifestBoolean implements ManifestExpression<Boolean> {
 	}
 
 	@Override
-	public TypedExpression typed(final Class<?> type) {
-		if (type.isAssignableFrom(Boolean.class)) {
+	public TypedExpression typed(final Class<? extends MacObject> type) {
+		if (type.isAssignableFrom(MacBoolean.class)) {
 			return this;
 		}
 		return null;
 	}
 
 	@Override
-	public Class<?> getType() {
-		return Boolean.class;
+	public Class<? extends MacObject> getType() {
+		return MacBoolean.class;
 	}
 
 	@Override

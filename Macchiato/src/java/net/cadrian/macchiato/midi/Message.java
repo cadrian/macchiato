@@ -20,15 +20,24 @@ import java.math.BigInteger;
 
 import javax.sound.midi.MidiMessage;
 
-import net.cadrian.macchiato.interpreter.AbstractEvent;
+import net.cadrian.macchiato.interpreter.Event;
+import net.cadrian.macchiato.interpreter.Method;
+import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
-public interface Message<M extends MidiMessage> {
+public interface Message<M extends MidiMessage> extends MacObject {
 
 	interface Visitor {
 	}
 
 	void accept(Visitor v);
 
-	AbstractEvent<M> toEvent(BigInteger tick);
+	Event<M> toEvent(BigInteger tick);
+
+	@Override
+	default Method<? extends MacObject> getMethod(final Ruleset ruleset, final String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

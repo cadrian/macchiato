@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.midi.message.m;
 
+import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
 
@@ -25,7 +26,7 @@ public class CuePointMessage extends AbstractTextMessage {
 		void visitCuePoint(CuePointMessage message);
 	}
 
-	public CuePointMessage(final String text) {
+	public CuePointMessage(final MacString text) {
 		super(MetaMessageType.CUE_POINT, text);
 	}
 

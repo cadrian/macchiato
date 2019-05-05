@@ -16,20 +16,10 @@
  */
 package net.cadrian.macchiato.interpreter;
 
-import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.interpreter.impl.Context;
 
-public interface Function {
-
-	String name();
-
-	Class<?>[] getArgTypes();
-
-	String[] getArgNames();
-
-	Class<?> getResultType();
+public interface Function extends Callable {
 
 	void run(final Context context, int position);
-
-	Ruleset getRuleset();
 
 }

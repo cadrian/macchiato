@@ -28,8 +28,8 @@ import java.io.Reader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.cadrian.macchiato.interpreter.Interpreter;
 import net.cadrian.macchiato.interpreter.InterpreterException;
+import net.cadrian.macchiato.interpreter.impl.Interpreter;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.parser.Parser;
 
@@ -39,12 +39,14 @@ public class Run {
 
 	public static void main(final String[] args) {
 		if (args.length < 1) {
-			System.err.println("Usage: " + Run.class.getSimpleName() + " <mac file> (<midi file>)");
+			System.err.println("Usage: " + Run.class.getSimpleName()
+					+ " <mac file> (<midi input file>) (<midi output file>) [-- <program arguments>]");
 			System.exit(1);
 		}
 
 		try {
-			final String rulesetName = args[0];
+			final String rulesetName = getRulesetName(args);
+			final String midiInputName = getMidiInputName(args);
 			final File rulesetFile = new File(rulesetName);
 			final Parser parser;
 			final Ruleset ruleset;
@@ -56,15 +58,16 @@ public class Run {
 			LOGGER.debug("Parsed ruleset: {}", ruleset);
 			try {
 				final Interpreter interpreter = new Interpreter(ruleset);
-				if (args.length > 1) {
-					try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(args[1]))) {
+				if (midiInputName != null) {
+					final String midiOutputName = getMidiOutputName(args);
+					try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(midiInputName))) {
 						try (final BufferedOutputStream out = new BufferedOutputStream(
-								new FileOutputStream(args[1] + ".out.mid"))) {
-							interpreter.run(in, out);
+								new FileOutputStream(midiOutputName))) {
+							interpreter.run(in, out, getProgramArgs(args));
 						}
 					}
 				} else {
-					interpreter.run();
+					interpreter.run(getProgramArgs(args));
 				}
 			} catch (final InterpreterException e) {
 				System.err.println(parser.error(e));
@@ -74,6 +77,36 @@ public class Run {
 			e.printStackTrace();
 			System.exit(1);
 		}
+	}
+
+	private static String getRulesetName(final String[] args) {
+		return args[0];
+	}
+
+	private static String getMidiInputName(final String[] args) {
+		if (args.length > 1 && !"--".equals(args[1])) {
+			return args[1];
+		}
+		return null;
+	}
+
+	private static String getMidiOutputName(final String[] args) {
+		assert getMidiInputName(args) != null;
+		if (args.length > 2 && !"--".equals(args[2])) {
+			return args[2];
+		}
+		return args[1] + ".out.mid";
+	}
+
+	private static String[] getProgramArgs(final String[] args) {
+		for (int i = 0; i < args.length; i++) {
+			if ("--".equals(args[i])) {
+				final String[] result = new String[args.length - i - 1];
+				System.arraycopy(args, i + 1, result, 0, result.length);
+				return result;
+			}
+		}
+		return new String[0];
 	}
 
 }

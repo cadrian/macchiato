@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.midi.message.m;
 
+import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
 
@@ -25,7 +26,7 @@ public class MarkerTextMessage extends AbstractTextMessage {
 		void visitMarkerText(MarkerTextMessage message);
 	}
 
-	public MarkerTextMessage(final String text) {
+	public MarkerTextMessage(final MacString text) {
 		super(MetaMessageType.MARKER_TEXT, text);
 	}
 

@@ -16,19 +16,20 @@
  */
 package net.cadrian.macchiato.midi.message.m;
 
+import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.message.MetaMessage;
 
 abstract class AbstractTextMessage extends MetaMessage {
 
-	protected final String text;
+	protected final MacString text;
 
-	public AbstractTextMessage(final MetaMessageType messageType, final String text) {
+	public AbstractTextMessage(final MetaMessageType messageType, final MacString text) {
 		super(messageType);
 		this.text = text;
 	}
 
-	public String getText() {
+	public MacString getText() {
 		return text;
 	}
 

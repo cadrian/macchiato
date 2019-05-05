@@ -17,6 +17,7 @@
 package net.cadrian.macchiato.ruleset.ast.expression;
 
 import net.cadrian.macchiato.interpreter.InterpreterException;
+import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
@@ -26,16 +27,16 @@ public class CheckedExpression implements TypedExpression {
 		void visitCheckedExpression(CheckedExpression e);
 	}
 
-	private final Class<?> type;
+	private final Class<? extends MacObject> type;
 	private final Expression toCheck;
 
-	public CheckedExpression(final Expression toCheck, final Class<?> type) {
+	public CheckedExpression(final Expression toCheck, final Class<? extends MacObject> type) {
 		this.toCheck = toCheck;
 		this.type = type;
 	}
 
 	@Override
-	public TypedExpression typed(final Class<?> type) {
+	public TypedExpression typed(final Class<? extends MacObject> type) {
 		return new CheckedExpression(toCheck, type);
 	}
 
@@ -45,7 +46,7 @@ public class CheckedExpression implements TypedExpression {
 	}
 
 	@Override
-	public Class<?> getType() {
+	public Class<? extends MacObject> getType() {
 		return type;
 	}
 

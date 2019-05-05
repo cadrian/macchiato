@@ -24,7 +24,12 @@ import java.util.Map;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 
-import net.cadrian.macchiato.container.Dictionary;
+import net.cadrian.macchiato.interpreter.Method;
+import net.cadrian.macchiato.interpreter.objects.MacComparable;
+import net.cadrian.macchiato.interpreter.objects.MacNumber;
+import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.interpreter.objects.MacString;
+import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
 import net.cadrian.macchiato.midi.message.m.CopyrightMessage;
 import net.cadrian.macchiato.midi.message.m.CuePointMessage;
 import net.cadrian.macchiato.midi.message.m.EndOfTrackMessage;
@@ -38,8 +43,9 @@ import net.cadrian.macchiato.midi.message.m.TempoMessage;
 import net.cadrian.macchiato.midi.message.m.TextMessage;
 import net.cadrian.macchiato.midi.message.m.TimeSignatureMessage;
 import net.cadrian.macchiato.midi.message.m.TrackNameMessage;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
-public enum MetaMessageType {
+public enum MetaMessageType implements MacComparable<MetaMessageType> {
 	SEQUENCE_NUMBER(0x00) {
 		@Override
 		public String toString(final byte[] data) {
@@ -58,13 +64,13 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
 			final SequenceNumberMessage e = (SequenceNumberMessage) message;
-			messageData.set("sequence", BigInteger.valueOf(e.getSequence()));
+			messageData.set(MacString.valueOf("sequence"), MacNumber.valueOf(e.getSequence()));
 		}
 
 		@Override
-		public Class<?>[] getArgTypes() {
+		public Class<? extends MacObject>[] getArgTypes() {
 			return TYPE_INT1;
 		}
 
@@ -74,9 +80,9 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message<MetaMessage> create(final Object... args) {
-			final BigInteger sequence = (BigInteger) args[0];
-			return new SequenceNumberMessage(sequence.intValueExact());
+		public Message<MetaMessage> create(final MacObject... args) {
+			final MacNumber sequence = (MacNumber) args[0];
+			return new SequenceNumberMessage(sequence.getValue().intValueExact());
 		}
 	},
 	TEXT(0x01) {
@@ -87,24 +93,24 @@ public enum MetaMessageType {
 
 		@Override
 		public Message<MetaMessage> createMessage(final byte[] data) {
-			return new TextMessage(new String(data));
+			return new TextMessage(MacString.valueOf(new String(data)));
 		}
 
 		@Override
 		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final TextMessage m = (TextMessage) message;
-			final byte[] data = m.getText().getBytes();
+			final byte[] data = m.getText().getValue().getBytes();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
 			final TextMessage m = (TextMessage) message;
-			messageData.set("text", m.getText());
+			messageData.set(MacString.valueOf("text"), m.getText());
 		}
 
 		@Override
-		public Class<?>[] getArgTypes() {
+		public Class<? extends MacObject>[] getArgTypes() {
 			return TYPE_STR1;
 		}
 
@@ -114,8 +120,8 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message<MetaMessage> create(final Object... args) {
-			final String text = (String) args[0];
+		public Message<MetaMessage> create(final MacObject... args) {
+			final MacString text = (MacString) args[0];
 			return new TextMessage(text);
 		}
 	},
@@ -127,24 +133,24 @@ public enum MetaMessageType {
 
 		@Override
 		public Message<MetaMessage> createMessage(final byte[] data) {
-			return new CopyrightMessage(new String(data));
+			return new CopyrightMessage(MacString.valueOf(new String(data)));
 		}
 
 		@Override
 		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final CopyrightMessage m = (CopyrightMessage) message;
-			final byte[] data = m.getText().getBytes();
+			final byte[] data = m.getText().getValue().getBytes();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
 			final CopyrightMessage m = (CopyrightMessage) message;
-			messageData.set("text", m.getText());
+			messageData.set(MacString.valueOf("text"), m.getText());
 		}
 
 		@Override
-		public Class<?>[] getArgTypes() {
+		public Class<? extends MacObject>[] getArgTypes() {
 			return TYPE_STR1;
 		}
 
@@ -154,8 +160,8 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message<MetaMessage> create(final Object... args) {
-			final String text = (String) args[0];
+		public Message<MetaMessage> create(final MacObject... args) {
+			final MacString text = (MacString) args[0];
 			return new CopyrightMessage(text);
 		}
 	},
@@ -167,24 +173,24 @@ public enum MetaMessageType {
 
 		@Override
 		public Message<MetaMessage> createMessage(final byte[] data) {
-			return new TrackNameMessage(new String(data));
+			return new TrackNameMessage(MacString.valueOf(new String(data)));
 		}
 
 		@Override
 		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final TrackNameMessage m = (TrackNameMessage) message;
-			final byte[] data = m.getText().getBytes();
+			final byte[] data = m.getText().getValue().getBytes();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
 			final TrackNameMessage m = (TrackNameMessage) message;
-			messageData.set("text", m.getText());
+			messageData.set(MacString.valueOf("text"), m.getText());
 		}
 
 		@Override
-		public Class<?>[] getArgTypes() {
+		public Class<? extends MacObject>[] getArgTypes() {
 			return TYPE_STR1;
 		}
 
@@ -194,8 +200,8 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message<MetaMessage> create(final Object... args) {
-			final String text = (String) args[0];
+		public Message<MetaMessage> create(final MacObject... args) {
+			final MacString text = (MacString) args[0];
 			return new TrackNameMessage(text);
 		}
 	},
@@ -207,24 +213,24 @@ public enum MetaMessageType {
 
 		@Override
 		public Message<MetaMessage> createMessage(final byte[] data) {
-			return new InstrumentNameMessage(new String(data));
+			return new InstrumentNameMessage(MacString.valueOf(new String(data)));
 		}
 
 		@Override
 		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final InstrumentNameMessage m = (InstrumentNameMessage) message;
-			final byte[] data = m.getText().getBytes();
+			final byte[] data = m.getText().getValue().getBytes();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
 			final InstrumentNameMessage m = (InstrumentNameMessage) message;
-			messageData.set("text", m.getText());
+			messageData.set(MacString.valueOf("text"), m.getText());
 		}
 
 		@Override
-		public Class<?>[] getArgTypes() {
+		public Class<? extends MacObject>[] getArgTypes() {
 			return TYPE_STR1;
 		}
 
@@ -234,8 +240,8 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message<MetaMessage> create(final Object... args) {
-			final String text = (String) args[0];
+		public Message<MetaMessage> create(final MacObject... args) {
+			final MacString text = (MacString) args[0];
 			return new InstrumentNameMessage(text);
 		}
 	},
@@ -247,24 +253,24 @@ public enum MetaMessageType {
 
 		@Override
 		public Message<MetaMessage> createMessage(final byte[] data) {
-			return new LyricsMessage(new String(data));
+			return new LyricsMessage(MacString.valueOf(new String(data)));
 		}
 
 		@Override
 		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final LyricsMessage m = (LyricsMessage) message;
-			final byte[] data = m.getText().getBytes();
+			final byte[] data = m.getText().getValue().getBytes();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
 			final LyricsMessage m = (LyricsMessage) message;
-			messageData.set("text", m.getText());
+			messageData.set(MacString.valueOf("text"), m.getText());
 		}
 
 		@Override
-		public Class<?>[] getArgTypes() {
+		public Class<? extends MacObject>[] getArgTypes() {
 			return TYPE_STR1;
 		}
 
@@ -274,8 +280,8 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message<MetaMessage> create(final Object... args) {
-			final String text = (String) args[0];
+		public Message<MetaMessage> create(final MacObject... args) {
+			final MacString text = (MacString) args[0];
 			return new LyricsMessage(text);
 		}
 	},
@@ -287,24 +293,24 @@ public enum MetaMessageType {
 
 		@Override
 		public Message<MetaMessage> createMessage(final byte[] data) {
-			return new MarkerTextMessage(new String(data));
+			return new MarkerTextMessage(MacString.valueOf(new String(data)));
 		}
 
 		@Override
 		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final MarkerTextMessage m = (MarkerTextMessage) message;
-			final byte[] data = m.getText().getBytes();
+			final byte[] data = m.getText().getValue().getBytes();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
 			final MarkerTextMessage m = (MarkerTextMessage) message;
-			messageData.set("text", m.getText());
+			messageData.set(MacString.valueOf("text"), m.getText());
 		}
 
 		@Override
-		public Class<?>[] getArgTypes() {
+		public Class<? extends MacObject>[] getArgTypes() {
 			return TYPE_STR1;
 		}
 
@@ -314,8 +320,8 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message<MetaMessage> create(final Object... args) {
-			final String text = (String) args[0];
+		public Message<MetaMessage> create(final MacObject... args) {
+			final MacString text = (MacString) args[0];
 			return new MarkerTextMessage(text);
 		}
 	},
@@ -327,24 +333,24 @@ public enum MetaMessageType {
 
 		@Override
 		public Message<MetaMessage> createMessage(final byte[] data) {
-			return new CuePointMessage(new String(data));
+			return new CuePointMessage(MacString.valueOf(new String(data)));
 		}
 
 		@Override
 		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
 			final CuePointMessage m = (CuePointMessage) message;
-			final byte[] data = m.getText().getBytes();
+			final byte[] data = m.getText().getValue().getBytes();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
 			final CuePointMessage m = (CuePointMessage) message;
-			messageData.set("text", m.getText());
+			messageData.set(MacString.valueOf("text"), m.getText());
 		}
 
 		@Override
-		public Class<?>[] getArgTypes() {
+		public Class<? extends MacObject>[] getArgTypes() {
 			return TYPE_STR1;
 		}
 
@@ -354,8 +360,8 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message<MetaMessage> create(final Object... args) {
-			final String text = (String) args[0];
+		public Message<MetaMessage> create(final MacObject... args) {
+			final MacString text = (MacString) args[0];
 			return new CuePointMessage(text);
 		}
 	},
@@ -379,13 +385,13 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
 			// TODO Auto-generated method stub
 
 		}
 
 		@Override
-		public Class<?>[] getArgTypes() {
+		public Class<? extends MacObject>[] getArgTypes() {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -397,7 +403,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message<MetaMessage> create(final Object... args) {
+		public Message<MetaMessage> create(final MacObject... args) {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -415,18 +421,18 @@ public enum MetaMessageType {
 
 		@Override
 		public MetaMessage createMidiMessage(final Message<MetaMessage> message) throws InvalidMidiDataException {
-			final byte[] data = BigInteger.valueOf(((ModulationMessage) message).getValue()).toByteArray();
+			final byte[] data = MacNumber.valueOf(((ModulationMessage) message).getValue()).getValue().toByteArray();
 			return new MetaMessage(type, data, data.length);
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
 			final ModulationMessage e = (ModulationMessage) message;
-			messageData.set("value", BigInteger.valueOf(e.getValue()));
+			messageData.set(MacString.valueOf("value"), MacNumber.valueOf(e.getValue()));
 		}
 
 		@Override
-		public Class<?>[] getArgTypes() {
+		public Class<? extends MacObject>[] getArgTypes() {
 			return TYPE_INT1;
 		}
 
@@ -436,9 +442,9 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message<MetaMessage> create(final Object... args) {
-			final BigInteger value = (BigInteger) args[0];
-			return new ModulationMessage(value.intValueExact());
+		public Message<MetaMessage> create(final MacObject... args) {
+			final MacNumber value = (MacNumber) args[0];
+			return new ModulationMessage(value.getValue().intValueExact());
 		}
 	},
 	END_OF_TRACK(0x2F) {
@@ -459,11 +465,11 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
 		}
 
 		@Override
-		public Class<?>[] getArgTypes() {
+		public Class<? extends MacObject>[] getArgTypes() {
 			return TYPE_0;
 		}
 
@@ -473,7 +479,7 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message<MetaMessage> create(final Object... args) {
+		public Message<MetaMessage> create(final MacObject... args) {
 			return new EndOfTrackMessage();
 		}
 	},
@@ -503,13 +509,13 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
 			final TempoMessage m = (TempoMessage) message;
-			messageData.set("bpm", BigInteger.valueOf(m.getBpm()));
+			messageData.set(MacString.valueOf("bpm"), MacNumber.valueOf(m.getBpm()));
 		}
 
 		@Override
-		public Class<?>[] getArgTypes() {
+		public Class<? extends MacObject>[] getArgTypes() {
 			return TYPE_INT1;
 		}
 
@@ -519,9 +525,9 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message<MetaMessage> create(final Object... args) {
-			final BigInteger mpq = (BigInteger) args[0];
-			return new TempoMessage(mpq.intValueExact());
+		public Message<MetaMessage> create(final MacObject... args) {
+			final MacNumber mpq = (MacNumber) args[0];
+			return new TempoMessage(mpq.getValue().intValueExact());
 		}
 	},
 	TIME_SIGNATURE(0x58) {
@@ -559,16 +565,16 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
 			final TimeSignatureMessage m = (TimeSignatureMessage) message;
-			messageData.set("numerator", BigInteger.valueOf(m.getNumerator()));
-			messageData.set("denominator", BigInteger.valueOf(m.getDenominator()));
-			messageData.set("metronome", BigInteger.valueOf(m.getMetronome()));
-			messageData.set("ticks", BigInteger.valueOf(m.getTicks()));
+			messageData.set(MacString.valueOf("numerator"), MacNumber.valueOf(m.getNumerator()));
+			messageData.set(MacString.valueOf("denominator"), MacNumber.valueOf(m.getDenominator()));
+			messageData.set(MacString.valueOf("metronome"), MacNumber.valueOf(m.getMetronome()));
+			messageData.set(MacString.valueOf("ticks"), MacNumber.valueOf(m.getTicks()));
 		}
 
 		@Override
-		public Class<?>[] getArgTypes() {
+		public Class<? extends MacObject>[] getArgTypes() {
 			return TYPE_INT4;
 		}
 
@@ -578,13 +584,14 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message<MetaMessage> create(final Object... args) {
-			final BigInteger numerator = (BigInteger) args[0];
-			final BigInteger denominator = (BigInteger) args[1];
-			final BigInteger metronome = (BigInteger) args[2];
-			final BigInteger ticks = (BigInteger) args[3];
-			return new TimeSignatureMessage(numerator.byteValueExact(), denominator.byteValueExact(),
-					metronome.byteValueExact(), ticks.byteValueExact());
+		public Message<MetaMessage> create(final MacObject... args) {
+			final MacNumber numerator = (MacNumber) args[0];
+			final MacNumber denominator = (MacNumber) args[1];
+			final MacNumber metronome = (MacNumber) args[2];
+			final MacNumber ticks = (MacNumber) args[3];
+			return new TimeSignatureMessage(numerator.getValue().byteValueExact(),
+					denominator.getValue().byteValueExact(), metronome.getValue().byteValueExact(),
+					ticks.getValue().byteValueExact());
 		}
 	},
 	KEY_SIGNATURE(0x59) {
@@ -683,14 +690,14 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public void fill(final Dictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
 			final KeySignatureMessage m = (KeySignatureMessage) message;
-			messageData.set("keysig", BigInteger.valueOf(m.getKeysig()));
-			messageData.set("mode", BigInteger.valueOf(m.getMode()));
+			messageData.set(MacString.valueOf("keysig"), MacNumber.valueOf(m.getKeysig()));
+			messageData.set(MacString.valueOf("mode"), MacNumber.valueOf(m.getMode()));
 		}
 
 		@Override
-		public Class<?>[] getArgTypes() {
+		public Class<? extends MacObject>[] getArgTypes() {
 			return TYPE_INT2;
 		}
 
@@ -700,10 +707,10 @@ public enum MetaMessageType {
 		}
 
 		@Override
-		public Message<MetaMessage> create(final Object... args) {
-			final BigInteger keysig = (BigInteger) args[0];
-			final BigInteger mode = (BigInteger) args[1];
-			return new KeySignatureMessage(keysig.byteValueExact(), mode.byteValueExact());
+		public Message<MetaMessage> create(final MacObject... args) {
+			final MacNumber keysig = (MacNumber) args[0];
+			final MacNumber mode = (MacNumber) args[1];
+			return new KeySignatureMessage(keysig.getValue().byteValueExact(), mode.getValue().byteValueExact());
 		}
 	};
 
@@ -711,15 +718,20 @@ public enum MetaMessageType {
 	private static final String[] ARG_TIMESIG = new String[] { "numerator", "denominator", "metronome", "ticks" };
 	private static final String[] ARG_BPM = new String[] { "bpm" };
 	private static final String[] ARG_0 = new String[0];
-	private static final Class<?>[] TYPE_0 = new Class<?>[0];
+	@SuppressWarnings("unchecked")
+	private static final Class<? extends MacObject>[] TYPE_0 = new Class[0];
 	private static final String[] ARG_TEXT = new String[] { "text" };
-	private static final Class<?>[] TYPE_STR1 = new Class<?>[] { String.class };
+	@SuppressWarnings("unchecked")
+	private static final Class<? extends MacObject>[] TYPE_STR1 = new Class[] { String.class };
 	private static final String[] ARG_SEQUENCE = new String[] { "sequence" };
 	private static final String[] ARG_VALUE = new String[] { "value" };
-	private static final Class<?>[] TYPE_INT1 = new Class<?>[] { BigInteger.class };
-	private static final Class<?>[] TYPE_INT2 = new Class<?>[] { BigInteger.class, BigInteger.class };
-	private static final Class<?>[] TYPE_INT4 = new Class<?>[] { BigInteger.class, BigInteger.class, BigInteger.class,
-			BigInteger.class };
+	@SuppressWarnings("unchecked")
+	private static final Class<? extends MacObject>[] TYPE_INT1 = new Class[] { MacNumber.class };
+	@SuppressWarnings("unchecked")
+	private static final Class<? extends MacObject>[] TYPE_INT2 = new Class[] { MacNumber.class, MacNumber.class };
+	@SuppressWarnings("unchecked")
+	private static final Class<? extends MacObject>[] TYPE_INT4 = new Class[] { MacNumber.class, MacNumber.class,
+			MacNumber.class, MacNumber.class };
 	private static final BigInteger BPM_MPQ_FACTOR = new BigInteger("60000000");
 	private static final Map<Byte, MetaMessageType> MAP;
 	static {
@@ -746,11 +758,18 @@ public enum MetaMessageType {
 
 	public abstract MetaMessage createMidiMessage(Message<MetaMessage> message) throws InvalidMidiDataException;
 
-	public abstract void fill(final Dictionary messageData, final Message<MetaMessage> message);
+	public abstract void fill(final MacDictionary messageData, final Message<MetaMessage> message);
 
-	public abstract Class<?>[] getArgTypes();
+	public abstract Class<? extends MacObject>[] getArgTypes();
 
 	public abstract String[] getArgNames();
 
-	public abstract Message<MetaMessage> create(Object... args);
+	public abstract Message<MetaMessage> create(MacObject... args);
+
+	@Override
+	public Method<? extends MacObject> getMethod(final Ruleset ruleset, final String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

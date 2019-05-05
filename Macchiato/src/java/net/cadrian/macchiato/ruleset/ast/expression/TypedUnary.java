@@ -19,6 +19,7 @@ package net.cadrian.macchiato.ruleset.ast.expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
@@ -31,11 +32,11 @@ public class TypedUnary extends Unary implements TypedExpression {
 	}
 
 	private final TypedExpression operand;
-	private final Class<?> resultType;
+	private final Class<? extends MacObject> resultType;
 	private final int position;
 
 	public TypedUnary(final int position, final Unary.Operator operator, final TypedExpression operand,
-			final Class<?> resultType) {
+			final Class<? extends MacObject> resultType) {
 		super(operator);
 		this.position = position;
 		this.operand = operand;
@@ -47,7 +48,7 @@ public class TypedUnary extends Unary implements TypedExpression {
 	}
 
 	@Override
-	public Class<?> getType() {
+	public Class<? extends MacObject> getType() {
 		return resultType;
 	}
 
@@ -57,7 +58,7 @@ public class TypedUnary extends Unary implements TypedExpression {
 	}
 
 	@Override
-	public TypedExpression typed(final Class<?> type) {
+	public TypedExpression typed(final Class<? extends MacObject> type) {
 		if (type.isAssignableFrom(resultType)) {
 			return this;
 		}

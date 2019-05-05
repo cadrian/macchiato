@@ -18,6 +18,8 @@ package net.cadrian.macchiato.ruleset.ast.expression;
 
 import java.math.BigInteger;
 
+import net.cadrian.macchiato.interpreter.objects.MacNumber;
+import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
@@ -36,16 +38,16 @@ public class ManifestNumeric implements ManifestExpression<BigInteger> {
 	}
 
 	@Override
-	public TypedExpression typed(final Class<?> type) {
-		if (type.isAssignableFrom(BigInteger.class)) {
+	public TypedExpression typed(final Class<? extends MacObject> type) {
+		if (type.isAssignableFrom(MacNumber.class)) {
 			return this;
 		}
 		return null;
 	}
 
 	@Override
-	public Class<?> getType() {
-		return BigInteger.class;
+	public Class<? extends MacObject> getType() {
+		return MacNumber.class;
 	}
 
 	@Override

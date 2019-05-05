@@ -16,6 +16,8 @@
  */
 package net.cadrian.macchiato.ruleset.ast.expression;
 
+import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
@@ -34,16 +36,16 @@ public class ManifestString implements ManifestExpression<String> {
 	}
 
 	@Override
-	public TypedExpression typed(final Class<?> type) {
-		if (type.isAssignableFrom(String.class)) {
+	public TypedExpression typed(final Class<? extends MacObject> type) {
+		if (type.isAssignableFrom(MacString.class)) {
 			return this;
 		}
 		return null;
 	}
 
 	@Override
-	public Class<?> getType() {
-		return String.class;
+	public Class<? extends MacObject> getType() {
+		return MacString.class;
 	}
 
 	@Override

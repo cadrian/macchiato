@@ -19,6 +19,7 @@ package net.cadrian.macchiato.ruleset.ast.expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
@@ -32,10 +33,10 @@ public class TypedBinary extends Binary implements TypedExpression {
 
 	private final TypedExpression leftOperand;
 	private final TypedExpression rightOperand;
-	private final Class<?> resultType;
+	private final Class<? extends MacObject> resultType;
 
 	public TypedBinary(final TypedExpression leftOperand, final Binary.Operator operator,
-			final TypedExpression rightOperand, final Class<?> resultType) {
+			final TypedExpression rightOperand, final Class<? extends MacObject> resultType) {
 		super(operator);
 		this.leftOperand = leftOperand;
 		this.rightOperand = rightOperand;
@@ -51,7 +52,7 @@ public class TypedBinary extends Binary implements TypedExpression {
 	}
 
 	@Override
-	public Class<?> getType() {
+	public Class<? extends MacObject> getType() {
 		return resultType;
 	}
 
@@ -61,7 +62,7 @@ public class TypedBinary extends Binary implements TypedExpression {
 	}
 
 	@Override
-	public TypedExpression typed(final Class<?> type) {
+	public TypedExpression typed(final Class<? extends MacObject> type) {
 		if (type.isAssignableFrom(resultType)) {
 			return this;
 		}

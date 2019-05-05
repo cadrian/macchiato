@@ -20,12 +20,17 @@ import java.math.BigInteger;
 
 import javax.sound.midi.InvalidMidiDataException;
 
-import net.cadrian.macchiato.interpreter.AbstractEvent;
-import net.cadrian.macchiato.interpreter.ShortEvent;
+import net.cadrian.macchiato.interpreter.Event;
+import net.cadrian.macchiato.interpreter.Method;
+import net.cadrian.macchiato.interpreter.event.ShortEvent;
+import net.cadrian.macchiato.interpreter.objects.MacComparable;
+import net.cadrian.macchiato.interpreter.objects.MacNumber;
+import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.ShortMessageType;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
-public abstract class ShortMessage implements Message<javax.sound.midi.ShortMessage> {
+public abstract class ShortMessage implements MacComparable<ShortMessage>, Message<javax.sound.midi.ShortMessage> {
 
 	private final ShortMessageType messageType;
 	protected final int channel;
@@ -44,12 +49,23 @@ public abstract class ShortMessage implements Message<javax.sound.midi.ShortMess
 	}
 
 	@Override
-	public AbstractEvent<javax.sound.midi.ShortMessage> toEvent(final BigInteger tick) {
+	public Event<javax.sound.midi.ShortMessage> toEvent(final BigInteger tick) {
 		try {
-			return new ShortEvent(tick, messageType, messageType.createMidiMessage(this));
+			return new ShortEvent(MacNumber.valueOf(tick), messageType, messageType.createMidiMessage(this));
 		} catch (final InvalidMidiDataException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public Method<? extends MacObject> getMethod(final Ruleset ruleset, final String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int compareTo(final ShortMessage other) {
+		return messageType.compareTo(other.messageType);
 	}
 
 }

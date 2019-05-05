@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.ruleset.ast;
 
+import net.cadrian.macchiato.interpreter.objects.MacBoolean;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
 
 public class ConditionFilter extends Filter {
@@ -29,7 +30,7 @@ public class ConditionFilter extends Filter {
 
 	public ConditionFilter(final int position, final TypedExpression condition, final Instruction instruction) {
 		super(instruction);
-		assert (condition.getType() == Boolean.class);
+		assert (condition.getType() == MacBoolean.class);
 		this.condition = condition;
 		this.position = position;
 	}
