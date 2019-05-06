@@ -48,8 +48,7 @@ class GlobalContext extends Context {
 	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalContext.class);
 
 	private final Ruleset ruleset;
-	private final MacArray args;
-	private final Map<String, Object> global = new HashMap<>();
+	private final Map<String, MacObject> global = new HashMap<>();
 	private final Map<String, Function> nativeFunctions = new HashMap<>();
 	private Track track;
 	private Event<? extends MidiMessage> event;
@@ -58,10 +57,11 @@ class GlobalContext extends Context {
 	public GlobalContext(final Ruleset ruleset, final String[] args) {
 		this.ruleset = ruleset;
 
-		this.args = new MacArray();
+		final MacArray arguments = new MacArray();
 		for (int i = 0; i < args.length; i++) {
-			this.args.set(MacNumber.valueOf(i), MacString.valueOf(args[i]));
+			arguments.set(MacNumber.valueOf(i), MacString.valueOf(args[i]));
 		}
+		global.put("arguments", arguments);
 
 		for (final MetaMessageType type : MetaMessageType.values()) {
 			global.put(type.name(), type);
@@ -83,11 +83,6 @@ class GlobalContext extends Context {
 	@Override
 	Ruleset getRuleset() {
 		return ruleset;
-	}
-
-	@Override
-	public MacArray getArguments() {
-		return args;
 	}
 
 	void setTrack(final int trackIndex, final javax.sound.midi.Track trackIn, final javax.sound.midi.Track trackOut) {

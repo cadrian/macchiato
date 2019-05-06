@@ -28,7 +28,6 @@ import net.cadrian.macchiato.interpreter.Event;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
-import net.cadrian.macchiato.interpreter.objects.container.MacArray;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
@@ -48,11 +47,6 @@ public class LocalContext extends Context {
 	@Override
 	Ruleset getRuleset() {
 		return ruleset;
-	}
-
-	@Override
-	public MacArray getArguments() {
-		return parent.getArguments();
 	}
 
 	@Override

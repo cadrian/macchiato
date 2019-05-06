@@ -28,7 +28,6 @@ import net.cadrian.macchiato.interpreter.Event;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
-import net.cadrian.macchiato.interpreter.objects.container.MacArray;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
@@ -42,8 +41,6 @@ public abstract class Context {
 	private final Map<String, Function> functions = new HashMap<>();
 
 	abstract Ruleset getRuleset();
-
-	public abstract MacArray getArguments();
 
 	abstract <M extends MidiMessage> Event<M> getEvent();
 
