@@ -401,8 +401,7 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 	public abstract Message<ShortMessage> create(MacObject... args);
 
 	@Override
-	public Method<? extends MacObject> getMethod(final Ruleset ruleset, final String name) {
-		// TODO Auto-generated method stub
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
 		return null;
 	}
 

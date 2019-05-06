@@ -82,11 +82,12 @@ public class MacPattern implements MacObject {
 		return value;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Method<? extends MacObject> getMethod(final Ruleset ruleset, final String name) {
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
 		switch (name) {
 		case "matcher":
-			return new MatcherMethod(ruleset);
+			return (Method<T>) new MatcherMethod(ruleset);
 		}
 		return null;
 	}

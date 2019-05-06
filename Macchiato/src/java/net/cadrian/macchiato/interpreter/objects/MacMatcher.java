@@ -130,13 +130,14 @@ public class MacMatcher implements MacObject {
 		this.value = value;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Method<? extends MacObject> getMethod(final Ruleset ruleset, final String name) {
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
 		switch (name) {
 		case "matches":
-			return new MatchesMethod(ruleset);
+			return (Method<T>) new MatchesMethod(ruleset);
 		case "group":
-			return new GroupMethod(ruleset);
+			return (Method<T>) new GroupMethod(ruleset);
 		}
 		return null;
 	}

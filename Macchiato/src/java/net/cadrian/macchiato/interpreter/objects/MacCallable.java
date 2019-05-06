@@ -16,8 +16,6 @@
  */
 package net.cadrian.macchiato.interpreter.objects;
 
-import net.cadrian.macchiato.interpreter.Callable;
-import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.impl.Context;
@@ -25,9 +23,9 @@ import net.cadrian.macchiato.interpreter.impl.LocalContext;
 import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
-public class MacCallable implements MacObject {
+public abstract class MacCallable implements MacObject {
 
-	private static class InvokeMethod extends AbstractMethod<MacCallable> {
+	protected static class InvokeMethod extends AbstractMethod<MacCallable> {
 
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacDictionary.class };
@@ -93,54 +91,20 @@ public class MacCallable implements MacObject {
 
 	};
 
-	private final Callable callable;
-	private final MacObject target;
-
-	public MacCallable(final Method<? extends MacObject> callable, final MacObject target) {
-		this.callable = callable;
-		this.target = target;
-	}
-
-	public void invoke(final Context c, final int position) {
-		if (target == null) {
-			runFunction(c, position);
-		} else {
-			runMethod(c, position);
-		}
-	}
-
-	private void runFunction(final Context context, final int position) {
-		final Function f = (Function) callable;
-		f.run(context, position);
-	}
+	public abstract void invoke(final Context context, final int position);
 
 	@SuppressWarnings("unchecked")
-	private <T extends MacObject> void runMethod(final Context context, final int position) {
-		final Method<T> m = (Method<T>) callable;
-		final T t = (T) target;
-		m.run(t, context, position);
-	}
-
-	public MacCallable(final Function callable) {
-		this.callable = callable;
-		this.target = null;
-	}
-
 	@Override
-	public Method<? extends MacObject> getMethod(final Ruleset ruleset, final String name) {
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
 		switch (name) {
 		case "invoke":
-			return new InvokeMethod(ruleset);
+			return (Method<T>) new InvokeMethod(ruleset);
 		}
 		return null;
 	}
 
-	public Class<? extends MacObject>[] getArgTypes() {
-		return callable.getArgTypes();
-	}
+	public abstract Class<? extends MacObject>[] getArgTypes();
 
-	public String[] getArgNames() {
-		return callable.getArgNames();
-	}
+	public abstract String[] getArgNames();
 
 }

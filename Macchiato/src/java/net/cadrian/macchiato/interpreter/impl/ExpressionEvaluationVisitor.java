@@ -25,7 +25,8 @@ import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.objects.MacBoolean;
-import net.cadrian.macchiato.interpreter.objects.MacCallable;
+import net.cadrian.macchiato.interpreter.objects.MacFunction;
+import net.cadrian.macchiato.interpreter.objects.MacMethod;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacPattern;
@@ -407,20 +408,36 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			lastValue = ((MacArray) target).get((MacNumber) index);
 		} else if (index instanceof MacString) {
 			final MacString name = (MacString) index;
-			final Method<? extends MacObject> method = target.getMethod(context.getRuleset(), name.getValue());
-			if (method != null) {
-				lastValue = new MacCallable(method, target);
+			final MacObject value;
+			if (target instanceof MacDictionary) {
+				value = ((MacDictionary) target).get(name);
 			} else {
-				if (!(target instanceof MacDictionary)) {
+				value = null;
+			}
+			if (value != null) {
+				lastValue = value;
+			} else {
+				final MacMethod<? extends MacObject> method = getMethod(context, target, name.getValue());
+				if (method != null) {
+					lastValue = method;
+				} else {
 					throw new InterpreterException("invalid target type or unknown method " + name,
 							indexedExpression.getIndexed().position());
 				}
-				lastValue = ((MacDictionary) target).get(name);
 			}
 		} else {
 			throw new InterpreterException("invalid index type", indexedExpression.getIndexed().position());
 		}
 		LOGGER.debug("--> {} => {}", indexedExpression, lastValue);
+	}
+
+	private <T extends MacObject> MacMethod<? extends T> getMethod(final Context context, final T target,
+			final String name) {
+		final Method<T> method = target.getMethod(context.getRuleset(), name);
+		if (method != null) {
+			return new MacMethod<T>(method, target);
+		}
+		return null;
 	}
 
 	@Override
@@ -433,7 +450,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		} else {
 			final Function function = context.getFunction(name);
 			if (function != null) {
-				lastValue = new MacCallable(function);
+				lastValue = new MacFunction(function);
 			} else {
 				lastValue = null;
 			}

@@ -144,13 +144,14 @@ public class MacDictionary implements MacContainer<MacString> {
 		return dictionary.size();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Method<? extends MacObject> getMethod(final Ruleset ruleset, final String name) {
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
 		switch ("name") {
 		case "size":
-			return new SizeMethod(ruleset);
+			return (Method<T>) new SizeMethod(ruleset);
 		case "has":
-			return new HasMethod(ruleset);
+			return (Method<T>) new HasMethod(ruleset);
 		}
 		return null;
 	}

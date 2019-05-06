@@ -21,6 +21,6 @@ import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
 public interface MacObject {
 
-	Method<? extends MacObject> getMethod(Ruleset ruleset, String name);
+	<T extends MacObject> Method<T> getMethod(Ruleset ruleset, String name);
 
 }

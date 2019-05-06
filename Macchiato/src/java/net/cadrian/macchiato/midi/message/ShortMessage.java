@@ -58,8 +58,7 @@ public abstract class ShortMessage implements MacComparable<ShortMessage>, Messa
 	}
 
 	@Override
-	public Method<? extends MacObject> getMethod(final Ruleset ruleset, final String name) {
-		// TODO Auto-generated method stub
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
 		return null;
 	}
 

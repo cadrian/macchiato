@@ -39,7 +39,7 @@ public class MacBoolean implements MacComparable<MacBoolean> {
 	}
 
 	@Override
-	public Method<? extends MacObject> getMethod(final Ruleset ruleset, final String name) {
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
 		return null;
 	}
 

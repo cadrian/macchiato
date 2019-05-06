@@ -14,29 +14,34 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.midi;
+package net.cadrian.macchiato.interpreter.objects;
 
-import java.math.BigInteger;
-
-import javax.sound.midi.MidiMessage;
-
-import net.cadrian.macchiato.interpreter.Event;
 import net.cadrian.macchiato.interpreter.Method;
-import net.cadrian.macchiato.interpreter.objects.MacObject;
-import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.interpreter.impl.Context;
 
-public interface Message<M extends MidiMessage> extends MacObject {
+public class MacMethod<T extends MacObject> extends MacCallable {
 
-	interface Visitor {
+	private final Method<T> method;
+	private final T target;
+
+	public MacMethod(final Method<T> method, final T target) {
+		this.method = method;
+		this.target = target;
 	}
 
-	void accept(Visitor v);
-
-	Event<M> toEvent(BigInteger tick);
+	@Override
+	public void invoke(final Context context, final int position) {
+		method.run(target, context, position);
+	}
 
 	@Override
-	default <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
-		return null;
+	public Class<? extends MacObject>[] getArgTypes() {
+		return method.getArgTypes();
+	}
+
+	@Override
+	public String[] getArgNames() {
+		return method.getArgNames();
 	}
 
 }
