@@ -108,37 +108,41 @@ public class Interpreter {
 			final Track trackOut = tracksOut[trackIndex];
 			context.setTrack(trackIndex, trackIn, trackOut);
 			filter(Bound.BEGIN_TRACK, context);
-			for (int eventIndex = 0; eventIndex < trackIn.size(); eventIndex++) {
-				final MidiEvent eventIn = trackIn.get(eventIndex);
-				final MacNumber tick = MacNumber.valueOf(eventIn.getTick());
-				final MidiMessage message = eventIn.getMessage();
-				if (message instanceof MetaMessage) {
-					// Meta message
-					final MetaMessage metaMessage = (MetaMessage) message;
-					final MetaMessageType type = MetaMessageType.at(metaMessage.getType());
-					if (type == null) {
-						throw new RuntimeException(
-								"Unknown type of MIDI meta message: 0x" + Integer.toHexString(metaMessage.getType()));
+			if (context.isNext()) {
+				LOGGER.info("Track {} skipped", trackIndex + 1);
+			} else {
+				for (int eventIndex = 0; eventIndex < trackIn.size(); eventIndex++) {
+					final MidiEvent eventIn = trackIn.get(eventIndex);
+					final MacNumber tick = MacNumber.valueOf(eventIn.getTick());
+					final MidiMessage message = eventIn.getMessage();
+					if (message instanceof MetaMessage) {
+						// Meta message
+						final MetaMessage metaMessage = (MetaMessage) message;
+						final MetaMessageType type = MetaMessageType.at(metaMessage.getType());
+						if (type == null) {
+							throw new RuntimeException("Unknown type of MIDI meta message: 0x"
+									+ Integer.toHexString(metaMessage.getType()));
+						}
+						context.setEvent(tick, type, metaMessage);
+						filter(context);
+					} else if (message instanceof SysexMessage) {
+						// System-exclusive message, ignored
+						@SuppressWarnings("unused")
+						final SysexMessage sysexMessage = (SysexMessage) message;
+						trackOut.add(eventIn);
+					} else if (message instanceof ShortMessage) {
+						// According to javadoc, any other type of message
+						final ShortMessage shortMessage = (ShortMessage) message;
+						final ShortMessageType type = ShortMessageType.at(shortMessage.getCommand());
+						if (type == null) {
+							throw new RuntimeException("Unknown type of MIDI short message: 0x"
+									+ Integer.toHexString(shortMessage.getCommand()));
+						}
+						context.setEvent(tick, type, shortMessage);
+						filter(context);
+					} else {
+						throw new RuntimeException("Unknown type of MIDI message: " + message.getClass());
 					}
-					context.setEvent(tick, type, metaMessage);
-					filter(context);
-				} else if (message instanceof SysexMessage) {
-					// System-exclusive message, ignored
-					@SuppressWarnings("unused")
-					final SysexMessage sysexMessage = (SysexMessage) message;
-					trackOut.add(eventIn);
-				} else if (message instanceof ShortMessage) {
-					// According to javadoc, any other type of message
-					final ShortMessage shortMessage = (ShortMessage) message;
-					final ShortMessageType type = ShortMessageType.at(shortMessage.getCommand());
-					if (type == null) {
-						throw new RuntimeException("Unknown type of MIDI short message: 0x"
-								+ Integer.toHexString(shortMessage.getCommand()));
-					}
-					context.setEvent(tick, type, shortMessage);
-					filter(context);
-				} else {
-					throw new RuntimeException("Unknown type of MIDI message: " + message.getClass());
 				}
 			}
 			filter(Bound.END_TRACK, context);
@@ -152,6 +156,9 @@ public class Interpreter {
 		final BoundFilterVisitor visitor = new BoundFilterVisitor(context, bound);
 		for (final Filter filter : ruleset.getFilters()) {
 			filter.accept(visitor);
+			if (context.isNext()) {
+				return;
+			}
 		}
 		LOGGER.debug("-->");
 	}
