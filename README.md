@@ -61,7 +61,7 @@ BEGIN TRACK {
 
 ## Language grammar
 
-The language has many influences: C, Python, Go, Eiffel… There are
+The language syntax has many influences: C, Python, Go, Eiffel… There are
 quite strict conventions (notably, blocks are mandatory in some
 cases).
 
@@ -143,7 +143,7 @@ PowerRight ::= "^" PowerLeft
 Unary ::= ("not" | "+" | "-") Unary
        | AtomicExpressionWithSuffix
 
-AtomicExpressionWithSuffix ::= AtomicExpression IdentifierSuffix
+AtomicExpressionWithSuffix ::= AtomicExpression IdentifierSuffix ("exists")?
 
 AtomicExpression ::= ManifestString
                   |  ManifestRegex
@@ -189,7 +189,10 @@ Notes:
    ruleset. Imports can be nested, the same rules apply recursively.
  * `local` variables have meaning only in `def` functions, not in
    filters.
- * There is no `null`. By design.
+ * There is no `null`. By design. But there is a way to detect a value
+   that does not exist: the `exists` operator. That operator detects
+   access to a non-existent index in an array, to a non-existent key
+   in a dictionary, but also if a variable is null or non-initialized.
  * Comments are either bash-style (lines starting with a hashtag) or
    C-style (`//` and `/*`…`*/`)
 
@@ -263,6 +266,8 @@ Function name | Arguments
 `write`       | `file`: the file name. `value`: the object to write. Nothing is returned.
 `toString`    | `value`: the value to convert. The returned value is a string that contains the serialized object.
 `fromString`  | `data`: the serialized value to convert. The returned value is the deserialized object.
+`arguments`   | None
+`print`       | `string`: the string to be printed on the console.
 
 Notes:
  * `read` and `write` handle file writing of complete objects. The
@@ -271,6 +276,24 @@ Notes:
    they are sparse arrays); and, still, no `null`.
  * `toString` and `fromString` work in a similar way; but the data is
    kept in a string instead of being read from / written to a file.
+ * `arguments` returns an array of the strings passed to the program.
+
+## Methods
+
+Methods are functions with a target (typically, at the left side of a dot). Some objects provide native methods:
+
+Object type   | Method
+------------- | ---------
+Array | `size`: return the number of existing elements in the array (note, if the array is sparse, non-assigned entries are not counted
+Array | `forEach`: run a function for each element in the array
+Dictionary | `size`: return the number of existing elements in the dictionary
+Pattern | `matcher`: return a matcher that matches a given string
+Matcher | `matches`: return true if the string matches the pattern
+Matcher | `group`: return the content of a group. The argument is either a number (n-th group) or a string (named group).
+
+## Functional programming
+
+A method or a function can be used as an object and passed around, for instance to the `forEach` array method.
 
 # Technical design
 
