@@ -200,6 +200,11 @@ Notes:
 
 Some functions and values are provided natively by the interpreter.
 
+### Global variables
+
+The `arguments` variable is predefined and returns an array of the
+strings passed to the program.
+
 ### Event value
 
 The `event` variable contains all the information necessary to
@@ -266,7 +271,6 @@ Function name | Arguments
 `write`       | `file`: the file name. `value`: the object to write. Nothing is returned.
 `toString`    | `value`: the value to convert. The returned value is a string that contains the serialized object.
 `fromString`  | `data`: the serialized value to convert. The returned value is the deserialized object.
-`arguments`   | None
 `print`       | `string`: the string to be printed on the console.
 
 Notes:
@@ -276,7 +280,6 @@ Notes:
    they are sparse arrays); and, still, no `null`.
  * `toString` and `fromString` work in a similar way; but the data is
    kept in a string instead of being read from / written to a file.
- * `arguments` returns an array of the strings passed to the program.
 
 ## Methods
 
@@ -285,15 +288,21 @@ Methods are functions with a target (typically, at the left side of a dot). Some
 Object type   | Method
 ------------- | ---------
 Array | `size`: return the number of existing elements in the array (note, if the array is sparse, non-assigned entries are not counted
+Array | `has`: return true if the value at the given index exists
 Array | `forEach`: run a function for each element in the array
+Array | `map`: run a function for each element in the array, given a seed, and returns the consolidated result
 Dictionary | `size`: return the number of existing elements in the dictionary
+Dictionary | `has`: return true if the value at the given key exists
+Array | `forEach`: run a function for each element in the dictionary
+Array | `map`: run a function for each element in the dictionary, given a seed, and returns the consolidated result
 Pattern | `matcher`: return a matcher that matches a given string
 Matcher | `matches`: return true if the string matches the pattern
 Matcher | `group`: return the content of a group. The argument is either a number (n-th group) or a string (named group).
 
 ## Functional programming
 
-A method or a function can be used as an object and passed around, for instance to the `forEach` array method.
+A method or a function can be used as an object and passed around, for
+instance to the `forEach` array method.
 
 # Technical design
 
