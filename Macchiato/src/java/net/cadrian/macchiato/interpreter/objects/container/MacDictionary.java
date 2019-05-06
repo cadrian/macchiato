@@ -22,10 +22,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.impl.Context;
+import net.cadrian.macchiato.interpreter.impl.LocalContext;
 import net.cadrian.macchiato.interpreter.objects.AbstractMethod;
 import net.cadrian.macchiato.interpreter.objects.MacBoolean;
+import net.cadrian.macchiato.interpreter.objects.MacCallable;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacString;
@@ -122,6 +125,148 @@ public class MacDictionary implements MacContainer<MacString> {
 
 	}
 
+	private static class ForEachMethod extends AbstractMethod<MacDictionary> {
+
+		@SuppressWarnings("unchecked")
+		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacCallable.class };
+		private static final String[] ARG_NAMES = { "callable" };
+
+		protected ForEachMethod(final Ruleset ruleset) {
+			super(ruleset);
+		}
+
+		@Override
+		public Class<MacDictionary> getTargetType() {
+			return MacDictionary.class;
+		}
+
+		@Override
+		public void run(final MacDictionary target, final Context context, final int position) {
+			final MacCallable callable = context.get("callable");
+			final String[] argNames = callable.getArgNames();
+			switch (argNames.length) {
+			case 1:
+				for (final MacObject value : target.dictionary.values()) {
+					final LocalContext c = new LocalContext(context, getRuleset());
+					c.declareLocal(argNames[0]);
+					c.set(argNames[0], value);
+					callable.invoke(c, position);
+				}
+				break;
+			case 2:
+				for (final Map.Entry<MacString, MacObject> entry : target.dictionary.entrySet()) {
+					final LocalContext c = new LocalContext(context, getRuleset());
+					c.declareLocal(argNames[0]);
+					c.declareLocal(argNames[1]);
+					c.set(argNames[0], entry.getKey());
+					c.set(argNames[1], entry.getValue());
+					callable.invoke(c, position);
+				}
+				break;
+			default:
+				throw new InterpreterException(
+						"invalid 'forEach' function call: the function must have exactly one or two arguments",
+						position);
+			}
+		}
+
+		@Override
+		public String name() {
+			return "forEach";
+		}
+
+		@Override
+		public Class<? extends MacObject>[] getArgTypes() {
+			return ARG_TYPES;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_NAMES;
+		}
+
+		@Override
+		public Class<? extends MacObject> getResultType() {
+			return null;
+		}
+
+	};
+
+	private static class MapMethod extends AbstractMethod<MacDictionary> {
+
+		@SuppressWarnings("unchecked")
+		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacCallable.class,
+				MacObject.class };
+		private static final String[] ARG_NAMES = { "callable", "seed" };
+
+		protected MapMethod(final Ruleset ruleset) {
+			super(ruleset);
+		}
+
+		@Override
+		public Class<MacDictionary> getTargetType() {
+			return MacDictionary.class;
+		}
+
+		@Override
+		public void run(final MacDictionary target, final Context context, final int position) {
+			final MacCallable callable = context.get("callable");
+			final String[] argNames = callable.getArgNames();
+			MacObject result = context.get("seed");
+			switch (argNames.length) {
+			case 2:
+				for (final MacObject value : target.dictionary.values()) {
+					final LocalContext c = new LocalContext(context, getRuleset());
+					c.declareLocal(argNames[0]);
+					c.declareLocal(argNames[1]);
+					c.set(argNames[0], value);
+					c.set(argNames[1], result);
+					callable.invoke(c, position);
+					result = c.get("result");
+				}
+				break;
+			case 3:
+				for (final Map.Entry<MacString, MacObject> entry : target.dictionary.entrySet()) {
+					final LocalContext c = new LocalContext(context, getRuleset());
+					c.declareLocal(argNames[0]);
+					c.declareLocal(argNames[1]);
+					c.declareLocal(argNames[2]);
+					c.set(argNames[0], entry.getKey());
+					c.set(argNames[1], entry.getValue());
+					c.set(argNames[2], result);
+					callable.invoke(c, position);
+					result = c.get("result");
+				}
+				break;
+			default:
+				throw new InterpreterException(
+						"invalid 'map' function call: the function must have exactly one or two arguments", position);
+			}
+			context.set("result", result);
+		}
+
+		@Override
+		public String name() {
+			return "map";
+		}
+
+		@Override
+		public Class<? extends MacObject>[] getArgTypes() {
+			return ARG_TYPES;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_NAMES;
+		}
+
+		@Override
+		public Class<? extends MacObject> getResultType() {
+			return MacObject.class;
+		}
+
+	};
+
 	private final Map<MacString, MacObject> dictionary = new HashMap<>();
 
 	@Override
@@ -152,6 +297,10 @@ public class MacDictionary implements MacContainer<MacString> {
 			return (Method<T>) new SizeMethod(ruleset);
 		case "has":
 			return (Method<T>) new HasMethod(ruleset);
+		case "forEach":
+			return (Method<T>) new ForEachMethod(ruleset);
+		case "map":
+			return (Method<T>) new MapMethod(ruleset);
 		}
 		return null;
 	}

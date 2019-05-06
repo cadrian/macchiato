@@ -194,6 +194,81 @@ public class MacArray implements MacContainer<MacNumber> {
 
 	};
 
+	private static class MapMethod extends AbstractMethod<MacArray> {
+
+		@SuppressWarnings("unchecked")
+		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacCallable.class,
+				MacObject.class };
+		private static final String[] ARG_NAMES = { "callable", "seed" };
+
+		protected MapMethod(final Ruleset ruleset) {
+			super(ruleset);
+		}
+
+		@Override
+		public Class<MacArray> getTargetType() {
+			return MacArray.class;
+		}
+
+		@Override
+		public void run(final MacArray target, final Context context, final int position) {
+			final MacCallable callable = context.get("callable");
+			final String[] argNames = callable.getArgNames();
+			MacObject result = context.get("seed");
+			switch (argNames.length) {
+			case 2:
+				for (final MacObject value : target.array.values()) {
+					final LocalContext c = new LocalContext(context, getRuleset());
+					c.declareLocal(argNames[0]);
+					c.declareLocal(argNames[1]);
+					c.set(argNames[0], value);
+					c.set(argNames[1], result);
+					callable.invoke(c, position);
+					result = c.get("result");
+				}
+				break;
+			case 3:
+				for (final Map.Entry<MacNumber, MacObject> entry : target.array.entrySet()) {
+					final LocalContext c = new LocalContext(context, getRuleset());
+					c.declareLocal(argNames[0]);
+					c.declareLocal(argNames[1]);
+					c.declareLocal(argNames[2]);
+					c.set(argNames[0], entry.getKey());
+					c.set(argNames[1], entry.getValue());
+					c.set(argNames[2], result);
+					callable.invoke(c, position);
+					result = c.get("result");
+				}
+				break;
+			default:
+				throw new InterpreterException(
+						"invalid 'map' function call: the function must have exactly one or two arguments", position);
+			}
+			context.set("result", result);
+		}
+
+		@Override
+		public String name() {
+			return "map";
+		}
+
+		@Override
+		public Class<? extends MacObject>[] getArgTypes() {
+			return ARG_TYPES;
+		}
+
+		@Override
+		public String[] getArgNames() {
+			return ARG_NAMES;
+		}
+
+		@Override
+		public Class<? extends MacObject> getResultType() {
+			return MacObject.class;
+		}
+
+	};
+
 	private final Map<MacNumber, MacObject> array = new TreeMap<>();
 
 	@Override
@@ -226,6 +301,8 @@ public class MacArray implements MacContainer<MacNumber> {
 			return (Method<T>) new HasMethod(ruleset);
 		case "forEach":
 			return (Method<T>) new ForEachMethod(ruleset);
+		case "map":
+			return (Method<T>) new MapMethod(ruleset);
 		}
 		return null;
 	}
