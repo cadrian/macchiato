@@ -27,8 +27,8 @@ public class ProcedureCall extends AbstractCall implements Instruction {
 		void visitProcedureCall(ProcedureCall procedureCall);
 	}
 
-	public ProcedureCall(final int position, final String name) {
-		super(position, name);
+	public ProcedureCall(final int position, final Expression target, final String name) {
+		super(position, target, name);
 	}
 
 	@Override
@@ -38,8 +38,9 @@ public class ProcedureCall extends AbstractCall implements Instruction {
 
 	@Override
 	public Instruction simplify() {
-		boolean changed = false;
-		final ProcedureCall result = new ProcedureCall(position, name);
+		final Expression simplifyTarget = target == null ? null : target.simplify();
+		boolean changed = simplifyTarget != target;
+		final ProcedureCall result = new ProcedureCall(position, simplifyTarget, name);
 		for (final Expression arg : arguments) {
 			final Expression simplifyArg = arg.simplify();
 			result.add(simplifyArg);

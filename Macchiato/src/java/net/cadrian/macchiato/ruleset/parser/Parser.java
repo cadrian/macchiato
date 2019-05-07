@@ -43,6 +43,7 @@ import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Binary;
 import net.cadrian.macchiato.ruleset.ast.expression.Binary.Operator;
+import net.cadrian.macchiato.ruleset.ast.expression.DottedExpression;
 import net.cadrian.macchiato.ruleset.ast.expression.ExistsExpression;
 import net.cadrian.macchiato.ruleset.ast.expression.FunctionCall;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
@@ -252,8 +253,11 @@ public class Parser {
 		if (name == null) {
 			throw new ParserException(error("Expected instruction", position));
 		}
-		final Expression indexable;
-		if (isReserved(name)) {
+		if (!isReserved(name)) {
+			final Instruction result = parseInstructionSuffix(parseInstructionTarget(new Identifier(position, name)));
+			LOGGER.debug("--> {}", result);
+			return result;
+		} else {
 			switch (name) {
 			case "do":
 				// TODO return parseDo();
@@ -284,8 +288,9 @@ public class Parser {
 				return result;
 			}
 			case "result": {
-				indexable = new Result(position);
-				break;
+				final Instruction result = parseInstructionSuffix(parseInstructionTarget(new Result(position)));
+				LOGGER.debug("--> {}", result);
+				return result;
 			}
 			case "switch":
 				// TODO return parseSwitch();
@@ -298,33 +303,73 @@ public class Parser {
 			default:
 				throw new ParserException(error("Unexpected keyword " + name, position));
 			}
-		} else {
+		}
+	}
+
+	private Expression parseInstructionTarget(final Expression target) {
+		// TODO derecursivate
+
+		LOGGER.debug("<-- {}", buffer.position());
+
+		buffer.skipBlanks();
+		switch (buffer.current()) {
+		case '[': {
+			buffer.next();
 			buffer.skipBlanks();
-			final String scopedName = parseScopedCallName(name);
-			if (scopedName != null) {
-				assert !buffer.off() && buffer.current() == '(';
-				final ProcedureCall result = parseProcedureCall(position, scopedName);
+			final Expression index = parseExpression();
+			buffer.skipBlanks();
+			if (buffer.off() || buffer.current() != ']') {
+				throw new ParserException(error("Expected ']'"));
+			} else {
+				buffer.next();
+				buffer.skipBlanks();
+				final Expression indexed = new IndexedExpression(target, index.typed(MacComparable.class));
+				final Expression result = parseInstructionTarget(indexed);
 				LOGGER.debug("--> {}", result);
 				return result;
 			}
-			indexable = new Identifier(position, name);
 		}
+		case '.': {
+			buffer.next();
+			buffer.skipBlanks();
+			final int selectorPosition = buffer.position();
+			final String selector = readRawIdentifier();
+			if (selector == null || isReserved(selector)) {
+				throw new ParserException(error("Expected identifier", selectorPosition));
+			}
+			final Expression dotted = new DottedExpression(target, selector, selectorPosition);
+			final Expression result = parseInstructionTarget(dotted);
+			LOGGER.debug("--> {}", result);
+			return result;
+		}
+		default:
+			return target;
+		}
+	}
+
+	private Instruction parseInstructionSuffix(final Expression target) {
+		LOGGER.debug("<-- {}", buffer.position());
+
 		buffer.skipBlanks();
 		switch (buffer.current()) {
-		case '[':
-		case '.': {
-			final Expression indexed = parseIdentifierSuffix(indexable);
-			buffer.skipBlanks();
-			if (buffer.off() || buffer.current() != '=') {
-				throw new ParserException(error("Expected assignment"));
+		case '(': {
+			final Expression actualTarget;
+			final String procedureName;
+			final int selectorPosition;
+			if (target instanceof DottedExpression) {
+				final DottedExpression lastDotSegment = (DottedExpression) target;
+				actualTarget = lastDotSegment.getTarget();
+				procedureName = lastDotSegment.getSelector();
+				selectorPosition = lastDotSegment.getSelectorPosition();
+			} else if (target instanceof Identifier) {
+				final Identifier identifier = (Identifier) target;
+				actualTarget = null;
+				procedureName = identifier.getName();
+				selectorPosition = identifier.position();
+			} else {
+				throw new ParserException(error("Invalid method call: no method name"));
 			}
-			buffer.next();
-			final Expression exp = parseExpression();
-			buffer.skipBlanks();
-			if (buffer.current() == ';') {
-				buffer.next();
-			}
-			final Assignment result = new Assignment(indexed, exp);
+			final ProcedureCall result = parseProcedureCall(selectorPosition, actualTarget, procedureName);
 			LOGGER.debug("--> {}", result);
 			return result;
 		}
@@ -335,7 +380,7 @@ public class Parser {
 			if (buffer.current() == ';') {
 				buffer.next();
 			}
-			final Assignment result = new Assignment(indexable, exp);
+			final Assignment result = new Assignment(target, exp);
 			LOGGER.debug("--> {}", result);
 			return result;
 		}
@@ -412,9 +457,9 @@ public class Parser {
 		return result;
 	}
 
-	private ProcedureCall parseProcedureCall(final int position, final String name) {
+	private ProcedureCall parseProcedureCall(final int position, final Expression target, final String name) {
 		LOGGER.debug("<-- {}", buffer.position());
-		final ProcedureCall result = new ProcedureCall(position, name);
+		final ProcedureCall result = new ProcedureCall(position, target, name);
 		assert buffer.current() == '(';
 		buffer.next();
 		buffer.skipBlanks();
@@ -918,7 +963,7 @@ public class Parser {
 
 	private Expression parseAtomicExpressionWithSuffix() {
 		LOGGER.debug("<-- {}", buffer.position());
-		Expression result = parseIdentifierSuffix(parseAtomicExpression());
+		Expression result = parseAtomicExpression();
 		buffer.skipBlanks();
 		final int position = buffer.position();
 		if (readKeyword("exists")) {
@@ -930,14 +975,14 @@ public class Parser {
 
 	private Expression parseAtomicExpression() {
 		LOGGER.debug("<-- {}", buffer.position());
-		final Expression result;
+		final Expression atomic;
 		if (buffer.off()) {
 			throw new ParserException(error("Expected expression"));
 		}
 		final int position = buffer.position();
 		if (buffer.current() == '(') {
 			buffer.next();
-			result = parseExpression();
+			atomic = parseExpression();
 			buffer.skipBlanks();
 			if (buffer.off() || buffer.current() != ')') {
 				throw new ParserException(error("Unfinished expresssion"));
@@ -946,20 +991,20 @@ public class Parser {
 		} else {
 			switch (buffer.current()) {
 			case '"':
-				result = parseManifestString();
+				atomic = parseManifestString();
 				break;
 			case '/':
-				result = parseManifestRegex();
+				atomic = parseManifestRegex();
 				break;
 			case '[':
-				result = parseManifestArray();
+				atomic = parseManifestArray();
 				break;
 			case '{':
-				result = parseManifestDictionary();
+				atomic = parseManifestDictionary();
 				break;
 			default:
 				if (Character.isDigit(buffer.current())) {
-					result = parseManifestNumber();
+					atomic = parseManifestNumber();
 				} else {
 					final String name = readRawIdentifier();
 					if (name == null) {
@@ -967,74 +1012,29 @@ public class Parser {
 					}
 					switch (name) {
 					case "result":
-						result = new Result(position);
+						atomic = new Result(position);
 						break;
 					case "true":
-						result = new ManifestBoolean(position, true);
+						atomic = new ManifestBoolean(position, true);
 						break;
 					case "false":
-						result = new ManifestBoolean(position, false);
+						atomic = new ManifestBoolean(position, false);
 						break;
 					default:
 						if (isReserved(name)) {
 							throw new ParserException(error("Unexpected keyword " + name, position));
 						}
 						buffer.skipBlanks();
-						final String scopedName = parseScopedCallName(name);
-						if (scopedName != null) {
-							assert !buffer.off() && buffer.current() == '(';
-							result = parseFunctionCall(position, scopedName);
+						if (!buffer.off() && buffer.current() == '(') {
+							atomic = parseFunctionCall(position, null, name);
 						} else {
-							result = new Identifier(position, name);
+							atomic = new Identifier(position, name);
 						}
 					}
 				}
 			}
 		}
-		LOGGER.debug("--> {}", result);
-		return result;
-	}
-
-	private String parseScopedCallName(final String name) {
-		LOGGER.debug("<--");
-		final String result;
-		final int positionAfterFirstName = buffer.position();
-		final StringBuilder scopedName = new StringBuilder(name);
-		boolean foundParenthesis = !buffer.off() && buffer.current() == '(';
-		boolean more = !buffer.off() && !foundParenthesis;
-		while (more) {
-			buffer.skipBlanks();
-			if (buffer.off()) {
-				more = false;
-			} else {
-				switch (buffer.current()) {
-				case '.':
-					scopedName.append('.');
-					buffer.next();
-					buffer.skipBlanks();
-					final int p0 = buffer.position();
-					final String subname = readIdentifier();
-					if (subname == null) {
-						throw new ParserException(error("Expected identifier", p0));
-					}
-					scopedName.append(subname);
-					break;
-				case '(':
-					foundParenthesis = true;
-					more = false;
-					break;
-				default:
-					more = false;
-				}
-			}
-		}
-		if (foundParenthesis) {
-			assert !buffer.off() && buffer.current() == '(';
-			result = scopedName.toString();
-		} else {
-			buffer.rewind(positionAfterFirstName);
-			result = null;
-		}
+		final Expression result = parseIdentifierSuffix(atomic);
 		LOGGER.debug("--> {}", result);
 		return result;
 	}
@@ -1042,25 +1042,28 @@ public class Parser {
 	private Expression parseIdentifierSuffix(final Expression expression) {
 		LOGGER.debug("<-- {}", buffer.position());
 		Expression result = expression;
-		boolean more = !buffer.off();
-		while (more) {
+		boolean more;
+		do {
 			buffer.skipBlanks();
-			switch (buffer.current()) {
-			case '[':
-				result = parseIndexed(result);
-				break;
-			case '.':
-				result = parseDotted(result);
-				break;
-			default:
-				more = false;
+			more = !buffer.off();
+			if (more) {
+				switch (buffer.current()) {
+				case '[':
+					result = parseIndexedExpression(result);
+					break;
+				case '.':
+					result = parseDottedExpression(result);
+					break;
+				default:
+					more = false;
+				}
 			}
-		}
+		} while (more);
 		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
-	private Expression parseIndexed(final Expression expression) {
+	private Expression parseIndexedExpression(final Expression expression) {
 		LOGGER.debug("<-- {}", buffer.position());
 		assert buffer.current() == '[';
 		buffer.next();
@@ -1079,7 +1082,7 @@ public class Parser {
 		return result;
 	}
 
-	private Expression parseDotted(final Expression expression) {
+	private Expression parseDottedExpression(final Expression expression) {
 		LOGGER.debug("<-- {}", buffer.position());
 		assert buffer.current() == '.';
 		buffer.next();
@@ -1089,7 +1092,12 @@ public class Parser {
 		if (identifier == null) {
 			throw new ParserException(error("Expected identifier"));
 		}
-		final IndexedExpression result = new IndexedExpression(expression, new ManifestString(position, identifier));
+		final Expression result;
+		if (!buffer.off() && buffer.current() == '(') {
+			result = parseFunctionCall(position, expression, identifier);
+		} else {
+			result = new DottedExpression(expression, identifier, position);
+		}
 		LOGGER.debug("--> {}", result);
 		return result;
 	}
@@ -1196,9 +1204,9 @@ public class Parser {
 		return result;
 	}
 
-	private FunctionCall parseFunctionCall(final int position, final String name) {
+	private FunctionCall parseFunctionCall(final int position, final Expression target, final String name) {
 		LOGGER.debug("<-- {}", buffer.position());
-		final FunctionCall result = new FunctionCall(position, name);
+		final FunctionCall result = new FunctionCall(position, target, name);
 		assert buffer.current() == '(';
 		buffer.next();
 		buffer.skipBlanks();

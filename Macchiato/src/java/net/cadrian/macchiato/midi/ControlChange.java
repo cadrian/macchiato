@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.objects.MacBoolean;
 import net.cadrian.macchiato.interpreter.objects.MacComparable;
@@ -126,6 +127,11 @@ public enum ControlChange implements MacComparable<ControlChange> {
 		default:
 			return ((MacNumber) value).getValue().intValueExact();
 		}
+	}
+
+	@Override
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+		return null;
 	}
 
 	@Override

@@ -157,7 +157,7 @@ AtomicExpression ::= ManifestString
                   |  "true"
                   |  "(" Expression ")"
 
-IdentifierSuffix ::= ("[" Expression "]" | "." Identifier)*
+IdentifierSuffix ::= ("[" Expression "]" | "." Identifier (FunctionCall)?)*
 
 ManifestString ::= /"([^"]|\\.)*"/
 
@@ -193,6 +193,7 @@ Notes:
    that does not exist: the `exists` operator. That operator detects
    access to a non-existent index in an array, to a non-existent key
    in a dictionary, but also if a variable is null or non-initialized.
+   *Note*: a non-existent value cannot be passed as parameter.
  * Comments are either bash-style (lines starting with a hashtag) or
    C-style (`//` and `/*`…`*/`)
 

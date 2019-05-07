@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import javax.sound.midi.InvalidMidiDataException;
 
 import net.cadrian.macchiato.interpreter.Event;
+import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.event.ShortEvent;
 import net.cadrian.macchiato.interpreter.objects.MacComparable;
@@ -55,6 +56,11 @@ public abstract class ShortMessage implements MacComparable<ShortMessage>, Messa
 		} catch (final InvalidMidiDataException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+		return null;
 	}
 
 	@Override

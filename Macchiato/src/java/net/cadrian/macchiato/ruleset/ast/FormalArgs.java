@@ -39,4 +39,16 @@ public class FormalArgs {
 		return args.toArray(new String[args.size()]);
 	}
 
+	@Override
+	public String toString() {
+		final StringBuilder result = new StringBuilder();
+		for (final String arg : args) {
+			if (result.length() > 0) {
+				result.append(", ");
+			}
+			result.append(arg);
+		}
+		return "(" + result + ")";
+	}
+
 }

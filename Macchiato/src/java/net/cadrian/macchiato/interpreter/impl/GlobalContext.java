@@ -32,11 +32,12 @@ import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.event.MetaEvent;
 import net.cadrian.macchiato.interpreter.event.ShortEvent;
 import net.cadrian.macchiato.interpreter.functions.natfun.Native;
+import net.cadrian.macchiato.interpreter.objects.MacEvent;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.interpreter.objects.MacRuleset;
 import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.interpreter.objects.container.MacArray;
-import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
 import net.cadrian.macchiato.midi.ControlChange;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
@@ -91,9 +92,7 @@ class GlobalContext extends Context {
 
 	void setEvent(final MacNumber tick, final MetaMessageType type, final MetaMessage message) {
 		final MetaEvent metaEvent = new MetaEvent(tick, type, message);
-		final MacDictionary eventData = new MacDictionary();
-		eventData.set(MacString.valueOf("type"), type);
-		eventData.set(MacString.valueOf("tick"), tick);
+		final MacEvent eventData = new MacEvent(ruleset, tick, type);
 		type.fill(eventData, metaEvent.createMessage());
 		LOGGER.debug("Setting meta event {}", eventData);
 		global.put("event", eventData);
@@ -102,9 +101,7 @@ class GlobalContext extends Context {
 
 	void setEvent(final MacNumber tick, final ShortMessageType type, final ShortMessage message) {
 		final ShortEvent shortEvent = new ShortEvent(tick, type, message);
-		final MacDictionary eventData = new MacDictionary();
-		eventData.set(MacString.valueOf("type"), type);
-		eventData.set(MacString.valueOf("tick"), tick);
+		final MacEvent eventData = new MacEvent(ruleset, tick, type);
 		type.fill(eventData, shortEvent.createMessage());
 		LOGGER.debug("Setting short event {}", eventData);
 		global.put("event", eventData);
@@ -149,11 +146,19 @@ class GlobalContext extends Context {
 		return global.containsKey(key);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends MacObject> T get(final String key) {
 		LOGGER.debug("<-- {}", key);
-		@SuppressWarnings("unchecked")
-		final T result = (T) global.get(key);
+		T result = (T) global.get(key);
+		if (result == null) {
+			final Ruleset r = ruleset.getScope(key);
+			if (r != null) {
+				final MacRuleset newRuleset = new MacRuleset(r);
+				global.put(key, newRuleset);
+				result = (T) newRuleset;
+			}
+		}
 		LOGGER.debug("--> {}", result);
 		return result;
 	}

@@ -23,12 +23,12 @@ import java.util.Map;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.ShortMessage;
 
+import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.objects.MacComparable;
+import net.cadrian.macchiato.interpreter.objects.MacEvent;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
-import net.cadrian.macchiato.interpreter.objects.MacString;
-import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
 import net.cadrian.macchiato.midi.message.s.ChannelPressureMessage;
 import net.cadrian.macchiato.midi.message.s.ControlChangeMessage;
 import net.cadrian.macchiato.midi.message.s.NoteOffMessage;
@@ -57,11 +57,11 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<ShortMessage> message) {
+		public void fill(final MacEvent messageData, final Message<ShortMessage> message) {
 			final NoteOffMessage m = (NoteOffMessage) message;
-			messageData.set(MacString.valueOf("channel"), MacNumber.valueOf(m.getChannel()));
-			messageData.set(MacString.valueOf("velocity"), MacNumber.valueOf(m.getVelocity()));
-			messageData.set(MacString.valueOf("pitch"), MacNumber.valueOf(m.getPitch()));
+			messageData.addField("channel", MacNumber.valueOf(m.getChannel()));
+			messageData.addField("velocity", MacNumber.valueOf(m.getVelocity()));
+			messageData.addField("pitch", MacNumber.valueOf(m.getPitch()));
 		}
 
 		@Override
@@ -101,11 +101,11 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<ShortMessage> message) {
+		public void fill(final MacEvent messageData, final Message<ShortMessage> message) {
 			final NoteOnMessage m = (NoteOnMessage) message;
-			messageData.set(MacString.valueOf("channel"), MacNumber.valueOf(m.getChannel()));
-			messageData.set(MacString.valueOf("velocity"), MacNumber.valueOf(m.getVelocity()));
-			messageData.set(MacString.valueOf("pitch"), MacNumber.valueOf(m.getPitch()));
+			messageData.addField("channel", MacNumber.valueOf(m.getChannel()));
+			messageData.addField("velocity", MacNumber.valueOf(m.getVelocity()));
+			messageData.addField("pitch", MacNumber.valueOf(m.getPitch()));
 		}
 
 		@Override
@@ -146,10 +146,10 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<ShortMessage> message) {
+		public void fill(final MacEvent messageData, final Message<ShortMessage> message) {
 			final PolyPressureMessage m = (PolyPressureMessage) message;
-			messageData.set(MacString.valueOf("channel"), MacNumber.valueOf(m.getChannel()));
-			messageData.set(MacString.valueOf("pressure"), MacNumber.valueOf(m.getPressure()));
+			messageData.addField("channel", MacNumber.valueOf(m.getChannel()));
+			messageData.addField("pressure", MacNumber.valueOf(m.getPressure()));
 		}
 
 		@Override
@@ -195,12 +195,12 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<ShortMessage> message) {
+		public void fill(final MacEvent messageData, final Message<ShortMessage> message) {
 			final ControlChangeMessage m = (ControlChangeMessage) message;
-			messageData.set(MacString.valueOf("channel"), MacNumber.valueOf(m.getChannel()));
 			final ControlChange mpc = m.getMpc();
-			messageData.set(MacString.valueOf("mpc"), mpc);
-			messageData.set(MacString.valueOf("value"), mpc.valueOf(m.getValue()));
+			messageData.addField("channel", MacNumber.valueOf(m.getChannel()));
+			messageData.addField("mpc", mpc);
+			messageData.addField("value", mpc.valueOf(m.getValue()));
 		}
 
 		@Override
@@ -239,10 +239,10 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<ShortMessage> message) {
+		public void fill(final MacEvent messageData, final Message<ShortMessage> message) {
 			final ProgramChangeMessage m = (ProgramChangeMessage) message;
-			messageData.set(MacString.valueOf("channel"), MacNumber.valueOf(m.getChannel()));
-			messageData.set(MacString.valueOf("patch"), MacNumber.valueOf(m.getPatch()));
+			messageData.addField("channel", MacNumber.valueOf(m.getChannel()));
+			messageData.addField("patch", MacNumber.valueOf(m.getPatch()));
 		}
 
 		@Override
@@ -281,10 +281,10 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<ShortMessage> message) {
+		public void fill(final MacEvent messageData, final Message<ShortMessage> message) {
 			final ChannelPressureMessage m = (ChannelPressureMessage) message;
-			messageData.set(MacString.valueOf("channel"), MacNumber.valueOf(m.getChannel()));
-			messageData.set(MacString.valueOf("pressure"), MacNumber.valueOf(m.getPressure()));
+			messageData.addField("channel", MacNumber.valueOf(m.getChannel()));
+			messageData.addField("pressure", MacNumber.valueOf(m.getPressure()));
 		}
 
 		@Override
@@ -328,10 +328,10 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<ShortMessage> message) {
+		public void fill(final MacEvent messageData, final Message<ShortMessage> message) {
 			final PitchBendMessage m = (PitchBendMessage) message;
-			messageData.set(MacString.valueOf("channel"), MacNumber.valueOf(m.getChannel()));
-			messageData.set(MacString.valueOf("value"), MacNumber.valueOf(m.getValue()));
+			messageData.addField("channel", MacNumber.valueOf(m.getChannel()));
+			messageData.addField("value", MacNumber.valueOf(m.getValue()));
 		}
 
 		@Override
@@ -392,13 +392,18 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 
 	public abstract ShortMessage createMidiMessage(Message<ShortMessage> message) throws InvalidMidiDataException;
 
-	public abstract void fill(MacDictionary messageData, Message<ShortMessage> message);
+	public abstract void fill(MacEvent messageData, Message<ShortMessage> message);
 
 	public abstract Class<? extends MacObject>[] getArgTypes();
 
 	public abstract String[] getArgNames();
 
 	public abstract Message<ShortMessage> create(MacObject... args);
+
+	@Override
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+		return null;
+	}
 
 	@Override
 	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {

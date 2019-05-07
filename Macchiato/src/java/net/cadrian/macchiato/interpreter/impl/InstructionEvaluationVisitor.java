@@ -24,8 +24,10 @@ import javax.sound.midi.MidiMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cadrian.macchiato.interpreter.Callable;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.InterpreterException;
+import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.objects.MacBoolean;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
@@ -81,10 +83,27 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 	@Override
 	public void visitProcedureCall(final ProcedureCall procedureCall) {
 		LOGGER.debug("<-- {}", procedureCall);
-		final Function fn = context.getFunction(procedureCall.getName());
 		final int position = procedureCall.position();
-		if (fn == null) {
-			throw new InterpreterException("unknown procedure " + procedureCall.getName(), position);
+		final Callable fn;
+		final Expression targetExpression = procedureCall.getTarget();
+		final MacObject target;
+		if (targetExpression == null) {
+			fn = context.getFunction(procedureCall.getName());
+			target = null;
+			if (fn == null) {
+				LOGGER.error("unknown procedure {}", procedureCall, new Exception("TRACE"));
+				throw new InterpreterException("unknown procedure " + procedureCall.getName(), position);
+			}
+		} else {
+			target = context.eval(targetExpression.typed(MacObject.class));
+			if (target == null) {
+				throw new InterpreterException("null target", position);
+			}
+			fn = target.getMethod(context.getRuleset(), procedureCall.getName());
+			if (fn == null) {
+				LOGGER.error("unknown procedure {} in {}", procedureCall, target, new Exception("TRACE"));
+				throw new InterpreterException("unknown procedure " + procedureCall.getName(), position);
+			}
 		}
 		final LocalContext callContext = new LocalContext(context, fn.getRuleset());
 		final String[] argNames = fn.getArgNames();
@@ -96,13 +115,22 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 		for (int i = 0; i < argNames.length; i++) {
 			final Expression argument = arguments.get(i);
 			final MacObject value = context.eval(argument.typed(argTypes[i]));
+			if (value == null) {
+				throw new InterpreterException("value does not exist", argument.position());
+			}
 			callContext.declareLocal(argNames[i]);
 			callContext.set(argNames[i], value);
 		}
 		if (fn.getResultType() != null) {
 			callContext.declareLocal("result");
 		}
-		fn.run(callContext, position);
+		if (targetExpression == null) {
+			((Function) fn).run(callContext, position);
+		} else {
+			@SuppressWarnings("unchecked")
+			final Method<MacObject> m = (Method<MacObject>) fn;
+			m.run(target, callContext, position);
+		}
 		LOGGER.debug("--> {}", procedureCall);
 	}
 

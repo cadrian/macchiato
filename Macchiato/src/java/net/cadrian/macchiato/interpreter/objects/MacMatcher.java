@@ -18,6 +18,7 @@ package net.cadrian.macchiato.interpreter.objects;
 
 import java.util.regex.Matcher;
 
+import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.impl.Context;
@@ -128,6 +129,11 @@ public class MacMatcher implements MacObject {
 
 	public MacMatcher(final Matcher value) {
 		this.value = value;
+	}
+
+	@Override
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")

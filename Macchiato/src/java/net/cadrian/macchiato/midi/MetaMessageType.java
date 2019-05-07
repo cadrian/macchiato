@@ -24,12 +24,13 @@ import java.util.Map;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 
+import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.objects.MacComparable;
+import net.cadrian.macchiato.interpreter.objects.MacEvent;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacString;
-import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
 import net.cadrian.macchiato.midi.message.m.CopyrightMessage;
 import net.cadrian.macchiato.midi.message.m.CuePointMessage;
 import net.cadrian.macchiato.midi.message.m.EndOfTrackMessage;
@@ -64,9 +65,9 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final SequenceNumberMessage e = (SequenceNumberMessage) message;
-			messageData.set(MacString.valueOf("sequence"), MacNumber.valueOf(e.getSequence()));
+			messageData.addField("sequence", MacNumber.valueOf(e.getSequence()));
 		}
 
 		@Override
@@ -104,9 +105,9 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final TextMessage m = (TextMessage) message;
-			messageData.set(MacString.valueOf("text"), m.getText());
+			messageData.addField("text", m.getText());
 		}
 
 		@Override
@@ -144,9 +145,9 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final CopyrightMessage m = (CopyrightMessage) message;
-			messageData.set(MacString.valueOf("text"), m.getText());
+			messageData.addField("text", m.getText());
 		}
 
 		@Override
@@ -184,9 +185,9 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final TrackNameMessage m = (TrackNameMessage) message;
-			messageData.set(MacString.valueOf("text"), m.getText());
+			messageData.addField("text", m.getText());
 		}
 
 		@Override
@@ -224,9 +225,9 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final InstrumentNameMessage m = (InstrumentNameMessage) message;
-			messageData.set(MacString.valueOf("text"), m.getText());
+			messageData.addField("text", m.getText());
 		}
 
 		@Override
@@ -264,9 +265,9 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final LyricsMessage m = (LyricsMessage) message;
-			messageData.set(MacString.valueOf("text"), m.getText());
+			messageData.addField("text", m.getText());
 		}
 
 		@Override
@@ -304,9 +305,9 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final MarkerTextMessage m = (MarkerTextMessage) message;
-			messageData.set(MacString.valueOf("text"), m.getText());
+			messageData.addField("text", m.getText());
 		}
 
 		@Override
@@ -344,9 +345,9 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final CuePointMessage m = (CuePointMessage) message;
-			messageData.set(MacString.valueOf("text"), m.getText());
+			messageData.addField("text", m.getText());
 		}
 
 		@Override
@@ -385,7 +386,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			// TODO Auto-generated method stub
 
 		}
@@ -426,9 +427,9 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final ModulationMessage e = (ModulationMessage) message;
-			messageData.set(MacString.valueOf("value"), MacNumber.valueOf(e.getValue()));
+			messageData.addField("value", MacNumber.valueOf(e.getValue()));
 		}
 
 		@Override
@@ -465,7 +466,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 		}
 
 		@Override
@@ -509,9 +510,9 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final TempoMessage m = (TempoMessage) message;
-			messageData.set(MacString.valueOf("bpm"), MacNumber.valueOf(m.getBpm()));
+			messageData.addField("bpm", MacNumber.valueOf(m.getBpm()));
 		}
 
 		@Override
@@ -565,12 +566,12 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final TimeSignatureMessage m = (TimeSignatureMessage) message;
-			messageData.set(MacString.valueOf("numerator"), MacNumber.valueOf(m.getNumerator()));
-			messageData.set(MacString.valueOf("denominator"), MacNumber.valueOf(m.getDenominator()));
-			messageData.set(MacString.valueOf("metronome"), MacNumber.valueOf(m.getMetronome()));
-			messageData.set(MacString.valueOf("ticks"), MacNumber.valueOf(m.getTicks()));
+			messageData.addField("numerator", MacNumber.valueOf(m.getNumerator()));
+			messageData.addField("denominator", MacNumber.valueOf(m.getDenominator()));
+			messageData.addField("metronome", MacNumber.valueOf(m.getMetronome()));
+			messageData.addField("ticks", MacNumber.valueOf(m.getTicks()));
 		}
 
 		@Override
@@ -690,10 +691,10 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public void fill(final MacDictionary messageData, final Message<MetaMessage> message) {
+		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final KeySignatureMessage m = (KeySignatureMessage) message;
-			messageData.set(MacString.valueOf("keysig"), MacNumber.valueOf(m.getKeysig()));
-			messageData.set(MacString.valueOf("mode"), MacNumber.valueOf(m.getMode()));
+			messageData.addField("keysig", MacNumber.valueOf(m.getKeysig()));
+			messageData.addField("mode", MacNumber.valueOf(m.getMode()));
 		}
 
 		@Override
@@ -758,13 +759,18 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 	public abstract MetaMessage createMidiMessage(Message<MetaMessage> message) throws InvalidMidiDataException;
 
-	public abstract void fill(final MacDictionary messageData, final Message<MetaMessage> message);
+	public abstract void fill(final MacEvent messageData, final Message<MetaMessage> message);
 
 	public abstract Class<? extends MacObject>[] getArgTypes();
 
 	public abstract String[] getArgNames();
 
 	public abstract Message<MetaMessage> create(MacObject... args);
+
+	@Override
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+		return null;
+	}
 
 	@Override
 	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.impl.Context;
@@ -291,10 +292,15 @@ public class MacArray implements MacContainer<MacNumber> {
 		return array.size();
 	}
 
+	@Override
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+		return null;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
-		switch ("name") {
+		switch (name) {
 		case "size":
 			return (Method<T>) new SizeMethod(ruleset);
 		case "has":

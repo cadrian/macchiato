@@ -52,28 +52,46 @@ def humanize(value, anchor, percent) {
     }
 }
 
-def load_channel_array() {
-    channel_array = [];
-    local args = arguments();
-    if (args exists and args[0] exists) {
-        local p = /map=(?<file>.*)/;
-        local m = p.matcher(args[0]);
-        if m.matches() {
-            local file = m.group("file");
-            channel_array = read(file);
-        }
+def load_channel_array(arg) {
+    local p = /map=(?<value>.*)/;
+    local m = p.matcher(arg);
+    if m.matches() {
+        local value = m.group("value");
+        channel_array = fromString(value);
     }
-    print("channel_array=" + toString(channel_array));
 }
 
-def fix_event_channel(channel) {
-    local c = channel_array[event.channel]
-    if c exists {
-        if c < 0 {
-            // forget this event as it is not mapped
-            next;
+def load_tracks(arg) {
+    local p = /tracks=(?<value>.*)/;
+    local m = p.matcher(arg);
+    if m.matches() {
+        local value = m.group("value");
+        tracks = fromString(value);
+    }
+}
+
+def check_track_number(tn, val) {
+    result = val or (tn == tracknum);
+}
+
+def valid_track() {
+    if tracks.size() == 0 {
+        result = true;
+    } else {
+        result = tracks.map(check_track_number, false);
+    }
+}
+
+def fix_event_channel() {
+    if event.channel exists {
+        local c = channel_array[event.channel]
+        if c exists {
+            if c < 0 {
+                // forget this event as it is not mapped
+                next;
+            }
+            event.channel = c;
         }
-        event.channel = c;
     }
 }
 
@@ -192,18 +210,25 @@ def portamento_time(event) {
 }
 
 true {
-    if event.channel exists {
-        fix_event_channel(channel);
-    }
+    fix_event_channel();
 }
 
 BEGIN SEQUENCE {
     tracknum = 0;
-    load_channel_array();
+    channel_array = [];
+    tracks = [];
+    arguments.forEach(load_channel_array);
+    arguments.forEach(load_tracks);
+    print("channel_array=" + toString(channel_array));
+    print("tracks=" + toString(tracks));
 }
 
 BEGIN TRACK {
     init_track();
+    if (not valid_track()) {
+        // skip the track
+        next;
+    }
 }
 
 (event.type == CONTROL_CHANGE) and (event.mpc == PORTAMENTO) {

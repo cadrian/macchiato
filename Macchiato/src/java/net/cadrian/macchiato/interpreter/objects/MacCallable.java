@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.interpreter.objects;
 
+import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.impl.Context;
@@ -92,6 +93,11 @@ public abstract class MacCallable implements MacObject {
 	};
 
 	public abstract void invoke(final Context context, final int position);
+
+	@Override
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+		return null;
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override

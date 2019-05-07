@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
+import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.impl.Context;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
@@ -80,6 +81,11 @@ public class MacPattern implements MacObject {
 
 	public Pattern getValue() {
 		return value;
+	}
+
+	@Override
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")

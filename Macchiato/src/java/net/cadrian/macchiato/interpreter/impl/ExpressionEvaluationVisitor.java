@@ -21,6 +21,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cadrian.macchiato.interpreter.Callable;
+import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.Method;
@@ -35,6 +37,7 @@ import net.cadrian.macchiato.interpreter.objects.container.MacArray;
 import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.expression.CheckedExpression;
+import net.cadrian.macchiato.ruleset.ast.expression.DottedExpression;
 import net.cadrian.macchiato.ruleset.ast.expression.ExistsExpression;
 import net.cadrian.macchiato.ruleset.ast.expression.ExpressionVisitor;
 import net.cadrian.macchiato.ruleset.ast.expression.FunctionCall;
@@ -389,6 +392,25 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	}
 
 	@Override
+	public void visitDottedExpression(final DottedExpression dottedExpression) {
+		LOGGER.debug("<-- {}", dottedExpression);
+		dottedExpression.getTarget().accept(this);
+		final MacObject target = lastValue;
+		if (target == null) {
+			throw new InterpreterException("target does not exist", dottedExpression.getTarget().position());
+		}
+		final String selector = dottedExpression.getSelector();
+		final Field<MacObject, MacObject> field = target.getField(context.getRuleset(), selector);
+		if (field != null) {
+			lastValue = field.get(target, context, dottedExpression.getSelectorPosition());
+		} else {
+			final MacMethod<? extends MacObject> method = getMethod(context, target, selector);
+			lastValue = method;
+		}
+		LOGGER.debug("--> {} => {}", dottedExpression, lastValue);
+	}
+
+	@Override
 	public void visitIndexedExpression(final IndexedExpression indexedExpression) {
 		LOGGER.debug("<-- {}", indexedExpression);
 		indexedExpression.getIndexed().accept(this);
@@ -403,28 +425,18 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		}
 		if (index instanceof MacNumber) {
 			if (!(target instanceof MacArray)) {
-				throw new InterpreterException("invalid target type", indexedExpression.getIndexed().position());
+				throw new InterpreterException("invalid target type: expected MacArray but got "
+						+ target.getClass().getSimpleName() + " (index=" + index + ")",
+						indexedExpression.getIndexed().position());
 			}
 			lastValue = ((MacArray) target).get((MacNumber) index);
 		} else if (index instanceof MacString) {
-			final MacString name = (MacString) index;
-			final MacObject value;
-			if (target instanceof MacDictionary) {
-				value = ((MacDictionary) target).get(name);
-			} else {
-				value = null;
+			if (!(target instanceof MacDictionary)) {
+				throw new InterpreterException("invalid target type: expected MacDictionary but got "
+						+ target.getClass().getSimpleName() + " (index=" + index + ")",
+						indexedExpression.getIndexed().position());
 			}
-			if (value != null) {
-				lastValue = value;
-			} else {
-				final MacMethod<? extends MacObject> method = getMethod(context, target, name.getValue());
-				if (method != null) {
-					lastValue = method;
-				} else {
-					throw new InterpreterException("invalid target type or unknown method " + name,
-							indexedExpression.getIndexed().position());
-				}
-			}
+			lastValue = ((MacDictionary) target).get((MacString) index);
 		} else {
 			throw new InterpreterException("invalid index type", indexedExpression.getIndexed().position());
 		}
@@ -468,8 +480,20 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	@Override
 	public void visitFunctionCall(final FunctionCall functionCall) {
 		LOGGER.debug("<-- {}", functionCall);
-		final Function fn = context.getFunction(functionCall.getName());
 		final int position = functionCall.position();
+		final Callable fn;
+		final Expression targetExpression = functionCall.getTarget();
+		final MacObject target;
+		if (targetExpression == null) {
+			fn = context.getFunction(functionCall.getName());
+			target = null;
+		} else {
+			target = context.eval(targetExpression.typed(MacObject.class));
+			if (target == null) {
+				throw new InterpreterException("null target", position);
+			}
+			fn = target.getMethod(context.getRuleset(), functionCall.getName());
+		}
 		if (fn == null) {
 			throw new InterpreterException("unknown function " + functionCall.getName(), position);
 		}
@@ -490,7 +514,13 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			callContext.set(argNames[i], value);
 		}
 		callContext.declareLocal("result");
-		fn.run(callContext, position);
+		if (targetExpression == null) {
+			((Function) fn).run(callContext, position);
+		} else {
+			@SuppressWarnings("unchecked")
+			final Method<MacObject> m = (Method<MacObject>) fn;
+			m.run(target, callContext, position);
+		}
 		lastValue = fn.getResultType().cast(callContext.get("result"));
 		LOGGER.debug("--> {} => {}", functionCall, lastValue);
 	}

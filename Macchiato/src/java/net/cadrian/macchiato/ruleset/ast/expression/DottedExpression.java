@@ -17,18 +17,40 @@
 package net.cadrian.macchiato.ruleset.ast.expression;
 
 import net.cadrian.macchiato.interpreter.objects.MacObject;
-import net.cadrian.macchiato.ruleset.ast.AbstractCall;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
-public class FunctionCall extends AbstractCall implements Expression {
+public class DottedExpression implements Expression {
 
 	public static interface Visitor extends Node.Visitor {
-		void visitFunctionCall(FunctionCall functionCall);
+		void visitDottedExpression(DottedExpression dottedExpression);
 	}
 
-	public FunctionCall(final int position, final Expression target, final String name) {
-		super(position, target, name);
+	private final Expression target;
+	private final String selector;
+	private final int selectorPosition;
+
+	public DottedExpression(final Expression target, final String selector, final int selectorPosition) {
+		this.target = target;
+		this.selector = selector;
+		this.selectorPosition = selectorPosition;
+	}
+
+	@Override
+	public int position() {
+		return target.position();
+	}
+
+	public String getSelector() {
+		return selector;
+	}
+
+	public int getSelectorPosition() {
+		return selectorPosition;
+	}
+
+	public Expression getTarget() {
+		return target;
 	}
 
 	@Override
@@ -38,20 +60,16 @@ public class FunctionCall extends AbstractCall implements Expression {
 
 	@Override
 	public void accept(final Node.Visitor v) {
-		((Visitor) v).visitFunctionCall(this);
+		((Visitor) v).visitDottedExpression(this);
 	}
 
 	@Override
 	public Expression simplify() {
-		final Expression simplifyTarget = target == null ? null : target.simplify();
-		boolean changed = simplifyTarget != target;
-		final FunctionCall result = new FunctionCall(position, simplifyTarget, name);
-		for (final Expression arg : arguments) {
-			final Expression simplifyArg = arg.simplify();
-			result.add(simplifyArg);
-			changed |= simplifyArg != arg;
+		final Expression simplifyTarget = target.simplify();
+		if (simplifyTarget == target) {
+			return this;
 		}
-		return changed ? result : this;
+		return new DottedExpression(simplifyTarget, selector, selectorPosition);
 	}
 
 	@Override
@@ -61,7 +79,12 @@ public class FunctionCall extends AbstractCall implements Expression {
 
 	@Override
 	public Expression getStaticValue() {
-		return null;
+		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "{DottedExpression " + target + " :: " + selector + "}";
 	}
 
 }

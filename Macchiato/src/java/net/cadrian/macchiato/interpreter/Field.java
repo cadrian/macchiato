@@ -14,11 +14,24 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.ruleset.ast.expression;
+package net.cadrian.macchiato.interpreter;
 
-public interface ExpressionVisitor extends CheckedExpression.Visitor, DottedExpression.Visitor,
-		ExistsExpression.Visitor, FunctionCall.Visitor, Identifier.Visitor, IndexedExpression.Visitor,
-		ManifestArray.Visitor, ManifestBoolean.Visitor, ManifestDictionary.Visitor, ManifestNumeric.Visitor,
-		ManifestRegex.Visitor, ManifestString.Visitor, Result.Visitor, TypedBinary.Visitor, TypedUnary.Visitor {
+import net.cadrian.macchiato.interpreter.impl.Context;
+import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
+
+public interface Field<T extends MacObject, R extends MacObject> {
+
+	String name();
+
+	Class<R> getResultType();
+
+	Ruleset getRuleset();
+
+	Class<T> getTargetType();
+
+	R get(T target, final Context context, int position);
+
+	R set(T target, final Context context, int position, R newValue);
 
 }

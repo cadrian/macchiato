@@ -67,20 +67,10 @@ public class Ruleset {
 	public LocalizedDef getDef(final String name) {
 		final LocalizedDef result;
 		final Def def = defs.get(name);
-		if (def != null) {
-			result = new LocalizedDef(def, this);
+		if (def == null) {
+			result = null;
 		} else {
-			final int i = name.indexOf('.');
-			if (i == -1) {
-				result = null;
-			} else {
-				final Ruleset scope = scopes.get(name.substring(0, i));
-				if (scope == null) {
-					result = null;
-				} else {
-					result = scope.getDef(name.substring(i + 1));
-				}
-			}
+			result = new LocalizedDef(def, this);
 		}
 		return result;
 	}
@@ -108,6 +98,10 @@ public class Ruleset {
 
 	public boolean hasScope(final String name) {
 		return scopes.containsKey(name);
+	}
+
+	public Ruleset getScope(final String name) {
+		return scopes.get(name);
 	}
 
 	@Override

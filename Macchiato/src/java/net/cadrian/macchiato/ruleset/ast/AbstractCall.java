@@ -22,17 +22,23 @@ import java.util.List;
 
 public abstract class AbstractCall {
 
-	protected final String name;
 	protected final int position;
+	protected final Expression target;
+	protected final String name;
 	protected final List<Expression> arguments = new ArrayList<>();
 
-	public AbstractCall(final int position, final String name) {
-		this.name = name;
+	public AbstractCall(final int position, final Expression target, final String name) {
 		this.position = position;
+		this.target = target;
+		this.name = name;
 	}
 
 	public String getName() {
 		return name;
+	}
+
+	public Expression getTarget() {
+		return target;
 	}
 
 	public void add(final Expression exp) {

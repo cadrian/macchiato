@@ -20,6 +20,7 @@ import java.math.BigInteger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
@@ -38,6 +39,11 @@ public class MacNumber implements MacComparable<MacNumber> {
 
 	public BigInteger getValue() {
 		return value;
+	}
+
+	@Override
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+		return null;
 	}
 
 	@Override

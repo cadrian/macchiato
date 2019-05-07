@@ -28,6 +28,7 @@ import net.cadrian.macchiato.interpreter.objects.container.MacContainer;
 import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.expression.CheckedExpression;
+import net.cadrian.macchiato.ruleset.ast.expression.DottedExpression;
 import net.cadrian.macchiato.ruleset.ast.expression.ExistsExpression;
 import net.cadrian.macchiato.ruleset.ast.expression.ExpressionVisitor;
 import net.cadrian.macchiato.ruleset.ast.expression.FunctionCall;
@@ -170,6 +171,11 @@ class AssignmentVisitor implements ExpressionVisitor {
 		protected MacDictionary newContainer() {
 			return new MacDictionary();
 		}
+	}
+
+	@Override
+	public void visitDottedExpression(final DottedExpression dottedExpression) {
+		throw new InterpreterException("Cannot assign to a function call", dottedExpression.position());
 	}
 
 	@Override

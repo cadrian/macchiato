@@ -64,4 +64,9 @@ public class Def implements Node {
 		return new Def(position, name, args, simplifyInstruction);
 	}
 
+	@Override
+	public String toString() {
+		return "{Def: " + name + args + ": " + instruction + "}";
+	}
+
 }
