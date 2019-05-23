@@ -10,7 +10,7 @@ score writing tool (e.g. MuseScore), by adding some **humanization**
 procedures and any other more-or-less fancy enhancements (to taste!)
 
 It is used for instance by [Rex
-Potam](http://www.cadrian.net/rex-potam/) for his songs and other
+Potam](http://rex-potam.cadrian.net/) for his songs and other
 musical works.
 
 For more details, please refer to the wiki.
