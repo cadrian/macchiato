@@ -39,12 +39,12 @@
                 <dependency>
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-api</artifactId>
-                        <version>debian</version>
+                        <version>1.7.25</version>
                 </dependency>
                 <dependency>
                         <groupId>ch.qos.logback</groupId>
                         <artifactId>logback-classic</artifactId>
-                        <version>debian</version>
+                        <version>1.2.3</version>
                         <scope>runtime</scope>
                 </dependency>
         </dependencies>
