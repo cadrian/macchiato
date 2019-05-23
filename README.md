@@ -1,8 +1,16 @@
 [![Build Status](https://travis-ci.org/cadrian/macchiato.png?branch=master)](https://travis-ci.org/cadrian/macchiato)
 
-Macchiato is a MIDI file filter.
+**Macchiato is a MIDI file processor.**
 
-It takes a MIDI file, transforms it using some rules, and outputs
-another MIDI file with the specified modifications.
+It takes a MIDI file, transforms it using rules, and outputs another
+MIDI file with the specified modifications.
 
-For more details, please see the wiki.
+This is useful to enhance a MIDI file, for instance produced by a
+score writing tool (e.g. MuseScore), by adding some **humanization**
+procedures and any other more-or-less fancy enhancements (to taste!)
+
+It is used for instance by [Rex
+Potam](http://www.cadrian.net/rex-potam/) for his songs and other
+musical works.
+
+For more details, please refer to the wiki.
