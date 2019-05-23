@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/cadrian/macchiato.png?branch=master)](https://travis-ci.org/cadrian/macchiato)
+
 Macchiato is a MIDI file filter.
 
 It takes a MIDI file, transforms it using some rules, and outputs
