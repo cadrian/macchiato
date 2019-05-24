@@ -17,12 +17,12 @@
 package net.cadrian.macchiato.interpreter;
 
 import net.cadrian.macchiato.interpreter.impl.Context;
-import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.interpreter.objects.MacClazsObject;
 
-public interface Method<T extends MacObject> extends Callable {
+public interface ClazsMethod extends Callable {
 
-	Class<T> getTargetType();
+	Clazs getTargetType();
 
-	void run(T target, final Context context, int position);
+	void run(MacClazsObject target, final Context context, int position);
 
 }

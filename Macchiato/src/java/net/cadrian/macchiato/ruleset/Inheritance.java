@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.cadrian.macchiato.ruleset.ast.Node;
-import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class Inheritance implements Node {
 
@@ -63,14 +62,19 @@ public class Inheritance implements Node {
 				((Visitor) v).visit(this);
 			}
 
+			public String getRename(final String old) {
+				final String result = renames.get(old);
+				return result == null ? old : result;
+			}
+
 		}
 
 		private final boolean priv;
-		private final Identifier[] name;
+		private final String[] name;
 		private final Adapt adapt;
 		private final int position;
 
-		public Parent(final boolean priv, final Identifier[] name, final Adapt adapt, final int position) {
+		public Parent(final boolean priv, final String[] name, final Adapt adapt, final int position) {
 			this.priv = priv;
 			this.name = name;
 			this.adapt = adapt;
@@ -81,7 +85,7 @@ public class Inheritance implements Node {
 			return priv;
 		}
 
-		public Identifier[] getName() {
+		public String[] getName() {
 			return name;
 		}
 

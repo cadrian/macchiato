@@ -40,6 +40,16 @@ public class Ruleset {
 		}
 	}
 
+	public static class LocalizedClazz {
+		public final Clazz clazz;
+		public final Ruleset ruleset;
+
+		LocalizedClazz(final Clazz clazz, final Ruleset ruleset) {
+			this.clazz = clazz;
+			this.ruleset = ruleset;
+		}
+	}
+
 	private final Map<String, Def> defs = new HashMap<>();
 	private final Map<String, Clazz> clazzes = new HashMap<>();
 	private final List<Filter> filters = new ArrayList<>();
@@ -76,6 +86,17 @@ public class Ruleset {
 			result = null;
 		} else {
 			result = new LocalizedDef(def, this);
+		}
+		return result;
+	}
+
+	public LocalizedClazz getClazz(final String name) {
+		final LocalizedClazz result;
+		final Clazz clazz = clazzes.get(name);
+		if (clazz == null) {
+			result = null;
+		} else {
+			result = new LocalizedClazz(clazz, this);
 		}
 		return result;
 	}

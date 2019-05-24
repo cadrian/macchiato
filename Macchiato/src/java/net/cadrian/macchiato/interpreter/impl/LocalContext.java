@@ -24,6 +24,7 @@ import javax.sound.midi.MidiMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cadrian.macchiato.interpreter.Clazs;
 import net.cadrian.macchiato.interpreter.Event;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
@@ -74,6 +75,15 @@ public class LocalContext extends Context {
 		final Function result = super.getUncachedFunction(name);
 		if (result == null) {
 			return parent.getFunction(name);
+		}
+		return result;
+	}
+
+	@Override
+	protected Clazs getUncachedClazs(final String name) {
+		final Clazs result = super.getUncachedClazs(name);
+		if (result == null) {
+			return parent.getClazs(name);
 		}
 		return result;
 	}

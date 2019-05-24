@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.ruleset.ast;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,6 +59,10 @@ public class Clazz implements Node {
 
 	public Def getDef(final String name) {
 		return defs.get(name);
+	}
+
+	public Collection<Def> getDefs() {
+		return defs.values();
 	}
 
 	@Override

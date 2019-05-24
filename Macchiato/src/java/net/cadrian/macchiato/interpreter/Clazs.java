@@ -16,13 +16,16 @@
  */
 package net.cadrian.macchiato.interpreter;
 
-import net.cadrian.macchiato.interpreter.impl.Context;
-import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
-public interface Method<T extends MacObject> extends Callable {
+public interface Clazs {
 
-	Class<T> getTargetType();
+	String name();
 
-	void run(T target, final Context context, int position);
+	Ruleset getRuleset();
+
+	ClazsMethod getMethod(String name);
+
+	boolean conformsTo(Clazs clazs);
 
 }

@@ -285,16 +285,15 @@ public class Parser {
 		final int position = buffer.position();
 		final boolean priv = readKeyword("private");
 
-		final List<Identifier> name = new ArrayList<>();
+		final List<String> name = new ArrayList<>();
 		boolean more = true;
 		do {
 			buffer.skipBlanks();
-			final int p = buffer.position();
 			final String id = readIdentifier();
 			if (id == null) {
 				throw new ParserException(error("Expected parent name"));
 			}
-			name.add(new Identifier(p, id));
+			name.add(id);
 			buffer.skipBlanks();
 			if (buffer.off()) {
 				throw new ParserException(error("Unfinished inheritance clause"));
@@ -317,7 +316,7 @@ public class Parser {
 			adapt = null;
 		}
 
-		final Parent result = new Parent(priv, name.toArray(new Identifier[name.size()]), adapt, position);
+		final Parent result = new Parent(priv, name.toArray(new String[name.size()]), adapt, position);
 
 		LOGGER.debug("--> {}", result);
 		return result;
