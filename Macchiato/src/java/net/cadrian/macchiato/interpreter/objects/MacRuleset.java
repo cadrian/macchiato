@@ -68,6 +68,9 @@ public class MacRuleset implements MacObject {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+		if (Character.isLowerCase(name.charAt(0))) {
+			return null;
+		}
 		Field<T, R> result = (Field<T, R>) fields.get(name);
 		if (result == null) {
 			final Ruleset scope = this.ruleset.getScope(name);
@@ -85,6 +88,9 @@ public class MacRuleset implements MacObject {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
+		if (Character.isLowerCase(name.charAt(0))) {
+			return null;
+		}
 		Method<T> result = (Method<T>) methods.get(name);
 		if (result == null) {
 			final LocalizedDef def = this.ruleset.getDef(name);

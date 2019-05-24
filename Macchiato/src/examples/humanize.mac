@@ -14,26 +14,26 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 def box(value) {
-	if value < 0 {
-		result = 0;
-	} else if value > 127 {
-		result = 127;
-	} else {
-		result = value;
-	}
+    if value < 0 {
+        result = 0;
+    } else if value > 127 {
+        result = 127;
+    } else {
+        result = value;
+    }
 }
 
-def valued(value, percent) {
-	result = anchored(value, value, percent);
+def Valued(value, percent) {
+    result = Anchored(value, value, percent);
 }
 
-def anchored(value, anchor, percent) {
-	local max = anchor * percent;
-	if max == 0 {
-		result = value;
-	} else {
-		result = box(value + ((max / 2) - random(max)) / 100);
-	}
+def Anchored(value, anchor, percent) {
+    local max = anchor * percent;
+    if max == 0 {
+        result = value;
+    } else {
+        result = box(value + ((max / 2) - random(max)) / 100);
+    }
 }

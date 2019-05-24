@@ -47,7 +47,7 @@ def humanize(value, anchor, percent) {
     if value == 0 {
         result = 0;
     } else {
-        result = h.anchored(value, anchor, percent);
+        result = h.Anchored(value, anchor, percent);
         if result <= 0 {
             result = 1;
         }
