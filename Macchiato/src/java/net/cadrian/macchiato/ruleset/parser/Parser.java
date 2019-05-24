@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +35,11 @@ import net.cadrian.macchiato.interpreter.objects.MacPattern;
 import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.interpreter.objects.container.MacContainer;
 import net.cadrian.macchiato.midi.Message;
+import net.cadrian.macchiato.ruleset.Inheritance;
+import net.cadrian.macchiato.ruleset.Inheritance.Parent;
+import net.cadrian.macchiato.ruleset.Inheritance.Parent.Adapt;
 import net.cadrian.macchiato.ruleset.ast.BoundFilter;
+import net.cadrian.macchiato.ruleset.ast.Clazz;
 import net.cadrian.macchiato.ruleset.ast.ConditionFilter;
 import net.cadrian.macchiato.ruleset.ast.Def;
 import net.cadrian.macchiato.ruleset.ast.Expression;
@@ -76,6 +82,7 @@ public class Parser {
 	private final File relativeDirectory;
 	private final ParserBuffer buffer;
 
+	private Clazz inClass;
 	private boolean inDef;
 
 	public Parser(final File relativeDirectory, final Reader reader) throws IOException {
@@ -105,6 +112,13 @@ public class Parser {
 					final Def old = result.addDef(def);
 					if (old != null) {
 						throw new ParserException(error("Duplicate def " + old.name(), old.position(), def.position()));
+					}
+				} else if (readKeyword("class")) {
+					final Clazz clazz = parseClass(p);
+					final Clazz old = result.addClass(clazz);
+					if (old != null) {
+						throw new ParserException(
+								error("Duplicate class " + old.name(), old.position(), clazz.position()));
 					}
 				} else {
 					result.addFilter(parseFilter(p));
@@ -178,6 +192,183 @@ public class Parser {
 		return Platform.getConfigFile(scopePath);
 	}
 
+	private Clazz parseClass(final int position) {
+		LOGGER.debug("<-- {}", buffer.position());
+
+		buffer.skipBlanks();
+		final String name = readIdentifier();
+		if (name == null) {
+			throw new ParserException(error("Expected class name"));
+		}
+		buffer.skipBlanks();
+
+		final Inheritance inheritance;
+		if (buffer.off() || buffer.current() == '(') {
+			inheritance = parseInheritance();
+			buffer.skipBlanks();
+		} else {
+			inheritance = null;
+		}
+
+		final Expression invariant;
+		if (readKeyword("where")) {
+			invariant = parseExpression();
+			buffer.skipBlanks();
+		} else {
+			invariant = null;
+		}
+
+		final Clazz result = new Clazz(position, name, inheritance, invariant);
+		inClass = result;
+
+		if (buffer.off() || buffer.current() != '{') {
+			throw new ParserException(error("Expected block"));
+		}
+		buffer.next();
+		boolean more = true;
+		do {
+			buffer.skipBlanks();
+			if (buffer.off()) {
+				throw new ParserException(error("Unfinished block"));
+			}
+			if (buffer.current() == '}') {
+				buffer.next();
+				more = false;
+			} else if (readKeyword("def")) {
+				final Def def = parseDef(buffer.position());
+				final Def old = result.addDef(def);
+				if (old != null) {
+					throw new ParserException(error("Duplicate def: " + old.name(), old.position(), def.position()));
+				}
+			} else {
+				throw new ParserException(error("Expected def or end of class"));
+			}
+		} while (more);
+
+		inClass = null;
+		LOGGER.debug("--> {}", result);
+		return result;
+	}
+
+	private Inheritance parseInheritance() {
+		LOGGER.debug("<-- {}", buffer.position());
+		assert buffer.current() == '(';
+		final Inheritance result = new Inheritance(buffer.position());
+
+		buffer.next();
+		boolean more = true;
+		do {
+			buffer.skipBlanks();
+			if (buffer.off()) {
+				throw new ParserException(error("Unfinished inheritance clause"));
+			}
+			if (buffer.current() == ')') {
+				buffer.next();
+				more = false;
+			} else {
+				final Parent parent = parseParent();
+				result.addParent(parent);
+				buffer.skipBlanks();
+				if (!buffer.off() && buffer.current() == ',') {
+					buffer.next();
+				}
+			}
+		} while (more);
+
+		LOGGER.debug("--> {}", result);
+		return result;
+	}
+
+	private Parent parseParent() {
+		LOGGER.debug("<-- {}", buffer.position());
+		buffer.skipBlanks();
+		final int position = buffer.position();
+		final boolean priv = readKeyword("private");
+
+		final List<Identifier> name = new ArrayList<>();
+		boolean more = true;
+		do {
+			buffer.skipBlanks();
+			final int p = buffer.position();
+			final String id = readIdentifier();
+			if (id == null) {
+				throw new ParserException(error("Expected parent name"));
+			}
+			name.add(new Identifier(p, id));
+			buffer.skipBlanks();
+			if (buffer.off()) {
+				throw new ParserException(error("Unfinished inheritance clause"));
+			}
+			if (buffer.current() == '.') {
+				buffer.next();
+			} else {
+				more = false;
+			}
+		} while (more);
+
+		buffer.skipBlanks();
+		if (buffer.off()) {
+			throw new ParserException(error("Unfinished inheritance clause"));
+		}
+		final Adapt adapt;
+		if (buffer.current() == '{') {
+			adapt = parseAdapt();
+		} else {
+			adapt = null;
+		}
+
+		final Parent result = new Parent(priv, name.toArray(new Identifier[name.size()]), adapt, position);
+
+		LOGGER.debug("--> {}", result);
+		return result;
+	}
+
+	private Adapt parseAdapt() {
+		LOGGER.debug("<-- {}", buffer.position());
+		assert buffer.current() == '{';
+		final Adapt result = new Adapt(buffer.position());
+
+		boolean more = true;
+		do {
+			buffer.skipBlanks();
+			final String oldName = readIdentifier();
+			if (oldName == null) {
+				throw new ParserException(error("Expected def name"));
+			}
+
+			buffer.skipBlanks();
+			if (!readKeyword("as")) {
+				throw new ParserException(error("Expected 'as'"));
+			}
+
+			buffer.skipBlanks();
+			final String newName = readIdentifier();
+			if (newName == null) {
+				throw new ParserException(error("Expected def name"));
+			}
+
+			result.addRename(oldName, newName);
+
+			buffer.skipBlanks();
+			if (buffer.off()) {
+				throw new ParserException(error("Unfinished inheritance clause"));
+			}
+
+			switch (buffer.current()) {
+			case '}':
+				more = false;
+				buffer.next();
+				break;
+			case ',':
+				buffer.next();
+				break;
+			}
+		} while (more);
+
+		LOGGER.debug("--> {}", result);
+		return result;
+	}
+
 	private Def parseDef(final int position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		inDef = true;
@@ -188,11 +379,25 @@ public class Parser {
 		}
 		final FormalArgs args = parseFormalArgs();
 		buffer.skipBlanks();
-		if (buffer.off() || buffer.current() != '{') {
+		if (buffer.off()) {
 			throw new ParserException(error("Expected block"));
 		}
-		final Block inst = parseBlock();
-		final Def result = new Def(position, name, args, inst);
+		final Block inst;
+		switch (buffer.current()) {
+		case '{':
+			inst = parseBlock();
+			break;
+		case ';':
+			if (inClass == null) {
+				throw new ParserException(error("Expected block"));
+			}
+			inst = null;
+			buffer.next();
+			break;
+		default:
+			throw new ParserException(error("Expected block"));
+		}
+		final Def result = new Def(position, name, args, inst, inClass);
 		inDef = false;
 		LOGGER.debug("--> {}", result);
 		return result;
@@ -1338,13 +1543,16 @@ public class Parser {
 	private boolean isReserved(final String identifier) {
 		switch (identifier) {
 		case "and":
+		case "as":
 		case "at":
 		case "case":
+		case "class":
 		case "def":
 		case "default":
 		case "do":
 		case "else":
 		case "emit":
+		case "ensures":
 		case "exists":
 		case "false":
 		case "for":
@@ -1355,9 +1563,11 @@ public class Parser {
 		case "next":
 		case "not":
 		case "or":
+		case "requires":
 		case "result":
 		case "switch":
 		case "true":
+		case "where":
 		case "while":
 		case "xor":
 			return true;

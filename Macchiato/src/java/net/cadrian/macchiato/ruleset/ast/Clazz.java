@@ -16,41 +16,48 @@
  */
 package net.cadrian.macchiato.ruleset.ast;
 
-public class Def implements Node {
+import java.util.HashMap;
+import java.util.Map;
+
+import net.cadrian.macchiato.ruleset.Inheritance;
+
+public class Clazz implements Node {
 
 	public static interface Visitor extends Node.Visitor {
-		void visit(Def def);
+		void visit(Clazz def);
 	}
 
 	private final String name;
-	private final Clazz clazz;
-	private final FormalArgs args;
-	private final Instruction instruction;
+	private final Expression invariant;
+	private final Inheritance inheritance;
+	private final Map<String, Def> defs = new HashMap<>();
 	private final int position;
 
-	public Def(final int position, final String name, final FormalArgs args, final Instruction instruction,
-			final Clazz clazz) {
+	public Clazz(final int position, final String name, final Inheritance inheritance, final Expression invariant) {
 		this.position = position;
 		this.name = name;
-		this.clazz = clazz;
-		this.args = args;
-		this.instruction = instruction;
+		this.invariant = invariant;
+		this.inheritance = inheritance;
 	}
 
 	public String name() {
 		return name;
 	}
 
-	public FormalArgs getArgs() {
-		return args;
+	public Expression getInvariant() {
+		return invariant;
 	}
 
-	public Instruction getInstruction() {
-		return instruction;
+	public Inheritance getInheritance() {
+		return inheritance;
 	}
 
-	public Clazz getClazz() {
-		return clazz;
+	public Def addDef(final Def def) {
+		return defs.put(def.name(), def);
+	}
+
+	public Def getDef(final String name) {
+		return defs.get(name);
 	}
 
 	@Override
@@ -63,18 +70,13 @@ public class Def implements Node {
 		((Visitor) v).visit(this);
 	}
 
-	public Def simplify() {
-		final Instruction simplifyInstruction = instruction.simplify();
-		final Clazz simplifyClazz = clazz.simplify();
-		if (simplifyInstruction == instruction && simplifyClazz == clazz) {
-			return this;
-		}
-		return new Def(position, name, args, simplifyInstruction, simplifyClazz);
+	public Clazz simplify() {
+		return this;
 	}
 
 	@Override
 	public String toString() {
-		return "{Def: " + name + args + ": " + instruction + "}";
+		return "{Class: " + name + "}";
 	}
 
 }

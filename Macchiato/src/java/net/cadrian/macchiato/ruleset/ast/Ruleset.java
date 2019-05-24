@@ -41,6 +41,7 @@ public class Ruleset {
 	}
 
 	private final Map<String, Def> defs = new HashMap<>();
+	private final Map<String, Clazz> clazzes = new HashMap<>();
 	private final List<Filter> filters = new ArrayList<>();
 	private final Map<String, Ruleset> scopes = new LinkedHashMap<>();
 	private final int position;
@@ -57,6 +58,10 @@ public class Ruleset {
 
 	public Def addDef(final Def def) {
 		return defs.put(def.name(), def);
+	}
+
+	public Clazz addClass(final Clazz clazz) {
+		return clazzes.put(clazz.name(), clazz);
 	}
 
 	public void addFilter(final Filter filter) {
@@ -106,7 +111,7 @@ public class Ruleset {
 
 	@Override
 	public String toString() {
-		return "{Ruleset defs=" + defs + " filters=" + filters + " scopes=" + scopes + "}";
+		return "{Ruleset clazzes=" + clazzes + " defs=" + defs + " filters=" + filters + " scopes=" + scopes + "}";
 	}
 
 	public Ruleset simplify() {
