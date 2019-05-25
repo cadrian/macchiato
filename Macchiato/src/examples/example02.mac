@@ -177,44 +177,44 @@ BEGIN TRACK {
     initTrack();
 }
 
-(event.type == CONTROL_CHANGE) and (event.mpc == PORTAMENTO) {
+(event.Type == CONTROL_CHANGE) and (event.Mpc == PORTAMENTO) {
     portamento = event.Value;
 }
 
-(event.type == CONTROL_CHANGE) and (event.mpc == PORTAMENTO_TIME) {
+(event.Type == CONTROL_CHANGE) and (event.Mpc == PORTAMENTO_TIME) {
     portamento_time(event);
     next;
 }
 
-(event.type == CONTROL_CHANGE) and (event.mpc == EXPRESSION) {
+(event.Type == CONTROL_CHANGE) and (event.Mpc == EXPRESSION) {
     // Record the expression value
     expression[event.Channel] = event.Value;
     next;
 }
 
-(event.type == CONTROL_CHANGE) and (event.mpc == CHANNEL_VOLUME) {
+(event.Type == CONTROL_CHANGE) and (event.Mpc == CHANNEL_VOLUME) {
     // Record the volume value
     volume[event.Channel] = event.Value;
     emit;
     next;
 }
 
-(event.type == PROGRAM_CHANGE) and (event.channel == 10) {
+(event.Type == PROGRAM_CHANGE) and (event.Channel == 10) {
     // Don't emit program change on channel 10
     next;
 }
 
-(event.type == NOTE_ON) and (event.velocity > 0) {
+(event.Type == NOTE_ON) and (event.Velocity > 0) {
     note_on(event);
     next;
 }
 
-(event.type == NOTE_ON) and (event.velocity == 0) {
+(event.Type == NOTE_ON) and (event.Velocity == 0) {
     note_on_off(event);
     next;
 }
 
-(event.type == NOTE_OFF) {
+(event.Type == NOTE_OFF) {
     note_off(event);
     next;
 }
