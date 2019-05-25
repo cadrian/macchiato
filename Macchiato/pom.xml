@@ -32,9 +32,6 @@
                 <maven.compiler.source>11</maven.compiler.source>
                 <maven.compiler.target>11</maven.compiler.target>
         </properties>
-        <build>
-                <sourceDirectory>src/java</sourceDirectory>
-        </build>
         <dependencies>
                 <dependency>
                         <groupId>org.slf4j</groupId>
@@ -46,6 +43,12 @@
                         <artifactId>logback-classic</artifactId>
                         <version>1.2.3</version>
                         <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                	<groupId>junit</groupId>
+                	<artifactId>junit</artifactId>
+                	<version>4.12</version>
+                	<scope>test</scope>
                 </dependency>
         </dependencies>
 </project>

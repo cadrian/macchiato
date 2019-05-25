@@ -32,16 +32,21 @@ import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.core.Interpreter;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.parser.Parser;
+import net.cadrian.macchiato.ruleset.parser.ParserException;
 
 public class Run {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Run.class);
 
 	public static void main(final String[] args) {
+		System.exit(run(args));
+	}
+
+	static int run(final String[] args) {
 		if (args.length < 1) {
 			System.err.println("Usage: " + Run.class.getSimpleName()
 					+ " <mac file> (<midi input file>) (<midi output file>) [-- <program arguments>]");
-			System.exit(1);
+			return 1;
 		}
 
 		try {
@@ -49,13 +54,18 @@ public class Run {
 			final String midiInputName = getMidiInputName(args);
 			final File rulesetFile = new File(rulesetName);
 			final Parser parser;
-			final Ruleset ruleset;
 			try (final Reader reader = new BufferedReader(new FileReader(rulesetName))) {
 				parser = new Parser(rulesetFile.getParentFile(), reader, rulesetFile.getAbsolutePath());
+			}
+			final Ruleset ruleset;
+			try {
 				LOGGER.info("Parsing ruleset: {}", rulesetName);
 				ruleset = parser.parse().simplify();
+				LOGGER.debug("Parsed ruleset: {}", ruleset);
+			} catch (final ParserException e) {
+				System.err.println(parser.error(e));
+				return 1;
 			}
-			LOGGER.debug("Parsed ruleset: {}", ruleset);
 			try {
 				final Interpreter interpreter = new Interpreter(ruleset);
 				if (midiInputName != null) {
@@ -71,12 +81,14 @@ public class Run {
 				}
 			} catch (final InterpreterException e) {
 				System.err.println(parser.error(e));
-				System.exit(1);
+				return 1;
 			}
 		} catch (final Exception e) {
 			e.printStackTrace();
-			System.exit(1);
+			return 1;
 		}
+
+		return 0;
 	}
 
 	private static String getRulesetName(final String[] args) {

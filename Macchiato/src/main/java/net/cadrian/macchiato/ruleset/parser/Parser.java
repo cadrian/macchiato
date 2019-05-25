@@ -1577,11 +1577,21 @@ public class Parser {
 	}
 
 	public static void main(final String[] args) throws IOException {
+		System.exit(run(args));
+	}
+
+	static int run(final String[] args) throws IOException {
 		final File file = new File(args[0]);
 		final FileReader fileReader = new FileReader(file);
 		final Parser parser = new Parser(file.getParentFile(), fileReader, file.getAbsolutePath());
-		final Ruleset ruleset = parser.parse();
-		System.out.println("Ruleset: " + ruleset);
+		try {
+			final Ruleset ruleset = parser.parse();
+			System.out.println("Ruleset: " + ruleset);
+			return 0;
+		} catch (ParserException e) {
+			System.out.println(parser.error(e));
+			return 1;
+		}
 	}
 
 	String error(final String message) {
@@ -1604,6 +1614,10 @@ public class Parser {
 			LOGGER.error("error could not be displayed", e);
 			return message;
 		}
+	}
+
+	public String error(final ParserException e) {
+		return e.getMessage();
 	}
 
 	public String error(final InterpreterException e) throws IOException {
