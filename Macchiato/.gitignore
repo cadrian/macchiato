@@ -1,3 +1,5 @@
-*.mid
+*.out.mid
 bin
 /target/
+/local/
+.debianVersion
