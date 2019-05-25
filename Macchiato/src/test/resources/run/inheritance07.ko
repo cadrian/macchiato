@@ -1,0 +1,23 @@
+class Any {
+    def ToString() {
+        result = "any";
+    }
+}
+
+class Other {
+    def ToString() {
+        result = "other";
+    }
+}
+
+class Test(Any, Other) {
+}
+
+def runTest() {
+    local test = Test();
+    print(test.ToString());
+}
+
+BEGIN SEQUENCE {
+    runTest();
+}

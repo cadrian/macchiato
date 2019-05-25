@@ -1,0 +1,12 @@
+**** Duplicate parent definition of ToString -- need redefine
+src/test/resources/run/inheritance07.ko at line 22, column 4
+    runTest();
+    ^
+Caused by:
+**** Duplicate parent definition of ToString -- need redefine
+src/test/resources/run/inheritance07.ko at line 8, column 8
+    def ToString() {
+        ^
+src/test/resources/run/inheritance07.ko at line 2, column 8
+    def ToString() {
+        ^

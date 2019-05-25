@@ -32,7 +32,7 @@ public class TestRun {
 	}
 
 	private void run(final File file, final int expectedStatus) throws IOException {
-		String path = file.getAbsolutePath();
+		String path = file.getPath();
 
 		final PrintStream oldOut = System.out;
 		final PrintStream oldErr = System.err;
@@ -51,15 +51,23 @@ public class TestRun {
 				midPath = new File(file.getParentFile(), "default.mid").getPath();
 			}
 			actualStatus = Run.run(new String[] { path, midPath, path + ".out.mid" });
+		} catch (RuntimeException | AssertionError e) {
+			System.setOut(oldOut);
+			System.setErr(oldErr);
+			e.printStackTrace();
+			Assert.fail(e.getMessage());
+			throw e;
 		} finally {
 			System.setOut(oldOut);
 			System.setErr(oldErr);
 		}
 
+		Assert.assertEquals("Differing stdout: " + path, new String(read(path + ".out")),
+				new String(outStream.toByteArray()));
+		Assert.assertEquals("Differing stderr: " + path, new String(read(path + ".err")),
+				new String(errStream.toByteArray()));
 		Assert.assertEquals(expectedStatus, actualStatus);
-		Assert.assertArrayEquals("Differing stdout", read(path + ".out"), outStream.toByteArray());
-		Assert.assertArrayEquals("Differing stderr", read(path + ".err"), errStream.toByteArray());
-		Assert.assertArrayEquals("Differing MIDI", read(path + ".ref.mid"), read(path + ".out.mid"));
+		Assert.assertArrayEquals("Differing MIDI:" + path, read(path + ".ref.mid"), read(path + ".out.mid"));
 
 		// If OK (otherwise keep for forensics)
 		new File(path + ".out.mid").delete();

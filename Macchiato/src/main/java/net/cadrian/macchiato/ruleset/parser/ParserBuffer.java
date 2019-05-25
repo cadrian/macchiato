@@ -22,7 +22,12 @@ import java.io.Reader;
 import java.math.BigInteger;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ParserBuffer {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ParserBuffer.class);
 
 	final String path;
 
@@ -57,6 +62,7 @@ public class ParserBuffer {
 		try {
 			n = reader.read(buffer);
 		} catch (final IOException e) {
+			LOGGER.error("IO error", e);
 			throw new ParserException(error("Error while reading input file"), e);
 		}
 		if (n == -1) {
@@ -88,7 +94,7 @@ public class ParserBuffer {
 	}
 
 	private void rewind(final int offset) {
-		assert offset >= 0 && offset < this.offset;
+		assert offset >= 0 && offset <= this.offset : "offset must be before current offset";
 		this.offset = offset;
 	}
 
@@ -104,7 +110,7 @@ public class ParserBuffer {
 	}
 
 	private String error(final String message, final int offset) {
-		final int oldPosition = this.offset;
+		final int oldOffset = this.offset;
 
 		while (!eof && content.length < offset) {
 			readMore();
@@ -150,10 +156,10 @@ public class ParserBuffer {
 				text.append(c);
 				next();
 			}
-			rewind(oldPosition);
 		}
 
-		return (message == null ? "" : "**** " + message + "\n") + path + " at line " + line + ", column " + column
+		this.offset = oldOffset;
+		return (message == null ? "" : "**** " + message + '\n') + path + " at line " + line + ", column " + column
 				+ '\n' + text + '\n' + carret;
 	}
 

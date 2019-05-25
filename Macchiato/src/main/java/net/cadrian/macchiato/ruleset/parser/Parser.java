@@ -146,11 +146,11 @@ public class Parser {
 			throw new ParserException(error("Could not import scope " + name + " from " + scopePath.getValue()
 					+ ": file not found (relative directory: " + relativeDirectory.getPath() + ")", p1));
 		}
-		LOGGER.debug("Found {} at {}", scopePath.getValue(), scopeFile.getAbsolutePath());
+		LOGGER.debug("Found {} at {}", scopePath.getValue(), scopeFile.getPath());
 
 		final Ruleset scope;
 		try (final FileReader scopeReader = new FileReader(scopeFile)) {
-			final Parser scopeParser = new Parser(scopeFile.getParentFile(), scopeReader, scopeFile.getAbsolutePath());
+			final Parser scopeParser = new Parser(scopeFile.getParentFile(), scopeReader, scopeFile.getPath());
 			try {
 				scope = scopeParser.parse(p);
 			} catch (final ParserException e) {
@@ -1583,13 +1583,14 @@ public class Parser {
 	static int run(final String[] args) throws IOException {
 		final File file = new File(args[0]);
 		final FileReader fileReader = new FileReader(file);
-		final Parser parser = new Parser(file.getParentFile(), fileReader, file.getAbsolutePath());
+		final Parser parser = new Parser(file.getParentFile(), fileReader, file.getPath());
 		try {
 			final Ruleset ruleset = parser.parse();
 			System.out.println("Ruleset: " + ruleset);
 			return 0;
 		} catch (ParserException e) {
-			System.out.println(parser.error(e));
+			LOGGER.error("Parse error: {}", e.getMessage(), e);
+			System.out.print(parser.error(e));
 			return 1;
 		}
 	}

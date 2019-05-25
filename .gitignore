@@ -9,3 +9,4 @@ debian
 *.build
 *.buildinfo
 *.changes
+*.out.mid

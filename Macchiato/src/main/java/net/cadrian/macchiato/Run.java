@@ -54,17 +54,17 @@ public class Run {
 			final String midiInputName = getMidiInputName(args);
 			final File rulesetFile = new File(rulesetName);
 			final Parser parser;
-			try (final Reader reader = new BufferedReader(new FileReader(rulesetName))) {
-				parser = new Parser(rulesetFile.getParentFile(), reader, rulesetFile.getAbsolutePath());
-			}
 			final Ruleset ruleset;
-			try {
-				LOGGER.info("Parsing ruleset: {}", rulesetName);
-				ruleset = parser.parse().simplify();
-				LOGGER.debug("Parsed ruleset: {}", ruleset);
-			} catch (final ParserException e) {
-				System.err.println(parser.error(e));
-				return 1;
+			try (final Reader reader = new BufferedReader(new FileReader(rulesetName))) {
+				parser = new Parser(rulesetFile.getParentFile(), reader, rulesetFile.getPath());
+				try {
+					LOGGER.info("Parsing ruleset: {}", rulesetName);
+					ruleset = parser.parse().simplify();
+					LOGGER.debug("Parsed ruleset: {}", ruleset);
+				} catch (final ParserException e) {
+					System.err.println(parser.error(e));
+					return 1;
+				}
 			}
 			try {
 				final Interpreter interpreter = new Interpreter(ruleset);
@@ -80,7 +80,7 @@ public class Run {
 					interpreter.run(getProgramArgs(args));
 				}
 			} catch (final InterpreterException e) {
-				System.err.println(parser.error(e));
+				System.err.print(parser.error(e));
 				return 1;
 			}
 		} catch (final Exception e) {

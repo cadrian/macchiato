@@ -1,0 +1,9 @@
+**** Def is not concrete
+src/test/resources/run/inheritance06.ko at line 18, column 4
+    runTest();
+    ^
+Caused by:
+**** Def is not concrete
+src/test/resources/run/inheritance06.ko at line 2, column 4
+    def ToString();
+    ^

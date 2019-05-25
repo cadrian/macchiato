@@ -44,7 +44,7 @@ public class TestParser {
 
 		final int actualStatus;
 		try {
-			actualStatus = Parser.run(new String[] { file.getAbsolutePath() });
+			actualStatus = Parser.run(new String[] { file.getPath() });
 		} finally {
 			System.setOut(oldOut);
 			System.setErr(oldErr);
