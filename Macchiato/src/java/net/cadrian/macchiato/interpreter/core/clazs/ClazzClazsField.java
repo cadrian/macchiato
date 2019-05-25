@@ -72,4 +72,9 @@ class ClazzClazsField implements ClazsField {
 		return target.setFieldValue(name.getName(), newValue);
 	}
 
+	@Override
+	public String toString() {
+		return "{ClazzClazsField name=" + name + "}";
+	}
+
 }

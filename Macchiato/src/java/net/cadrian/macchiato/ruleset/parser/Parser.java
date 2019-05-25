@@ -95,32 +95,32 @@ public class Parser {
 
 	Ruleset parse(final Position position) {
 		LOGGER.debug("<-- {}", buffer.position());
-		final Ruleset result = new Ruleset(position);
+		final Ruleset result = new Ruleset(position, buffer.path);
 		try {
 			boolean allowImport = true;
 			while (!buffer.off()) {
 				buffer.skipBlanks();
-				final Position p = buffer.position();
+				final Position pos = buffer.position();
 				if (readKeyword("import")) {
 					if (!allowImport) {
-						throw new ParserException(error("Cannot import files after filters", p));
+						throw new ParserException(error("Cannot import files after filters", pos));
 					}
-					parseImport(result, p);
+					parseImport(result, pos);
 				} else if (readKeyword("def")) {
-					final Def def = parseDef(p);
+					final Def def = parseDef(pos);
 					final Def old = result.addDef(def);
 					if (old != null) {
 						throw new ParserException(error("Duplicate def " + old.name(), old.position(), def.position()));
 					}
 				} else if (readKeyword("class")) {
-					final Clazz clazz = parseClass(p);
-					final Clazz old = result.addClass(clazz);
+					final Clazz clazz = parseClass(pos);
+					final Clazz old = result.addClazz(clazz);
 					if (old != null) {
 						throw new ParserException(
 								error("Duplicate class " + old.name(), old.position(), clazz.position()));
 					}
 				} else {
-					result.addFilter(parseFilter(p));
+					result.addFilter(parseFilter(pos));
 					allowImport = false;
 				}
 				buffer.skipBlanks();
@@ -235,25 +235,28 @@ public class Parser {
 			if (buffer.current() == '}') {
 				buffer.next();
 				more = false;
-			} else if (readKeyword("def")) {
-				final Def def = parseDef(buffer.position());
-				final Def old = result.addDef(def);
-				if (old != null) {
-					throw new ParserException(error("Duplicate def: " + old.name(), old.position(), def.position()));
-				}
 			} else {
-				final Position fieldPosition = buffer.position();
-				final String field = readIdentifier();
-				if (field == null) {
-					throw new ParserException(error("Expected field, def, or end of class"));
-				}
-				final Identifier oldField = result.addField(new Identifier(field, fieldPosition));
-				if (oldField != null) {
-					throw new ParserException(error("Duplicate field: " + field, oldField.position(), fieldPosition));
-				}
-				buffer.skipBlanks();
-				if (!buffer.off() && buffer.current() == ';') {
-					buffer.next();
+				final Position pos = buffer.position();
+				if (readKeyword("def")) {
+					final Def def = parseDef(pos);
+					final Def old = result.addDef(def);
+					if (old != null) {
+						throw new ParserException(
+								error("Duplicate def: " + old.name(), old.position(), def.position()));
+					}
+				} else {
+					final String field = readIdentifier();
+					if (field == null) {
+						throw new ParserException(error("Expected field, def, or end of class"));
+					}
+					final Identifier oldField = result.addField(new Identifier(field, pos));
+					if (oldField != null) {
+						throw new ParserException(error("Duplicate field: " + field, oldField.position(), pos));
+					}
+					buffer.skipBlanks();
+					if (!buffer.off() && buffer.current() == ';') {
+						buffer.next();
+					}
 				}
 			}
 		} while (more);

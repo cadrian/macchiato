@@ -24,8 +24,9 @@ import java.util.regex.Pattern;
 
 public class ParserBuffer {
 
+	final String path;
+
 	private final Reader reader;
-	private final String path;
 	private boolean eof;
 	private char[] content;
 	private int offset;
@@ -152,8 +153,8 @@ public class ParserBuffer {
 			rewind(oldPosition);
 		}
 
-		return (message == null ? "at " : message + "\nat ") + "line " + line + ", column " + column + '\n' + text
-				+ '\n' + carret;
+		return (message == null ? "" : "**** " + message + "\n") + path + " at line " + line + ", column " + column
+				+ '\n' + text + '\n' + carret;
 	}
 
 	public String error(String message, final Position... positions) throws IOException {

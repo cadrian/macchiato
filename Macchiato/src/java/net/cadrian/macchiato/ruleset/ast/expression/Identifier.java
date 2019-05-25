@@ -81,7 +81,7 @@ public class Identifier implements Expression, Comparable<Identifier> {
 		if (!(obj instanceof Identifier)) {
 			return false;
 		}
-		return compareTo((Identifier) obj) == 0;
+		return name.equals(((Identifier) obj).name);
 	}
 
 	@Override

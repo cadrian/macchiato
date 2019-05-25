@@ -22,4 +22,6 @@ public interface ClazsMethod extends Method<MacClazsObject> {
 
 	Clazs getTargetClazs();
 
+	boolean isConcrete();
+
 }

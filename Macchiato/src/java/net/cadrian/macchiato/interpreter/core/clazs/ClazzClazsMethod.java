@@ -25,6 +25,7 @@ import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Def;
 import net.cadrian.macchiato.ruleset.ast.FormalArgs;
+import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 import net.cadrian.macchiato.ruleset.parser.Position;
@@ -87,6 +88,11 @@ class ClazzClazsMethod implements ClazsMethod {
 	}
 
 	@Override
+	public boolean isConcrete() {
+		return def.getInstruction() != null;
+	}
+
+	@Override
 	public void run(final MacClazsObject target, final Context context, final Position position) {
 		final ClazsContext clazsContext;
 		if (context instanceof ClazsContext && ((ClazsContext) context).getTarget() == target) {
@@ -94,11 +100,20 @@ class ClazzClazsMethod implements ClazsMethod {
 		} else {
 			clazsContext = new ClazsContext(context, target, ruleset);
 		}
+		final Instruction instruction = def.getInstruction();
+		if (instruction == null) {
+			throw new InterpreterException("Def is not concrete", def.position());
+		}
 		try {
-			clazsContext.eval(def.getInstruction());
+			clazsContext.eval(instruction);
 		} catch (final InterpreterException e) {
 			throw new InterpreterException(e.getMessage(), e, position);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "{ClazzClazsMethod name=" + name + " def=" + def + "}";
 	}
 
 }

@@ -57,11 +57,14 @@ public class Ruleset {
 	private final Map<Identifier, Clazz> clazzes = new HashMap<>();
 	private final List<Filter> filters = new ArrayList<>();
 	private final Map<Identifier, Ruleset> scopes = new LinkedHashMap<>();
+	private final String path;
 	private final Position position; // position of import in parent ruleset
 
 	private List<Filter> filtersCache;
 
-	public Ruleset(final Position position) {
+	public Ruleset(final Position position, final String path) {
+		LOGGER.debug("NEW RULESET: {}", path);
+		this.path = path;
 		this.position = position;
 	}
 
@@ -70,10 +73,12 @@ public class Ruleset {
 	}
 
 	public Def addDef(final Def def) {
+		LOGGER.debug("adding def {} to ruleset {}", def, path);
 		return defs.put(def.name(), def);
 	}
 
-	public Clazz addClass(final Clazz clazz) {
+	public Clazz addClazz(final Clazz clazz) {
+		LOGGER.debug("adding class {} to ruleset {}", clazz, path);
 		return clazzes.put(clazz.name(), clazz);
 	}
 
@@ -83,24 +88,30 @@ public class Ruleset {
 	}
 
 	public LocalizedDef getDef(final Identifier name) {
+		LOGGER.debug("<-- {}", name);
 		final LocalizedDef result;
 		final Def def = defs.get(name);
 		if (def == null) {
+			LOGGER.debug("def {} not found in ruleset {}", name, path);
 			result = null;
 		} else {
 			result = new LocalizedDef(def, this);
 		}
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
 	public LocalizedClazz getClazz(final Identifier name) {
+		LOGGER.debug("<-- {}", name);
 		final LocalizedClazz result;
 		final Clazz clazz = clazzes.get(name);
 		if (clazz == null) {
+			LOGGER.debug("class {} not found in ruleset {}", name, path);
 			result = null;
 		} else {
 			result = new LocalizedClazz(clazz, this);
 		}
+		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
@@ -144,7 +155,7 @@ public class Ruleset {
 		for (int simplifyCount = 256; simplifyCount-- > 0;) {
 			LOGGER.debug("Simplify #{}", 256 - simplifyCount, result);
 			boolean changed = false;
-			final Ruleset simplifyRuleset = new Ruleset(position);
+			final Ruleset simplifyRuleset = new Ruleset(position, path);
 			for (final Map.Entry<Identifier, Ruleset> scope : result.scopes.entrySet()) {
 				final Identifier scopeName = scope.getKey();
 				LOGGER.debug("Simplify nested scope {}", scopeName);
@@ -158,6 +169,12 @@ public class Ruleset {
 				final Def simplifyDef = def.simplify();
 				simplifyRuleset.addDef(simplifyDef);
 				changed |= simplifyDef != def;
+			}
+			for (final Clazz clazz : result.clazzes.values()) {
+				LOGGER.debug("Simplify class {}", clazz.name());
+				final Clazz simplifyClazz = clazz.simplify();
+				simplifyRuleset.addClazz(simplifyClazz);
+				changed |= simplifyClazz != clazz;
 			}
 			for (final Filter filter : result.filters) {
 				LOGGER.debug("Simplify filter");

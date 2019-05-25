@@ -16,10 +16,16 @@
  */
 package net.cadrian.macchiato.interpreter.core.clazs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.interpreter.Clazs;
 import net.cadrian.macchiato.interpreter.ClazsConstructor;
@@ -33,24 +39,31 @@ import net.cadrian.macchiato.ruleset.ast.Inheritance.Parent;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedClazz;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
-import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ClazzClazs implements Clazs {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ClazzClazs.class);
 
 	private static class MethodDefinition {
 		@SuppressWarnings("unused")
 		final Clazs owner;
 		final Identifier name;
 		final ClazsMethod method;
-		@SuppressWarnings("unused")
-		final MethodDefinition precursorMethod;
+		final List<MethodDefinition> precursorMethods = new ArrayList<>();
 
-		MethodDefinition(final Clazs owner, final Identifier name, final ClazsMethod method,
-				final MethodDefinition precursorMethod) {
+		MethodDefinition(final Clazs owner, final Identifier name, final ClazsMethod method) {
 			this.owner = owner;
 			this.name = name;
 			this.method = method;
-			this.precursorMethod = precursorMethod;
+		}
+
+		void addPrecursorMethod(final MethodDefinition precursorMethod) {
+			precursorMethods.add(precursorMethod);
+		}
+
+		@Override
+		public String toString() {
+			return "{MethodDefinition name=" + name + " method=" + method + "}";
 		}
 	}
 
@@ -65,11 +78,15 @@ public class ClazzClazs implements Clazs {
 			this.name = name;
 			this.field = field;
 		}
+
+		@Override
+		public String toString() {
+			return "{FieldDefinition name=" + name + " field=" + field + "}";
+		}
 	}
 
 	private final Ruleset ruleset;
 	private final Identifier name;
-	private final Position position;
 	private final Map<Identifier, MethodDefinition> methods = new HashMap<>();
 	private final Map<Identifier, FieldDefinition> fields = new HashMap<>();
 	private final ClazsConstructor constructor;
@@ -78,12 +95,15 @@ public class ClazzClazs implements Clazs {
 
 	public ClazzClazs(final LocalizedClazz localizedClazz) {
 		this.ruleset = localizedClazz.ruleset;
-		this.position = localizedClazz.clazz.position();
 		this.name = localizedClazz.clazz.name();
 
+		final Map<Identifier, Map<Clazs, MethodDefinition>> precursors = new HashMap<>();
 		final Inheritance inheritance = localizedClazz.clazz.getInheritance();
-		for (final Parent parent : inheritance.getParents()) {
-			resolve(parent);
+		if (inheritance != null) {
+			for (final Parent parent : inheritance.getParents()) {
+				resolve(parent, precursors);
+			}
+			LOGGER.debug("resolved precursors for {}: {}", name, precursors);
 		}
 
 		for (final Identifier field : localizedClazz.clazz.getFields()) {
@@ -91,8 +111,8 @@ public class ClazzClazs implements Clazs {
 					new ClazzClazsField(this, field, ruleset));
 			final FieldDefinition parentDefinition = fields.put(field, newDefinition);
 			if (parentDefinition != null) {
-				throw new InterpreterException("Field conflict: " + field.getName(), parentDefinition.name.position(),
-						field.position());
+				throw new InterpreterException("Field already exists: " + field.getName(),
+						parentDefinition.name.position(), field.position());
 			}
 		}
 
@@ -103,20 +123,46 @@ public class ClazzClazs implements Clazs {
 				constructor = new ClazzClazsConstructor(this, def, name, ruleset);
 			} else {
 				final ClazzClazsMethod method = new ClazzClazsMethod(this, def, name, ruleset);
-				final MethodDefinition newDefinition = new MethodDefinition(this, name, method, methods.get(name));
+				final MethodDefinition newDefinition = new MethodDefinition(this, name, method);
+				final Map<Clazs, MethodDefinition> precursorDefinitions = precursors.remove(name);
+				if (precursorDefinitions != null) {
+					for (final MethodDefinition precursorDefinition : precursorDefinitions.values()) {
+						final Class<? extends MacObject>[] precursorArgTypes = precursorDefinition.method.getArgTypes();
+						final Class<? extends MacObject>[] newArgTypes = method.getArgTypes();
 
-				final MethodDefinition oldDefinition = methods.put(name, newDefinition);
-				if (oldDefinition != null) {
-					final Class<? extends MacObject>[] oldArgTypes = oldDefinition.method.getArgTypes();
-					final Class<? extends MacObject>[] newArgTypes = method.getArgTypes();
+						if (precursorArgTypes.length != newArgTypes.length) {
+							throw new InterpreterException("Invalid redefinition: not the same number of arguments",
+									precursorDefinition.name.position(), name.position());
+						}
 
-					if (oldArgTypes.length != newArgTypes.length) {
-						throw new InterpreterException("Invalid redefinition: not the same number of arguments",
-								oldDefinition.name.position(), name.position());
+						newDefinition.addPrecursorMethod(precursorDefinition);
 					}
-
-					// TODO should we check if the types are compatible?
 				}
+				methods.put(name, newDefinition);
+			}
+		}
+		for (final Map.Entry<Identifier, Map<Clazs, MethodDefinition>> precursorsEntry : precursors.entrySet()) {
+			final Identifier methodName = precursorsEntry.getKey();
+			final Iterator<MethodDefinition> precursorMethodsIterator = precursorsEntry.getValue().values().iterator();
+			MethodDefinition concretePrecursorMethod = null;
+			while (precursorMethodsIterator.hasNext()) {
+				final MethodDefinition precursorMethod = precursorMethodsIterator.next();
+				LOGGER.debug("Checking method: {}", precursorMethod);
+				if (precursorMethod.method.isConcrete()) {
+					if (concretePrecursorMethod == null) {
+						concretePrecursorMethod = precursorMethod;
+					} else {
+						throw new InterpreterException(
+								"Duplicate parent definition of " + methodName.getName() + " -- need redefine",
+								precursorMethod.name.position(), concretePrecursorMethod.name.position());
+					}
+				}
+			}
+			if (concretePrecursorMethod != null) {
+				methods.put(methodName, concretePrecursorMethod);
+			} else {
+				// not concrete, take whichever one, it's OK
+				methods.put(methodName, precursorsEntry.getValue().values().iterator().next());
 			}
 		}
 		this.constructor = constructor == null ? new ClazzClazsDefaultConstructor(this, name, ruleset) : constructor;
@@ -133,7 +179,7 @@ public class ClazzClazs implements Clazs {
 		return result.toString();
 	}
 
-	private void resolve(final Parent parent) {
+	private void resolve(final Parent parent, final Map<Identifier, Map<Clazs, MethodDefinition>> precursors) {
 		final Identifier[] name = parent.getName();
 		final int n = name.length - 1;
 		Ruleset scope = ruleset;
@@ -141,12 +187,12 @@ public class ClazzClazs implements Clazs {
 			scope = scope.getScope(name[i]);
 			if (scope == null) {
 				throw new InterpreterException("Class not found (unknown scope " + name[i].getName() + " in "
-						+ dottedName(name, i) + "): " + dottedName(name, name.length), position);
+						+ dottedName(name, i) + "): " + dottedName(name, name.length), parent.position());
 			}
 		}
 		final LocalizedClazz localizedClazz = scope.getClazz(name[n]);
 		if (localizedClazz == null) {
-			throw new InterpreterException("Class not found: " + dottedName(name, name.length), position);
+			throw new InterpreterException("Class not found: " + dottedName(name, name.length), parent.position());
 		}
 		final ClazzClazs parentClazs = new ClazzClazs(localizedClazz);
 		conformance.add(parentClazs);
@@ -162,10 +208,21 @@ public class ClazzClazs implements Clazs {
 
 		for (final MethodDefinition methodDefinition : parentClazs.methods.values()) {
 			final Identifier methodName = methodDefinition.name;
-			final MethodDefinition otherDefinition = methods.put(methodName, methodDefinition);
-			if (otherDefinition != null) {
-				throw new InterpreterException("Duplicate parent definition of " + methodName.getName(),
-						otherDefinition.name.position(), methodName.position());
+			final Map<Clazs, MethodDefinition> newPrecursorMethods = new HashMap<>();
+			final Map<Clazs, MethodDefinition> methods = precursors.putIfAbsent(methodName, newPrecursorMethods);
+			if (methods == null) {
+				newPrecursorMethods.put(parentClazs, methodDefinition);
+			} else {
+				final MethodDefinition precursorDefinition = methods.values().iterator().next();
+				final Class<? extends MacObject>[] precursorArgTypes = precursorDefinition.method.getArgTypes();
+				final Class<? extends MacObject>[] methodArgTypes = methodDefinition.method.getArgTypes();
+
+				if (precursorArgTypes.length != methodArgTypes.length) {
+					throw new InterpreterException("Invalid redefinition: not the same number of arguments",
+							precursorDefinition.name.position(), methodName.position(), parent.position());
+				}
+				
+				methods.put(parentClazs, methodDefinition);
 			}
 		}
 	}
@@ -209,6 +266,11 @@ public class ClazzClazs implements Clazs {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "{ClazzClazs name=" + name + " fields=" + fields + " methods=" + methods + "}";
 	}
 
 }
