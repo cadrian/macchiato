@@ -14,12 +14,11 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.ruleset;
+package net.cadrian.macchiato.ruleset.ast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.cadrian.macchiato.ruleset.ast.Node;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class Inheritance implements Node {

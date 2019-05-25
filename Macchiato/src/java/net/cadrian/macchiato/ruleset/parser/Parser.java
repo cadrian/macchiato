@@ -35,8 +35,6 @@ import net.cadrian.macchiato.interpreter.objects.MacPattern;
 import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.interpreter.objects.container.MacContainer;
 import net.cadrian.macchiato.midi.Message;
-import net.cadrian.macchiato.ruleset.Inheritance;
-import net.cadrian.macchiato.ruleset.Inheritance.Parent;
 import net.cadrian.macchiato.ruleset.ast.BoundFilter;
 import net.cadrian.macchiato.ruleset.ast.Clazz;
 import net.cadrian.macchiato.ruleset.ast.ConditionFilter;
@@ -44,8 +42,10 @@ import net.cadrian.macchiato.ruleset.ast.Def;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Filter;
 import net.cadrian.macchiato.ruleset.ast.FormalArgs;
+import net.cadrian.macchiato.ruleset.ast.Inheritance;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.Inheritance.Parent;
 import net.cadrian.macchiato.ruleset.ast.expression.Binary;
 import net.cadrian.macchiato.ruleset.ast.expression.Binary.Operator;
 import net.cadrian.macchiato.ruleset.ast.expression.DottedExpression;
@@ -242,7 +242,19 @@ public class Parser {
 					throw new ParserException(error("Duplicate def: " + old.name(), old.position(), def.position()));
 				}
 			} else {
-				throw new ParserException(error("Expected def or end of class"));
+				final int fieldPosition = buffer.position();
+				final String field = readIdentifier();
+				if (field == null) {
+					throw new ParserException(error("Expected field, def, or end of class"));
+				}
+				final Identifier oldField = result.addField(new Identifier(field, fieldPosition));
+				if (oldField != null) {
+					throw new ParserException(error("Duplicate field: " + field, oldField.position(), fieldPosition));
+				}
+				buffer.skipBlanks();
+				if (!buffer.off() && buffer.current() == ';') {
+					buffer.next();
+				}
 			}
 		} while (more);
 
@@ -516,6 +528,9 @@ public class Parser {
 			final String selector = readRawIdentifier();
 			if (selector == null || isReserved(selector)) {
 				throw new ParserException(error("Expected identifier", selectorPosition));
+			}
+			if (!Character.isUpperCase(selector.charAt(0))) {
+				throw new ParserException(error("This identifier is not public, cannot reference", selectorPosition));
 			}
 			final Expression dotted = new DottedExpression(target, new Identifier(selector, selectorPosition));
 			final Expression result = parseInstructionTarget(dotted);
@@ -1267,6 +1282,9 @@ public class Parser {
 		final String identifier = readIdentifier();
 		if (identifier == null) {
 			throw new ParserException(error("Expected identifier"));
+		}
+		if (!Character.isUpperCase(identifier.charAt(0))) {
+			throw new ParserException(error("This identifier is not public, cannot reference", position));
 		}
 		final Expression result;
 		if (!buffer.off() && buffer.current() == '(') {

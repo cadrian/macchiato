@@ -25,7 +25,11 @@ public interface Clazs {
 
 	Ruleset getRuleset();
 
-	ClazsMethod getMethod(String name);
+	ClazsConstructor getConstructor();
+
+	ClazsField getField(Ruleset ruleset, Identifier name);
+
+	ClazsMethod getMethod(Ruleset ruleset, Identifier name);
 
 	boolean conformsTo(Clazs clazs);
 

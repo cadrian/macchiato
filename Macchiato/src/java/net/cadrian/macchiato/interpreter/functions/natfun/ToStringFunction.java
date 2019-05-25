@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.InterpreterException;
-import net.cadrian.macchiato.interpreter.impl.Context;
+import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;

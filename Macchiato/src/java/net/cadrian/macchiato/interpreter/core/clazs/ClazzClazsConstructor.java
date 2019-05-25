@@ -14,21 +14,22 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter.impl;
+package net.cadrian.macchiato.interpreter.core.clazs;
 
 import java.util.Arrays;
 
 import net.cadrian.macchiato.interpreter.Clazs;
-import net.cadrian.macchiato.interpreter.ClazsMethod;
+import net.cadrian.macchiato.interpreter.ClazsConstructor;
+import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.InterpreterException;
-import net.cadrian.macchiato.interpreter.objects.MacClazsObject;
+import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Def;
 import net.cadrian.macchiato.ruleset.ast.FormalArgs;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
-public class ClazzClazsMethod implements ClazsMethod {
+class ClazzClazsConstructor implements ClazsConstructor {
 
 	private final ClazzClazs clazzClazs;
 	private final Def def;
@@ -38,7 +39,7 @@ public class ClazzClazsMethod implements ClazsMethod {
 	private final Identifier[] argNames;
 
 	@SuppressWarnings("unchecked")
-	ClazzClazsMethod(final ClazzClazs clazzClazs, final Def def, final Identifier name, final Ruleset ruleset) {
+	ClazzClazsConstructor(final ClazzClazs clazzClazs, final Def def, final Identifier name, final Ruleset ruleset) {
 		this.clazzClazs = clazzClazs;
 		this.def = def;
 		this.name = name;
@@ -76,24 +77,20 @@ public class ClazzClazsMethod implements ClazsMethod {
 	}
 
 	@Override
-	public Clazs getTargetType() {
+	public Clazs getTargetClazs() {
 		return clazzClazs;
 	}
 
 	@Override
-	public void run(final MacClazsObject target, final Context context, final int position) {
-		final ClazsContext clazsContext;
-		if (context instanceof ClazsContext && ((ClazsContext) context).getTarget() == target) {
-			clazsContext = (ClazsContext) context;
-		} else {
-			clazsContext = new ClazsContext(context, target, ruleset);
-		}
+	public void run(final Context context, final int position) {
+		final MacClazsObject target = new MacClazsObject(clazzClazs);
+		final ClazsContext clazsContext = new ClazsContext(context, target, ruleset);
 		try {
-			final InstructionEvaluationVisitor v = new InstructionEvaluationVisitor(clazsContext);
-			def.getInstruction().accept(v);
+			clazsContext.eval(def.getInstruction());
 		} catch (final InterpreterException e) {
 			throw new InterpreterException(e.getMessage(), e, position);
 		}
+		context.set(Identifiers.RESULT, target);
 	}
 
 }

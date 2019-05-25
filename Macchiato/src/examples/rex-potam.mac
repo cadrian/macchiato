@@ -52,37 +52,37 @@ def humanize(value, anchor, percent) {
     }
 }
 
-def load_channel_array(arg) {
+def loadChannelArray(arg) {
     local p = /map=(?<value>.*)/;
-    local m = p.matcher(arg);
-    if m.matches() {
-        local value = m.group("value");
+    local m = p.Matcher(arg);
+    if m.Matches() {
+        local value = m.Group("value");
         channel_array = fromString(value);
     }
 }
 
-def load_tracks(arg) {
+def loadTracks(arg) {
     local p = /tracks=(?<value>.*)/;
-    local m = p.matcher(arg);
-    if m.matches() {
-        local value = m.group("value");
+    local m = p.Matcher(arg);
+    if m.Matches() {
+        local value = m.Group("value");
         tracks = fromString(value);
     }
 }
 
-def check_track_number(tn, val) {
+def checkTrackNumber(tn, val) {
     result = val or (tn == tracknum);
 }
 
-def valid_track() {
+def isValidTrack() {
     if tracks.Size() == 0 {
         result = true;
     } else {
-        result = tracks.map(check_track_number, false);
+        result = tracks.Map(checkTrackNumber, false);
     }
 }
 
-def fix_event_channel() {
+def fixEventChannel() {
     if event.Channel exists {
         local c = channel_array[event.Channel]
         if c exists {
@@ -95,7 +95,7 @@ def fix_event_channel() {
     }
 }
 
-def init_track() {
+def initTrack() {
     // velocity records the current velocity, per channel, per pitch
     velocity = [[], [], [], [], [], [], [], [],
                 [], [], [], [], [], [], [], []];
@@ -135,7 +135,7 @@ def tick(event, sign) {
     }
 }
 
-def note_on(event) {
+def noteOn(event) {
     // Record the velocity
     velocity[event.Channel][event.Pitch] = event.Velocity;
 
@@ -161,7 +161,7 @@ def record_note_length(channel, pitch, tick) {
     notes[tracknum][channel][start][pitch] = length;
 }
 
-def note_on_off(event) {
+def noteOnOff(event) {
     if (event.Channel != 10) and (volume[event.Channel] == 0) {
         next;
     }
@@ -183,7 +183,7 @@ def note_on_off(event) {
     }
 }
 
-def note_off(event) {
+def noteOff(event) {
     // For completion only -- because NoteWorthy Composer
     // does not emit those events
 
@@ -201,7 +201,7 @@ def note_off(event) {
     }
 }
 
-def portamento_time(event) {
+def portamentoTime(event) {
     // humanize this event too
     local v = event.Value;
     v = humanize(v, v, 10);
@@ -210,22 +210,22 @@ def portamento_time(event) {
 }
 
 true {
-    fix_event_channel();
+    fixEventChannel();
 }
 
 BEGIN SEQUENCE {
     tracknum = 0;
     channel_array = [];
     tracks = [];
-    arguments.ForEach(load_channel_array);
-    arguments.ForEach(load_tracks);
+    arguments.ForEach(loadChannelArray);
+    arguments.ForEach(loadTracks);
     print("channel_array=" + toString(channel_array));
     print("tracks=" + toString(tracks));
 }
 
 BEGIN TRACK {
-    init_track();
-    if (not valid_track()) {
+    initTrack();
+    if (not isValidTrack()) {
         // skip the track
         next;
     }
@@ -236,7 +236,7 @@ BEGIN TRACK {
 }
 
 (event.Type == CONTROL_CHANGE) and (event.Mpc == PORTAMENTO_TIME) {
-    portamento_time(event);
+    portamentoTime(event);
     next;
 }
 
@@ -259,17 +259,17 @@ BEGIN TRACK {
 }
 
 (event.Type == NOTE_ON) and (event.Velocity > 0) {
-    note_on(event);
+    noteOn(event);
     next;
 }
 
 (event.Type == NOTE_ON) and (event.Velocity == 0) {
-    note_on_off(event);
+    noteOnOff(event);
     next;
 }
 
 (event.Type == NOTE_OFF) {
-    note_off(event);
+    noteOff(event);
     next;
 }
 

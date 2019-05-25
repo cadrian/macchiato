@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.cadrian.macchiato.ruleset.Inheritance;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class Clazz implements Node {
@@ -33,6 +32,7 @@ public class Clazz implements Node {
 	private final Expression invariant;
 	private final Inheritance inheritance;
 	private final Map<Identifier, Def> defs = new HashMap<>();
+	private final Map<Identifier, Identifier> fields = new HashMap<>();
 	private final int position;
 
 	public Clazz(final int position, final Identifier name, final Inheritance inheritance, final Expression invariant) {
@@ -62,8 +62,16 @@ public class Clazz implements Node {
 		return defs.get(new Identifier(name, 0));
 	}
 
+	public Identifier addField(Identifier field) {
+		return fields.put(field, field);
+	}
+
 	public Collection<Def> getDefs() {
 		return defs.values();
+	}
+
+	public Collection<Identifier> getFields() {
+		return fields.values();
 	}
 
 	@Override

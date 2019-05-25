@@ -14,7 +14,7 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter.impl;
+package net.cadrian.macchiato.interpreter.core;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import net.cadrian.macchiato.interpreter.Clazs;
 import net.cadrian.macchiato.interpreter.Event;
 import net.cadrian.macchiato.interpreter.Function;
+import net.cadrian.macchiato.interpreter.core.clazs.ClazzClazs;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.midi.Message;
@@ -59,7 +60,7 @@ public abstract class Context {
 
 	abstract void setNext(boolean next);
 
-	void eval(final Instruction instruction) {
+	public void eval(final Instruction instruction) {
 		instruction.accept(new InstructionEvaluationVisitor(this));
 	}
 
@@ -113,7 +114,12 @@ public abstract class Context {
 		final Function result;
 		final LocalizedDef def = getRuleset().getDef(name);
 		if (def == null) {
-			result = null;
+			Clazs clazs = getClazs(name);
+			if (clazs != null) {
+				result = clazs.getConstructor();
+			} else {
+				result = null;
+			}
 		} else {
 			result = new DefFunction(def);
 		}

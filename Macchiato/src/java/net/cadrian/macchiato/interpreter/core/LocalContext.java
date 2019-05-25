@@ -14,7 +14,7 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter.impl;
+package net.cadrian.macchiato.interpreter.core;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class LocalContext extends Context {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(LocalContext.class);
 
-	private final Ruleset ruleset;
+	protected final Ruleset ruleset;
 	private final Context parent;
 	private final Map<Identifier, Object> local = new HashMap<>();
 

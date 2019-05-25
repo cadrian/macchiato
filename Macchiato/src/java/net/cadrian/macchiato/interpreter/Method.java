@@ -16,7 +16,7 @@
  */
 package net.cadrian.macchiato.interpreter;
 
-import net.cadrian.macchiato.interpreter.impl.Context;
+import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 
 public interface Method<T extends MacObject> extends Callable {

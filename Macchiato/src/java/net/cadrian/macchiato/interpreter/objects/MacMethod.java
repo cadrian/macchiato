@@ -17,7 +17,7 @@
 package net.cadrian.macchiato.interpreter.objects;
 
 import net.cadrian.macchiato.interpreter.Method;
-import net.cadrian.macchiato.interpreter.impl.Context;
+import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class MacMethod<T extends MacObject> extends MacCallable {

@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.Method;
-import net.cadrian.macchiato.interpreter.impl.Context;
+import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 

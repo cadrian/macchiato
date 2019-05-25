@@ -14,31 +14,32 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter.impl;
+package net.cadrian.macchiato.interpreter.core;
 
-import net.cadrian.macchiato.interpreter.objects.MacBoolean;
 import net.cadrian.macchiato.ruleset.ast.BoundFilter;
+import net.cadrian.macchiato.ruleset.ast.BoundFilter.Bound;
 import net.cadrian.macchiato.ruleset.ast.ConditionFilter;
 
-class ConditionFilterVisitor implements BoundFilter.Visitor, ConditionFilter.Visitor {
+class BoundFilterVisitor implements BoundFilter.Visitor, ConditionFilter.Visitor {
 
 	private final GlobalContext context;
+	private final Bound bound;
 
-	public ConditionFilterVisitor(final GlobalContext context) {
+	public BoundFilterVisitor(final GlobalContext context, final Bound bound) {
 		this.context = context;
+		this.bound = bound;
 	}
 
 	@Override
 	public void visit(final ConditionFilter conditionFilter) {
-		final MacBoolean condition = (MacBoolean) context.eval(conditionFilter.getCondition());
-		if (condition.isTrue()) {
-			context.eval(conditionFilter.getInstruction());
-		}
+		// do nothing
 	}
 
 	@Override
 	public void visit(final BoundFilter boundFilter) {
-		// do nothing
+		if (boundFilter.getBound() == bound) {
+			context.eval(boundFilter.getInstruction());
+		}
 	}
 
 }

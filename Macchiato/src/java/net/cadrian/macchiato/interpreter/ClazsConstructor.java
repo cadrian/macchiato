@@ -17,22 +17,11 @@
 package net.cadrian.macchiato.interpreter;
 
 import net.cadrian.macchiato.interpreter.core.Context;
-import net.cadrian.macchiato.interpreter.objects.MacObject;
-import net.cadrian.macchiato.ruleset.ast.Ruleset;
-import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
-public interface Field<T extends MacObject, R extends MacObject> {
+public interface ClazsConstructor extends Function {
 
-	Identifier name();
+	Clazs getTargetClazs();
 
-	Class<R> getResultType();
-
-	Ruleset getRuleset();
-
-	Class<T> getTargetType();
-
-	R get(T target, final Context context, int position);
-
-	R set(T target, final Context context, int position, R newValue);
+	void run(final Context context, int position);
 
 }

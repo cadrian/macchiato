@@ -14,46 +14,51 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter.functions.natfun;
+package net.cadrian.macchiato.interpreter.core;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Arrays;
 
 import net.cadrian.macchiato.interpreter.Function;
-import net.cadrian.macchiato.interpreter.core.Context;
+import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
-import net.cadrian.macchiato.interpreter.objects.MacString;
+import net.cadrian.macchiato.ruleset.ast.FormalArgs;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedDef;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
-class PrintFunction extends AbstractObjectReaderFunction implements Function {
+public class DefFunction implements Function {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PrintFunction.class);
-
-	private static final Identifier NAME = new Identifier("print", 0);
-	private static final Identifier ARG_DATA = new Identifier("data", 0);
+	private final LocalizedDef def;
+	private final Class<? extends MacObject>[] argTypes;
+	private final Identifier[] argNames;
 
 	@SuppressWarnings("unchecked")
-	private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacString.class };
-	private static final Identifier[] ARG_NAMES = { ARG_DATA };
-
-	PrintFunction(final Ruleset ruleset) {
-		super(ruleset);
+	public DefFunction(final LocalizedDef def) {
+		this.def = def;
+		final FormalArgs args = def.def.getArgs();
+		argTypes = new Class[args.size()];
+		Arrays.fill(argTypes, MacObject.class);
+		argNames = args.toArray();
 	}
 
 	@Override
 	public Identifier name() {
-		return NAME;
+		return def.def.name();
+	}
+
+	@Override
+	public Ruleset getRuleset() {
+		return def.ruleset;
 	}
 
 	@Override
 	public Class<? extends MacObject>[] getArgTypes() {
-		return ARG_TYPES;
+		return argTypes;
 	}
 
 	@Override
 	public Identifier[] getArgNames() {
-		return ARG_NAMES;
+		return argNames;
 	}
 
 	@Override
@@ -63,10 +68,11 @@ class PrintFunction extends AbstractObjectReaderFunction implements Function {
 
 	@Override
 	public void run(final Context context, final int position) {
-		final MacString data = context.get(ARG_DATA);
-		LOGGER.debug("<-- {}", data);
-		System.out.println(data.getValue());
-		LOGGER.debug("-->");
+		try {
+			context.eval(def.def.getInstruction());
+		} catch (final InterpreterException e) {
+			throw new InterpreterException(e.getMessage(), e, position);
+		}
 	}
 
 }

@@ -14,59 +14,66 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter.functions.natfun;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package net.cadrian.macchiato.interpreter.core;
 
 import net.cadrian.macchiato.interpreter.Function;
-import net.cadrian.macchiato.interpreter.core.Context;
+import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
-import net.cadrian.macchiato.interpreter.objects.MacString;
+import net.cadrian.macchiato.midi.MetaMessageType;
+import net.cadrian.macchiato.midi.message.MetaMessage;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
-class PrintFunction extends AbstractObjectReaderFunction implements Function {
+public class MetaMessageCreationFunction implements Function {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PrintFunction.class);
+	private final Identifier name;
+	private final MetaMessageType type;
+	private final Ruleset ruleset;
 
-	private static final Identifier NAME = new Identifier("print", 0);
-	private static final Identifier ARG_DATA = new Identifier("data", 0);
-
-	@SuppressWarnings("unchecked")
-	private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacString.class };
-	private static final Identifier[] ARG_NAMES = { ARG_DATA };
-
-	PrintFunction(final Ruleset ruleset) {
-		super(ruleset);
+	public MetaMessageCreationFunction(final MetaMessageType type, final Ruleset ruleset) {
+		this.name = new Identifier(type.name(), 0);
+		this.type = type;
+		this.ruleset = ruleset;
 	}
 
 	@Override
 	public Identifier name() {
-		return NAME;
+		return name;
+	}
+
+	@Override
+	public Ruleset getRuleset() {
+		return ruleset;
 	}
 
 	@Override
 	public Class<? extends MacObject>[] getArgTypes() {
-		return ARG_TYPES;
+		return type.getArgTypes();
 	}
 
 	@Override
 	public Identifier[] getArgNames() {
-		return ARG_NAMES;
+		return type.getArgNames();
 	}
 
 	@Override
 	public Class<? extends MacObject> getResultType() {
-		return MacObject.class;
+		return MetaMessage.class;
 	}
 
 	@Override
 	public void run(final Context context, final int position) {
-		final MacString data = context.get(ARG_DATA);
-		LOGGER.debug("<-- {}", data);
-		System.out.println(data.getValue());
-		LOGGER.debug("-->");
+		final Identifier[] argNames = getArgNames();
+		final MacObject[] args = new MacObject[argNames.length];
+		for (int i = 0; i < argNames.length; i++) {
+			args[i] = context.get(argNames[i]);
+		}
+		context.set(Identifiers.RESULT, type.create(args));
+	}
+
+	@Override
+	public String toString() {
+		return "Native function: create meta message " + type;
 	}
 
 }

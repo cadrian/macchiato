@@ -2,7 +2,7 @@ package net.cadrian.macchiato.interpreter.objects;
 
 import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.InterpreterException;
-import net.cadrian.macchiato.interpreter.impl.Context;
+import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 

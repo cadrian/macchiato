@@ -14,25 +14,29 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter.impl;
+package net.cadrian.macchiato.interpreter.core.clazs;
 
-import net.cadrian.macchiato.interpreter.Function;
+import net.cadrian.macchiato.interpreter.Clazs;
+import net.cadrian.macchiato.interpreter.ClazsConstructor;
 import net.cadrian.macchiato.interpreter.Identifiers;
+import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
-import net.cadrian.macchiato.midi.MetaMessageType;
-import net.cadrian.macchiato.midi.message.MetaMessage;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
-public class MetaMessageCreationFunction implements Function {
+class ClazzClazsDefaultConstructor implements ClazsConstructor {
 
+	@SuppressWarnings("unchecked")
+	private static final Class<? extends MacObject>[] ARG_TYPES = (Class<? extends MacObject>[]) new Class<?>[0];
+	private static final Identifier[] ARG_NAMES = {};
+
+	private final ClazzClazs clazzClazs;
 	private final Identifier name;
-	private final MetaMessageType type;
 	private final Ruleset ruleset;
 
-	public MetaMessageCreationFunction(final MetaMessageType type, final Ruleset ruleset) {
-		this.name = new Identifier(type.name(), 0);
-		this.type = type;
+	ClazzClazsDefaultConstructor(final ClazzClazs clazzClazs, final Identifier name, final Ruleset ruleset) {
+		this.clazzClazs = clazzClazs;
+		this.name = name;
 		this.ruleset = ruleset;
 	}
 
@@ -42,38 +46,33 @@ public class MetaMessageCreationFunction implements Function {
 	}
 
 	@Override
+	public Class<? extends MacObject>[] getArgTypes() {
+		return ARG_TYPES;
+	}
+
+	@Override
+	public Identifier[] getArgNames() {
+		return ARG_NAMES;
+	}
+
+	@Override
+	public Class<? extends MacObject> getResultType() {
+		return MacObject.class;
+	}
+
+	@Override
 	public Ruleset getRuleset() {
 		return ruleset;
 	}
 
 	@Override
-	public Class<? extends MacObject>[] getArgTypes() {
-		return type.getArgTypes();
-	}
-
-	@Override
-	public Identifier[] getArgNames() {
-		return type.getArgNames();
-	}
-
-	@Override
-	public Class<? extends MacObject> getResultType() {
-		return MetaMessage.class;
+	public Clazs getTargetClazs() {
+		return clazzClazs;
 	}
 
 	@Override
 	public void run(final Context context, final int position) {
-		final Identifier[] argNames = getArgNames();
-		final MacObject[] args = new MacObject[argNames.length];
-		for (int i = 0; i < argNames.length; i++) {
-			args[i] = context.get(argNames[i]);
-		}
-		context.set(Identifiers.RESULT, type.create(args));
-	}
-
-	@Override
-	public String toString() {
-		return "Native function: create meta message " + type;
+		context.set(Identifiers.RESULT, new MacClazsObject(clazzClazs));
 	}
 
 }

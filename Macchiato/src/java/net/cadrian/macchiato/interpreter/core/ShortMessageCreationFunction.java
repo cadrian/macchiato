@@ -14,66 +14,66 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter.impl;
-
-import java.util.Arrays;
+package net.cadrian.macchiato.interpreter.core;
 
 import net.cadrian.macchiato.interpreter.Function;
-import net.cadrian.macchiato.interpreter.InterpreterException;
+import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
-import net.cadrian.macchiato.ruleset.ast.FormalArgs;
+import net.cadrian.macchiato.midi.ShortMessageType;
+import net.cadrian.macchiato.midi.message.ShortMessage;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
-import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedDef;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
-public class DefFunction implements Function {
+public class ShortMessageCreationFunction implements Function {
 
-	private final LocalizedDef def;
-	private final Class<? extends MacObject>[] argTypes;
-	private final Identifier[] argNames;
+	private final Identifier name;
+	private final ShortMessageType type;
+	private final Ruleset ruleset;
 
-	@SuppressWarnings("unchecked")
-	public DefFunction(final LocalizedDef def) {
-		this.def = def;
-		final FormalArgs args = def.def.getArgs();
-		argTypes = new Class[args.size()];
-		Arrays.fill(argTypes, MacObject.class);
-		argNames = args.toArray();
+	public ShortMessageCreationFunction(final ShortMessageType type, final Ruleset ruleset) {
+		this.name = new Identifier(type.name(), 0);
+		this.type = type;
+		this.ruleset = ruleset;
 	}
 
 	@Override
 	public Identifier name() {
-		return def.def.name();
+		return name;
 	}
 
 	@Override
 	public Ruleset getRuleset() {
-		return def.ruleset;
+		return ruleset;
 	}
 
 	@Override
 	public Class<? extends MacObject>[] getArgTypes() {
-		return argTypes;
+		return type.getArgTypes();
 	}
 
 	@Override
 	public Identifier[] getArgNames() {
-		return argNames;
+		return type.getArgNames();
 	}
 
 	@Override
 	public Class<? extends MacObject> getResultType() {
-		return MacObject.class;
+		return ShortMessage.class;
 	}
 
 	@Override
 	public void run(final Context context, final int position) {
-		try {
-			final InstructionEvaluationVisitor v = new InstructionEvaluationVisitor(context);
-			def.def.getInstruction().accept(v);
-		} catch (final InterpreterException e) {
-			throw new InterpreterException(e.getMessage(), e, position);
+		final Identifier[] argNames = getArgNames();
+		final MacObject[] args = new MacObject[argNames.length];
+		for (int i = 0; i < argNames.length; i++) {
+			args[i] = context.get(argNames[i]);
 		}
+		context.set(Identifiers.RESULT, type.create(args));
+	}
+
+	@Override
+	public String toString() {
+		return "Native function: create short message " + type;
 	}
 
 }

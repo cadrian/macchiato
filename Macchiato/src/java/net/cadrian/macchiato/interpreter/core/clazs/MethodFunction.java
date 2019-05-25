@@ -14,66 +14,51 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter.impl;
+package net.cadrian.macchiato.interpreter.core.clazs;
 
+import net.cadrian.macchiato.interpreter.ClazsMethod;
 import net.cadrian.macchiato.interpreter.Function;
-import net.cadrian.macchiato.interpreter.Identifiers;
+import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
-import net.cadrian.macchiato.midi.ShortMessageType;
-import net.cadrian.macchiato.midi.message.ShortMessage;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
-public class ShortMessageCreationFunction implements Function {
+class MethodFunction implements Function {
 
-	private final Identifier name;
-	private final ShortMessageType type;
-	private final Ruleset ruleset;
+	private final ClazsMethod method;
 
-	public ShortMessageCreationFunction(final ShortMessageType type, final Ruleset ruleset) {
-		this.name = new Identifier(type.name(), 0);
-		this.type = type;
-		this.ruleset = ruleset;
+	MethodFunction(final ClazsMethod method) {
+		this.method = method;
 	}
 
 	@Override
 	public Identifier name() {
-		return name;
-	}
-
-	@Override
-	public Ruleset getRuleset() {
-		return ruleset;
+		return method.name();
 	}
 
 	@Override
 	public Class<? extends MacObject>[] getArgTypes() {
-		return type.getArgTypes();
+		return method.getArgTypes();
 	}
 
 	@Override
 	public Identifier[] getArgNames() {
-		return type.getArgNames();
+		return method.getArgNames();
 	}
 
 	@Override
 	public Class<? extends MacObject> getResultType() {
-		return ShortMessage.class;
+		return method.getResultType();
+	}
+
+	@Override
+	public Ruleset getRuleset() {
+		return method.getRuleset();
 	}
 
 	@Override
 	public void run(final Context context, final int position) {
-		final Identifier[] argNames = getArgNames();
-		final MacObject[] args = new MacObject[argNames.length];
-		for (int i = 0; i < argNames.length; i++) {
-			args[i] = context.get(argNames[i]);
-		}
-		context.set(Identifiers.RESULT, type.create(args));
-	}
-
-	@Override
-	public String toString() {
-		return "Native function: create short message " + type;
+		method.run(((ClazsContext) context).getTarget(), context, position);
 	}
 
 }

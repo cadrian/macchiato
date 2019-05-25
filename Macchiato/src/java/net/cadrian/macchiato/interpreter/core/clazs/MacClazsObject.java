@@ -14,36 +14,46 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter.objects;
+package net.cadrian.macchiato.interpreter.core.clazs;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import net.cadrian.macchiato.interpreter.Clazs;
 import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Method;
+import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class MacClazsObject implements MacObject {
 
 	private final Clazs clazs;
+	private final Map<String, MacObject> fieldValues = new HashMap<>();
 
 	public MacClazsObject(final Clazs clazs) {
 		this.clazs = clazs;
 	}
 
-	public Clazs getClazs() {
-		return clazs;
-	}
-
+	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final Identifier name) {
-		// TODO Auto-generated method stub
-		return null;
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset,
+			final Identifier name) {
+		return (Field<T, R>) clazs.getField(ruleset, name);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
-		// TODO Auto-generated method stub
-		return null;
+		return (Method<T>) clazs.getMethod(ruleset, name);
+	}
+
+	MacObject getFieldValue(final String name) {
+		return fieldValues.get(name);
+	}
+
+	MacObject setFieldValue(final String name, final MacObject newValue) {
+		return fieldValues.put(name, newValue);
 	}
 
 }

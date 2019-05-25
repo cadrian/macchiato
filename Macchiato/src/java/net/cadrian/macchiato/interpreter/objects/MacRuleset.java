@@ -5,8 +5,8 @@ import java.util.Map;
 
 import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Method;
-import net.cadrian.macchiato.interpreter.impl.Context;
-import net.cadrian.macchiato.interpreter.impl.DefFunction;
+import net.cadrian.macchiato.interpreter.core.Context;
+import net.cadrian.macchiato.interpreter.core.DefFunction;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedDef;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
@@ -70,9 +70,6 @@ public class MacRuleset implements MacObject {
 	@Override
 	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset,
 			final Identifier name) {
-		if (!name.isPublic()) {
-			return null;
-		}
 		Field<T, R> result = (Field<T, R>) fields.get(name);
 		if (result == null) {
 			final Ruleset scope = this.ruleset.getScope(name);
@@ -90,9 +87,6 @@ public class MacRuleset implements MacObject {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
-		if (!name.isPublic()) {
-			return null;
-		}
 		Method<T> result = (Method<T>) methods.get(name);
 		if (result == null) {
 			final LocalizedDef def = this.ruleset.getDef(name);

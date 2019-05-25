@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.interpreter.InterpreterException;
-import net.cadrian.macchiato.interpreter.impl.Interpreter;
+import net.cadrian.macchiato.interpreter.core.Interpreter;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.parser.Parser;
 
