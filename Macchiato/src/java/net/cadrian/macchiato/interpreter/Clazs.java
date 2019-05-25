@@ -17,10 +17,11 @@
 package net.cadrian.macchiato.interpreter;
 
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public interface Clazs {
 
-	String name();
+	Identifier name();
 
 	Ruleset getRuleset();
 

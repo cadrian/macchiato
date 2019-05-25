@@ -85,31 +85,31 @@ def initTrack() {
 
 def tick(event, sign) {
     // humanize tick, except for the drummer (that sounds drunk)
-    if event.channel == 10 {
-        result = event.tick;
+    if event.Channel == 10 {
+        result = event.Tick;
     } else if sign == 0 {
-        result = event.tick + random(10) - 5;
+        result = event.Tick + random(10) - 5;
     } else {
-        result = event.tick + random(5) * sign;
+        result = event.Tick + random(5) * sign;
     }
 }
 
 def note_on(event) {
     // Record the velocity
-    velocity[event.channel][event.pitch] = event.velocity;
+    velocity[event.Channel][event.Pitch] = event.Velocity;
 
-    if (event.channel == 10) or (volume[event.channel] > 0) {
+    if (event.Channel == 10) or (volume[event.Channel] > 0) {
         // Emit an event with a velocity that depends on the expression,
         // and with a bit of random for rough "humanization"
-        local v = velocity[event.channel][event.pitch];
-        local e = expression[event.channel];
+        local v = velocity[event.Channel][event.Pitch];
+        local e = expression[event.Channel];
         if (v > 0) and (e > 0) {
             v = (humanize(v, v, 10) * e) / 127;
             local t = tick(event, 1);
-            running[event.channel][event.pitch] = t;
-            emit NOTE_ON(event.channel, event.pitch, v) at t;
+            running[event.Channel][event.Pitch] = t;
+            emit NOTE_ON(event.Channel, event.Pitch, v) at t;
         } else {
-            velocity[event.channel][event.pitch] = 0;
+            velocity[event.Channel][event.Pitch] = 0;
         }
     }
 }
@@ -121,7 +121,7 @@ def record_note_length(channel, pitch, tick) {
 }
 
 def note_on_off(event) {
-    if (event.channel != 10) and (volume[event.channel] == 0) {
+    if (event.Channel != 10) and (volume[event.Channel] == 0) {
         next;
     }
 
@@ -131,14 +131,14 @@ def note_on_off(event) {
     // necessarily equal to the press velocity
     local t = tick(event, -1);
     if portamento {
-        velocity[event.channel][event.pitch] = t;
-        emit NOTE_ON(event.channel, event.pitch, 0) at t;
-    } else if velocity[event.channel][event.pitch] > 0 {
-        local v = velocity[event.channel][event.pitch];
-        local e = expression[event.channel];
+        velocity[event.Channel][event.Pitch] = t;
+        emit NOTE_ON(event.Channel, event.Pitch, 0) at t;
+    } else if velocity[event.Channel][event.Pitch] > 0 {
+        local v = velocity[event.Channel][event.Pitch];
+        local e = expression[event.Channel];
         v = (humanize(v, v, 10) * e) / 127;
-        record_note_length(event.channel, event.pitch, t);
-        emit NOTE_OFF(event.channel, event.pitch, v) at t;
+        record_note_length(event.Channel, event.Pitch, t);
+        emit NOTE_OFF(event.Channel, event.Pitch, v) at t;
     }
 }
 
@@ -146,26 +146,26 @@ def note_off(event) {
     // For completion only -- because NoteWorthy Composer
     // does not emit those events
 
-    if (volume[event.channel] > 0) and (velocity[event.channel][event.pitch] > 0) {
+    if (volume[event.Channel] > 0) and (velocity[event.Channel][event.Pitch] > 0) {
         // Emit an event with a velocity that depends on the expression,
         // and with a bit of random for rough "humanization"
         // Note that expression may have changed so the release velocity is not
         // necessarily equal to the press velocity
-        local v = (event.velocity * expression[event.channel]) / 127;
+        local v = (event.Velocity * expression[event.Channel]) / 127;
         v = humanize(v, v, 10);
         local t = tick(event, -1);
-        record_note_length(event.channel, event.pitch, t);
-        velocity[event.channel][event.pitch] = 0;
-        emit NOTE_OFF(event.channel, event.pitch, v) at t;
+        record_note_length(event.Channel, event.Pitch, t);
+        velocity[event.Channel][event.Pitch] = 0;
+        emit NOTE_OFF(event.Channel, event.Pitch, v) at t;
     }
 }
 
 def portamento_time(event) {
     // humanize this event too
-    local v = event.value;
+    local v = event.Value;
     v = humanize(v, v, 10);
     local t = tick(event, 0);
-    emit CONTROL_CHANGE(event.channel, PORTAMENTO_TIME, v) at t;
+    emit CONTROL_CHANGE(event.Channel, PORTAMENTO_TIME, v) at t;
 }
 
 BEGIN SEQUENCE {
@@ -178,7 +178,7 @@ BEGIN TRACK {
 }
 
 (event.type == CONTROL_CHANGE) and (event.mpc == PORTAMENTO) {
-    portamento = event.value;
+    portamento = event.Value;
 }
 
 (event.type == CONTROL_CHANGE) and (event.mpc == PORTAMENTO_TIME) {
@@ -188,13 +188,13 @@ BEGIN TRACK {
 
 (event.type == CONTROL_CHANGE) and (event.mpc == EXPRESSION) {
     // Record the expression value
-    expression[event.channel] = event.value;
+    expression[event.Channel] = event.Value;
     next;
 }
 
 (event.type == CONTROL_CHANGE) and (event.mpc == CHANNEL_VOLUME) {
     // Record the volume value
-    volume[event.channel] = event.value;
+    volume[event.Channel] = event.Value;
     emit;
     next;
 }

@@ -20,6 +20,7 @@ import net.cadrian.macchiato.interpreter.Clazs;
 import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class MacClazsObject implements MacObject {
 
@@ -34,13 +35,13 @@ public class MacClazsObject implements MacObject {
 	}
 
 	@Override
-	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final Identifier name) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
 		// TODO Auto-generated method stub
 		return null;
 	}

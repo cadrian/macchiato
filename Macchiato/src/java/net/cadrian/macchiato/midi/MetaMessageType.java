@@ -45,6 +45,7 @@ import net.cadrian.macchiato.midi.message.m.TextMessage;
 import net.cadrian.macchiato.midi.message.m.TimeSignatureMessage;
 import net.cadrian.macchiato.midi.message.m.TrackNameMessage;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public enum MetaMessageType implements MacComparable<MetaMessageType> {
 	SEQUENCE_NUMBER(0x00) {
@@ -67,7 +68,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final SequenceNumberMessage e = (SequenceNumberMessage) message;
-			messageData.addField("sequence", MacNumber.valueOf(e.getSequence()));
+			messageData.addField(FIELD_SEQUENCE, MacNumber.valueOf(e.getSequence()));
 		}
 
 		@Override
@@ -76,7 +77,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_SEQUENCE;
 		}
 
@@ -107,7 +108,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final TextMessage m = (TextMessage) message;
-			messageData.addField("text", m.getText());
+			messageData.addField(FIELD_TEXT, m.getText());
 		}
 
 		@Override
@@ -116,7 +117,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_TEXT;
 		}
 
@@ -147,7 +148,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final CopyrightMessage m = (CopyrightMessage) message;
-			messageData.addField("text", m.getText());
+			messageData.addField(FIELD_TEXT, m.getText());
 		}
 
 		@Override
@@ -156,7 +157,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_TEXT;
 		}
 
@@ -187,7 +188,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final TrackNameMessage m = (TrackNameMessage) message;
-			messageData.addField("text", m.getText());
+			messageData.addField(FIELD_TEXT, m.getText());
 		}
 
 		@Override
@@ -196,7 +197,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_TEXT;
 		}
 
@@ -227,7 +228,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final InstrumentNameMessage m = (InstrumentNameMessage) message;
-			messageData.addField("text", m.getText());
+			messageData.addField(FIELD_TEXT, m.getText());
 		}
 
 		@Override
@@ -236,7 +237,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_TEXT;
 		}
 
@@ -267,7 +268,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final LyricsMessage m = (LyricsMessage) message;
-			messageData.addField("text", m.getText());
+			messageData.addField(FIELD_TEXT, m.getText());
 		}
 
 		@Override
@@ -276,7 +277,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_TEXT;
 		}
 
@@ -307,7 +308,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final MarkerTextMessage m = (MarkerTextMessage) message;
-			messageData.addField("text", m.getText());
+			messageData.addField(FIELD_TEXT, m.getText());
 		}
 
 		@Override
@@ -316,7 +317,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_TEXT;
 		}
 
@@ -347,7 +348,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final CuePointMessage m = (CuePointMessage) message;
-			messageData.addField("text", m.getText());
+			messageData.addField(FIELD_TEXT, m.getText());
 		}
 
 		@Override
@@ -356,7 +357,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_TEXT;
 		}
 
@@ -398,7 +399,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -429,7 +430,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final ModulationMessage e = (ModulationMessage) message;
-			messageData.addField("value", MacNumber.valueOf(e.getValue()));
+			messageData.addField(FIELD_VALUE, MacNumber.valueOf(e.getValue()));
 		}
 
 		@Override
@@ -438,7 +439,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_VALUE;
 		}
 
@@ -475,7 +476,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_0;
 		}
 
@@ -512,7 +513,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final TempoMessage m = (TempoMessage) message;
-			messageData.addField("bpm", MacNumber.valueOf(m.getBpm()));
+			messageData.addField(FIELD_BPM, MacNumber.valueOf(m.getBpm()));
 		}
 
 		@Override
@@ -521,7 +522,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_BPM;
 		}
 
@@ -568,10 +569,10 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final TimeSignatureMessage m = (TimeSignatureMessage) message;
-			messageData.addField("numerator", MacNumber.valueOf(m.getNumerator()));
-			messageData.addField("denominator", MacNumber.valueOf(m.getDenominator()));
-			messageData.addField("metronome", MacNumber.valueOf(m.getMetronome()));
-			messageData.addField("ticks", MacNumber.valueOf(m.getTicks()));
+			messageData.addField(FIELD_NUMERATOR, MacNumber.valueOf(m.getNumerator()));
+			messageData.addField(FIELD_DENOMINATOR, MacNumber.valueOf(m.getDenominator()));
+			messageData.addField(FIELD_METRONOME, MacNumber.valueOf(m.getMetronome()));
+			messageData.addField(FIELD_TICKS, MacNumber.valueOf(m.getTicks()));
 		}
 
 		@Override
@@ -580,7 +581,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_TIMESIG;
 		}
 
@@ -693,8 +694,8 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
 			final KeySignatureMessage m = (KeySignatureMessage) message;
-			messageData.addField("keysig", MacNumber.valueOf(m.getKeysig()));
-			messageData.addField("mode", MacNumber.valueOf(m.getMode()));
+			messageData.addField(FIELD_KEYSIG, MacNumber.valueOf(m.getKeysig()));
+			messageData.addField(FIELD_MODE, MacNumber.valueOf(m.getMode()));
 		}
 
 		@Override
@@ -703,7 +704,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_KEYSIG;
 		}
 
@@ -715,17 +716,30 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 	};
 
-	private static final String[] ARG_KEYSIG = new String[] { "keysig", "mode" };
-	private static final String[] ARG_TIMESIG = new String[] { "numerator", "denominator", "metronome", "ticks" };
-	private static final String[] ARG_BPM = new String[] { "bpm" };
-	private static final String[] ARG_0 = new String[0];
+	private static final Identifier FIELD_SEQUENCE = new Identifier("Sequence", 0);
+	private static final Identifier FIELD_TEXT = new Identifier("Text", 0);
+	private static final Identifier FIELD_VALUE = new Identifier("Value", 0);
+	private static final Identifier FIELD_BPM = new Identifier("Bpm", 0);
+	private static final Identifier FIELD_NUMERATOR = new Identifier("Numerator", 0);
+	private static final Identifier FIELD_DENOMINATOR = new Identifier("Denominator", 0);
+	private static final Identifier FIELD_METRONOME = new Identifier("Metronome", 0);
+	private static final Identifier FIELD_TICKS = new Identifier("Ticks", 0);
+	private static final Identifier FIELD_KEYSIG = new Identifier("KeySig", 0);
+	private static final Identifier FIELD_MODE = new Identifier("Mode", 0);
+
+	private static final Identifier[] ARG_KEYSIG = new Identifier[] { FIELD_KEYSIG, FIELD_MODE };
+	private static final Identifier[] ARG_TIMESIG = new Identifier[] { FIELD_NUMERATOR, FIELD_DENOMINATOR,
+			FIELD_METRONOME, FIELD_TICKS };
+	private static final Identifier[] ARG_BPM = new Identifier[] { FIELD_BPM };
+	private static final Identifier[] ARG_0 = {};
+	private static final Identifier[] ARG_TEXT = new Identifier[] { FIELD_TEXT };
+	private static final Identifier[] ARG_SEQUENCE = new Identifier[] { FIELD_SEQUENCE };
+	private static final Identifier[] ARG_VALUE = new Identifier[] { FIELD_VALUE };
+
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] TYPE_0 = new Class[0];
-	private static final String[] ARG_TEXT = new String[] { "text" };
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] TYPE_STR1 = new Class[] { String.class };
-	private static final String[] ARG_SEQUENCE = new String[] { "sequence" };
-	private static final String[] ARG_VALUE = new String[] { "value" };
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] TYPE_INT1 = new Class[] { MacNumber.class };
 	@SuppressWarnings("unchecked")
@@ -763,17 +777,18 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 	public abstract Class<? extends MacObject>[] getArgTypes();
 
-	public abstract String[] getArgNames();
+	public abstract Identifier[] getArgNames();
 
 	public abstract Message<MetaMessage> create(MacObject... args);
 
 	@Override
-	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset,
+			final Identifier name) {
 		return null;
 	}
 
 	@Override
-	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
 		return null;
 	}
 

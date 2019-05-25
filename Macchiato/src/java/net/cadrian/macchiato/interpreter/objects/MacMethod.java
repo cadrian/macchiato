@@ -18,6 +18,7 @@ package net.cadrian.macchiato.interpreter.objects;
 
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.impl.Context;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class MacMethod<T extends MacObject> extends MacCallable {
 
@@ -40,7 +41,7 @@ public class MacMethod<T extends MacObject> extends MacCallable {
 	}
 
 	@Override
-	public String[] getArgNames() {
+	public Identifier[] getArgNames() {
 		return method.getArgNames();
 	}
 

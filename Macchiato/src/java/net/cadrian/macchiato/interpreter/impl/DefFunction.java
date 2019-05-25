@@ -24,24 +24,25 @@ import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.FormalArgs;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedDef;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class DefFunction implements Function {
 
 	private final LocalizedDef def;
-	private final Class<? extends MacObject>[] argsType;
-	private final String[] argNames;
+	private final Class<? extends MacObject>[] argTypes;
+	private final Identifier[] argNames;
 
 	@SuppressWarnings("unchecked")
 	public DefFunction(final LocalizedDef def) {
 		this.def = def;
 		final FormalArgs args = def.def.getArgs();
-		argsType = new Class[args.size()];
-		Arrays.fill(argsType, MacObject.class);
+		argTypes = new Class[args.size()];
+		Arrays.fill(argTypes, MacObject.class);
 		argNames = args.toArray();
 	}
 
 	@Override
-	public String name() {
+	public Identifier name() {
 		return def.def.name();
 	}
 
@@ -52,11 +53,11 @@ public class DefFunction implements Function {
 
 	@Override
 	public Class<? extends MacObject>[] getArgTypes() {
-		return argsType;
+		return argTypes;
 	}
 
 	@Override
-	public String[] getArgNames() {
+	public Identifier[] getArgNames() {
 		return argNames;
 	}
 
@@ -71,7 +72,7 @@ public class DefFunction implements Function {
 			final InstructionEvaluationVisitor v = new InstructionEvaluationVisitor(context);
 			def.def.getInstruction().accept(v);
 		} catch (final InterpreterException e) {
-			throw new InterpreterException(e.getMessage(), position, e);
+			throw new InterpreterException(e.getMessage(), e, position);
 		}
 	}
 

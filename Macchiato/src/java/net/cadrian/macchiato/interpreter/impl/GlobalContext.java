@@ -43,14 +43,16 @@ import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.ShortMessageType;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 class GlobalContext extends Context {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalContext.class);
+	private static final Identifier EVENT_IDENTIFIER = new Identifier("event", 0);
 
 	private final Ruleset ruleset;
-	private final Map<String, MacObject> global = new HashMap<>();
-	private final Map<String, Function> nativeFunctions = new HashMap<>();
+	private final Map<Identifier, MacObject> global = new HashMap<>();
+	private final Map<Identifier, Function> nativeFunctions = new HashMap<>();
 	private Track track;
 	private Event<? extends MidiMessage> event;
 	private boolean next;
@@ -62,18 +64,18 @@ class GlobalContext extends Context {
 		for (int i = 0; i < args.length; i++) {
 			arguments.set(MacNumber.valueOf(i), MacString.valueOf(args[i]));
 		}
-		global.put("arguments", arguments);
+		global.put(new Identifier("arguments", 0), arguments);
 
 		for (final MetaMessageType type : MetaMessageType.values()) {
-			global.put(type.name(), type);
-			nativeFunctions.put(type.name(), new MetaMessageCreationFunction(type, ruleset));
+			global.put(new Identifier(type.name(), 0), type);
+			nativeFunctions.put(new Identifier(type.name(), 0), new MetaMessageCreationFunction(type, ruleset));
 		}
 		for (final ShortMessageType type : ShortMessageType.values()) {
-			global.put(type.name(), type);
-			nativeFunctions.put(type.name(), new ShortMessageCreationFunction(type, ruleset));
+			global.put(new Identifier(type.name(), 0), type);
+			nativeFunctions.put(new Identifier(type.name(), 0), new ShortMessageCreationFunction(type, ruleset));
 		}
 		for (final ControlChange mpc : ControlChange.values()) {
-			global.put(mpc.name(), mpc);
+			global.put(new Identifier(mpc.name(), 0), mpc);
 		}
 		for (final Native fun : Native.values()) {
 			final Function function = fun.getFunction(ruleset);
@@ -95,7 +97,7 @@ class GlobalContext extends Context {
 		final MacEvent eventData = new MacEvent(ruleset, tick, type);
 		type.fill(eventData, metaEvent.createMessage());
 		LOGGER.debug("Setting meta event {}", eventData);
-		global.put("event", eventData);
+		global.put(EVENT_IDENTIFIER, eventData);
 		this.event = metaEvent;
 	}
 
@@ -104,7 +106,7 @@ class GlobalContext extends Context {
 		final MacEvent eventData = new MacEvent(ruleset, tick, type);
 		type.fill(eventData, shortEvent.createMessage());
 		LOGGER.debug("Setting short event {}", eventData);
-		global.put("event", eventData);
+		global.put(EVENT_IDENTIFIER, eventData);
 		this.event = shortEvent;
 	}
 
@@ -131,7 +133,7 @@ class GlobalContext extends Context {
 	}
 
 	@Override
-	protected Function getUncachedFunction(final String name) {
+	protected Function getUncachedFunction(final Identifier name) {
 		LOGGER.debug("<-- {}", name);
 		Function result = super.getUncachedFunction(name);
 		if (result == null) {
@@ -142,13 +144,13 @@ class GlobalContext extends Context {
 	}
 
 	@Override
-	public boolean has(final String key) {
+	public boolean has(final Identifier key) {
 		return global.containsKey(key);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends MacObject> T get(final String key) {
+	public <T extends MacObject> T get(final Identifier key) {
 		LOGGER.debug("<-- {}", key);
 		T result = (T) global.get(key);
 		if (result == null) {
@@ -164,7 +166,7 @@ class GlobalContext extends Context {
 	}
 
 	@Override
-	public <T extends MacObject> T set(final String key, final T value) {
+	public <T extends MacObject> T set(final Identifier key, final T value) {
 		LOGGER.debug("<-- {} = {}", key, value);
 		@SuppressWarnings("unchecked")
 		final T result = (T) global.put(key, value);
@@ -173,8 +175,8 @@ class GlobalContext extends Context {
 	}
 
 	@Override
-	void declareLocal(final String name) {
-		throw new InterpreterException("BUG: unexpected local declaration in global context", 0);
+	void declareLocal(final Identifier name) {
+		throw new InterpreterException("BUG: unexpected local declaration in global context", name.position());
 	}
 
 }

@@ -94,37 +94,40 @@ class AssignmentVisitor implements ExpressionVisitor {
 
 		@Override
 		public void set(final MacObject value) {
-			final String key = identifier.getName();
-			LOGGER.debug("Setting {} to {}", key, value);
-			context.set(key, value);
+			LOGGER.debug("Setting {} to {}", identifier.getName(), value);
+			context.set(identifier, value);
 		}
 	}
 
 	@Override
 	public void visitIdentifier(final Identifier identifier) {
 		LOGGER.debug("<-- {}", identifier);
-		previousValue = context.get(identifier.getName());
+		previousValue = context.get(identifier);
 		setter = new IdentifierSetter(identifier);
 		LOGGER.debug("--> {}", previousValue);
 	}
 
 	private class ResultSetter implements Setter {
 
-		ResultSetter() {
+		private final Identifier resultIdentifier;
+
+		ResultSetter(final Identifier resultIdentifier) {
+			this.resultIdentifier = resultIdentifier;
 		}
 
 		@Override
 		public void set(final MacObject value) {
 			LOGGER.debug("Setting result to {}", value);
-			context.set("result", value);
+			context.set(resultIdentifier, value);
 		}
 	}
 
 	@Override
 	public void visitResult(final Result result) {
 		LOGGER.debug("<-- {}", result);
-		previousValue = context.get("result");
-		setter = new ResultSetter();
+		final Identifier resultIdentifier = new Identifier("result", result.position());
+		previousValue = context.get(resultIdentifier);
+		setter = new ResultSetter(resultIdentifier);
 		LOGGER.debug("--> {}", previousValue);
 	}
 

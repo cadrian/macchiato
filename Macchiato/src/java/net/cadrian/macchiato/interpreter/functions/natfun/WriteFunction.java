@@ -30,22 +30,27 @@ import net.cadrian.macchiato.interpreter.impl.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 class WriteFunction extends AbstractObjectWriterFunction implements Function {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(WriteFunction.class);
 
+	private static final Identifier NAME = new Identifier("write", 0);
+	private static final Identifier ARG_FILE = new Identifier("file", 0);
+	private static final Identifier ARG_VALUE = new Identifier("value", 0);
+
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacString.class, MacObject.class };
-	private static final String[] ARG_NAMES = { "file", "value" };
+	private static final Identifier[] ARG_NAMES = { ARG_FILE, ARG_VALUE };
 
 	WriteFunction(final Ruleset ruleset) {
 		super(ruleset);
 	}
 
 	@Override
-	public String name() {
-		return "write";
+	public Identifier name() {
+		return NAME;
 	}
 
 	@Override
@@ -54,7 +59,7 @@ class WriteFunction extends AbstractObjectWriterFunction implements Function {
 	}
 
 	@Override
-	public String[] getArgNames() {
+	public Identifier[] getArgNames() {
 		return ARG_NAMES;
 	}
 
@@ -65,8 +70,8 @@ class WriteFunction extends AbstractObjectWriterFunction implements Function {
 
 	@Override
 	public void run(final Context context, final int position) {
-		final MacString file = context.get("file");
-		final MacObject value = context.get("value");
+		final MacString file = context.get(ARG_FILE);
+		final MacObject value = context.get(ARG_VALUE);
 		LOGGER.debug("<-- {}: {}", file, value);
 
 		if (value == null) {
@@ -78,7 +83,7 @@ class WriteFunction extends AbstractObjectWriterFunction implements Function {
 				throw new InterpreterException("invalid value: not writable", position);
 			}
 		} catch (final IOException e) {
-			throw new InterpreterException(e.getMessage(), position, e);
+			throw new InterpreterException(e.getMessage(), e, position);
 		}
 
 		LOGGER.debug("-->");

@@ -19,11 +19,12 @@ package net.cadrian.macchiato.interpreter.objects;
 import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public interface MacObject {
 
-	<T extends MacObject, R extends MacObject> Field<T, R> getField(Ruleset ruleset, String name);
+	<T extends MacObject, R extends MacObject> Field<T, R> getField(Ruleset ruleset, Identifier name);
 
-	<T extends MacObject> Method<T> getMethod(Ruleset ruleset, String name);
+	<T extends MacObject> Method<T> getMethod(Ruleset ruleset, Identifier name);
 
 }

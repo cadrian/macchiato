@@ -24,6 +24,7 @@ import net.cadrian.macchiato.interpreter.Event;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public interface Message<M extends MidiMessage> extends MacObject {
 
@@ -35,7 +36,7 @@ public interface Message<M extends MidiMessage> extends MacObject {
 	Event<M> toEvent(BigInteger tick);
 
 	@Override
-	default <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
+	default <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
 		return null;
 	}
 

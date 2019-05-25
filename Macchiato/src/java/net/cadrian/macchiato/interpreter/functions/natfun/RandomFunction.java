@@ -23,15 +23,20 @@ import java.security.SecureRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.impl.Context;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 class RandomFunction extends AbstractNativeFunction {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RandomFunction.class);
+
+	private static final Identifier NAME = new Identifier("random", 0);
+	private static final Identifier ARG_MAX = new Identifier("max", 0);
 
 	private static final SecureRandom RANDOM;
 	static {
@@ -46,15 +51,15 @@ class RandomFunction extends AbstractNativeFunction {
 
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacNumber.class };
-	private static final String[] ARG_NAMES = { "max" };
+	private static final Identifier[] ARG_NAMES = { ARG_MAX };
 
 	RandomFunction(final Ruleset ruleset) {
 		super(ruleset);
 	}
 
 	@Override
-	public String name() {
-		return "random";
+	public Identifier name() {
+		return NAME;
 	}
 
 	@Override
@@ -63,7 +68,7 @@ class RandomFunction extends AbstractNativeFunction {
 	}
 
 	@Override
-	public String[] getArgNames() {
+	public Identifier[] getArgNames() {
 		return ARG_NAMES;
 	}
 
@@ -74,7 +79,7 @@ class RandomFunction extends AbstractNativeFunction {
 
 	@Override
 	public void run(final Context context, final int position) {
-		final BigInteger max = ((MacNumber) context.get("max")).getValue();
+		final BigInteger max = ((MacNumber) context.get(ARG_MAX)).getValue();
 		LOGGER.debug("<-- {}", max);
 		if (max.signum() != 1) {
 			throw new InterpreterException("invalid max value: must be strictly positive", position);
@@ -87,7 +92,7 @@ class RandomFunction extends AbstractNativeFunction {
 		LOGGER.debug("random={}", random);
 		final BigInteger result = random.mod(max);
 		LOGGER.debug("<-- {}", result);
-		context.set("result", MacNumber.valueOf(result));
+		context.set(Identifiers.RESULT, MacNumber.valueOf(result));
 	}
 
 }

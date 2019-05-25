@@ -21,9 +21,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import net.cadrian.macchiato.interpreter.Field;
+import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.impl.Context;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class MacPattern implements MacObject {
 
@@ -31,9 +33,12 @@ public class MacPattern implements MacObject {
 
 	private static class MatcherMethod extends AbstractMethod<MacPattern> {
 
+		private static final Identifier NAME = new Identifier("Matcher", 0);
+		private static final Identifier ARG_STRING = new Identifier("string", 0);
+
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacString.class };
-		private static final String[] ARG_NAMES = { "string" };
+		private static final Identifier[] ARG_NAMES = { ARG_STRING };
 
 		MatcherMethod(final Ruleset ruleset) {
 			super(ruleset);
@@ -46,14 +51,14 @@ public class MacPattern implements MacObject {
 
 		@Override
 		public void run(final MacPattern target, final Context context, final int position) {
-			final MacString string = context.get("string");
+			final MacString string = context.get(ARG_STRING);
 			final MacMatcher result = new MacMatcher(target.value.matcher(string.getValue()));
-			context.set("result", result);
+			context.set(Identifiers.RESULT, result);
 		}
 
 		@Override
-		public String name() {
-			return "matcher";
+		public Identifier name() {
+			return NAME;
 		}
 
 		@Override
@@ -62,7 +67,7 @@ public class MacPattern implements MacObject {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_NAMES;
 		}
 
@@ -84,15 +89,16 @@ public class MacPattern implements MacObject {
 	}
 
 	@Override
-	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset,
+			final Identifier name) {
 		return null;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
-		switch (name) {
-		case "matcher":
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
+		switch (name.getName()) {
+		case "Matcher":
 			return (Method<T>) new MatcherMethod(ruleset);
 		}
 		return null;

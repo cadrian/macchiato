@@ -16,28 +16,35 @@
  */
 package net.cadrian.macchiato.ruleset.ast;
 
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+
 public class Def implements Node {
 
 	public static interface Visitor extends Node.Visitor {
 		void visit(Def def);
 	}
 
-	private final String name;
+	private final Identifier name;
 	private final Clazz clazz;
 	private final FormalArgs args;
 	private final Instruction instruction;
 	private final int position;
+	private final Expression requires;
+	private final Expression ensures;
 
-	public Def(final int position, final String name, final FormalArgs args, final Instruction instruction,
-			final Clazz clazz) {
+	public Def(final int position, final Identifier name, final FormalArgs args, final Expression requires,
+			final Expression ensures, final Instruction instruction, final Clazz clazz) {
+		assert instruction != null || clazz != null;
 		this.position = position;
 		this.name = name;
+		this.requires = requires;
+		this.ensures = ensures;
 		this.clazz = clazz;
 		this.args = args;
 		this.instruction = instruction;
 	}
 
-	public String name() {
+	public Identifier name() {
 		return name;
 	}
 
@@ -47,6 +54,14 @@ public class Def implements Node {
 
 	public Instruction getInstruction() {
 		return instruction;
+	}
+
+	public Expression getRequires() {
+		return requires;
+	}
+
+	public Expression getEnsures() {
+		return ensures;
 	}
 
 	public Clazz getClazz() {
@@ -65,11 +80,14 @@ public class Def implements Node {
 
 	public Def simplify() {
 		final Instruction simplifyInstruction = instruction.simplify();
-		final Clazz simplifyClazz = clazz.simplify();
-		if (simplifyInstruction == instruction && simplifyClazz == clazz) {
+		final Clazz simplifyClazz = clazz == null ? null : clazz.simplify();
+		final Expression simplifyRequires = requires == null ? null : requires.simplify();
+		final Expression simplifyEnsures = ensures == null ? null : ensures.simplify();
+		if (simplifyInstruction == instruction && simplifyRequires == requires && simplifyEnsures == ensures
+				&& simplifyClazz == clazz) {
 			return this;
 		}
-		return new Def(position, name, args, simplifyInstruction, simplifyClazz);
+		return new Def(position, name, args, simplifyRequires, simplifyEnsures, simplifyInstruction, simplifyClazz);
 	}
 
 	@Override

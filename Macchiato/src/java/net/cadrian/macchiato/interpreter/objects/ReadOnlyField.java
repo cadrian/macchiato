@@ -4,17 +4,18 @@ import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.impl.Context;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 class ReadOnlyField<T extends MacObject, R extends MacObject> implements Field<T, R> {
 
-	private final String name;
+	private final Identifier name;
 	private final Ruleset ruleset;
 	private final Class<T> targetType;
 	private final Class<R> resultType;
 
 	private final R value;
 
-	ReadOnlyField(final String name, final Ruleset ruleset, final Class<T> targetType, final Class<R> resultType,
+	ReadOnlyField(final Identifier name, final Ruleset ruleset, final Class<T> targetType, final Class<R> resultType,
 			final R initialValue) {
 		this.name = name;
 		this.ruleset = ruleset;
@@ -24,7 +25,7 @@ class ReadOnlyField<T extends MacObject, R extends MacObject> implements Field<T
 	}
 
 	@Override
-	public String name() {
+	public Identifier name() {
 		return name;
 	}
 

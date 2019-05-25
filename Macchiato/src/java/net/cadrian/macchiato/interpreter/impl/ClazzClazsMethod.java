@@ -16,48 +16,58 @@
  */
 package net.cadrian.macchiato.interpreter.impl;
 
+import java.util.Arrays;
+
 import net.cadrian.macchiato.interpreter.Clazs;
 import net.cadrian.macchiato.interpreter.ClazsMethod;
+import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.objects.MacClazsObject;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Def;
+import net.cadrian.macchiato.ruleset.ast.FormalArgs;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class ClazzClazsMethod implements ClazsMethod {
 
 	private final ClazzClazs clazzClazs;
 	private final Def def;
-	private final String name;
+	private final Identifier name;
 	private final Ruleset ruleset;
+	private final Class<? extends MacObject>[] argTypes;
+	private final Identifier[] argNames;
 
-	ClazzClazsMethod(final ClazzClazs clazzClazs, final Def def, final String name, final Ruleset ruleset) {
+	@SuppressWarnings("unchecked")
+	ClazzClazsMethod(final ClazzClazs clazzClazs, final Def def, final Identifier name, final Ruleset ruleset) {
 		this.clazzClazs = clazzClazs;
 		this.def = def;
 		this.name = name;
 		this.ruleset = ruleset;
+
+		final FormalArgs args = def.getArgs();
+		argTypes = new Class[args.size()];
+		Arrays.fill(argTypes, MacObject.class);
+		argNames = args.toArray();
 	}
 
 	@Override
-	public String name() {
+	public Identifier name() {
 		return name;
 	}
 
 	@Override
 	public Class<? extends MacObject>[] getArgTypes() {
-		// TODO Auto-generated method stub
-		return null;
+		return argTypes;
 	}
 
 	@Override
-	public String[] getArgNames() {
-		// TODO Auto-generated method stub
-		return null;
+	public Identifier[] getArgNames() {
+		return argNames;
 	}
 
 	@Override
 	public Class<? extends MacObject> getResultType() {
-		// TODO Auto-generated method stub
-		return null;
+		return MacObject.class;
 	}
 
 	@Override
@@ -67,14 +77,23 @@ public class ClazzClazsMethod implements ClazsMethod {
 
 	@Override
 	public Clazs getTargetType() {
-		// TODO Auto-generated method stub
-		return null;
+		return clazzClazs;
 	}
 
 	@Override
 	public void run(final MacClazsObject target, final Context context, final int position) {
-		// TODO Auto-generated method stub
-
+		final ClazsContext clazsContext;
+		if (context instanceof ClazsContext && ((ClazsContext) context).getTarget() == target) {
+			clazsContext = (ClazsContext) context;
+		} else {
+			clazsContext = new ClazsContext(context, target, ruleset);
+		}
+		try {
+			final InstructionEvaluationVisitor v = new InstructionEvaluationVisitor(clazsContext);
+			def.getInstruction().accept(v);
+		} catch (final InterpreterException e) {
+			throw new InterpreterException(e.getMessage(), e, position);
+		}
 	}
 
 }

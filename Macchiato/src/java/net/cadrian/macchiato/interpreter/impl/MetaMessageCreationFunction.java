@@ -17,24 +17,28 @@
 package net.cadrian.macchiato.interpreter.impl;
 
 import net.cadrian.macchiato.interpreter.Function;
+import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.message.MetaMessage;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class MetaMessageCreationFunction implements Function {
 
+	private final Identifier name;
 	private final MetaMessageType type;
 	private final Ruleset ruleset;
 
 	public MetaMessageCreationFunction(final MetaMessageType type, final Ruleset ruleset) {
+		this.name = new Identifier(type.name(), 0);
 		this.type = type;
 		this.ruleset = ruleset;
 	}
 
 	@Override
-	public String name() {
-		return type.name();
+	public Identifier name() {
+		return name;
 	}
 
 	@Override
@@ -48,7 +52,7 @@ public class MetaMessageCreationFunction implements Function {
 	}
 
 	@Override
-	public String[] getArgNames() {
+	public Identifier[] getArgNames() {
 		return type.getArgNames();
 	}
 
@@ -59,12 +63,12 @@ public class MetaMessageCreationFunction implements Function {
 
 	@Override
 	public void run(final Context context, final int position) {
-		final String[] argNames = getArgNames();
+		final Identifier[] argNames = getArgNames();
 		final MacObject[] args = new MacObject[argNames.length];
 		for (int i = 0; i < argNames.length; i++) {
 			args[i] = context.get(argNames[i]);
 		}
-		context.set("result", type.create(args));
+		context.set(Identifiers.RESULT, type.create(args));
 	}
 
 	@Override

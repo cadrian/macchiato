@@ -37,6 +37,7 @@ import net.cadrian.macchiato.midi.message.s.PitchBendMessage;
 import net.cadrian.macchiato.midi.message.s.PolyPressureMessage;
 import net.cadrian.macchiato.midi.message.s.ProgramChangeMessage;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public enum ShortMessageType implements MacComparable<ShortMessageType> {
 	NOTE_OFF(0x80) {
@@ -59,9 +60,9 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<ShortMessage> message) {
 			final NoteOffMessage m = (NoteOffMessage) message;
-			messageData.addField("channel", MacNumber.valueOf(m.getChannel()));
-			messageData.addField("velocity", MacNumber.valueOf(m.getVelocity()));
-			messageData.addField("pitch", MacNumber.valueOf(m.getPitch()));
+			messageData.addField(FIELD_CHANNEL, MacNumber.valueOf(m.getChannel()));
+			messageData.addField(FIELD_VELOCITY, MacNumber.valueOf(m.getVelocity()));
+			messageData.addField(FIELD_PITCH, MacNumber.valueOf(m.getPitch()));
 		}
 
 		@Override
@@ -70,7 +71,7 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_CHANNEL_PITCH_VELOCITY;
 		}
 
@@ -103,9 +104,9 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<ShortMessage> message) {
 			final NoteOnMessage m = (NoteOnMessage) message;
-			messageData.addField("channel", MacNumber.valueOf(m.getChannel()));
-			messageData.addField("velocity", MacNumber.valueOf(m.getVelocity()));
-			messageData.addField("pitch", MacNumber.valueOf(m.getPitch()));
+			messageData.addField(FIELD_CHANNEL, MacNumber.valueOf(m.getChannel()));
+			messageData.addField(FIELD_VELOCITY, MacNumber.valueOf(m.getVelocity()));
+			messageData.addField(FIELD_PITCH, MacNumber.valueOf(m.getPitch()));
 		}
 
 		@Override
@@ -114,7 +115,7 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_CHANNEL_PITCH_VELOCITY;
 		}
 
@@ -148,8 +149,8 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<ShortMessage> message) {
 			final PolyPressureMessage m = (PolyPressureMessage) message;
-			messageData.addField("channel", MacNumber.valueOf(m.getChannel()));
-			messageData.addField("pressure", MacNumber.valueOf(m.getPressure()));
+			messageData.addField(FIELD_CHANNEL, MacNumber.valueOf(m.getChannel()));
+			messageData.addField(FIELD_PRESSURE, MacNumber.valueOf(m.getPressure()));
 		}
 
 		@Override
@@ -158,7 +159,7 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_CHANNEL_PRESSURE;
 		}
 
@@ -198,9 +199,9 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		public void fill(final MacEvent messageData, final Message<ShortMessage> message) {
 			final ControlChangeMessage m = (ControlChangeMessage) message;
 			final ControlChange mpc = m.getMpc();
-			messageData.addField("channel", MacNumber.valueOf(m.getChannel()));
-			messageData.addField("mpc", mpc);
-			messageData.addField("value", mpc.valueOf(m.getValue()));
+			messageData.addField(FIELD_CHANNEL, MacNumber.valueOf(m.getChannel()));
+			messageData.addField(FIELD_MPC, mpc);
+			messageData.addField(FIELD_VALUE, mpc.valueOf(m.getValue()));
 		}
 
 		@Override
@@ -209,7 +210,7 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_CHANNEL_MPC_VALUE;
 		}
 
@@ -241,8 +242,8 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<ShortMessage> message) {
 			final ProgramChangeMessage m = (ProgramChangeMessage) message;
-			messageData.addField("channel", MacNumber.valueOf(m.getChannel()));
-			messageData.addField("patch", MacNumber.valueOf(m.getPatch()));
+			messageData.addField(FIELD_CHANNEL, MacNumber.valueOf(m.getChannel()));
+			messageData.addField(FIELD_PATCH, MacNumber.valueOf(m.getPatch()));
 		}
 
 		@Override
@@ -251,7 +252,7 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_CHANNEL_PATCH;
 		}
 
@@ -283,8 +284,8 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<ShortMessage> message) {
 			final ChannelPressureMessage m = (ChannelPressureMessage) message;
-			messageData.addField("channel", MacNumber.valueOf(m.getChannel()));
-			messageData.addField("pressure", MacNumber.valueOf(m.getPressure()));
+			messageData.addField(FIELD_CHANNEL, MacNumber.valueOf(m.getChannel()));
+			messageData.addField(FIELD_PRESSURE, MacNumber.valueOf(m.getPressure()));
 		}
 
 		@Override
@@ -293,7 +294,7 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_CHANNEL_PRESSURE;
 		}
 
@@ -330,8 +331,8 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		@Override
 		public void fill(final MacEvent messageData, final Message<ShortMessage> message) {
 			final PitchBendMessage m = (PitchBendMessage) message;
-			messageData.addField("channel", MacNumber.valueOf(m.getChannel()));
-			messageData.addField("value", MacNumber.valueOf(m.getValue()));
+			messageData.addField(FIELD_CHANNEL, MacNumber.valueOf(m.getChannel()));
+			messageData.addField(FIELD_VALUE, MacNumber.valueOf(m.getValue()));
 		}
 
 		@Override
@@ -340,7 +341,7 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_CHANNEL_VALUE;
 		}
 
@@ -352,11 +353,21 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 	};
 
-	private static final String[] ARG_CHANNEL_VALUE = new String[] { "channel", "value" };
-	private static final String[] ARG_CHANNEL_PATCH = new String[] { "channel", "patch" };
-	private static final String[] ARG_CHANNEL_MPC_VALUE = new String[] { "channel", "mpc", "value" };
-	private static final String[] ARG_CHANNEL_PRESSURE = new String[] { "channel", "pressure" };
-	private static final String[] ARG_CHANNEL_PITCH_VELOCITY = new String[] { "channel", "pitch", "velocity" };
+	private static final Identifier FIELD_CHANNEL = new Identifier("Channel", 0);
+	private static final Identifier FIELD_VELOCITY = new Identifier("Velocity", 0);
+	private static final Identifier FIELD_PITCH = new Identifier("Pitch", 0);
+	private static final Identifier FIELD_PRESSURE = new Identifier("Pressure", 0);
+	private static final Identifier FIELD_MPC = new Identifier("Mpc", 0);
+	private static final Identifier FIELD_VALUE = new Identifier("Value", 0);
+	private static final Identifier FIELD_PATCH = new Identifier("Patch", 0);
+
+	private static final Identifier[] ARG_CHANNEL_VALUE = new Identifier[] { FIELD_CHANNEL, FIELD_VALUE };
+	private static final Identifier[] ARG_CHANNEL_PATCH = new Identifier[] { FIELD_CHANNEL, FIELD_PATCH };
+	private static final Identifier[] ARG_CHANNEL_MPC_VALUE = new Identifier[] { FIELD_CHANNEL, FIELD_MPC,
+			FIELD_VALUE };
+	private static final Identifier[] ARG_CHANNEL_PRESSURE = new Identifier[] { FIELD_CHANNEL, FIELD_PRESSURE };
+	private static final Identifier[] ARG_CHANNEL_PITCH_VELOCITY = new Identifier[] { FIELD_CHANNEL, FIELD_PITCH,
+			FIELD_VELOCITY };
 
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] TYPE_MPC = new Class[] { MacNumber.class, ControlChange.class,
@@ -396,17 +407,18 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 
 	public abstract Class<? extends MacObject>[] getArgTypes();
 
-	public abstract String[] getArgNames();
+	public abstract Identifier[] getArgNames();
 
 	public abstract Message<ShortMessage> create(MacObject... args);
 
 	@Override
-	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset,
+			final Identifier name) {
 		return null;
 	}
 
 	@Override
-	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
 		return null;
 	}
 

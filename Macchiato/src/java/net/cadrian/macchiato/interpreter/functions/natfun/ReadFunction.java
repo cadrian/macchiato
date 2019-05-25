@@ -25,28 +25,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.interpreter.Function;
+import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.impl.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 import net.cadrian.macchiato.ruleset.parser.ParserBuffer;
 
 class ReadFunction extends AbstractObjectReaderFunction implements Function {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReadFunction.class);
 
+	private static final Identifier NAME = new Identifier("read", 0);
+	private static final Identifier ARG_FILE = new Identifier("file", 0);
+
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacString.class };
-	private static final String[] ARG_NAMES = { "file" };
+	private static final Identifier[] ARG_NAMES = { ARG_FILE };
 
 	ReadFunction(final Ruleset ruleset) {
 		super(ruleset);
 	}
 
 	@Override
-	public String name() {
-		return "read";
+	public Identifier name() {
+		return NAME;
 	}
 
 	@Override
@@ -55,7 +60,7 @@ class ReadFunction extends AbstractObjectReaderFunction implements Function {
 	}
 
 	@Override
-	public String[] getArgNames() {
+	public Identifier[] getArgNames() {
 		return ARG_NAMES;
 	}
 
@@ -66,7 +71,7 @@ class ReadFunction extends AbstractObjectReaderFunction implements Function {
 
 	@Override
 	public void run(final Context context, final int position) {
-		final String file = context.get("file");
+		final String file = context.get(ARG_FILE);
 		LOGGER.debug("<-- {}", file);
 		final MacObject result;
 
@@ -74,10 +79,10 @@ class ReadFunction extends AbstractObjectReaderFunction implements Function {
 			final ParserBuffer buffer = new ParserBuffer(reader);
 			result = parseObject(buffer);
 		} catch (final IOException e) {
-			throw new InterpreterException(e.getMessage(), position, e);
+			throw new InterpreterException(e.getMessage(), e, position);
 		}
 
-		context.set("result", result);
+		context.set(Identifiers.RESULT, result);
 		LOGGER.debug("--> {}", result);
 	}
 

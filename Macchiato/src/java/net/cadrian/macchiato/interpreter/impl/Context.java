@@ -34,14 +34,15 @@ import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedClazz;
 import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedDef;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
 
 public abstract class Context {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Context.class);
 
-	private final Map<String, Function> functions = new HashMap<>();
-	private final Map<String, Clazs> clazses = new HashMap<>();
+	private final Map<Identifier, Function> functions = new HashMap<>();
+	private final Map<Identifier, Clazs> clazses = new HashMap<>();
 
 	abstract Ruleset getRuleset();
 
@@ -69,7 +70,12 @@ public abstract class Context {
 		return (T) v.getLastValue();
 	}
 
+	@Deprecated
 	final Function getFunction(final String name) {
+		return getFunction(new Identifier(name, 0));
+	}
+
+	final Function getFunction(final Identifier name) {
 		LOGGER.debug("<-- {}", name);
 		final Function result;
 		final Function fn = functions.get(name);
@@ -83,7 +89,12 @@ public abstract class Context {
 		return result;
 	}
 
+	@Deprecated
 	final Clazs getClazs(final String name) {
+		return getClazs(new Identifier(name, 0));
+	}
+
+	final Clazs getClazs(final Identifier name) {
 		LOGGER.debug("<-- {}", name);
 		final Clazs result;
 		final Clazs c = clazses.get(name);
@@ -97,7 +108,7 @@ public abstract class Context {
 		return result;
 	}
 
-	protected Function getUncachedFunction(final String name) {
+	protected Function getUncachedFunction(final Identifier name) {
 		LOGGER.debug("<-- {}", name);
 		final Function result;
 		final LocalizedDef def = getRuleset().getDef(name);
@@ -110,7 +121,7 @@ public abstract class Context {
 		return result;
 	}
 
-	protected Clazs getUncachedClazs(final String name) {
+	protected Clazs getUncachedClazs(final Identifier name) {
 		LOGGER.debug("<-- {}", name);
 		final Clazs result;
 		final LocalizedClazz clazz = getRuleset().getClazz(name);
@@ -123,12 +134,12 @@ public abstract class Context {
 		return result;
 	}
 
-	public abstract boolean has(String key);
+	public abstract boolean has(Identifier key);
 
-	public abstract <T extends MacObject> T get(String key);
+	public abstract <T extends MacObject> T get(Identifier key);
 
-	public abstract <T extends MacObject> T set(String key, T value);
+	public abstract <T extends MacObject> T set(Identifier key, T value);
 
-	abstract void declareLocal(String name);
+	abstract void declareLocal(Identifier name);
 
 }

@@ -9,6 +9,7 @@ import net.cadrian.macchiato.interpreter.impl.Context;
 import net.cadrian.macchiato.interpreter.impl.DefFunction;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedDef;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class MacRuleset implements MacObject {
 
@@ -21,7 +22,7 @@ public class MacRuleset implements MacObject {
 		}
 
 		@Override
-		public String name() {
+		public Identifier name() {
 			return def.name();
 		}
 
@@ -31,7 +32,7 @@ public class MacRuleset implements MacObject {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return def.getArgNames();
 		}
 
@@ -58,8 +59,8 @@ public class MacRuleset implements MacObject {
 	};
 
 	private final Ruleset ruleset;
-	private final Map<String, ReadOnlyField<MacRuleset, MacRuleset>> fields = new HashMap<>();
-	private final Map<String, RulesetMethod> methods = new HashMap<>();
+	private final Map<Identifier, ReadOnlyField<MacRuleset, MacRuleset>> fields = new HashMap<>();
+	private final Map<Identifier, RulesetMethod> methods = new HashMap<>();
 
 	public MacRuleset(final Ruleset ruleset) {
 		this.ruleset = ruleset;
@@ -67,8 +68,9 @@ public class MacRuleset implements MacObject {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
-		if (Character.isLowerCase(name.charAt(0))) {
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset,
+			final Identifier name) {
+		if (!name.isPublic()) {
 			return null;
 		}
 		Field<T, R> result = (Field<T, R>) fields.get(name);
@@ -87,8 +89,8 @@ public class MacRuleset implements MacObject {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
-		if (Character.isLowerCase(name.charAt(0))) {
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
+		if (!name.isPublic()) {
 			return null;
 		}
 		Method<T> result = (Method<T>) methods.get(name);

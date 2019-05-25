@@ -106,7 +106,7 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 			}
 		}
 		final LocalContext callContext = new LocalContext(context, fn.getRuleset());
-		final String[] argNames = fn.getArgNames();
+		final Identifier[] argNames = fn.getArgNames();
 		final Class<? extends MacObject>[] argTypes = fn.getArgTypes();
 		final List<Expression> arguments = procedureCall.getArguments();
 		if (argNames.length != arguments.size()) {
@@ -121,8 +121,9 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 			callContext.declareLocal(argNames[i]);
 			callContext.set(argNames[i], value);
 		}
+		final Identifier resultIdentifier = new Identifier("result", position);
 		if (fn.getResultType() != null) {
-			callContext.declareLocal("result");
+			callContext.declareLocal(resultIdentifier);
 		}
 		if (targetExpression == null) {
 			((Function) fn).run(callContext, position);
@@ -130,6 +131,10 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 			@SuppressWarnings("unchecked")
 			final Method<MacObject> m = (Method<MacObject>) fn;
 			m.run(target, callContext, position);
+		}
+		final MacObject result = callContext.get(resultIdentifier);
+		if (result != null) {
+			LOGGER.warn("Procedure call ignores result: {}", result);
 		}
 		LOGGER.debug("--> {}", procedureCall);
 	}
@@ -145,8 +150,7 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 	public void visitLocal(final Local local) {
 		LOGGER.debug("<-- {}", local);
 		final Identifier id = local.getLocal();
-		final String name = id.getName();
-		context.declareLocal(name);
+		context.declareLocal(id);
 		final Expression initializer = local.getInitializer();
 		if (initializer != null) {
 			final MacObject value = context.eval(initializer.typed(MacObject.class));

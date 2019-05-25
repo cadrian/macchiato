@@ -19,11 +19,13 @@ package net.cadrian.macchiato.ruleset.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+
 public class FormalArgs {
 
-	private final List<String> args = new ArrayList<>();
+	private final List<Identifier> args = new ArrayList<>();
 
-	public void add(final String arg) {
+	public void add(final Identifier arg) {
 		args.add(arg);
 	}
 
@@ -31,22 +33,22 @@ public class FormalArgs {
 		return args.size();
 	}
 
-	public String get(final int i) {
+	public Identifier get(final int i) {
 		return args.get(i);
 	}
 
-	public String[] toArray() {
-		return args.toArray(new String[args.size()]);
+	public Identifier[] toArray() {
+		return args.toArray(new Identifier[args.size()]);
 	}
 
 	@Override
 	public String toString() {
 		final StringBuilder result = new StringBuilder();
-		for (final String arg : args) {
+		for (final Identifier arg : args) {
 			if (result.length() > 0) {
 				result.append(", ");
 			}
-			result.append(arg);
+			result.append(arg.getName());
 		}
 		return "(" + result + ")";
 	}

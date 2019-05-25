@@ -19,18 +19,22 @@ package net.cadrian.macchiato.interpreter.objects;
 import java.util.regex.Matcher;
 
 import net.cadrian.macchiato.interpreter.Field;
+import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.impl.Context;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class MacMatcher implements MacObject {
 
 	private static class MatchesMethod extends AbstractMethod<MacMatcher> {
 
+		private static final Identifier NAME = new Identifier("Matches", 0);
+
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[0];
-		private static final String[] ARG_NAMES = {};
+		private static final Identifier[] ARG_NAMES = {};
 
 		protected MatchesMethod(final Ruleset ruleset) {
 			super(ruleset);
@@ -44,12 +48,12 @@ public class MacMatcher implements MacObject {
 		@Override
 		public void run(final MacMatcher target, final Context context, final int position) {
 			final MacBoolean result = MacBoolean.valueOf(target.value.matches());
-			context.set("result", result);
+			context.set(Identifiers.RESULT, result);
 		}
 
 		@Override
-		public String name() {
-			return "matches";
+		public Identifier name() {
+			return NAME;
 		}
 
 		@Override
@@ -58,7 +62,7 @@ public class MacMatcher implements MacObject {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_NAMES;
 		}
 
@@ -71,9 +75,12 @@ public class MacMatcher implements MacObject {
 
 	private static class GroupMethod extends AbstractMethod<MacMatcher> {
 
+		private static final Identifier NAME = new Identifier("Group", 0);
+		private static final Identifier ARG_GROUP = new Identifier("group", 0);
+
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacComparable.class };
-		private static final String[] ARG_NAMES = { "group" };
+		private static final Identifier[] ARG_NAMES = { ARG_GROUP };
 
 		protected GroupMethod(final Ruleset ruleset) {
 			super(ruleset);
@@ -87,7 +94,7 @@ public class MacMatcher implements MacObject {
 		@Override
 		public void run(final MacMatcher target, final Context context, final int position) {
 			final MacString result;
-			final MacComparable<?> group = context.get("group");
+			final MacComparable<?> group = context.get(ARG_GROUP);
 			if (group == null) {
 				throw new InterpreterException("group does not exist", position);
 			}
@@ -100,12 +107,12 @@ public class MacMatcher implements MacObject {
 			} else {
 				throw new InterpreterException("invalid group value: must be a number or a string", position);
 			}
-			context.set("result", result);
+			context.set(Identifiers.RESULT, result);
 		}
 
 		@Override
-		public String name() {
-			return "group";
+		public Identifier name() {
+			return NAME;
 		}
 
 		@Override
@@ -114,7 +121,7 @@ public class MacMatcher implements MacObject {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_NAMES;
 		}
 
@@ -132,17 +139,18 @@ public class MacMatcher implements MacObject {
 	}
 
 	@Override
-	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset,
+			final Identifier name) {
 		return null;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
-		switch (name) {
-		case "matches":
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
+		switch (name.getName()) {
+		case "Matches":
 			return (Method<T>) new MatchesMethod(ruleset);
-		case "group":
+		case "Group":
 			return (Method<T>) new GroupMethod(ruleset);
 		}
 		return null;

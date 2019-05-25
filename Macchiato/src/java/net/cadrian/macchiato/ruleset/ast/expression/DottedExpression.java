@@ -27,13 +27,11 @@ public class DottedExpression implements Expression {
 	}
 
 	private final Expression target;
-	private final String selector;
-	private final int selectorPosition;
+	private final Identifier selector;
 
-	public DottedExpression(final Expression target, final String selector, final int selectorPosition) {
+	public DottedExpression(final Expression target, final Identifier selector) {
 		this.target = target;
 		this.selector = selector;
-		this.selectorPosition = selectorPosition;
 	}
 
 	@Override
@@ -41,12 +39,8 @@ public class DottedExpression implements Expression {
 		return target.position();
 	}
 
-	public String getSelector() {
+	public Identifier getSelector() {
 		return selector;
-	}
-
-	public int getSelectorPosition() {
-		return selectorPosition;
 	}
 
 	public Expression getTarget() {
@@ -69,7 +63,7 @@ public class DottedExpression implements Expression {
 		if (simplifyTarget == target) {
 			return this;
 		}
-		return new DottedExpression(simplifyTarget, selector, selectorPosition);
+		return new DottedExpression(simplifyTarget, selector);
 	}
 
 	@Override

@@ -24,22 +24,26 @@ import net.cadrian.macchiato.interpreter.impl.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 class PrintFunction extends AbstractObjectReaderFunction implements Function {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PrintFunction.class);
 
+	private static final Identifier NAME = new Identifier("print", 0);
+	private static final Identifier ARG_DATA = new Identifier("data", 0);
+
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacString.class };
-	private static final String[] ARG_NAMES = { "data" };
+	private static final Identifier[] ARG_NAMES = { ARG_DATA };
 
 	PrintFunction(final Ruleset ruleset) {
 		super(ruleset);
 	}
 
 	@Override
-	public String name() {
-		return "print";
+	public Identifier name() {
+		return NAME;
 	}
 
 	@Override
@@ -48,7 +52,7 @@ class PrintFunction extends AbstractObjectReaderFunction implements Function {
 	}
 
 	@Override
-	public String[] getArgNames() {
+	public Identifier[] getArgNames() {
 		return ARG_NAMES;
 	}
 
@@ -59,7 +63,7 @@ class PrintFunction extends AbstractObjectReaderFunction implements Function {
 
 	@Override
 	public void run(final Context context, final int position) {
-		final MacString data = context.get("data");
+		final MacString data = context.get(ARG_DATA);
 		LOGGER.debug("<-- {}", data);
 		System.out.println(data.getValue());
 		LOGGER.debug("-->");

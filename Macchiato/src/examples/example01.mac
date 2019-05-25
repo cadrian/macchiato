@@ -35,7 +35,7 @@ BEGIN TRACK {
     // reset global variables at track beginning
     // This is deferred to a function in order to allow local variables
     // (we cannot have local variables in filter blocks)
-	initTrack();
+        initTrack();
 }
 
 (event.type == NOTE_ON) and (event.velocity > 0) {
@@ -46,7 +46,7 @@ BEGIN TRACK {
 
 (event.type == NOTE_ON) and (event.velocity == 0) {
     // emits a new event (instead of the analyzed one)
-    emit NOTE_OFF(event.channel, event.pitch, velocity[event.channel][event.pitch]);
+    emit NOTE_OFF(event.Channel, event.Pitch, velocity[event.Channel][event.Pitch]);
     next;
 }
 

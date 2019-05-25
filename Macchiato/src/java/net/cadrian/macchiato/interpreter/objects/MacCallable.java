@@ -23,6 +23,7 @@ import net.cadrian.macchiato.interpreter.impl.Context;
 import net.cadrian.macchiato.interpreter.impl.LocalContext;
 import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public abstract class MacCallable implements MacObject {
 
@@ -30,7 +31,9 @@ public abstract class MacCallable implements MacObject {
 
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacDictionary.class };
-		private static final String[] ARG_NAMES = { "args" };
+		private static final Identifier NAME = new Identifier("Invoke", 0);
+		private static final Identifier ARG_ARGS = new Identifier("args", 0);
+		private static final Identifier[] ARG_NAMES = { ARG_ARGS };
 
 		protected InvokeMethod(final Ruleset ruleset) {
 			super(ruleset);
@@ -48,16 +51,16 @@ public abstract class MacCallable implements MacObject {
 		}
 
 		private Context unpackArgs(final MacCallable target, final Context context, final int position) {
-			final MacDictionary args = context.get("args");
+			final MacDictionary args = context.get(ARG_ARGS);
 			final LocalContext result = new LocalContext(context, getRuleset());
-			final String[] argNames = target.getArgNames();
+			final Identifier[] argNames = target.getArgNames();
 			final Class<? extends MacObject>[] argTypes = target.getArgTypes();
 			assert argNames.length == argTypes.length;
 			for (int i = 0; i < argNames.length; i++) {
-				final String argName = argNames[i];
+				final Identifier argName = argNames[i];
 				final Class<? extends MacObject> argType = argTypes[i];
 
-				final MacObject arg = args.get(MacString.valueOf(argName));
+				final MacObject arg = args.get(MacString.valueOf(argName.getName()));
 				if (arg == null) {
 					throw new InterpreterException("invalid argument " + argName + ": does not exist", position);
 				}
@@ -71,8 +74,8 @@ public abstract class MacCallable implements MacObject {
 		}
 
 		@Override
-		public String name() {
-			return "invoke";
+		public Identifier name() {
+			return NAME;
 		}
 
 		@Override
@@ -81,7 +84,7 @@ public abstract class MacCallable implements MacObject {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_NAMES;
 		}
 
@@ -95,15 +98,16 @@ public abstract class MacCallable implements MacObject {
 	public abstract void invoke(final Context context, final int position);
 
 	@Override
-	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset,
+			final Identifier name) {
 		return null;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
-		switch (name) {
-		case "invoke":
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
+		switch (name.getName()) {
+		case "Invoke":
 			return (Method<T>) new InvokeMethod(ruleset);
 		}
 		return null;
@@ -111,6 +115,6 @@ public abstract class MacCallable implements MacObject {
 
 	public abstract Class<? extends MacObject>[] getArgTypes();
 
-	public abstract String[] getArgNames();
+	public abstract Identifier[] getArgNames();
 
 }

@@ -26,6 +26,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+
 public class Ruleset {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Ruleset.class);
@@ -50,10 +52,10 @@ public class Ruleset {
 		}
 	}
 
-	private final Map<String, Def> defs = new HashMap<>();
-	private final Map<String, Clazz> clazzes = new HashMap<>();
+	private final Map<Identifier, Def> defs = new HashMap<>();
+	private final Map<Identifier, Clazz> clazzes = new HashMap<>();
 	private final List<Filter> filters = new ArrayList<>();
-	private final Map<String, Ruleset> scopes = new LinkedHashMap<>();
+	private final Map<Identifier, Ruleset> scopes = new LinkedHashMap<>();
 	private final int position;
 
 	private List<Filter> filtersCache;
@@ -80,6 +82,10 @@ public class Ruleset {
 	}
 
 	public LocalizedDef getDef(final String name) {
+		return getDef(new Identifier(name, 0));
+	}
+
+	public LocalizedDef getDef(final Identifier name) {
 		final LocalizedDef result;
 		final Def def = defs.get(name);
 		if (def == null) {
@@ -91,6 +97,10 @@ public class Ruleset {
 	}
 
 	public LocalizedClazz getClazz(final String name) {
+		return getClazz(new Identifier(name, 0));
+	}
+
+	public LocalizedClazz getClazz(final Identifier name) {
 		final LocalizedClazz result;
 		final Clazz clazz = clazzes.get(name);
 		if (clazz == null) {
@@ -117,16 +127,20 @@ public class Ruleset {
 		filters.addAll(this.filters);
 	}
 
-	public Ruleset addScope(final String name, final Ruleset scope) {
+	public Ruleset addScope(final Identifier name, final Ruleset scope) {
 		filtersCache = null;
 		return scopes.put(name, scope);
 	}
 
 	public boolean hasScope(final String name) {
-		return scopes.containsKey(name);
+		return scopes.containsKey(new Identifier(name, 0));
 	}
 
 	public Ruleset getScope(final String name) {
+		return getScope(new Identifier(name, 0));
+	}
+
+	public Ruleset getScope(final Identifier name) {
 		return scopes.get(name);
 	}
 
@@ -142,8 +156,8 @@ public class Ruleset {
 			LOGGER.debug("Simplify #{}", 256 - simplifyCount, result);
 			boolean changed = false;
 			final Ruleset simplifyRuleset = new Ruleset(position);
-			for (final Map.Entry<String, Ruleset> scope : result.scopes.entrySet()) {
-				final String scopeName = scope.getKey();
+			for (final Map.Entry<Identifier, Ruleset> scope : result.scopes.entrySet()) {
+				final Identifier scopeName = scope.getKey();
 				LOGGER.debug("Simplify nested scope {}", scopeName);
 				final Ruleset value = scope.getValue();
 				final Ruleset simplifyValue = value.simplify();

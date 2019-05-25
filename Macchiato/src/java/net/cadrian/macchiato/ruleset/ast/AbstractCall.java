@@ -20,20 +20,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+
 public abstract class AbstractCall {
 
 	protected final int position;
 	protected final Expression target;
-	protected final String name;
+	protected final Identifier name;
 	protected final List<Expression> arguments = new ArrayList<>();
 
-	public AbstractCall(final int position, final Expression target, final String name) {
+	public AbstractCall(final int position, final Expression target, final Identifier name) {
 		this.position = position;
 		this.target = target;
 		this.name = name;
 	}
 
-	public String getName() {
+	public Identifier getName() {
 		return name;
 	}
 

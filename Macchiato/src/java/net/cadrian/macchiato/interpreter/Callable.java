@@ -18,14 +18,15 @@ package net.cadrian.macchiato.interpreter;
 
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public interface Callable {
 
-	String name();
+	Identifier name();
 
 	Class<? extends MacObject>[] getArgTypes();
 
-	String[] getArgNames();
+	Identifier[] getArgNames();
 
 	Class<? extends MacObject> getResultType();
 

@@ -19,10 +19,11 @@ package net.cadrian.macchiato.interpreter;
 import net.cadrian.macchiato.interpreter.impl.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public interface Field<T extends MacObject, R extends MacObject> {
 
-	String name();
+	Identifier name();
 
 	Class<R> getResultType();
 

@@ -26,31 +26,32 @@ import net.cadrian.macchiato.interpreter.ClazsMethod;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.ruleset.Inheritance;
 import net.cadrian.macchiato.ruleset.Inheritance.Parent;
-import net.cadrian.macchiato.ruleset.Inheritance.Parent.Adapt;
 import net.cadrian.macchiato.ruleset.ast.Def;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedClazz;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class ClazzClazs implements Clazs {
 
 	private static class MethodDefinition {
 		final Clazs owner;
-		final String name;
+		final Identifier name;
 		final ClazsMethod method;
-		final boolean conformant;
+		final MethodDefinition superMethod;
 
-		MethodDefinition(final Clazs owner, final String name, final ClazsMethod method, final boolean conformant) {
+		MethodDefinition(final Clazs owner, final Identifier name, final ClazsMethod method,
+				MethodDefinition superMethod) {
 			this.owner = owner;
 			this.name = name;
 			this.method = method;
-			this.conformant = conformant;
+			this.superMethod = superMethod;
 		}
 	}
 
 	private final Ruleset ruleset;
-	private final String name;
+	private final Identifier name;
 	private final int position;
-	private final Map<String, MethodDefinition> methods = new HashMap<>();
+	private final Map<Identifier, MethodDefinition> methods = new HashMap<>();
 	private final Set<Clazs> conformance = new HashSet<>();
 
 	public ClazzClazs(final LocalizedClazz localizedClazz) {
@@ -64,58 +65,49 @@ public class ClazzClazs implements Clazs {
 		}
 
 		for (final Def def : localizedClazz.clazz.getDefs()) {
-			final String name = def.name();
-			final MethodDefinition methodDefinition = methods.get(name);
-			final MethodDefinition newDefinition;
+			final Identifier name = def.name();
 			final ClazzClazsMethod method = new ClazzClazsMethod(this, def, name, ruleset);
-			if (methodDefinition == null) {
-				// new method
-				newDefinition = new MethodDefinition(this, name, method, true);
-			} else {
-				final boolean conformant = methodDefinition.conformant && conformance.contains(methodDefinition.owner);
-				newDefinition = new MethodDefinition(this, name, method, conformant);
-			}
+			final MethodDefinition newDefinition = new MethodDefinition(this, name, method, methods.get(name));
 			methods.put(name, newDefinition);
 		}
 	}
 
+	private static String dottedName(Identifier[] name, int length) {
+		StringBuilder result = new StringBuilder();
+		for (int i = 0; i < length; i++) {
+			if (i > 0) {
+				result.append('.');
+			}
+			result.append(name[i].getName());
+		}
+		return result.toString();
+	}
+
 	private void resolve(final Parent parent) {
-		final String[] name = parent.getName();
+		final Identifier[] name = parent.getName();
 		final int n = name.length - 1;
 		Ruleset scope = ruleset;
 		for (int i = 0; i < n; i++) {
 			scope = scope.getScope(name[i]);
+			if (scope == null) {
+				throw new InterpreterException("Class not found (unknown scope " + name[i].getName() + " in "
+						+ dottedName(name, i) + "): " + dottedName(name, name.length), position);
+			}
 		}
 		final LocalizedClazz localizedClazz = scope.getClazz(name[n]);
 		if (localizedClazz == null) {
-			throw new InterpreterException("Class not found: " + String.join(".", name), position);
+			throw new InterpreterException("Class not found: " + dottedName(name, name.length), position);
 		}
 		final ClazzClazs parentClazs = new ClazzClazs(localizedClazz);
-		final boolean conformant = !parent.isPrivate();
-		if (conformant) {
-			conformance.add(parentClazs);
-		}
-		final Adapt adapt = parent.getAdapt();
+		conformance.add(parentClazs);
 		for (final MethodDefinition methodDefinition : parentClazs.methods.values()) {
-			final String adaptedMethodName = adapt == null ? methodDefinition.name
-					: adapt.getRename(methodDefinition.name);
-			MethodDefinition adaptedMethod = methods.get(adaptedMethodName);
-			if (adaptedMethod == null) {
-				adaptedMethod = methodDefinition;
-			} else if (adaptedMethod.conformant && !conformant) {
-				// Ignored (lost)
-			} else if (adaptedMethod.conformant != conformant || !adaptedMethodName.equals(methodDefinition.name)) {
-				adaptedMethod = new MethodDefinition(parentClazs, adaptedMethodName, methodDefinition.method,
-						conformant && adaptedMethod.conformant);
-			} else {
-				// Keep the original conformant method
-			}
-			methods.put(adaptedMethodName, adaptedMethod);
+			final Identifier methodName = methodDefinition.name;
+			methods.put(methodName, methodDefinition);
 		}
 	}
 
 	@Override
-	public String name() {
+	public Identifier name() {
 		return name;
 	}
 
@@ -126,7 +118,7 @@ public class ClazzClazs implements Clazs {
 
 	@Override
 	public ClazsMethod getMethod(final String name) {
-		final MethodDefinition result = methods.get(name);
+		final MethodDefinition result = methods.get(new Identifier(name, 0));
 		return result == null ? null : result.method;
 	}
 

@@ -24,28 +24,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.interpreter.Function;
+import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.impl.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 import net.cadrian.macchiato.ruleset.parser.ParserBuffer;
 
 class FromStringFunction extends AbstractObjectReaderFunction implements Function {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FromStringFunction.class);
 
+	private static final Identifier NAME = new Identifier("fromString", 0);
+	private static final Identifier ARG_DATA = new Identifier("data", 0);
+
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacString.class };
-	private static final String[] ARG_NAMES = { "data" };
+	private static final Identifier[] ARG_NAMES = { ARG_DATA };
 
 	FromStringFunction(final Ruleset ruleset) {
 		super(ruleset);
 	}
 
 	@Override
-	public String name() {
-		return "fromString";
+	public Identifier name() {
+		return NAME;
 	}
 
 	@Override
@@ -54,7 +59,7 @@ class FromStringFunction extends AbstractObjectReaderFunction implements Functio
 	}
 
 	@Override
-	public String[] getArgNames() {
+	public Identifier[] getArgNames() {
 		return ARG_NAMES;
 	}
 
@@ -65,7 +70,7 @@ class FromStringFunction extends AbstractObjectReaderFunction implements Functio
 
 	@Override
 	public void run(final Context context, final int position) {
-		final MacString data = context.get("data");
+		final MacString data = context.get(ARG_DATA);
 		LOGGER.debug("<-- {}", data);
 		final MacObject result;
 
@@ -73,10 +78,10 @@ class FromStringFunction extends AbstractObjectReaderFunction implements Functio
 			final ParserBuffer buffer = new ParserBuffer(reader);
 			result = parseObject(buffer);
 		} catch (final IOException e) {
-			throw new InterpreterException(e.getMessage(), position, e);
+			throw new InterpreterException(e.getMessage(), e, position);
 		}
 
-		context.set("result", result);
+		context.set(Identifiers.RESULT, result);
 		LOGGER.debug("--> {}", result);
 	}
 

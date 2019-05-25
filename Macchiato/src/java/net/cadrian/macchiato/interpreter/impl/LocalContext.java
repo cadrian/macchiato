@@ -31,6 +31,7 @@ import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class LocalContext extends Context {
 
@@ -38,7 +39,7 @@ public class LocalContext extends Context {
 
 	private final Ruleset ruleset;
 	private final Context parent;
-	private final Map<String, Object> local = new HashMap<>();
+	private final Map<Identifier, Object> local = new HashMap<>();
 
 	public LocalContext(final Context parent, final Ruleset ruleset) {
 		this.parent = parent;
@@ -71,7 +72,7 @@ public class LocalContext extends Context {
 	}
 
 	@Override
-	protected Function getUncachedFunction(final String name) {
+	protected Function getUncachedFunction(final Identifier name) {
 		final Function result = super.getUncachedFunction(name);
 		if (result == null) {
 			return parent.getFunction(name);
@@ -80,7 +81,7 @@ public class LocalContext extends Context {
 	}
 
 	@Override
-	protected Clazs getUncachedClazs(final String name) {
+	protected Clazs getUncachedClazs(final Identifier name) {
 		final Clazs result = super.getUncachedClazs(name);
 		if (result == null) {
 			return parent.getClazs(name);
@@ -89,7 +90,7 @@ public class LocalContext extends Context {
 	}
 
 	@Override
-	public boolean has(final String key) {
+	public boolean has(final Identifier key) {
 		if (local.containsKey(key)) {
 			return true;
 		}
@@ -97,7 +98,7 @@ public class LocalContext extends Context {
 	}
 
 	@Override
-	public <T extends MacObject> T get(final String key) {
+	public <T extends MacObject> T get(final Identifier key) {
 		LOGGER.debug("<-- {}", key);
 		T result;
 		if (local.containsKey(key)) {
@@ -112,7 +113,7 @@ public class LocalContext extends Context {
 	}
 
 	@Override
-	public <T extends MacObject> T set(final String key, final T value) {
+	public <T extends MacObject> T set(final Identifier key, final T value) {
 		LOGGER.debug("<-- {} = {}", key, value);
 		T result;
 		if (local.containsKey(key)) {
@@ -127,7 +128,7 @@ public class LocalContext extends Context {
 	}
 
 	@Override
-	public void declareLocal(final String name) {
+	public void declareLocal(final Identifier name) {
 		LOGGER.debug("<-- {}", name);
 		if (!local.containsKey(name)) {
 			local.put(name, null);

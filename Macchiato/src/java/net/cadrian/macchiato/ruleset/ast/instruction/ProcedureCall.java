@@ -20,6 +20,7 @@ import net.cadrian.macchiato.ruleset.ast.AbstractCall;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class ProcedureCall extends AbstractCall implements Instruction {
 
@@ -27,7 +28,7 @@ public class ProcedureCall extends AbstractCall implements Instruction {
 		void visitProcedureCall(ProcedureCall procedureCall);
 	}
 
-	public ProcedureCall(final int position, final Expression target, final String name) {
+	public ProcedureCall(final int position, final Expression target, final Identifier name) {
 		super(position, target, name);
 	}
 

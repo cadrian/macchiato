@@ -27,7 +27,7 @@ public class FunctionCall extends AbstractCall implements Expression {
 		void visitFunctionCall(FunctionCall functionCall);
 	}
 
-	public FunctionCall(final int position, final Expression target, final String name) {
+	public FunctionCall(final int position, final Expression target, final Identifier name) {
 		super(position, target, name);
 	}
 

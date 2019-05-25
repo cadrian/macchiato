@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import net.cadrian.macchiato.interpreter.Field;
+import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.impl.Context;
@@ -33,6 +34,7 @@ import net.cadrian.macchiato.interpreter.objects.MacCallable;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class MacArray implements MacContainer<MacNumber> {
 
@@ -45,17 +47,19 @@ public class MacArray implements MacContainer<MacNumber> {
 
 	private static class SizeMethod extends AbstractMethod<MacArray> {
 
+		private static final Identifier NAME = new Identifier("Size", 0);
+
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[0];
-		private static final String[] ARG_NAMES = new String[0];
+		private static final Identifier[] ARG_NAMES = {};
 
 		SizeMethod(final Ruleset ruleset) {
 			super(ruleset);
 		}
 
 		@Override
-		public String name() {
-			return "size";
+		public Identifier name() {
+			return NAME;
 		}
 
 		@Override
@@ -64,7 +68,7 @@ public class MacArray implements MacContainer<MacNumber> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_NAMES;
 		}
 
@@ -75,7 +79,7 @@ public class MacArray implements MacContainer<MacNumber> {
 
 		@Override
 		public void run(final MacArray target, final Context context, final int position) {
-			context.set("result", MacNumber.valueOf(target.size()));
+			context.set(Identifiers.RESULT, MacNumber.valueOf(target.size()));
 		}
 
 		@Override
@@ -87,9 +91,12 @@ public class MacArray implements MacContainer<MacNumber> {
 
 	private static class HasMethod extends AbstractMethod<MacArray> {
 
+		private static final Identifier NAME = new Identifier("Has", 0);
+		private static final Identifier ARG_INDEX = new Identifier("index", 0);
+
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacNumber.class };
-		private static final String[] ARG_NAMES = { "index" };
+		private static final Identifier[] ARG_NAMES = { ARG_INDEX };
 
 		HasMethod(final Ruleset ruleset) {
 			super(ruleset);
@@ -102,13 +109,13 @@ public class MacArray implements MacContainer<MacNumber> {
 
 		@Override
 		public void run(final MacArray target, final Context context, final int position) {
-			final MacNumber index = context.get("index");
-			context.set("result", MacBoolean.valueOf(target.get(index) != null));
+			final MacNumber index = context.get(ARG_INDEX);
+			context.set(Identifiers.RESULT, MacBoolean.valueOf(target.get(index) != null));
 		}
 
 		@Override
-		public String name() {
-			return "has";
+		public Identifier name() {
+			return NAME;
 		}
 
 		@Override
@@ -117,7 +124,7 @@ public class MacArray implements MacContainer<MacNumber> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_NAMES;
 		}
 
@@ -130,9 +137,12 @@ public class MacArray implements MacContainer<MacNumber> {
 
 	private static class ForEachMethod extends AbstractMethod<MacArray> {
 
+		private static final Identifier NAME = new Identifier("ForEach", 0);
+		private static final Identifier ARG_CALLABLE = new Identifier("callable", 0);
+
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacCallable.class };
-		private static final String[] ARG_NAMES = { "callable" };
+		private static final Identifier[] ARG_NAMES = { ARG_CALLABLE };
 
 		protected ForEachMethod(final Ruleset ruleset) {
 			super(ruleset);
@@ -145,8 +155,8 @@ public class MacArray implements MacContainer<MacNumber> {
 
 		@Override
 		public void run(final MacArray target, final Context context, final int position) {
-			final MacCallable callable = context.get("callable");
-			final String[] argNames = callable.getArgNames();
+			final MacCallable callable = context.get(ARG_CALLABLE);
+			final Identifier[] argNames = callable.getArgNames();
 			switch (argNames.length) {
 			case 1:
 				for (final MacObject value : target.array.values()) {
@@ -174,8 +184,8 @@ public class MacArray implements MacContainer<MacNumber> {
 		}
 
 		@Override
-		public String name() {
-			return "forEach";
+		public Identifier name() {
+			return NAME;
 		}
 
 		@Override
@@ -184,7 +194,7 @@ public class MacArray implements MacContainer<MacNumber> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_NAMES;
 		}
 
@@ -197,10 +207,14 @@ public class MacArray implements MacContainer<MacNumber> {
 
 	private static class MapMethod extends AbstractMethod<MacArray> {
 
+		private static final Identifier NAME = new Identifier("Map", 0);
+		private static final Identifier ARG_CALLABLE = new Identifier("callable", 0);
+		private static final Identifier ARG_SEED = new Identifier("seed", 0);
+
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacCallable.class,
 				MacObject.class };
-		private static final String[] ARG_NAMES = { "callable", "seed" };
+		private static final Identifier[] ARG_NAMES = { ARG_CALLABLE, ARG_SEED };
 
 		protected MapMethod(final Ruleset ruleset) {
 			super(ruleset);
@@ -213,9 +227,9 @@ public class MacArray implements MacContainer<MacNumber> {
 
 		@Override
 		public void run(final MacArray target, final Context context, final int position) {
-			final MacCallable callable = context.get("callable");
-			final String[] argNames = callable.getArgNames();
-			MacObject result = context.get("seed");
+			final MacCallable callable = context.get(ARG_CALLABLE);
+			final Identifier[] argNames = callable.getArgNames();
+			MacObject result = context.get(ARG_SEED);
 			switch (argNames.length) {
 			case 2:
 				for (final MacObject value : target.array.values()) {
@@ -225,7 +239,7 @@ public class MacArray implements MacContainer<MacNumber> {
 					c.set(argNames[0], value);
 					c.set(argNames[1], result);
 					callable.invoke(c, position);
-					result = c.get("result");
+					result = c.get(Identifiers.RESULT);
 				}
 				break;
 			case 3:
@@ -238,19 +252,19 @@ public class MacArray implements MacContainer<MacNumber> {
 					c.set(argNames[1], entry.getValue());
 					c.set(argNames[2], result);
 					callable.invoke(c, position);
-					result = c.get("result");
+					result = c.get(Identifiers.RESULT);
 				}
 				break;
 			default:
 				throw new InterpreterException(
 						"invalid 'map' function call: the function must have exactly one or two arguments", position);
 			}
-			context.set("result", result);
+			context.set(Identifiers.RESULT, result);
 		}
 
 		@Override
-		public String name() {
-			return "map";
+		public Identifier name() {
+			return NAME;
 		}
 
 		@Override
@@ -259,7 +273,7 @@ public class MacArray implements MacContainer<MacNumber> {
 		}
 
 		@Override
-		public String[] getArgNames() {
+		public Identifier[] getArgNames() {
 			return ARG_NAMES;
 		}
 
@@ -293,21 +307,22 @@ public class MacArray implements MacContainer<MacNumber> {
 	}
 
 	@Override
-	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset,
+			final Identifier name) {
 		return null;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
-		switch (name) {
-		case "size":
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
+		switch (name.getName()) {
+		case "Size":
 			return (Method<T>) new SizeMethod(ruleset);
-		case "has":
+		case "Has":
 			return (Method<T>) new HasMethod(ruleset);
-		case "forEach":
+		case "ForEach":
 			return (Method<T>) new ForEachMethod(ruleset);
-		case "map":
+		case "Map":
 			return (Method<T>) new MapMethod(ruleset);
 		}
 		return null;

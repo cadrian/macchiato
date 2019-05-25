@@ -8,30 +8,34 @@ import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.ShortMessageType;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class MacEvent implements MacObject {
+
+	private static final Identifier FIELD_TICK = new Identifier("Tick", 0);
+	private static final Identifier FIELD_TYPE = new Identifier("Type", 0);
 
 	private final Ruleset ruleset;
 	private final ReadWriteField<MacEvent, MacNumber> tick;
 	private final ReadOnlyField<MacEvent, ? extends MacObject> type;
 
-	private final Map<String, Field<? extends MacObject, ? extends MacObject>> fields = new HashMap<>();
+	private final Map<Identifier, Field<? extends MacObject, ? extends MacObject>> fields = new HashMap<>();
 
 	public MacEvent(final Ruleset ruleset, final MacNumber tick, final MetaMessageType type) {
 		this.ruleset = ruleset;
-		this.tick = new ReadWriteField<MacEvent, MacNumber>("tick", ruleset, MacEvent.class, MacNumber.class, tick);
-		this.type = new ReadOnlyField<MacEvent, MetaMessageType>("type", ruleset, MacEvent.class, MetaMessageType.class,
-				type);
+		this.tick = new ReadWriteField<MacEvent, MacNumber>(FIELD_TICK, ruleset, MacEvent.class, MacNumber.class, tick);
+		this.type = new ReadOnlyField<MacEvent, MetaMessageType>(FIELD_TYPE, ruleset, MacEvent.class,
+				MetaMessageType.class, type);
 	}
 
 	public MacEvent(final Ruleset ruleset, final MacNumber tick, final ShortMessageType type) {
 		this.ruleset = ruleset;
-		this.tick = new ReadWriteField<MacEvent, MacNumber>("tick", ruleset, MacEvent.class, MacNumber.class, tick);
-		this.type = new ReadOnlyField<MacEvent, ShortMessageType>("type", ruleset, MacEvent.class,
+		this.tick = new ReadWriteField<MacEvent, MacNumber>(FIELD_TICK, ruleset, MacEvent.class, MacNumber.class, tick);
+		this.type = new ReadOnlyField<MacEvent, ShortMessageType>(FIELD_TYPE, ruleset, MacEvent.class,
 				ShortMessageType.class, type);
 	}
 
-	public <T extends MacObject, R extends MacObject> Field<T, R> addField(final String name, final R value) {
+	public <T extends MacObject, R extends MacObject> Field<T, R> addField(final Identifier name, final R value) {
 		@SuppressWarnings("unchecked")
 		final Field<T, R> result = new ReadWriteField<>(name, ruleset, (Class<T>) MacEvent.class,
 				(Class<R>) value.getClass(), value);
@@ -41,11 +45,12 @@ public class MacEvent implements MacObject {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final String name) {
-		switch (name) {
-		case "tick":
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset,
+			final Identifier name) {
+		switch (name.getName()) {
+		case "Tick":
 			return (Field<T, R>) tick;
-		case "type":
+		case "Type":
 			return (Field<T, R>) type;
 		default:
 			return (Field<T, R>) fields.get(name);
@@ -53,7 +58,7 @@ public class MacEvent implements MacObject {
 	}
 
 	@Override
-	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final String name) {
+	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
 		return null;
 	}
 

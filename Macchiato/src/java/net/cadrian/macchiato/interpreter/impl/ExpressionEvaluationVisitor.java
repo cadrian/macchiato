@@ -399,10 +399,10 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		if (target == null) {
 			throw new InterpreterException("target does not exist", dottedExpression.getTarget().position());
 		}
-		final String selector = dottedExpression.getSelector();
+		final Identifier selector = dottedExpression.getSelector();
 		final Field<MacObject, MacObject> field = target.getField(context.getRuleset(), selector);
 		if (field != null) {
-			lastValue = field.get(target, context, dottedExpression.getSelectorPosition());
+			lastValue = field.get(target, context, dottedExpression.getSelector().position());
 		} else {
 			final MacMethod<? extends MacObject> method = getMethod(context, target, selector);
 			lastValue = method;
@@ -444,7 +444,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	}
 
 	private <T extends MacObject> MacMethod<? extends T> getMethod(final Context context, final T target,
-			final String name) {
+			final Identifier name) {
 		final Method<T> method = target.getMethod(context.getRuleset(), name);
 		if (method != null) {
 			return new MacMethod<T>(method, target);
@@ -455,12 +455,11 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	@Override
 	public void visitIdentifier(final Identifier identifier) {
 		LOGGER.debug("<-- {}", identifier);
-		final String name = identifier.getName();
-		final MacObject value = context.get(name);
+		final MacObject value = context.get(identifier);
 		if (value != null) {
 			lastValue = value;
 		} else {
-			final Function function = context.getFunction(name);
+			final Function function = context.getFunction(identifier);
 			if (function != null) {
 				lastValue = new MacFunction(function);
 			} else {
@@ -473,7 +472,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	@Override
 	public void visitResult(final Result result) {
 		LOGGER.debug("<-- {}", result);
-		this.lastValue = context.get("result");
+		this.lastValue = context.get(new Identifier("result", result.position()));
 		LOGGER.debug("--> {}", lastValue);
 	}
 
@@ -501,7 +500,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			throw new InterpreterException("cannot assign this function because it does not return anything", position);
 		}
 		final LocalContext callContext = new LocalContext(context, fn.getRuleset());
-		final String[] argNames = fn.getArgNames();
+		final Identifier[] argNames = fn.getArgNames();
 		final Class<? extends MacObject>[] argTypes = fn.getArgTypes();
 		final List<Expression> arguments = functionCall.getArguments();
 		if (argNames.length != arguments.size()) {
@@ -513,7 +512,8 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			callContext.declareLocal(argNames[i]);
 			callContext.set(argNames[i], value);
 		}
-		callContext.declareLocal("result");
+		final Identifier resultIdentifier = new Identifier("result", position);
+		callContext.declareLocal(resultIdentifier);
 		if (targetExpression == null) {
 			((Function) fn).run(callContext, position);
 		} else {
@@ -521,7 +521,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			final Method<MacObject> m = (Method<MacObject>) fn;
 			m.run(target, callContext, position);
 		}
-		lastValue = fn.getResultType().cast(callContext.get("result"));
+		lastValue = fn.getResultType().cast(callContext.get(resultIdentifier));
 		LOGGER.debug("--> {} => {}", functionCall, lastValue);
 	}
 

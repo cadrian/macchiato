@@ -17,11 +17,10 @@
 package net.cadrian.macchiato.ruleset;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 public class Inheritance implements Node {
 
@@ -35,62 +34,16 @@ public class Inheritance implements Node {
 			void visit(Parent inheritance);
 		}
 
-		public static class Adapt implements Node {
-
-			public static interface Visitor extends Node.Visitor {
-				void visit(Adapt inheritance);
-			}
-
-			private final Map<String, String> renames = new HashMap<>();
-			private final int position;
-
-			public Adapt(final int position) {
-				this.position = position;
-			}
-
-			public void addRename(final String old, final String ren) {
-				renames.put(old, ren);
-			}
-
-			@Override
-			public int position() {
-				return position;
-			}
-
-			@Override
-			public void accept(final Node.Visitor v) {
-				((Visitor) v).visit(this);
-			}
-
-			public String getRename(final String old) {
-				final String result = renames.get(old);
-				return result == null ? old : result;
-			}
-
-		}
-
-		private final boolean priv;
-		private final String[] name;
-		private final Adapt adapt;
+		private final Identifier[] name;
 		private final int position;
 
-		public Parent(final boolean priv, final String[] name, final Adapt adapt, final int position) {
-			this.priv = priv;
+		public Parent(final Identifier[] name, final int position) {
 			this.name = name;
-			this.adapt = adapt;
 			this.position = position;
 		}
 
-		public boolean isPrivate() {
-			return priv;
-		}
-
-		public String[] getName() {
+		public Identifier[] getName() {
 			return name;
-		}
-
-		public Adapt getAdapt() {
-			return adapt;
 		}
 
 		@Override

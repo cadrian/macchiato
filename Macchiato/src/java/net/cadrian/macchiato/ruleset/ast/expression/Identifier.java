@@ -20,7 +20,7 @@ import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
 
-public class Identifier implements Expression {
+public class Identifier implements Expression, Comparable<Identifier> {
 
 	public static interface Visitor extends Node.Visitor {
 		void visitIdentifier(Identifier identifier);
@@ -29,8 +29,8 @@ public class Identifier implements Expression {
 	private final String name;
 	private final int position;
 
-	public Identifier(final int position, final String name) {
-		if (name == null) {
+	public Identifier(final String name, final int position) {
+		if (name == null || name.isEmpty()) {
 			throw new NullPointerException("null identifier");
 		}
 		this.name = name;
@@ -40,6 +40,10 @@ public class Identifier implements Expression {
 	@Override
 	public TypedExpression typed(final Class<? extends MacObject> type) {
 		return new CheckedExpression(this, type);
+	}
+
+	public boolean isPublic() {
+		return Character.isUpperCase(name.charAt(0));
 	}
 
 	public String getName() {
@@ -69,6 +73,23 @@ public class Identifier implements Expression {
 	@Override
 	public Expression getStaticValue() {
 		return null;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Identifier))
+			return false;
+		return compareTo((Identifier) obj) == 0;
+	}
+
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+
+	@Override
+	public int compareTo(Identifier other) {
+		return name.compareTo(other.name);
 	}
 
 	@Override

@@ -3,17 +3,18 @@ package net.cadrian.macchiato.interpreter.objects;
 import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.impl.Context;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 class ReadWriteField<T extends MacObject, R extends MacObject> implements Field<T, R> {
 
-	private final String name;
+	private final Identifier name;
 	private final Ruleset ruleset;
 	private final Class<T> targetType;
 	private final Class<R> resultType;
 
 	private R value;
 
-	ReadWriteField(final String name, final Ruleset ruleset, final Class<T> targetType, final Class<R> resultType,
+	ReadWriteField(final Identifier name, final Ruleset ruleset, final Class<T> targetType, final Class<R> resultType,
 			final R initialValue) {
 		this.name = name;
 		this.ruleset = ruleset;
@@ -23,7 +24,7 @@ class ReadWriteField<T extends MacObject, R extends MacObject> implements Field<
 	}
 
 	@Override
-	public String name() {
+	public Identifier name() {
 		return name;
 	}
 

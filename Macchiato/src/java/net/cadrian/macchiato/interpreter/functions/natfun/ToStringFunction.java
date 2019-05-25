@@ -23,27 +23,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.interpreter.Function;
+import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.impl.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
+import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
 class ToStringFunction extends AbstractObjectWriterFunction implements Function {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ToStringFunction.class);
 
+	private static final Identifier NAME = new Identifier("toString", 0);
+	private static final Identifier ARG_VALUE = new Identifier("value", 0);
+
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacObject.class };
-	private static final String[] ARG_NAMES = { "value" };
+	private static final Identifier[] ARG_NAMES = { ARG_VALUE };
 
 	ToStringFunction(final Ruleset ruleset) {
 		super(ruleset);
 	}
 
 	@Override
-	public String name() {
-		return "toString";
+	public Identifier name() {
+		return NAME;
 	}
 
 	@Override
@@ -52,7 +57,7 @@ class ToStringFunction extends AbstractObjectWriterFunction implements Function 
 	}
 
 	@Override
-	public String[] getArgNames() {
+	public Identifier[] getArgNames() {
 		return ARG_NAMES;
 	}
 
@@ -63,7 +68,7 @@ class ToStringFunction extends AbstractObjectWriterFunction implements Function 
 
 	@Override
 	public void run(final Context context, final int position) {
-		final MacObject value = context.get("value");
+		final MacObject value = context.get(ARG_VALUE);
 		LOGGER.debug("<-- {}", value);
 
 		if (value == null) {
@@ -77,10 +82,10 @@ class ToStringFunction extends AbstractObjectWriterFunction implements Function 
 			}
 			result = writer.getBuffer().toString();
 		} catch (final IOException e) {
-			throw new InterpreterException(e.getMessage(), position, e);
+			throw new InterpreterException(e.getMessage(), e, position);
 		}
 
-		context.set("result", MacString.valueOf(result));
+		context.set(Identifiers.RESULT, MacString.valueOf(result));
 		LOGGER.debug("--> {}", result);
 	}
 
