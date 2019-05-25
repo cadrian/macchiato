@@ -20,6 +20,7 @@ import net.cadrian.macchiato.interpreter.objects.MacBoolean;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ManifestBoolean implements ManifestExpression<Boolean> {
 
@@ -28,9 +29,9 @@ public class ManifestBoolean implements ManifestExpression<Boolean> {
 	}
 
 	private final boolean value;
-	private final int position;
+	private final Position position;
 
-	public ManifestBoolean(final int position, final boolean value) {
+	public ManifestBoolean(final Position position, final boolean value) {
 		this.value = value;
 		this.position = position;
 	}
@@ -54,7 +55,7 @@ public class ManifestBoolean implements ManifestExpression<Boolean> {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

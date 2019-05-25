@@ -18,6 +18,7 @@ package net.cadrian.macchiato.ruleset.ast;
 
 import net.cadrian.macchiato.interpreter.objects.MacBoolean;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ConditionFilter extends Filter {
 
@@ -26,9 +27,9 @@ public class ConditionFilter extends Filter {
 	}
 
 	private final TypedExpression condition;
-	private final int position;
+	private final Position position;
 
-	public ConditionFilter(final int position, final TypedExpression condition, final Instruction instruction) {
+	public ConditionFilter(final Position position, final TypedExpression condition, final Instruction instruction) {
 		super(instruction);
 		assert (condition.getType() == MacBoolean.class);
 		this.condition = condition;
@@ -40,7 +41,7 @@ public class ConditionFilter extends Filter {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

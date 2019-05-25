@@ -27,7 +27,7 @@ class ClazsContext extends LocalContext {
 	}
 
 	@Override
-	public <T extends MacObject> T get(Identifier key) {
+	public <T extends MacObject> T get(final Identifier key) {
 		final Field<MacClazsObject, T> field = target.getField(ruleset, key);
 		if (field != null) {
 			return field.get(getTarget(), this, key.position());
@@ -36,7 +36,7 @@ class ClazsContext extends LocalContext {
 	}
 
 	@Override
-	public <T extends MacObject> T set(Identifier key, T value) {
+	public <T extends MacObject> T set(final Identifier key, final T value) {
 		final Field<MacClazsObject, T> field = target.getField(ruleset, key);
 		if (field != null) {
 			return field.set(getTarget(), this, key.position(), value);
@@ -45,7 +45,7 @@ class ClazsContext extends LocalContext {
 	}
 
 	@Override
-	protected Function getUncachedFunction(Identifier name) {
+	protected Function getUncachedFunction(final Identifier name) {
 		final ClazsMethod method = (ClazsMethod) target.<MacClazsObject>getMethod(ruleset, name);
 		if (method != null) {
 			return new MethodFunction(method);

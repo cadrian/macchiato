@@ -19,6 +19,7 @@ package net.cadrian.macchiato.ruleset.ast.expression;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Result implements Expression {
 
@@ -26,9 +27,9 @@ public class Result implements Expression {
 		void visitResult(Result result);
 	}
 
-	private final int position;
+	private final Position position;
 
-	public Result(final int position) {
+	public Result(final Position position) {
 		this.position = position;
 	}
 
@@ -38,7 +39,7 @@ public class Result implements Expression {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

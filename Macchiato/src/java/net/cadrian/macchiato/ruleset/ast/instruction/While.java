@@ -23,6 +23,7 @@ import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Node;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestBoolean;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class While implements Instruction {
 
@@ -32,12 +33,12 @@ public class While implements Instruction {
 		void visitWhile(While w);
 	}
 
-	private final int position;
+	private final Position position;
 	private final Expression condition;
 	private final Instruction instruction;
 	private final Instruction otherwise;
 
-	public While(final int position, final Expression condition, final Instruction instruction,
+	public While(final Position position, final Expression condition, final Instruction instruction,
 			final Instruction otherwise) {
 		this.position = position;
 		this.condition = condition;
@@ -58,7 +59,7 @@ public class While implements Instruction {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

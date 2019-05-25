@@ -20,6 +20,7 @@ import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Node;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Local implements Instruction {
 
@@ -27,11 +28,11 @@ public class Local implements Instruction {
 		void visitLocal(Local local);
 	}
 
-	private final int position;
+	private final Position position;
 	private final Identifier local;
 	private final Expression initializer;
 
-	public Local(final int position, final Identifier local, final Expression initializer) {
+	public Local(final Position position, final Identifier local, final Expression initializer) {
 		this.position = position;
 		this.local = local;
 		this.initializer = initializer;
@@ -46,7 +47,7 @@ public class Local implements Instruction {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

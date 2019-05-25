@@ -9,11 +9,12 @@ import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.ShortMessageType;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class MacEvent implements MacObject {
 
-	private static final Identifier FIELD_TICK = new Identifier("Tick", 0);
-	private static final Identifier FIELD_TYPE = new Identifier("Type", 0);
+	private static final Identifier FIELD_TICK = new Identifier("Tick", Position.NONE);
+	private static final Identifier FIELD_TYPE = new Identifier("Type", Position.NONE);
 
 	private final Ruleset ruleset;
 	private final ReadWriteField<MacEvent, MacNumber> tick;

@@ -23,6 +23,7 @@ import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.message.MetaMessage;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class MetaMessageCreationFunction implements Function {
 
@@ -31,7 +32,7 @@ public class MetaMessageCreationFunction implements Function {
 	private final Ruleset ruleset;
 
 	public MetaMessageCreationFunction(final MetaMessageType type, final Ruleset ruleset) {
-		this.name = new Identifier(type.name(), 0);
+		this.name = new Identifier(type.name(), Position.NONE);
 		this.type = type;
 		this.ruleset = ruleset;
 	}
@@ -62,7 +63,7 @@ public class MetaMessageCreationFunction implements Function {
 	}
 
 	@Override
-	public void run(final Context context, final int position) {
+	public void run(final Context context, final Position position) {
 		final Identifier[] argNames = getArgNames();
 		final MacObject[] args = new MacObject[argNames.length];
 		for (int i = 0; i < argNames.length; i++) {

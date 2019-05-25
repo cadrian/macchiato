@@ -21,15 +21,16 @@ import java.util.Collections;
 import java.util.List;
 
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public abstract class AbstractCall {
 
-	protected final int position;
+	protected final Position position;
 	protected final Expression target;
 	protected final Identifier name;
 	protected final List<Expression> arguments = new ArrayList<>();
 
-	public AbstractCall(final int position, final Expression target, final Identifier name) {
+	public AbstractCall(final Position position, final Expression target, final Identifier name) {
 		this.position = position;
 		this.target = target;
 		this.name = name;
@@ -47,7 +48,7 @@ public abstract class AbstractCall {
 		arguments.add(exp);
 	}
 
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

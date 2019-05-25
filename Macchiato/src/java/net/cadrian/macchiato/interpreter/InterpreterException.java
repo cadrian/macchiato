@@ -16,18 +16,20 @@
  */
 package net.cadrian.macchiato.interpreter;
 
+import net.cadrian.macchiato.ruleset.parser.Position;
+
 public class InterpreterException extends RuntimeException {
 
 	private static final long serialVersionUID = -695648464250538720L;
 
-	private final int[] position;
+	private final Position[] position;
 
-	public InterpreterException(final String msg, final int... position) {
+	public InterpreterException(final String msg, final Position... position) {
 		super(msg);
 		this.position = position;
 	}
 
-	public InterpreterException(final String msg, final Throwable cause, final int... position) {
+	public InterpreterException(final String msg, final Throwable cause, final Position... position) {
 		super(msg, cause);
 		this.position = position;
 	}
@@ -36,7 +38,7 @@ public class InterpreterException extends RuntimeException {
 		this(msg, e, e.getPosition());
 	}
 
-	public int[] getPosition() {
+	public Position[] getPosition() {
 		return position;
 	}
 

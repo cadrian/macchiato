@@ -18,6 +18,7 @@ package net.cadrian.macchiato.ruleset.ast.instruction;
 
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Next implements Instruction {
 
@@ -25,14 +26,14 @@ public class Next implements Instruction {
 		void visitNext(Next next);
 	}
 
-	private final int position;
+	private final Position position;
 
-	public Next(final int position) {
+	public Next(final Position position) {
 		this.position = position;
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

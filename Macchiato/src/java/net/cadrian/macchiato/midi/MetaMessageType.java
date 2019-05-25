@@ -46,6 +46,7 @@ import net.cadrian.macchiato.midi.message.m.TimeSignatureMessage;
 import net.cadrian.macchiato.midi.message.m.TrackNameMessage;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public enum MetaMessageType implements MacComparable<MetaMessageType> {
 	SEQUENCE_NUMBER(0x00) {
@@ -716,16 +717,16 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		}
 	};
 
-	private static final Identifier FIELD_SEQUENCE = new Identifier("Sequence", 0);
-	private static final Identifier FIELD_TEXT = new Identifier("Text", 0);
-	private static final Identifier FIELD_VALUE = new Identifier("Value", 0);
-	private static final Identifier FIELD_BPM = new Identifier("Bpm", 0);
-	private static final Identifier FIELD_NUMERATOR = new Identifier("Numerator", 0);
-	private static final Identifier FIELD_DENOMINATOR = new Identifier("Denominator", 0);
-	private static final Identifier FIELD_METRONOME = new Identifier("Metronome", 0);
-	private static final Identifier FIELD_TICKS = new Identifier("Ticks", 0);
-	private static final Identifier FIELD_KEYSIG = new Identifier("KeySig", 0);
-	private static final Identifier FIELD_MODE = new Identifier("Mode", 0);
+	private static final Identifier FIELD_SEQUENCE = new Identifier("Sequence", Position.NONE);
+	private static final Identifier FIELD_TEXT = new Identifier("Text", Position.NONE);
+	private static final Identifier FIELD_VALUE = new Identifier("Value", Position.NONE);
+	private static final Identifier FIELD_BPM = new Identifier("Bpm", Position.NONE);
+	private static final Identifier FIELD_NUMERATOR = new Identifier("Numerator", Position.NONE);
+	private static final Identifier FIELD_DENOMINATOR = new Identifier("Denominator", Position.NONE);
+	private static final Identifier FIELD_METRONOME = new Identifier("Metronome", Position.NONE);
+	private static final Identifier FIELD_TICKS = new Identifier("Ticks", Position.NONE);
+	private static final Identifier FIELD_KEYSIG = new Identifier("KeySig", Position.NONE);
+	private static final Identifier FIELD_MODE = new Identifier("Mode", Position.NONE);
 
 	private static final Identifier[] ARG_KEYSIG = new Identifier[] { FIELD_KEYSIG, FIELD_MODE };
 	private static final Identifier[] ARG_TIMESIG = new Identifier[] { FIELD_NUMERATOR, FIELD_DENOMINATOR,

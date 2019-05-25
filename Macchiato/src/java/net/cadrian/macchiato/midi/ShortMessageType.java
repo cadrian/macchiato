@@ -38,6 +38,7 @@ import net.cadrian.macchiato.midi.message.s.PolyPressureMessage;
 import net.cadrian.macchiato.midi.message.s.ProgramChangeMessage;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public enum ShortMessageType implements MacComparable<ShortMessageType> {
 	NOTE_OFF(0x80) {
@@ -353,13 +354,13 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		}
 	};
 
-	private static final Identifier FIELD_CHANNEL = new Identifier("Channel", 0);
-	private static final Identifier FIELD_VELOCITY = new Identifier("Velocity", 0);
-	private static final Identifier FIELD_PITCH = new Identifier("Pitch", 0);
-	private static final Identifier FIELD_PRESSURE = new Identifier("Pressure", 0);
-	private static final Identifier FIELD_MPC = new Identifier("Mpc", 0);
-	private static final Identifier FIELD_VALUE = new Identifier("Value", 0);
-	private static final Identifier FIELD_PATCH = new Identifier("Patch", 0);
+	private static final Identifier FIELD_CHANNEL = new Identifier("Channel", Position.NONE);
+	private static final Identifier FIELD_VELOCITY = new Identifier("Velocity", Position.NONE);
+	private static final Identifier FIELD_PITCH = new Identifier("Pitch", Position.NONE);
+	private static final Identifier FIELD_PRESSURE = new Identifier("Pressure", Position.NONE);
+	private static final Identifier FIELD_MPC = new Identifier("Mpc", Position.NONE);
+	private static final Identifier FIELD_VALUE = new Identifier("Value", Position.NONE);
+	private static final Identifier FIELD_PATCH = new Identifier("Patch", Position.NONE);
 
 	private static final Identifier[] ARG_CHANNEL_VALUE = new Identifier[] { FIELD_CHANNEL, FIELD_VALUE };
 	private static final Identifier[] ARG_CHANNEL_PATCH = new Identifier[] { FIELD_CHANNEL, FIELD_PATCH };

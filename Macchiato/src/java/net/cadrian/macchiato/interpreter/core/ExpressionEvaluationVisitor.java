@@ -52,6 +52,7 @@ import net.cadrian.macchiato.ruleset.ast.expression.ManifestString;
 import net.cadrian.macchiato.ruleset.ast.expression.Result;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedBinary;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedUnary;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 
@@ -479,7 +480,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	@Override
 	public void visitFunctionCall(final FunctionCall functionCall) {
 		LOGGER.debug("<-- {}", functionCall);
-		final int position = functionCall.position();
+		final Position position = functionCall.position();
 		final Callable fn;
 		final Expression targetExpression = functionCall.getTarget();
 		final MacObject target;

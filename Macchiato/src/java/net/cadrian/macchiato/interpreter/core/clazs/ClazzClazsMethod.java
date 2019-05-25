@@ -27,6 +27,7 @@ import net.cadrian.macchiato.ruleset.ast.Def;
 import net.cadrian.macchiato.ruleset.ast.FormalArgs;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 class ClazzClazsMethod implements ClazsMethod {
 
@@ -86,7 +87,7 @@ class ClazzClazsMethod implements ClazsMethod {
 	}
 
 	@Override
-	public void run(final MacClazsObject target, final Context context, final int position) {
+	public void run(final MacClazsObject target, final Context context, final Position position) {
 		final ClazsContext clazsContext;
 		if (context instanceof ClazsContext && ((ClazsContext) context).getTarget() == target) {
 			clazsContext = (ClazsContext) context;

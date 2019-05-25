@@ -5,6 +5,7 @@ import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 class ReadOnlyField<T extends MacObject, R extends MacObject> implements Field<T, R> {
 
@@ -45,12 +46,12 @@ class ReadOnlyField<T extends MacObject, R extends MacObject> implements Field<T
 	}
 
 	@Override
-	public R get(final T target, final Context context, final int position) {
+	public R get(final T target, final Context context, final Position position) {
 		return value;
 	}
 
 	@Override
-	public R set(final T target, final Context context, final int position, final R newValue) {
+	public R set(final T target, final Context context, final Position position, final R newValue) {
 		throw new InterpreterException("Field " + name + " cannot be set", position);
 	}
 

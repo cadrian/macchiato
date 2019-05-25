@@ -20,6 +20,7 @@ import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public interface Field<T extends MacObject, R extends MacObject> {
 
@@ -31,8 +32,8 @@ public interface Field<T extends MacObject, R extends MacObject> {
 
 	Class<T> getTargetType();
 
-	R get(T target, final Context context, int position);
+	R get(T target, final Context context, Position position);
 
-	R set(T target, final Context context, int position, R newValue);
+	R set(T target, final Context context, Position position, R newValue);
 
 }

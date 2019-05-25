@@ -28,6 +28,7 @@ import net.cadrian.macchiato.ruleset.ast.Def;
 import net.cadrian.macchiato.ruleset.ast.FormalArgs;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 class ClazzClazsConstructor implements ClazsConstructor {
 
@@ -82,7 +83,7 @@ class ClazzClazsConstructor implements ClazsConstructor {
 	}
 
 	@Override
-	public void run(final Context context, final int position) {
+	public void run(final Context context, final Position position) {
 		final MacClazsObject target = new MacClazsObject(clazzClazs);
 		final ClazsContext clazsContext = new ClazsContext(context, target, ruleset);
 		try {

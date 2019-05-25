@@ -20,6 +20,7 @@ import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class CheckedExpression implements TypedExpression {
 
@@ -41,7 +42,7 @@ public class CheckedExpression implements TypedExpression {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return toCheck.position();
 	}
 

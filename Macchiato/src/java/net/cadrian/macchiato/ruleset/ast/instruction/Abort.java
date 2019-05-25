@@ -2,6 +2,7 @@ package net.cadrian.macchiato.ruleset.ast.instruction;
 
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Abort implements Instruction {
 
@@ -9,10 +10,10 @@ public class Abort implements Instruction {
 		void visitAbort(Abort abort);
 	}
 
-	private final int position;
+	private final Position position;
 	private final String message;
 
-	public Abort(final int position, final String message) {
+	public Abort(final Position position, final String message) {
 		this.position = position;
 		this.message = message;
 	}
@@ -22,7 +23,7 @@ public class Abort implements Instruction {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

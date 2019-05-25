@@ -25,12 +25,13 @@ import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class MacMatcher implements MacObject {
 
 	private static class MatchesMethod extends AbstractMethod<MacMatcher> {
 
-		private static final Identifier NAME = new Identifier("Matches", 0);
+		private static final Identifier NAME = new Identifier("Matches", Position.NONE);
 
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[0];
@@ -46,7 +47,7 @@ public class MacMatcher implements MacObject {
 		}
 
 		@Override
-		public void run(final MacMatcher target, final Context context, final int position) {
+		public void run(final MacMatcher target, final Context context, final Position position) {
 			final MacBoolean result = MacBoolean.valueOf(target.value.matches());
 			context.set(Identifiers.RESULT, result);
 		}
@@ -75,8 +76,8 @@ public class MacMatcher implements MacObject {
 
 	private static class GroupMethod extends AbstractMethod<MacMatcher> {
 
-		private static final Identifier NAME = new Identifier("Group", 0);
-		private static final Identifier ARG_GROUP = new Identifier("group", 0);
+		private static final Identifier NAME = new Identifier("Group", Position.NONE);
+		private static final Identifier ARG_GROUP = new Identifier("group", Position.NONE);
 
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacComparable.class };
@@ -92,7 +93,7 @@ public class MacMatcher implements MacObject {
 		}
 
 		@Override
-		public void run(final MacMatcher target, final Context context, final int position) {
+		public void run(final MacMatcher target, final Context context, final Position position) {
 			final MacString result;
 			final MacComparable<?> group = context.get(ARG_GROUP);
 			if (group == null) {

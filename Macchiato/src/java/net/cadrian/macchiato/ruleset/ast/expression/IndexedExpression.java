@@ -24,6 +24,7 @@ import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class IndexedExpression implements Expression {
 
@@ -42,7 +43,7 @@ public class IndexedExpression implements Expression {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return indexed.position();
 	}
 

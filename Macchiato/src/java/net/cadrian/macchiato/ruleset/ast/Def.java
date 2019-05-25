@@ -17,6 +17,7 @@
 package net.cadrian.macchiato.ruleset.ast;
 
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Def implements Node {
 
@@ -28,11 +29,11 @@ public class Def implements Node {
 	private final Clazz clazz;
 	private final FormalArgs args;
 	private final Instruction instruction;
-	private final int position;
+	private final Position position;
 	private final Expression requires;
 	private final Expression ensures;
 
-	public Def(final int position, final Identifier name, final FormalArgs args, final Expression requires,
+	public Def(final Position position, final Identifier name, final FormalArgs args, final Expression requires,
 			final Expression ensures, final Instruction instruction, final Clazz clazz) {
 		assert instruction != null || clazz != null;
 		this.position = position;
@@ -69,7 +70,7 @@ public class Def implements Node {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

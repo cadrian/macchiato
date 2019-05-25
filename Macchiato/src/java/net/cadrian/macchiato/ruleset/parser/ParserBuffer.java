@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.ruleset.parser;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.math.BigInteger;
@@ -24,27 +25,29 @@ import java.util.regex.Pattern;
 public class ParserBuffer {
 
 	private final Reader reader;
+	private final String path;
 	private boolean eof;
 	private char[] content;
-	private int position;
+	private int offset;
 
-	public ParserBuffer(final Reader reader) {
+	public ParserBuffer(final Reader reader, final String path) {
+		this.path = path;
 		this.reader = reader;
 		this.content = new char[0];
-		this.position = 0;
+		this.offset = 0;
 		readMore();
 	}
 
 	public boolean off() {
-		if (!eof && position == content.length) {
+		if (!eof && offset == content.length) {
 			readMore();
 		}
-		return eof && position == content.length;
+		return eof && offset == content.length;
 	}
 
 	public char current() {
 		assert !off();
-		return content[position];
+		return content[offset];
 	}
 
 	private void readMore() {
@@ -65,47 +68,69 @@ public class ParserBuffer {
 		}
 	}
 
-	public int position() {
-		return position;
+	public Position position() {
+		return new Position(path, offset);
 	}
 
 	public void next() {
-		if (!eof && position == content.length) {
+		if (!eof && offset == content.length) {
 			readMore();
 		}
 		if (!off()) {
-			position++;
+			offset++;
 		}
 	}
 
-	public void rewind(final int position) {
-		assert position >= 0 && position < this.position;
-		this.position = position;
+	public void rewind(final Position position) {
+		assert position != null;
+		rewind(position.offset);
+	}
+
+	private void rewind(final int offset) {
+		assert offset >= 0 && offset < this.offset;
+		this.offset = offset;
 	}
 
 	public String error(final String message) {
-		return error(message, position);
+		return error(message, offset);
 	}
 
-	public String error(final String message, final int position) {
-		final int oldPosition = this.position;
+	public String error(final String message, final Position position) throws IOException {
+		if (position.path == path) {
+			return error(message, position.offset);
+		}
+		return new ParserBuffer(new FileReader(position.path), path).error(message, offset);
+	}
 
-		while (!eof && content.length < position) {
+	private String error(final String message, final int offset) {
+		final int oldPosition = this.offset;
+
+		while (!eof && content.length < offset) {
 			readMore();
 		}
-		int startPosition = position;
+		int startPosition = offset;
 		if (startPosition >= content.length) {
 			startPosition = content.length - 1;
 		}
 		while (startPosition > 0 && content[startPosition] != '\n') {
 			startPosition--;
 		}
-		if (content[startPosition] == '\n' && startPosition < position) {
+		if (content[startPosition] == '\n' && startPosition < offset) {
 			startPosition++;
+		}
+		int line = 1;
+		int column = 0;
+		for (int i = 0; i < offset; i++) {
+			if (content[i] == '\n') {
+				line++;
+				column = 0;
+			} else {
+				column++;
+			}
 		}
 		final StringBuilder text = new StringBuilder();
 		final StringBuilder carret = new StringBuilder();
-		for (int i = startPosition; i < position; i++) {
+		for (int i = startPosition; i < offset; i++) {
 			final char c = content[i];
 			text.append(c);
 			if (c == '\t') {
@@ -115,9 +140,9 @@ public class ParserBuffer {
 			}
 		}
 		carret.append('^');
-		if (position < content.length && content[position] != '\n') {
-			text.append(content[position]);
-			rewind(position);
+		if (offset < content.length && content[offset] != '\n') {
+			text.append(content[offset]);
+			rewind(offset);
 			next();
 			while (!off() && current() != '\n') {
 				final char c = current();
@@ -127,13 +152,15 @@ public class ParserBuffer {
 			rewind(oldPosition);
 		}
 
-		return (message == null ? "at " : message + " at ") + position + '\n' + text + '\n' + carret;
+		return (message == null ? "at " : message + "\nat ") + "line " + line + ", column " + column + '\n' + text
+				+ '\n' + carret;
 	}
 
-	public String error(String message, final int... positions) {
+	public String error(String message, final Position... positions) throws IOException {
 		final StringBuilder result = new StringBuilder();
-		for (final int position : positions) {
-			if (result.length() > 0) {
+		for (int i = 0; i < positions.length; i++) {
+			final Position position = positions[i];
+			if (i > 0) {
 				result.append('\n');
 			}
 			result.append(error(message, position));
@@ -158,7 +185,7 @@ public class ParserBuffer {
 					state = 10;
 					break;
 				case '/':
-					pos = position();
+					pos = offset;
 					state = 1;
 					break;
 				default:
@@ -214,16 +241,16 @@ public class ParserBuffer {
 
 	public boolean readKeyword(final String keyword) {
 		skipBlanks();
-		final int position = position();
+		final int pos = offset;
 		for (final char kw : keyword.toCharArray()) {
 			if (off() || current() != kw) {
-				rewind(position);
+				rewind(pos);
 				return false;
 			}
 			next();
 		}
 		if (!off() && Character.isJavaIdentifierPart(current())) {
-			rewind(position);
+			rewind(pos);
 			return false;
 		}
 		return true;
@@ -237,7 +264,7 @@ public class ParserBuffer {
 			next();
 		}
 		if (off() || !Character.isDigit(current())) {
-			throw new ParserException("Invalid number: " + current() + " at " + position);
+			throw new ParserException("Invalid number: " + current() + " at " + offset);
 		}
 		do {
 			b.append(current());
@@ -248,13 +275,13 @@ public class ParserBuffer {
 
 	public String readString() {
 		assert current() == '"';
-		final int position = position();
+		final int pos = offset;
 		next();
 		final StringBuilder b = new StringBuilder();
 		int state = 0;
 		do {
 			if (off()) {
-				throw new ParserException(error("Unfinished string", position));
+				throw new ParserException(error("Unfinished string", pos));
 			}
 			switch (state) {
 			case 0: // normal
@@ -282,7 +309,7 @@ public class ParserBuffer {
 				}
 				break;
 			default:
-				throw new ParserException(error("BUG: unexpected state " + state, position));
+				throw new ParserException(error("BUG: unexpected state " + state, pos));
 			}
 			next();
 		} while (state >= 0);
@@ -291,13 +318,13 @@ public class ParserBuffer {
 
 	Pattern readRegex() {
 		assert current() == '/';
-		final int position = position();
+		final int pos = offset;
 		next();
 		final StringBuilder b = new StringBuilder();
 		int state = 0;
 		do {
 			if (off()) {
-				throw new ParserException(error("Unfinished string", position));
+				throw new ParserException(error("Unfinished string", pos));
 			}
 			switch (state) {
 			case 0: // normal
@@ -325,7 +352,7 @@ public class ParserBuffer {
 				}
 				break;
 			default:
-				throw new ParserException(error("BUG: unexpected state " + state, position));
+				throw new ParserException(error("BUG: unexpected state " + state, pos));
 			}
 			next();
 		} while (state >= 0);

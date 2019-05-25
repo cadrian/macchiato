@@ -33,13 +33,14 @@ import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 import net.cadrian.macchiato.ruleset.parser.ParserBuffer;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 class ReadFunction extends AbstractObjectReaderFunction implements Function {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReadFunction.class);
 
-	private static final Identifier NAME = new Identifier("read", 0);
-	private static final Identifier ARG_FILE = new Identifier("file", 0);
+	private static final Identifier NAME = new Identifier("read", Position.NONE);
+	private static final Identifier ARG_FILE = new Identifier("file", Position.NONE);
 
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacString.class };
@@ -70,13 +71,13 @@ class ReadFunction extends AbstractObjectReaderFunction implements Function {
 	}
 
 	@Override
-	public void run(final Context context, final int position) {
+	public void run(final Context context, final Position position) {
 		final String file = context.get(ARG_FILE);
 		LOGGER.debug("<-- {}", file);
 		final MacObject result;
 
 		try (final Reader reader = new BufferedReader(new FileReader(file))) {
-			final ParserBuffer buffer = new ParserBuffer(reader);
+			final ParserBuffer buffer = new ParserBuffer(reader, file);
 			result = parseObject(buffer);
 		} catch (final IOException e) {
 			throw new InterpreterException(e.getMessage(), e, position);

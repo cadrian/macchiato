@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class TypedUnary extends Unary implements TypedExpression {
 
@@ -33,9 +34,9 @@ public class TypedUnary extends Unary implements TypedExpression {
 
 	private final TypedExpression operand;
 	private final Class<? extends MacObject> resultType;
-	private final int position;
+	private final Position position;
 
-	public TypedUnary(final int position, final Unary.Operator operator, final TypedExpression operand,
+	public TypedUnary(final Position position, final Unary.Operator operator, final TypedExpression operand,
 			final Class<? extends MacObject> resultType) {
 		super(operator);
 		this.position = position;
@@ -53,7 +54,7 @@ public class TypedUnary extends Unary implements TypedExpression {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

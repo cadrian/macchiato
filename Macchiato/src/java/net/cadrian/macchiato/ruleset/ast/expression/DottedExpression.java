@@ -19,6 +19,7 @@ package net.cadrian.macchiato.ruleset.ast.expression;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class DottedExpression implements Expression {
 
@@ -35,7 +36,7 @@ public class DottedExpression implements Expression {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return target.position();
 	}
 

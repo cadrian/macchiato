@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Ruleset {
 
@@ -56,15 +57,15 @@ public class Ruleset {
 	private final Map<Identifier, Clazz> clazzes = new HashMap<>();
 	private final List<Filter> filters = new ArrayList<>();
 	private final Map<Identifier, Ruleset> scopes = new LinkedHashMap<>();
-	private final int position;
+	private final Position position; // position of import in parent ruleset
 
 	private List<Filter> filtersCache;
 
-	public Ruleset(final int position) {
+	public Ruleset(final Position position) {
 		this.position = position;
 	}
 
-	public int position() {
+	public Position position() {
 		return position;
 	}
 
@@ -81,10 +82,6 @@ public class Ruleset {
 		filters.add(filter);
 	}
 
-	public LocalizedDef getDef(final String name) {
-		return getDef(new Identifier(name, 0));
-	}
-
 	public LocalizedDef getDef(final Identifier name) {
 		final LocalizedDef result;
 		final Def def = defs.get(name);
@@ -94,10 +91,6 @@ public class Ruleset {
 			result = new LocalizedDef(def, this);
 		}
 		return result;
-	}
-
-	public LocalizedClazz getClazz(final String name) {
-		return getClazz(new Identifier(name, 0));
 	}
 
 	public LocalizedClazz getClazz(final Identifier name) {
@@ -132,12 +125,8 @@ public class Ruleset {
 		return scopes.put(name, scope);
 	}
 
-	public boolean hasScope(final String name) {
-		return scopes.containsKey(new Identifier(name, 0));
-	}
-
-	public Ruleset getScope(final String name) {
-		return getScope(new Identifier(name, 0));
+	public boolean hasScope(final Identifier name) {
+		return scopes.containsKey(name);
 	}
 
 	public Ruleset getScope(final Identifier name) {

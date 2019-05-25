@@ -23,6 +23,7 @@ import net.cadrian.macchiato.midi.ShortMessageType;
 import net.cadrian.macchiato.midi.message.ShortMessage;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ShortMessageCreationFunction implements Function {
 
@@ -31,7 +32,7 @@ public class ShortMessageCreationFunction implements Function {
 	private final Ruleset ruleset;
 
 	public ShortMessageCreationFunction(final ShortMessageType type, final Ruleset ruleset) {
-		this.name = new Identifier(type.name(), 0);
+		this.name = new Identifier(type.name(), Position.NONE);
 		this.type = type;
 		this.ruleset = ruleset;
 	}
@@ -62,7 +63,7 @@ public class ShortMessageCreationFunction implements Function {
 	}
 
 	@Override
-	public void run(final Context context, final int position) {
+	public void run(final Context context, final Position position) {
 		final Identifier[] argNames = getArgNames();
 		final MacObject[] args = new MacObject[argNames.length];
 		for (int i = 0; i < argNames.length; i++) {

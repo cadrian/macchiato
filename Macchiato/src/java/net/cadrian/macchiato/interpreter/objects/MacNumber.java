@@ -43,7 +43,8 @@ public class MacNumber implements MacComparable<MacNumber> {
 	}
 
 	@Override
-	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final Identifier name) {
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset,
+			final Identifier name) {
 		return null;
 	}
 

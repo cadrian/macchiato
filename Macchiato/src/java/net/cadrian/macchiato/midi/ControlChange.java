@@ -131,7 +131,8 @@ public enum ControlChange implements MacComparable<ControlChange> {
 	}
 
 	@Override
-	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset, final Identifier name) {
+	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset,
+			final Identifier name) {
 		return null;
 	}
 

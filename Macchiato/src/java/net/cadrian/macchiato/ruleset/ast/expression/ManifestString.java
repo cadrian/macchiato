@@ -20,6 +20,7 @@ import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ManifestString implements ManifestExpression<String> {
 
@@ -28,9 +29,9 @@ public class ManifestString implements ManifestExpression<String> {
 	}
 
 	private final String value;
-	private final int position;
+	private final Position position;
 
-	public ManifestString(final int position, final String value) {
+	public ManifestString(final Position position, final String value) {
 		this.value = value;
 		this.position = position;
 	}
@@ -54,7 +55,7 @@ public class ManifestString implements ManifestExpression<String> {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

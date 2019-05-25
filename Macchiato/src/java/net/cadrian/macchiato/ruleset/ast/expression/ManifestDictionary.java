@@ -24,6 +24,7 @@ import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ManifestDictionary implements ManifestExpression<Void> {
 
@@ -50,9 +51,9 @@ public class ManifestDictionary implements ManifestExpression<Void> {
 	}
 
 	private final List<Entry> expressions = new ArrayList<>();
-	private final int position;
+	private final Position position;
 
-	public ManifestDictionary(final int position) {
+	public ManifestDictionary(final Position position) {
 		this.position = position;
 	}
 
@@ -75,7 +76,7 @@ public class ManifestDictionary implements ManifestExpression<Void> {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

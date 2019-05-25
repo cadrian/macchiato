@@ -22,6 +22,7 @@ import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ManifestNumeric implements ManifestExpression<BigInteger> {
 
@@ -30,9 +31,9 @@ public class ManifestNumeric implements ManifestExpression<BigInteger> {
 	}
 
 	private final BigInteger value;
-	private final int position;
+	private final Position position;
 
-	public ManifestNumeric(final int position, final BigInteger value) {
+	public ManifestNumeric(final Position position, final BigInteger value) {
 		this.value = value;
 		this.position = position;
 	}
@@ -56,7 +57,7 @@ public class ManifestNumeric implements ManifestExpression<BigInteger> {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

@@ -16,12 +16,14 @@
  */
 package net.cadrian.macchiato.ruleset.ast;
 
+import net.cadrian.macchiato.ruleset.parser.Position;
+
 public interface Node {
 
 	interface Visitor {
 	}
 
-	int position();
+	Position position();
 
 	void accept(Visitor v);
 

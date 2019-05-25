@@ -26,6 +26,7 @@ import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class MacPattern implements MacObject {
 
@@ -33,8 +34,8 @@ public class MacPattern implements MacObject {
 
 	private static class MatcherMethod extends AbstractMethod<MacPattern> {
 
-		private static final Identifier NAME = new Identifier("Matcher", 0);
-		private static final Identifier ARG_STRING = new Identifier("string", 0);
+		private static final Identifier NAME = new Identifier("Matcher", Position.NONE);
+		private static final Identifier ARG_STRING = new Identifier("string", Position.NONE);
 
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacString.class };
@@ -50,7 +51,7 @@ public class MacPattern implements MacObject {
 		}
 
 		@Override
-		public void run(final MacPattern target, final Context context, final int position) {
+		public void run(final MacPattern target, final Context context, final Position position) {
 			final MacString string = context.get(ARG_STRING);
 			final MacMatcher result = new MacMatcher(target.value.matcher(string.getValue()));
 			context.set(Identifiers.RESULT, result);

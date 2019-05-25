@@ -10,6 +10,7 @@ import net.cadrian.macchiato.interpreter.core.DefFunction;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedDef;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class MacRuleset implements MacObject {
 
@@ -52,7 +53,7 @@ public class MacRuleset implements MacObject {
 		}
 
 		@Override
-		public void run(final MacRuleset target, final Context context, final int position) {
+		public void run(final MacRuleset target, final Context context, final Position position) {
 			def.run(context, position);
 		}
 

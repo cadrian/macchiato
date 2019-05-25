@@ -14,13 +14,18 @@
  * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package net.cadrian.macchiato.interpreter;
+package net.cadrian.macchiato.ruleset.parser;
 
-import net.cadrian.macchiato.interpreter.core.Context;
-import net.cadrian.macchiato.ruleset.parser.Position;
+public class Position {
 
-public interface Function extends Callable {
+	public static final Position NONE = new Position(null, 0);
 
-	void run(final Context context, Position position);
+	public final String path;
+	public final int offset;
+
+	Position(final String path, final int position) {
+		this.path = path;
+		this.offset = position;
+	}
 
 }

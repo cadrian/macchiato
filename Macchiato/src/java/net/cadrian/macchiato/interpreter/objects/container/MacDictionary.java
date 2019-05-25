@@ -36,6 +36,7 @@ import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class MacDictionary implements MacContainer<MacString> {
 
@@ -48,7 +49,7 @@ public class MacDictionary implements MacContainer<MacString> {
 
 	private static class SizeMethod extends AbstractMethod<MacDictionary> {
 
-		private static final Identifier NAME = new Identifier("Size", 0);
+		private static final Identifier NAME = new Identifier("Size", Position.NONE);
 
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[0];
@@ -79,7 +80,7 @@ public class MacDictionary implements MacContainer<MacString> {
 		}
 
 		@Override
-		public void run(final MacDictionary target, final Context context, final int position) {
+		public void run(final MacDictionary target, final Context context, final Position position) {
 			context.set(Identifiers.RESULT, MacNumber.valueOf(target.size()));
 		}
 
@@ -92,8 +93,8 @@ public class MacDictionary implements MacContainer<MacString> {
 
 	private static class HasMethod extends AbstractMethod<MacDictionary> {
 
-		private static final Identifier NAME = new Identifier("Has", 0);
-		private static final Identifier ARG_INDEX = new Identifier("index", 0);
+		private static final Identifier NAME = new Identifier("Has", Position.NONE);
+		private static final Identifier ARG_INDEX = new Identifier("index", Position.NONE);
 
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacString.class };
@@ -109,7 +110,7 @@ public class MacDictionary implements MacContainer<MacString> {
 		}
 
 		@Override
-		public void run(final MacDictionary target, final Context context, final int position) {
+		public void run(final MacDictionary target, final Context context, final Position position) {
 			final MacString index = context.get(ARG_INDEX);
 			context.set(Identifiers.RESULT, MacBoolean.valueOf(target.get(index) != null));
 		}
@@ -138,8 +139,8 @@ public class MacDictionary implements MacContainer<MacString> {
 
 	private static class ForEachMethod extends AbstractMethod<MacDictionary> {
 
-		private static final Identifier NAME = new Identifier("ForEach", 0);
-		private static final Identifier ARG_CALLABLE = new Identifier("callable", 0);
+		private static final Identifier NAME = new Identifier("ForEach", Position.NONE);
+		private static final Identifier ARG_CALLABLE = new Identifier("callable", Position.NONE);
 
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacCallable.class };
@@ -155,7 +156,7 @@ public class MacDictionary implements MacContainer<MacString> {
 		}
 
 		@Override
-		public void run(final MacDictionary target, final Context context, final int position) {
+		public void run(final MacDictionary target, final Context context, final Position position) {
 			final MacCallable callable = context.get(ARG_CALLABLE);
 			final Identifier[] argNames = callable.getArgNames();
 			switch (argNames.length) {
@@ -208,9 +209,9 @@ public class MacDictionary implements MacContainer<MacString> {
 
 	private static class MapMethod extends AbstractMethod<MacDictionary> {
 
-		private static final Identifier NAME = new Identifier("Map", 0);
-		private static final Identifier ARG_CALLABLE = new Identifier("callable", 0);
-		private static final Identifier ARG_SEED = new Identifier("seed", 0);
+		private static final Identifier NAME = new Identifier("Map", Position.NONE);
+		private static final Identifier ARG_CALLABLE = new Identifier("callable", Position.NONE);
+		private static final Identifier ARG_SEED = new Identifier("seed", Position.NONE);
 
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacCallable.class,
@@ -227,7 +228,7 @@ public class MacDictionary implements MacContainer<MacString> {
 		}
 
 		@Override
-		public void run(final MacDictionary target, final Context context, final int position) {
+		public void run(final MacDictionary target, final Context context, final Position position) {
 			final MacCallable callable = context.get(ARG_CALLABLE);
 			final Identifier[] argNames = callable.getArgNames();
 			MacObject result = context.get(ARG_SEED);

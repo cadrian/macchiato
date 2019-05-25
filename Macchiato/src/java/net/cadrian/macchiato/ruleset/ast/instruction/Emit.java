@@ -20,6 +20,7 @@ import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Node;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Emit implements Instruction {
 
@@ -27,11 +28,11 @@ public class Emit implements Instruction {
 		void visitEmit(Emit emit);
 	}
 
-	private final int position;
+	private final Position position;
 	private final TypedExpression message;
 	private final TypedExpression tick;
 
-	public Emit(final int position, final TypedExpression message, final TypedExpression tick) {
+	public Emit(final Position position, final TypedExpression message, final TypedExpression tick) {
 		assert message.getType() == Message.class;
 		assert message != null || tick == null;
 		this.position = position;
@@ -40,7 +41,7 @@ public class Emit implements Instruction {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

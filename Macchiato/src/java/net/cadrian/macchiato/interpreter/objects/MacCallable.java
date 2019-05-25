@@ -24,6 +24,7 @@ import net.cadrian.macchiato.interpreter.core.LocalContext;
 import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public abstract class MacCallable implements MacObject {
 
@@ -31,8 +32,8 @@ public abstract class MacCallable implements MacObject {
 
 		@SuppressWarnings("unchecked")
 		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacDictionary.class };
-		private static final Identifier NAME = new Identifier("Invoke", 0);
-		private static final Identifier ARG_ARGS = new Identifier("args", 0);
+		private static final Identifier NAME = new Identifier("Invoke", Position.NONE);
+		private static final Identifier ARG_ARGS = new Identifier("args", Position.NONE);
 		private static final Identifier[] ARG_NAMES = { ARG_ARGS };
 
 		protected InvokeMethod(final Ruleset ruleset) {
@@ -45,12 +46,12 @@ public abstract class MacCallable implements MacObject {
 		}
 
 		@Override
-		public void run(final MacCallable target, final Context context, final int position) {
+		public void run(final MacCallable target, final Context context, final Position position) {
 			final Context c = unpackArgs(target, context, position);
 			target.invoke(c, position);
 		}
 
-		private Context unpackArgs(final MacCallable target, final Context context, final int position) {
+		private Context unpackArgs(final MacCallable target, final Context context, final Position position) {
 			final MacDictionary args = context.get(ARG_ARGS);
 			final LocalContext result = new LocalContext(context, getRuleset());
 			final Identifier[] argNames = target.getArgNames();
@@ -95,7 +96,7 @@ public abstract class MacCallable implements MacObject {
 
 	};
 
-	public abstract void invoke(final Context context, final int position);
+	public abstract void invoke(final Context context, final Position position);
 
 	@Override
 	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset,

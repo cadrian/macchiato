@@ -16,6 +16,8 @@
  */
 package net.cadrian.macchiato.ruleset.ast;
 
+import net.cadrian.macchiato.ruleset.parser.Position;
+
 public class BoundFilter extends Filter {
 
 	public static enum Bound {
@@ -29,10 +31,10 @@ public class BoundFilter extends Filter {
 		void visit(BoundFilter boundFilter);
 	}
 
-	private final int position;
+	private final Position position;
 	private final Bound bound;
 
-	public BoundFilter(final int position, final Bound bound, final Instruction instruction) {
+	public BoundFilter(final Position position, final Bound bound, final Instruction instruction) {
 		super(instruction);
 		this.position = position;
 		this.bound = bound;
@@ -43,7 +45,7 @@ public class BoundFilter extends Filter {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

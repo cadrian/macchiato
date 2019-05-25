@@ -25,13 +25,14 @@ import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 class PrintFunction extends AbstractObjectReaderFunction implements Function {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PrintFunction.class);
 
-	private static final Identifier NAME = new Identifier("print", 0);
-	private static final Identifier ARG_DATA = new Identifier("data", 0);
+	private static final Identifier NAME = new Identifier("print", Position.NONE);
+	private static final Identifier ARG_DATA = new Identifier("data", Position.NONE);
 
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacString.class };
@@ -62,7 +63,7 @@ class PrintFunction extends AbstractObjectReaderFunction implements Function {
 	}
 
 	@Override
-	public void run(final Context context, final int position) {
+	public void run(final Context context, final Position position) {
 		final MacString data = context.get(ARG_DATA);
 		LOGGER.debug("<-- {}", data);
 		System.out.println(data.getValue());

@@ -22,6 +22,7 @@ import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 class ClazzClazsField implements ClazsField {
 
@@ -61,12 +62,13 @@ class ClazzClazsField implements ClazsField {
 	}
 
 	@Override
-	public MacObject get(MacClazsObject target, Context context, int position) {
+	public MacObject get(final MacClazsObject target, final Context context, final Position position) {
 		return target.getFieldValue(name.getName());
 	}
 
 	@Override
-	public MacObject set(MacClazsObject target, Context context, int position, MacObject newValue) {
+	public MacObject set(final MacClazsObject target, final Context context, final Position position,
+			final MacObject newValue) {
 		return target.setFieldValue(name.getName(), newValue);
 	}
 

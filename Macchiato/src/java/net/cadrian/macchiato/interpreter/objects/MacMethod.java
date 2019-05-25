@@ -19,6 +19,7 @@ package net.cadrian.macchiato.interpreter.objects;
 import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class MacMethod<T extends MacObject> extends MacCallable {
 
@@ -31,7 +32,7 @@ public class MacMethod<T extends MacObject> extends MacCallable {
 	}
 
 	@Override
-	public void invoke(final Context context, final int position) {
+	public void invoke(final Context context, final Position position) {
 		method.run(target, context, position);
 	}
 

@@ -18,11 +18,12 @@ package net.cadrian.macchiato.interpreter;
 
 import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public interface Method<T extends MacObject> extends Callable {
 
 	Class<T> getTargetType();
 
-	void run(T target, final Context context, int position);
+	void run(T target, final Context context, Position position);
 
 }

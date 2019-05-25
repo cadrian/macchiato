@@ -30,13 +30,14 @@ import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 class ToStringFunction extends AbstractObjectWriterFunction implements Function {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ToStringFunction.class);
 
-	private static final Identifier NAME = new Identifier("toString", 0);
-	private static final Identifier ARG_VALUE = new Identifier("value", 0);
+	private static final Identifier NAME = new Identifier("toString", Position.NONE);
+	private static final Identifier ARG_VALUE = new Identifier("value", Position.NONE);
 
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacObject.class };
@@ -67,7 +68,7 @@ class ToStringFunction extends AbstractObjectWriterFunction implements Function 
 	}
 
 	@Override
-	public void run(final Context context, final int position) {
+	public void run(final Context context, final Position position) {
 		final MacObject value = context.get(ARG_VALUE);
 		LOGGER.debug("<-- {}", value);
 

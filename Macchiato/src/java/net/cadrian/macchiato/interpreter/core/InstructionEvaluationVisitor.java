@@ -48,6 +48,7 @@ import net.cadrian.macchiato.ruleset.ast.instruction.Local;
 import net.cadrian.macchiato.ruleset.ast.instruction.Next;
 import net.cadrian.macchiato.ruleset.ast.instruction.ProcedureCall;
 import net.cadrian.macchiato.ruleset.ast.instruction.While;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 class InstructionEvaluationVisitor implements InstructionVisitor {
 
@@ -83,7 +84,7 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 	@Override
 	public void visitProcedureCall(final ProcedureCall procedureCall) {
 		LOGGER.debug("<-- {}", procedureCall);
-		final int position = procedureCall.position();
+		final Position position = procedureCall.position();
 		final Callable fn;
 		final Expression targetExpression = procedureCall.getTarget();
 		final MacObject target;

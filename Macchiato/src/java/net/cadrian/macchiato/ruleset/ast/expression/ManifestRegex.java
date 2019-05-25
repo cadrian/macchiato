@@ -22,6 +22,7 @@ import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacPattern;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ManifestRegex implements ManifestExpression<Pattern> {
 
@@ -30,9 +31,9 @@ public class ManifestRegex implements ManifestExpression<Pattern> {
 	}
 
 	private final Pattern value;
-	private final int position;
+	private final Position position;
 
-	public ManifestRegex(final int position, final Pattern value) {
+	public ManifestRegex(final Position position, final Pattern value) {
 		this.value = value;
 		this.position = position;
 	}
@@ -56,7 +57,7 @@ public class ManifestRegex implements ManifestExpression<Pattern> {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

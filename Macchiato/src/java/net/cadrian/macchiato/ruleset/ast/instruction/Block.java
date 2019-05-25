@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Block implements Instruction {
 
@@ -34,10 +35,10 @@ public class Block implements Instruction {
 		void visitBlock(Block block);
 	}
 
-	private final int position;
+	private final Position position;
 	private final List<Instruction> instructions = new ArrayList<>();
 
-	public Block(final int position) {
+	public Block(final Position position) {
 		this.position = position;
 	}
 
@@ -46,7 +47,7 @@ public class Block implements Instruction {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

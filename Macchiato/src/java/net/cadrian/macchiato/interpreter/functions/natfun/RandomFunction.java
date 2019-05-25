@@ -30,13 +30,14 @@ import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 class RandomFunction extends AbstractNativeFunction {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RandomFunction.class);
 
-	private static final Identifier NAME = new Identifier("random", 0);
-	private static final Identifier ARG_MAX = new Identifier("max", 0);
+	private static final Identifier NAME = new Identifier("random", Position.NONE);
+	private static final Identifier ARG_MAX = new Identifier("max", Position.NONE);
 
 	private static final SecureRandom RANDOM;
 	static {
@@ -78,7 +79,7 @@ class RandomFunction extends AbstractNativeFunction {
 	}
 
 	@Override
-	public void run(final Context context, final int position) {
+	public void run(final Context context, final Position position) {
 		final BigInteger max = ((MacNumber) context.get(ARG_MAX)).getValue();
 		LOGGER.debug("<-- {}", max);
 		if (max.signum() != 1) {

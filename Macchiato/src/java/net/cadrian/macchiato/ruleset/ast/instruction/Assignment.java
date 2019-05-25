@@ -19,6 +19,7 @@ package net.cadrian.macchiato.ruleset.ast.instruction;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Assignment implements Instruction {
 
@@ -43,7 +44,7 @@ public class Assignment implements Instruction {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return leftSide.position();
 	}
 

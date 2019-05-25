@@ -19,6 +19,7 @@ package net.cadrian.macchiato.ruleset.ast.expression;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Identifier implements Expression, Comparable<Identifier> {
 
@@ -27,14 +28,14 @@ public class Identifier implements Expression, Comparable<Identifier> {
 	}
 
 	private final String name;
-	private final int position;
+	private final Position position;
 
-	public Identifier(final String name, final int position) {
+	public Identifier(final String name, final Position position) {
 		if (name == null || name.isEmpty()) {
 			throw new NullPointerException("null identifier");
 		}
 		this.name = name;
-		this.position = position;
+		this.position = position == null ? Position.NONE : position;
 	}
 
 	@Override
@@ -51,7 +52,7 @@ public class Identifier implements Expression, Comparable<Identifier> {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 
@@ -76,9 +77,10 @@ public class Identifier implements Expression, Comparable<Identifier> {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof Identifier))
+	public boolean equals(final Object obj) {
+		if (!(obj instanceof Identifier)) {
 			return false;
+		}
 		return compareTo((Identifier) obj) == 0;
 	}
 
@@ -88,7 +90,7 @@ public class Identifier implements Expression, Comparable<Identifier> {
 	}
 
 	@Override
-	public int compareTo(Identifier other) {
+	public int compareTo(final Identifier other) {
 		return name.compareTo(other.name);
 	}
 

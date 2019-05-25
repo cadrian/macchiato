@@ -43,9 +43,9 @@ import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Filter;
 import net.cadrian.macchiato.ruleset.ast.FormalArgs;
 import net.cadrian.macchiato.ruleset.ast.Inheritance;
+import net.cadrian.macchiato.ruleset.ast.Inheritance.Parent;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
-import net.cadrian.macchiato.ruleset.ast.Inheritance.Parent;
 import net.cadrian.macchiato.ruleset.ast.expression.Binary;
 import net.cadrian.macchiato.ruleset.ast.expression.Binary.Operator;
 import net.cadrian.macchiato.ruleset.ast.expression.DottedExpression;
@@ -84,23 +84,23 @@ public class Parser {
 	private Clazz inClass;
 	private boolean inDef;
 
-	public Parser(final File relativeDirectory, final Reader reader) throws IOException {
+	public Parser(final File relativeDirectory, final Reader reader, final String path) throws IOException {
 		this.relativeDirectory = relativeDirectory;
-		this.buffer = new ParserBuffer(reader);
+		this.buffer = new ParserBuffer(reader, path);
 	}
 
 	public Ruleset parse() {
-		return parse(0);
+		return parse(null);
 	}
 
-	Ruleset parse(final int position) {
+	Ruleset parse(final Position position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		final Ruleset result = new Ruleset(position);
 		try {
 			boolean allowImport = true;
 			while (!buffer.off()) {
 				buffer.skipBlanks();
-				final int p = buffer.position();
+				final Position p = buffer.position();
 				if (readKeyword("import")) {
 					if (!allowImport) {
 						throw new ParserException(error("Cannot import files after filters", p));
@@ -132,14 +132,14 @@ public class Parser {
 		return result;
 	}
 
-	private void parseImport(final Ruleset result, final int p) {
+	private void parseImport(final Ruleset result, final Position p) {
 		LOGGER.debug("<--");
 		buffer.skipBlanks();
-		final int namePosition = buffer.position();
+		final Position namePosition = buffer.position();
 		final String name = readIdentifier();
 
 		buffer.skipBlanks();
-		final int p1 = buffer.position();
+		final Position p1 = buffer.position();
 		final ManifestString scopePath = parseManifestString();
 		final File scopeFile = findFile(p1, scopePath.getValue());
 		if (scopeFile == null) {
@@ -150,7 +150,7 @@ public class Parser {
 
 		final Ruleset scope;
 		try (final FileReader scopeReader = new FileReader(scopeFile)) {
-			final Parser scopeParser = new Parser(scopeFile.getParentFile(), scopeReader);
+			final Parser scopeParser = new Parser(scopeFile.getParentFile(), scopeReader, scopeFile.getAbsolutePath());
 			try {
 				scope = scopeParser.parse(p);
 			} catch (final ParserException e) {
@@ -171,7 +171,7 @@ public class Parser {
 		LOGGER.debug("--> {}", scope);
 	}
 
-	private File findFile(final int position, final String scopePath) {
+	private File findFile(final Position position, final String scopePath) {
 		if (scopePath.isEmpty()) {
 			throw new ParserException(error("empty path", position));
 		}
@@ -192,11 +192,11 @@ public class Parser {
 		return Platform.getConfigFile(scopePath);
 	}
 
-	private Clazz parseClass(final int position) {
+	private Clazz parseClass(final Position position) {
 		LOGGER.debug("<-- {}", buffer.position());
 
 		buffer.skipBlanks();
-		final int namePosition = buffer.position();
+		final Position namePosition = buffer.position();
 		final String name = readIdentifier();
 		if (name == null) {
 			throw new ParserException(error("Expected class name"));
@@ -242,7 +242,7 @@ public class Parser {
 					throw new ParserException(error("Duplicate def: " + old.name(), old.position(), def.position()));
 				}
 			} else {
-				final int fieldPosition = buffer.position();
+				final Position fieldPosition = buffer.position();
 				final String field = readIdentifier();
 				if (field == null) {
 					throw new ParserException(error("Expected field, def, or end of class"));
@@ -295,13 +295,13 @@ public class Parser {
 	private Parent parseParent() {
 		LOGGER.debug("<-- {}", buffer.position());
 		buffer.skipBlanks();
-		final int position = buffer.position();
+		final Position position = buffer.position();
 
 		final List<Identifier> name = new ArrayList<>();
 		boolean more = true;
 		do {
 			buffer.skipBlanks();
-			final int idPosition = buffer.position();
+			final Position idPosition = buffer.position();
 			final String id = readIdentifier();
 			if (id == null) {
 				throw new ParserException(error("Expected parent name"));
@@ -329,11 +329,11 @@ public class Parser {
 		return result;
 	}
 
-	private Def parseDef(final int position) {
+	private Def parseDef(final Position position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		inDef = true;
 		buffer.skipBlanks();
-		final int namePosition = buffer.position();
+		final Position namePosition = buffer.position();
 		final String name = readIdentifier();
 		if (name == null) {
 			throw new ParserException(error("Expected def name"));
@@ -403,7 +403,7 @@ public class Parser {
 		} else {
 			boolean more = true;
 			do {
-				final int argPosition = buffer.position();
+				final Position argPosition = buffer.position();
 				final String arg = readIdentifier();
 				if (arg == null) {
 					throw new ParserException(error("Expected arg name"));
@@ -439,7 +439,7 @@ public class Parser {
 			LOGGER.debug("--> {}", result);
 			return result;
 		}
-		final int position = buffer.position();
+		final Position position = buffer.position();
 
 		final String name = readRawIdentifier();
 		if (name == null) {
@@ -524,7 +524,7 @@ public class Parser {
 		case '.': {
 			buffer.next();
 			buffer.skipBlanks();
-			final int selectorPosition = buffer.position();
+			final Position selectorPosition = buffer.position();
 			final String selector = readRawIdentifier();
 			if (selector == null || isReserved(selector)) {
 				throw new ParserException(error("Expected identifier", selectorPosition));
@@ -580,7 +580,7 @@ public class Parser {
 		}
 	}
 
-	private Local parseLocal(final int position) {
+	private Local parseLocal(final Position position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		if (!inDef) {
 			throw new ParserException(error("Unexpected local out of def", position));
@@ -610,7 +610,7 @@ public class Parser {
 		return result;
 	}
 
-	private Next parseNext(final int position) {
+	private Next parseNext(final Position position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		buffer.skipBlanks();
 		if (!buffer.off() && buffer.current() == ';') {
@@ -621,7 +621,7 @@ public class Parser {
 		return result;
 	}
 
-	private Emit parseEmit(final int position) {
+	private Emit parseEmit(final Position position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		final Emit result;
 		buffer.skipBlanks();
@@ -686,10 +686,10 @@ public class Parser {
 		return result;
 	}
 
-	private For parseFor(final int position) {
+	private For parseFor(final Position position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		buffer.skipBlanks();
-		final int p1 = buffer.position();
+		final Position p1 = buffer.position();
 		final String id1 = readIdentifier();
 		if (id1 == null) {
 			throw new ParserException(error("Expected identifier"));
@@ -697,7 +697,7 @@ public class Parser {
 		final Expression name1 = new Identifier(id1, p1);
 
 		buffer.skipBlanks();
-		final int p2 = buffer.position();
+		final Position p2 = buffer.position();
 		final Expression name2;
 		if (buffer.off()) {
 			throw new ParserException(error("Unexpected end of file"));
@@ -718,7 +718,7 @@ public class Parser {
 		}
 
 		buffer.skipBlanks();
-		final int p3 = buffer.position();
+		final Position p3 = buffer.position();
 		final Expression loop = parseExpression().typed(MacContainer.class);
 		if (loop == null) {
 			throw new ParserException(error("Invalid expression", p3));
@@ -732,7 +732,7 @@ public class Parser {
 		return result;
 	}
 
-	private If parseIf(final int position) {
+	private If parseIf(final Position position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		final Expression cond = parseExpression();
 		buffer.skipBlanks();
@@ -744,7 +744,7 @@ public class Parser {
 		buffer.skipBlanks();
 		if (readKeyword("else")) {
 			buffer.skipBlanks();
-			final int pos = buffer.position();
+			final Position pos = buffer.position();
 			if (readKeyword("if")) {
 				otherwise = parseIf(pos);
 			} else {
@@ -758,7 +758,7 @@ public class Parser {
 		return result;
 	}
 
-	private While parseWhile(final int position) {
+	private While parseWhile(final Position position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		final Expression cond = parseExpression();
 		buffer.skipBlanks();
@@ -781,7 +781,7 @@ public class Parser {
 	private Block parseBlock() {
 		LOGGER.debug("<-- {}", buffer.position());
 		assert buffer.current() == '{';
-		final int position = buffer.position();
+		final Position position = buffer.position();
 		final Block result = new Block(position);
 		buffer.next();
 		boolean more = true;
@@ -924,7 +924,7 @@ public class Parser {
 
 	private Binary.Operator readComparator() {
 		buffer.skipBlanks();
-		final int position = buffer.position();
+		final Position position = buffer.position();
 		if (buffer.off()) {
 			return null;
 		}
@@ -1114,7 +1114,7 @@ public class Parser {
 			throw new ParserException(error("Expected expression"));
 		}
 		final Expression result;
-		final int position = buffer.position();
+		final Position position = buffer.position();
 		if (readKeyword("not")) {
 			final Expression operand = parseUnary();
 			final TypedExpression typedOperand = operand.typed(MacBoolean.class);
@@ -1156,7 +1156,7 @@ public class Parser {
 		LOGGER.debug("<-- {}", buffer.position());
 		Expression result = parseAtomicExpression();
 		buffer.skipBlanks();
-		final int position = buffer.position();
+		final Position position = buffer.position();
 		if (readKeyword("exists")) {
 			result = new ExistsExpression(position, result);
 		}
@@ -1170,7 +1170,7 @@ public class Parser {
 		if (buffer.off()) {
 			throw new ParserException(error("Expected expression"));
 		}
-		final int position = buffer.position();
+		final Position position = buffer.position();
 		if (buffer.current() == '(') {
 			buffer.next();
 			atomic = parseExpression();
@@ -1278,7 +1278,7 @@ public class Parser {
 		assert buffer.current() == '.';
 		buffer.next();
 		buffer.skipBlanks();
-		final int position = buffer.position();
+		final Position position = buffer.position();
 		final String identifier = readIdentifier();
 		if (identifier == null) {
 			throw new ParserException(error("Expected identifier"));
@@ -1298,7 +1298,7 @@ public class Parser {
 
 	private ManifestString parseManifestString() {
 		LOGGER.debug("<-- {}", buffer.position());
-		final int position = buffer.position();
+		final Position position = buffer.position();
 		final ManifestString result = new ManifestString(position, buffer.readString());
 		LOGGER.debug("--> {}", result);
 		return result;
@@ -1306,7 +1306,7 @@ public class Parser {
 
 	private ManifestRegex parseManifestRegex() {
 		LOGGER.debug("<-- {}", buffer.position());
-		final int position = buffer.position();
+		final Position position = buffer.position();
 		final ManifestRegex result = new ManifestRegex(position, buffer.readRegex());
 		LOGGER.debug("--> {}", result);
 		return result;
@@ -1392,13 +1392,13 @@ public class Parser {
 
 	private ManifestNumeric parseManifestNumber() {
 		LOGGER.debug("<-- {}", buffer.position());
-		final int position = buffer.position();
+		final Position position = buffer.position();
 		final ManifestNumeric result = new ManifestNumeric(position, buffer.readBigInteger());
 		LOGGER.debug("--> {}", result);
 		return result;
 	}
 
-	private FunctionCall parseFunctionCall(final int position, final Expression target, final Identifier name) {
+	private FunctionCall parseFunctionCall(final Position position, final Expression target, final Identifier name) {
 		LOGGER.debug("<-- {}", buffer.position());
 		final FunctionCall result = new FunctionCall(position, target, name);
 		assert buffer.current() == '(';
@@ -1436,11 +1436,11 @@ public class Parser {
 		return result;
 	}
 
-	private Filter parseFilter(final int position) {
+	private Filter parseFilter(final Position position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		buffer.skipBlanks();
 		final Filter result;
-		final int p1 = buffer.position();
+		final Position p1 = buffer.position();
 		final BoundFilter.Bound bound;
 		if (readKeyword("BEGIN")) {
 			if (readKeyword("SEQUENCE")) {
@@ -1492,7 +1492,7 @@ public class Parser {
 		if (buffer.off()) {
 			return null;
 		}
-		final int position = buffer.position();
+		final Position position = buffer.position();
 		final String result = readRawIdentifier();
 		if (result == null || isReserved(result)) {
 			buffer.rewind(position);
@@ -1576,7 +1576,7 @@ public class Parser {
 	public static void main(final String[] args) throws IOException {
 		final File file = new File(args[0]);
 		final FileReader fileReader = new FileReader(file);
-		final Parser parser = new Parser(file.getParentFile(), fileReader);
+		final Parser parser = new Parser(file.getParentFile(), fileReader, file.getAbsolutePath());
 		final Ruleset ruleset = parser.parse();
 		System.out.println("Ruleset: " + ruleset);
 	}
@@ -1585,21 +1585,31 @@ public class Parser {
 		return buffer.error(message);
 	}
 
-	public String error(final String message, final int position) {
-		return buffer.error(message, position);
+	public String error(final String message, final Position position) {
+		try {
+			return buffer.error(message, position);
+		} catch (final IOException e) {
+			LOGGER.error("error could not be displayed", e);
+			return message;
+		}
 	}
 
-	public String error(final String message, final int... positions) {
-		return buffer.error(message, positions);
+	public String error(final String message, final Position... positions) {
+		try {
+			return buffer.error(message, positions);
+		} catch (final IOException e) {
+			LOGGER.error("error could not be displayed", e);
+			return message;
+		}
 	}
 
-	public String error(final InterpreterException e) {
+	public String error(final InterpreterException e) throws IOException {
 		final StringBuilder result = new StringBuilder();
 		fillError(e, result);
 		return result.toString();
 	}
 
-	private void fillError(final InterpreterException e, final StringBuilder error) {
+	private void fillError(final InterpreterException e, final StringBuilder error) throws IOException {
 		error.append(buffer.error(e.getMessage(), e.getPosition())).append('\n');
 		final Throwable cause = e.getCause();
 		if (cause instanceof InterpreterException) {

@@ -1,6 +1,7 @@
 package net.cadrian.macchiato.ruleset.ast.instruction;
 
 import net.cadrian.macchiato.ruleset.ast.Instruction;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class DoNothing implements Instruction {
 
@@ -10,8 +11,8 @@ public class DoNothing implements Instruction {
 	}
 
 	@Override
-	public int position() {
-		return 0;
+	public Position position() {
+		return Position.NONE;
 	}
 
 	@Override

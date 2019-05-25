@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Inheritance implements Node {
 
@@ -34,9 +35,9 @@ public class Inheritance implements Node {
 		}
 
 		private final Identifier[] name;
-		private final int position;
+		private final Position position;
 
-		public Parent(final Identifier[] name, final int position) {
+		public Parent(final Identifier[] name, final Position position) {
 			this.name = name;
 			this.position = position;
 		}
@@ -46,7 +47,7 @@ public class Inheritance implements Node {
 		}
 
 		@Override
-		public int position() {
+		public Position position() {
 			return position;
 		}
 
@@ -58,9 +59,9 @@ public class Inheritance implements Node {
 	}
 
 	private final List<Parent> parents = new ArrayList<>();
-	private final int position;
+	private final Position position;
 
-	public Inheritance(final int position) {
+	public Inheritance(final Position position) {
 		this.position = position;
 	}
 
@@ -73,7 +74,7 @@ public class Inheritance implements Node {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

@@ -71,11 +71,6 @@ public abstract class Context {
 		return (T) v.getLastValue();
 	}
 
-	@Deprecated
-	final Function getFunction(final String name) {
-		return getFunction(new Identifier(name, 0));
-	}
-
 	final Function getFunction(final Identifier name) {
 		LOGGER.debug("<-- {}", name);
 		final Function result;
@@ -88,11 +83,6 @@ public abstract class Context {
 		functions.put(name, result);
 		LOGGER.debug("--> {}", result);
 		return result;
-	}
-
-	@Deprecated
-	final Clazs getClazs(final String name) {
-		return getClazs(new Identifier(name, 0));
 	}
 
 	final Clazs getClazs(final Identifier name) {
@@ -114,7 +104,7 @@ public abstract class Context {
 		final Function result;
 		final LocalizedDef def = getRuleset().getDef(name);
 		if (def == null) {
-			Clazs clazs = getClazs(name);
+			final Clazs clazs = getClazs(name);
 			if (clazs != null) {
 				result = clazs.getConstructor();
 			} else {

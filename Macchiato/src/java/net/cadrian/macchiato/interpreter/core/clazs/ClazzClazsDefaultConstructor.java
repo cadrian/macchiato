@@ -23,6 +23,7 @@ import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 class ClazzClazsDefaultConstructor implements ClazsConstructor {
 
@@ -71,7 +72,7 @@ class ClazzClazsDefaultConstructor implements ClazsConstructor {
 	}
 
 	@Override
-	public void run(final Context context, final int position) {
+	public void run(final Context context, final Position position) {
 		context.set(Identifiers.RESULT, new MacClazsObject(clazzClazs));
 	}
 

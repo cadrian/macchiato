@@ -17,11 +17,13 @@
 package net.cadrian.macchiato.interpreter;
 
 import net.cadrian.macchiato.interpreter.core.Context;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public interface ClazsConstructor extends Function {
 
 	Clazs getTargetClazs();
 
-	void run(final Context context, int position);
+	@Override
+	void run(final Context context, Position position);
 
 }

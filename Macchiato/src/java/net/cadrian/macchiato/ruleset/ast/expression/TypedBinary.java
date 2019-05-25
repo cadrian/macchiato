@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class TypedBinary extends Binary implements TypedExpression {
 
@@ -57,7 +58,7 @@ public class TypedBinary extends Binary implements TypedExpression {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return leftOperand.position();
 	}
 

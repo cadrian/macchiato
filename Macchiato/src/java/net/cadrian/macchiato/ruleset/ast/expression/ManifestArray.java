@@ -24,6 +24,7 @@ import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.container.MacArray;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ManifestArray implements ManifestExpression<Void> {
 
@@ -32,9 +33,9 @@ public class ManifestArray implements ManifestExpression<Void> {
 	}
 
 	private final List<Expression> expressions = new ArrayList<>();
-	private final int position;
+	private final Position position;
 
-	public ManifestArray(final int position) {
+	public ManifestArray(final Position position) {
 		this.position = position;
 	}
 
@@ -57,7 +58,7 @@ public class ManifestArray implements ManifestExpression<Void> {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

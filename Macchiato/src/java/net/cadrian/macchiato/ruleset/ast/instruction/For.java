@@ -29,6 +29,7 @@ import net.cadrian.macchiato.ruleset.ast.expression.ManifestArray;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestDictionary;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestDictionary.Entry;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestNumeric;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class For implements Instruction {
 
@@ -38,13 +39,13 @@ public class For implements Instruction {
 		void visitFor(For f);
 	}
 
-	private final int position;
+	private final Position position;
 	private final Expression name1;
 	private final Expression name2;
 	private final Expression loop;
 	private final Instruction instruction;
 
-	public For(final int position, final Expression name1, final Expression name2, final Expression loop,
+	public For(final Position position, final Expression name1, final Expression name2, final Expression loop,
 			final Instruction instruction) {
 		this.position = position;
 		this.name1 = name1;
@@ -70,7 +71,7 @@ public class For implements Instruction {
 	}
 
 	@Override
-	public int position() {
+	public Position position() {
 		return position;
 	}
 

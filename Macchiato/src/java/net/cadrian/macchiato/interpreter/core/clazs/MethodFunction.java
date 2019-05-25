@@ -22,6 +22,7 @@ import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 class MethodFunction implements Function {
 
@@ -57,7 +58,7 @@ class MethodFunction implements Function {
 	}
 
 	@Override
-	public void run(final Context context, final int position) {
+	public void run(final Context context, final Position position) {
 		method.run(((ClazsContext) context).getTarget(), context, position);
 	}
 

@@ -20,6 +20,7 @@ import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.AbstractCall;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Node;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class FunctionCall extends AbstractCall implements Expression {
 
@@ -27,7 +28,7 @@ public class FunctionCall extends AbstractCall implements Expression {
 		void visitFunctionCall(FunctionCall functionCall);
 	}
 
-	public FunctionCall(final int position, final Expression target, final Identifier name) {
+	public FunctionCall(final Position position, final Expression target, final Identifier name) {
 		super(position, target, name);
 	}
 

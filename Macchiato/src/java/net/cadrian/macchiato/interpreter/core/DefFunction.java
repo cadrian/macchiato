@@ -25,6 +25,7 @@ import net.cadrian.macchiato.ruleset.ast.FormalArgs;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedDef;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class DefFunction implements Function {
 
@@ -67,7 +68,7 @@ public class DefFunction implements Function {
 	}
 
 	@Override
-	public void run(final Context context, final int position) {
+	public void run(final Context context, final Position position) {
 		try {
 			context.eval(def.def.getInstruction());
 		} catch (final InterpreterException e) {

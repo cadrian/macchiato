@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.interpreter.Event;
 import net.cadrian.macchiato.interpreter.Function;
+import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.event.MetaEvent;
 import net.cadrian.macchiato.interpreter.event.ShortEvent;
@@ -44,12 +45,11 @@ import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.ShortMessageType;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 class GlobalContext extends Context {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalContext.class);
-	private static final Identifier EVENT_IDENTIFIER = new Identifier("event", 0);
-
 	private final Ruleset ruleset;
 	private final Map<Identifier, MacObject> global = new HashMap<>();
 	private final Map<Identifier, Function> nativeFunctions = new HashMap<>();
@@ -64,18 +64,20 @@ class GlobalContext extends Context {
 		for (int i = 0; i < args.length; i++) {
 			arguments.set(MacNumber.valueOf(i), MacString.valueOf(args[i]));
 		}
-		global.put(new Identifier("arguments", 0), arguments);
+		global.put(new Identifier("arguments", Position.NONE), arguments);
 
 		for (final MetaMessageType type : MetaMessageType.values()) {
-			global.put(new Identifier(type.name(), 0), type);
-			nativeFunctions.put(new Identifier(type.name(), 0), new MetaMessageCreationFunction(type, ruleset));
+			global.put(new Identifier(type.name(), Position.NONE), type);
+			nativeFunctions.put(new Identifier(type.name(), Position.NONE),
+					new MetaMessageCreationFunction(type, ruleset));
 		}
 		for (final ShortMessageType type : ShortMessageType.values()) {
-			global.put(new Identifier(type.name(), 0), type);
-			nativeFunctions.put(new Identifier(type.name(), 0), new ShortMessageCreationFunction(type, ruleset));
+			global.put(new Identifier(type.name(), Position.NONE), type);
+			nativeFunctions.put(new Identifier(type.name(), Position.NONE),
+					new ShortMessageCreationFunction(type, ruleset));
 		}
 		for (final ControlChange mpc : ControlChange.values()) {
-			global.put(new Identifier(mpc.name(), 0), mpc);
+			global.put(new Identifier(mpc.name(), Position.NONE), mpc);
 		}
 		for (final Native fun : Native.values()) {
 			final Function function = fun.getFunction(ruleset);
@@ -97,7 +99,7 @@ class GlobalContext extends Context {
 		final MacEvent eventData = new MacEvent(ruleset, tick, type);
 		type.fill(eventData, metaEvent.createMessage());
 		LOGGER.debug("Setting meta event {}", eventData);
-		global.put(EVENT_IDENTIFIER, eventData);
+		global.put(Identifiers.EVENT, eventData);
 		this.event = metaEvent;
 	}
 
@@ -106,7 +108,7 @@ class GlobalContext extends Context {
 		final MacEvent eventData = new MacEvent(ruleset, tick, type);
 		type.fill(eventData, shortEvent.createMessage());
 		LOGGER.debug("Setting short event {}", eventData);
-		global.put(EVENT_IDENTIFIER, eventData);
+		global.put(Identifiers.EVENT, eventData);
 		this.event = shortEvent;
 	}
 

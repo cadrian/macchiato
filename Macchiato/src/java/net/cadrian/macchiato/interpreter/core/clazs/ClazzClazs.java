@@ -29,10 +29,11 @@ import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Def;
 import net.cadrian.macchiato.ruleset.ast.Inheritance;
-import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.Inheritance.Parent;
+import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedClazz;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ClazzClazs implements Clazs {
 
@@ -68,7 +69,7 @@ public class ClazzClazs implements Clazs {
 
 	private final Ruleset ruleset;
 	private final Identifier name;
-	private final int position;
+	private final Position position;
 	private final Map<Identifier, MethodDefinition> methods = new HashMap<>();
 	private final Map<Identifier, FieldDefinition> fields = new HashMap<>();
 	private final ClazsConstructor constructor;
