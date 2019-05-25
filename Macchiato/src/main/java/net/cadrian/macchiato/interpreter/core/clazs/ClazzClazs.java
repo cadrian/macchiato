@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -208,7 +209,7 @@ public class ClazzClazs implements Clazs {
 
 		for (final MethodDefinition methodDefinition : parentClazs.methods.values()) {
 			final Identifier methodName = methodDefinition.name;
-			final Map<Clazs, MethodDefinition> newPrecursorMethods = new HashMap<>();
+			final Map<Clazs, MethodDefinition> newPrecursorMethods = new LinkedHashMap<>();
 			final Map<Clazs, MethodDefinition> methods = precursors.putIfAbsent(methodName, newPrecursorMethods);
 			if (methods == null) {
 				newPrecursorMethods.put(parentClazs, methodDefinition);

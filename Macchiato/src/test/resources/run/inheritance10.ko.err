@@ -4,7 +4,7 @@ src/test/resources/run/inheritance10.ko at line 21, column 4
     ^
 Caused by:
 **** Invalid redefinition: not the same number of arguments
-src/test/resources/run/inheritance10.ko at line 6, column 8
+src/test/resources/run/inheritance10.ko at line 2, column 8
     def ToString();
         ^
 src/test/resources/run/inheritance10.ko at line 10, column 8
