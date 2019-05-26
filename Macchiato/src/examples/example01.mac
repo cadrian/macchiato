@@ -38,13 +38,13 @@ BEGIN TRACK {
         initTrack();
 }
 
-(event.type == NOTE_ON) and (event.velocity > 0) {
-    velocity[event.channel][event.pitch] = event.velocity;
+(event.Type == NOTE_ON) and (event.Velocity > 0) {
+    velocity[event.Channel][event.Pitch] = event.Velocity;
     emit;
     next;
 }
 
-(event.type == NOTE_ON) and (event.velocity == 0) {
+(event.Type == NOTE_ON) and (event.Velocity == 0) {
     // emits a new event (instead of the analyzed one)
     emit NOTE_OFF(event.Channel, event.Pitch, velocity[event.Channel][event.Pitch]);
     next;
