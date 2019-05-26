@@ -17,9 +17,9 @@
 package net.cadrian.macchiato.interpreter.core.clazs;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -99,8 +99,8 @@ public class ClazzClazs implements Clazs {
 	private final Map<Identifier, FieldDefinition> fields = new LinkedHashMap<>();
 	private final ClazsConstructor constructor;
 
-	private final Set<ClazzClazs> parents = new HashSet<>();
-	private final Set<Clazs> conformanceCache = new HashSet<>();
+	private final Set<ClazzClazs> parents = new LinkedHashSet<>();
+	private final Set<Clazs> conformanceCache = new LinkedHashSet<>();
 
 	public ClazzClazs(final ClassRepository repository, final LocalizedClazz localizedClazz) {
 		this.ruleset = localizedClazz.ruleset;
