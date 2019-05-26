@@ -17,7 +17,7 @@
 package net.cadrian.macchiato.midi;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.sound.midi.InvalidMidiDataException;
@@ -381,7 +381,7 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 
 	private static final Map<Integer, ShortMessageType> MAP;
 	static {
-		final Map<Integer, ShortMessageType> m = new HashMap<>();
+		final Map<Integer, ShortMessageType> m = new LinkedHashMap<>();
 		for (final ShortMessageType type : values()) {
 			m.put(type.command, type);
 		}

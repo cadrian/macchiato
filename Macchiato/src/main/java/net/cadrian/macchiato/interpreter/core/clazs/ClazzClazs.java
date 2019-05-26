@@ -17,7 +17,6 @@
 package net.cadrian.macchiato.interpreter.core.clazs;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -96,8 +95,8 @@ public class ClazzClazs implements Clazs {
 	private final Ruleset ruleset;
 	private final Identifier name;
 	private final Expression invariant;
-	private final Map<Identifier, MethodDefinition> methods = new HashMap<>();
-	private final Map<Identifier, FieldDefinition> fields = new HashMap<>();
+	private final Map<Identifier, MethodDefinition> methods = new LinkedHashMap<>();
+	private final Map<Identifier, FieldDefinition> fields = new LinkedHashMap<>();
 	private final ClazsConstructor constructor;
 
 	private final Set<ClazzClazs> parents = new HashSet<>();
@@ -108,7 +107,7 @@ public class ClazzClazs implements Clazs {
 		this.name = localizedClazz.clazz.name();
 		this.invariant = localizedClazz.clazz.getInvariant();
 
-		final Map<Identifier, Map<Clazs, MethodDefinition>> precursors = new HashMap<>();
+		final Map<Identifier, Map<Clazs, MethodDefinition>> precursors = new LinkedHashMap<>();
 		final Inheritance inheritance = localizedClazz.clazz.getInheritance();
 		if (inheritance != null) {
 			for (final Parent parent : inheritance.getParents()) {

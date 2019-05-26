@@ -1,6 +1,6 @@
 package net.cadrian.macchiato.interpreter.objects;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.cadrian.macchiato.interpreter.Field;
@@ -20,7 +20,7 @@ public class MacEvent implements MacObject {
 	private final ReadWriteField<MacEvent, MacNumber> tick;
 	private final ReadOnlyField<MacEvent, ? extends MacObject> type;
 
-	private final Map<Identifier, Field<? extends MacObject, ? extends MacObject>> fields = new HashMap<>();
+	private final Map<Identifier, Field<? extends MacObject, ? extends MacObject>> fields = new LinkedHashMap<>();
 
 	public MacEvent(final Ruleset ruleset, final MacNumber tick, final MetaMessageType type) {
 		this.ruleset = ruleset;

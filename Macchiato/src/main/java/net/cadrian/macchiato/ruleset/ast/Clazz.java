@@ -17,7 +17,7 @@
 package net.cadrian.macchiato.ruleset.ast;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
@@ -32,8 +32,8 @@ public class Clazz implements Node {
 	private final Identifier name;
 	private final Expression invariant;
 	private final Inheritance inheritance;
-	private final Map<Identifier, Def> defs = new HashMap<>();
-	private final Map<Identifier, Identifier> fields = new HashMap<>();
+	private final Map<Identifier, Def> defs = new LinkedHashMap<>();
+	private final Map<Identifier, Identifier> fields = new LinkedHashMap<>();
 	private final Position position;
 
 	public Clazz(final Position position, final Identifier name, final Inheritance inheritance,

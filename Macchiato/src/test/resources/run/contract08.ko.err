@@ -1,14 +1,14 @@
-**** Other invariant failed
+**** Any invariant failed
 src/test/resources/run/contract08.ko at line 24, column 4
     runTest();
     ^
 Caused by:
-**** Other invariant failed
+**** Any invariant failed
 src/test/resources/run/contract08.ko at line 19, column 17
     local test = Test();
                  ^
 Caused by:
-**** Other invariant failed
-src/test/resources/run/contract08.ko at line 6, column 20
-class Other where o exists {
-                    ^
+**** Any invariant failed
+src/test/resources/run/contract08.ko at line 1, column 18
+class Any where a exists {
+                  ^

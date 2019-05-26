@@ -16,7 +16,7 @@
  */
 package net.cadrian.macchiato.interpreter.core;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.sound.midi.MetaMessage;
@@ -51,8 +51,8 @@ class GlobalContext extends Context {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalContext.class);
 	private final Ruleset ruleset;
-	private final Map<Identifier, MacObject> global = new HashMap<>();
-	private final Map<Identifier, Function> nativeFunctions = new HashMap<>();
+	private final Map<Identifier, MacObject> global = new LinkedHashMap<>();
+	private final Map<Identifier, Function> nativeFunctions = new LinkedHashMap<>();
 	private Track track;
 	private Event<? extends MidiMessage> event;
 	private boolean next;

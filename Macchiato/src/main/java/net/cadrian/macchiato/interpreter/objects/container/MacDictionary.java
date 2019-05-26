@@ -16,7 +16,7 @@
  */
 package net.cadrian.macchiato.interpreter.objects.container;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -286,7 +286,7 @@ public class MacDictionary implements MacContainer<MacString> {
 
 	};
 
-	private final Map<MacString, MacObject> dictionary = new HashMap<>();
+	private final Map<MacString, MacObject> dictionary = new LinkedHashMap<>();
 
 	@Override
 	public MacObject set(final MacString index, final MacObject value) {

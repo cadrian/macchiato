@@ -17,7 +17,7 @@
 package net.cadrian.macchiato.midi;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.cadrian.macchiato.interpreter.Field;
@@ -78,7 +78,7 @@ public enum ControlChange implements MacComparable<ControlChange> {
 
 	private static final Map<Integer, ControlChange> MAP;
 	static {
-		final Map<Integer, ControlChange> m = new HashMap<>();
+		final Map<Integer, ControlChange> m = new LinkedHashMap<>();
 		for (final ControlChange mpc : values()) {
 			m.put(mpc.code, mpc);
 		}

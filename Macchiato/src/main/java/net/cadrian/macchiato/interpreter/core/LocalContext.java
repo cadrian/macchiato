@@ -16,7 +16,7 @@
  */
 package net.cadrian.macchiato.interpreter.core;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.sound.midi.MidiMessage;
@@ -39,7 +39,7 @@ public class LocalContext extends Context {
 
 	protected final Ruleset ruleset;
 	private final Context parent;
-	private final Map<Identifier, Object> local = new HashMap<>();
+	private final Map<Identifier, Object> local = new LinkedHashMap<>();
 
 	public LocalContext(final Context parent, final Ruleset ruleset) {
 		this.parent = parent;

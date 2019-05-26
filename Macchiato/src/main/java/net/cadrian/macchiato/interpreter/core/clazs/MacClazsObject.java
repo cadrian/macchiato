@@ -16,7 +16,7 @@
  */
 package net.cadrian.macchiato.interpreter.core.clazs;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.cadrian.macchiato.interpreter.Clazs;
@@ -29,7 +29,7 @@ import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 public class MacClazsObject implements MacObject {
 
 	private final Clazs clazs;
-	private final Map<String, MacObject> fieldValues = new HashMap<>();
+	private final Map<String, MacObject> fieldValues = new LinkedHashMap<>();
 
 	public MacClazsObject(final Clazs clazs) {
 		this.clazs = clazs;

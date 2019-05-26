@@ -1,6 +1,6 @@
 package net.cadrian.macchiato.interpreter.objects;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.cadrian.macchiato.interpreter.Field;
@@ -60,8 +60,8 @@ public class MacRuleset implements MacObject {
 	};
 
 	private final Ruleset ruleset;
-	private final Map<Identifier, ReadOnlyField<MacRuleset, MacRuleset>> fields = new HashMap<>();
-	private final Map<Identifier, RulesetMethod> methods = new HashMap<>();
+	private final Map<Identifier, ReadOnlyField<MacRuleset, MacRuleset>> fields = new LinkedHashMap<>();
+	private final Map<Identifier, RulesetMethod> methods = new LinkedHashMap<>();
 
 	public MacRuleset(final Ruleset ruleset) {
 		this.ruleset = ruleset;

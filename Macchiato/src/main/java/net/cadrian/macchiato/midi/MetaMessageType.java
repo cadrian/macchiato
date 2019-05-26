@@ -18,7 +18,7 @@ package net.cadrian.macchiato.midi;
 
 import java.math.BigInteger;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.sound.midi.InvalidMidiDataException;
@@ -751,7 +751,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 	private static final BigInteger BPM_MPQ_FACTOR = new BigInteger("60000000");
 	private static final Map<Byte, MetaMessageType> MAP;
 	static {
-		final Map<Byte, MetaMessageType> m = new HashMap<>();
+		final Map<Byte, MetaMessageType> m = new LinkedHashMap<>();
 		for (final MetaMessageType type : values()) {
 			m.put(type.type, type);
 		}

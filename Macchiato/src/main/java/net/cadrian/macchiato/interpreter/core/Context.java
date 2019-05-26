@@ -16,7 +16,7 @@
  */
 package net.cadrian.macchiato.interpreter.core;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -49,8 +49,8 @@ public abstract class Context {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Context.class);
 
-	private final Map<Identifier, Function> functions = new HashMap<>();
-	private final Map<Identifier, Clazs> clazses = new HashMap<>();
+	private final Map<Identifier, Function> functions = new LinkedHashMap<>();
+	private final Map<Identifier, Clazs> clazses = new LinkedHashMap<>();
 
 	abstract Ruleset getRuleset();
 
