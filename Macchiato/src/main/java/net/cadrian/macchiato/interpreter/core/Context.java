@@ -17,7 +17,6 @@
 package net.cadrian.macchiato.interpreter.core;
 
 import java.util.LinkedHashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.sound.midi.MidiMessage;
@@ -30,12 +29,8 @@ import net.cadrian.macchiato.interpreter.ContractException;
 import net.cadrian.macchiato.interpreter.Event;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.core.clazs.ClazzClazs;
-import net.cadrian.macchiato.interpreter.objects.MacBoolean;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
-import net.cadrian.macchiato.interpreter.objects.MacString;
-import net.cadrian.macchiato.interpreter.objects.container.MacArray;
-import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
@@ -78,48 +73,9 @@ public abstract class Context {
 		return (T) v.getLastValue();
 	}
 
-	public boolean checkContract(final Expression contract, final String tag) throws ContractException {
-		if (contract == null) {
-			return false;
-		}
-		final MacObject contractValue = eval(contract.typed(MacObject.class));
-		if (contractValue instanceof MacBoolean) {
-			if (((MacBoolean) contractValue).isFalse()) {
-				throw new ContractException(tag + " failed", contract.position());
-			}
-		} else if (contractValue instanceof MacArray) {
-			final MacArray contractArray = (MacArray) contractValue;
-			final Iterator<MacNumber> keys = contractArray.keys();
-			while (keys.hasNext()) {
-				final MacNumber key = keys.next();
-				final MacObject value = contractArray.get(key);
-				if (value instanceof MacBoolean) {
-					if (((MacBoolean) contractValue).isFalse()) {
-						throw new ContractException(tag + "[" + key + "] failed", contract.position());
-					}
-				} else {
-					throw new ContractException(tag + "[" + key + "] is not a boolean", contract.position());
-				}
-			}
-		} else if (contractValue instanceof MacDictionary) {
-			final MacDictionary contractDictionary = (MacDictionary) contractValue;
-			final Iterator<MacString> keys = contractDictionary.keys();
-			while (keys.hasNext()) {
-				final MacString key = keys.next();
-				final MacObject value = contractDictionary.get(key);
-				if (value instanceof MacBoolean) {
-					if (((MacBoolean) contractValue).isFalse()) {
-						throw new ContractException(tag + "[" + key + "] failed", contract.position());
-					}
-				} else {
-					throw new ContractException(tag + "[" + key + "] is not a boolean", contract.position());
-				}
-			}
-		} else {
-			throw new ContractException(tag + " is not a boolean or a collection of booleans", contract.position());
-		}
-		return true;
-	}
+	public abstract void evaluateOldData(Expression ensures);
+
+	public abstract boolean checkContract(final Expression contract, final String tag) throws ContractException;
 
 	final Function getFunction(final Identifier name) {
 		LOGGER.debug("<-- {}", name);

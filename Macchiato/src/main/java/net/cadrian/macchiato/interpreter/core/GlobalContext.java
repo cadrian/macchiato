@@ -26,6 +26,7 @@ import javax.sound.midi.ShortMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cadrian.macchiato.interpreter.ContractException;
 import net.cadrian.macchiato.interpreter.Event;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.Identifiers;
@@ -43,6 +44,7 @@ import net.cadrian.macchiato.midi.ControlChange;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.ShortMessageType;
+import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 import net.cadrian.macchiato.ruleset.parser.Position;
@@ -179,6 +181,16 @@ class GlobalContext extends Context {
 	@Override
 	void declareLocal(final Identifier name) {
 		throw new InterpreterException("BUG: unexpected local declaration in global context", name.position());
+	}
+
+	@Override
+	public void evaluateOldData(final Expression ensures) {
+		throw new InterpreterException("BUG: unexpected old data evaluation in global context", ensures.position());
+	}
+
+	@Override
+	public boolean checkContract(final Expression contract, final String tag) throws ContractException {
+		throw new InterpreterException("BUG: unexpected contract checking in global context", contract.position());
 	}
 
 }

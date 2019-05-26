@@ -16,8 +16,10 @@
  */
 package net.cadrian.macchiato.interpreter.core;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.sound.midi.MidiMessage;
 
@@ -25,13 +27,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.interpreter.Clazs;
+import net.cadrian.macchiato.interpreter.ContractException;
 import net.cadrian.macchiato.interpreter.Event;
 import net.cadrian.macchiato.interpreter.Function;
+import net.cadrian.macchiato.interpreter.objects.MacBoolean;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.interpreter.objects.MacString;
+import net.cadrian.macchiato.interpreter.objects.container.MacArray;
+import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
 import net.cadrian.macchiato.midi.Message;
+import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
+import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
 
 public class LocalContext extends Context {
 
@@ -40,6 +49,7 @@ public class LocalContext extends Context {
 	protected final Ruleset ruleset;
 	private final Context parent;
 	private final Map<Identifier, Object> local = new LinkedHashMap<>();
+	private final Map<Integer, MacObject> oldValues = new TreeMap<>();
 
 	public LocalContext(final Context parent, final Ruleset ruleset) {
 		this.parent = parent;
@@ -81,7 +91,7 @@ public class LocalContext extends Context {
 	}
 
 	@Override
-	protected Clazs getUncachedClazs(Ruleset ruleset, final Identifier name) {
+	protected Clazs getUncachedClazs(final Ruleset ruleset, final Identifier name) {
 		final Clazs result = super.getUncachedClazs(ruleset, name);
 		if (result == null) {
 			return parent.getClazs(name);
@@ -134,6 +144,66 @@ public class LocalContext extends Context {
 			local.put(name, null);
 		}
 		LOGGER.debug("-->");
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends MacObject> T eval(TypedExpression expression) {
+		final ExpressionEvaluationVisitor v = new ExpressionEvaluationVisitor(this, expression.getType(), oldValues);
+		expression.accept(v);
+		return (T) v.getLastValue();
+	}
+
+	@Override
+	public void evaluateOldData(final Expression ensures) {
+		if (ensures != null) {
+			final OldExpressionEvaluationVisitor v = new OldExpressionEvaluationVisitor(this, oldValues);
+			ensures.accept(v);
+		}
+	}
+
+	@Override
+	public boolean checkContract(final Expression contract, final String tag) throws ContractException {
+		if (contract == null) {
+			return false;
+		}
+		final MacObject contractValue = eval(contract.typed(MacObject.class));
+		if (contractValue instanceof MacBoolean) {
+			if (((MacBoolean) contractValue).isFalse()) {
+				throw new ContractException(tag + " failed", contract.position());
+			}
+		} else if (contractValue instanceof MacArray) {
+			final MacArray contractArray = (MacArray) contractValue;
+			final Iterator<MacNumber> keys = contractArray.keys();
+			while (keys.hasNext()) {
+				final MacNumber key = keys.next();
+				final MacObject value = contractArray.get(key);
+				if (value instanceof MacBoolean) {
+					if (((MacBoolean) contractValue).isFalse()) {
+						throw new ContractException(tag + "[" + key + "] failed", contract.position());
+					}
+				} else {
+					throw new ContractException(tag + "[" + key + "] is not a boolean", contract.position());
+				}
+			}
+		} else if (contractValue instanceof MacDictionary) {
+			final MacDictionary contractDictionary = (MacDictionary) contractValue;
+			final Iterator<MacString> keys = contractDictionary.keys();
+			while (keys.hasNext()) {
+				final MacString key = keys.next();
+				final MacObject value = contractDictionary.get(key);
+				if (value instanceof MacBoolean) {
+					if (((MacBoolean) contractValue).isFalse()) {
+						throw new ContractException(tag + "[" + key + "] failed", contract.position());
+					}
+				} else {
+					throw new ContractException(tag + "[" + key + "] is not a boolean", contract.position());
+				}
+			}
+		} else {
+			throw new ContractException(tag + " is not a boolean or a collection of booleans", contract.position());
+		}
+		return true;
 	}
 
 }

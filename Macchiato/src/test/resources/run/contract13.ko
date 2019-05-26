@@ -1,0 +1,21 @@
+class Test where a exists {
+    a;
+
+    def Test() {
+        a = "test";
+    }
+
+    def ToString() ensures a == old a {
+        result = a;
+        a = "foobar";
+    }
+}
+
+def runTest() {
+    local test = Test();
+    print(test.ToString());
+}
+
+BEGIN SEQUENCE {
+    runTest();
+}

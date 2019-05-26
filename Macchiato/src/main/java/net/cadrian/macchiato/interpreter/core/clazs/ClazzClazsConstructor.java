@@ -87,7 +87,10 @@ class ClazzClazsConstructor implements ClazsConstructor {
 		final MacClazsObject target = new MacClazsObject(clazzClazs);
 		final ClazsContext clazsContext = new ClazsContext(context, target, ruleset);
 		try {
+			context.evaluateOldData(def.getEnsures());
+			context.checkContract(def.getRequires(), "Requires");
 			clazsContext.eval(def.getInstruction());
+			context.checkContract(def.getEnsures(), "Ensures");
 			clazzClazs.checkInvariant(clazsContext);
 		} catch (final InterpreterException e) {
 			throw new InterpreterException(e.getMessage(), e, position);

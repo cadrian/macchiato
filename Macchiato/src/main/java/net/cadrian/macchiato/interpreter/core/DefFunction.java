@@ -70,6 +70,7 @@ public class DefFunction implements Function {
 	@Override
 	public void run(final Context context, final Position position) {
 		try {
+			context.evaluateOldData(def.def.getEnsures());
 			context.checkContract(def.def.getRequires(), "Requires");
 			context.eval(def.def.getInstruction());
 			context.checkContract(def.def.getEnsures(), "Ensures");

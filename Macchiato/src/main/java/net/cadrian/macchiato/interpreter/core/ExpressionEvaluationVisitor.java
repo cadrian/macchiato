@@ -17,6 +17,7 @@
 package net.cadrian.macchiato.interpreter.core;
 
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,7 @@ import net.cadrian.macchiato.ruleset.ast.expression.ManifestDictionary;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestNumeric;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestRegex;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestString;
+import net.cadrian.macchiato.ruleset.ast.expression.Old;
 import net.cadrian.macchiato.ruleset.ast.expression.Result;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedBinary;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedUnary;
@@ -60,11 +62,18 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 
 	private final Context context;
 	private final Class<? extends MacObject> expressionType;
-	private MacObject lastValue;
+	protected final Map<Integer, MacObject> oldValues;
+	protected MacObject lastValue;
 
 	ExpressionEvaluationVisitor(final Context context, final Class<? extends MacObject> expressionType) {
+		this(context, expressionType, null);
+	}
+
+	ExpressionEvaluationVisitor(final Context context, final Class<? extends MacObject> expressionType,
+			final Map<Integer, MacObject> oldValues) {
 		this.context = context;
 		this.expressionType = expressionType;
+		this.oldValues = oldValues;
 	}
 
 	public MacObject getLastValue() {
@@ -334,6 +343,16 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			throw new InterpreterException("BUG: not implemented", typedBinary.getLeftOperand().position());
 		}
 		LOGGER.debug("--> {} => {}", typedBinary, lastValue);
+	}
+
+	@Override
+	public void visitOld(final Old old) {
+		LOGGER.debug("<-- {}", old);
+		if (oldValues == null) {
+			throw new InterpreterException("BUG: no old values", old.position());
+		}
+		lastValue = oldValues.get(old.getId());
+		LOGGER.debug("--> {}", lastValue);
 	}
 
 	@Override

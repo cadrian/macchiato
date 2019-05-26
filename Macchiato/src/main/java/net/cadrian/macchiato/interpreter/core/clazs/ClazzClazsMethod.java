@@ -113,6 +113,7 @@ class ClazzClazsMethod implements ClazsMethod {
 			throw new InterpreterException("Def is not concrete", def.position());
 		}
 		try {
+			evaluateOldData(clazsContext);
 			clazzClazs.checkInvariant(clazsContext);
 			checkRequires(clazsContext);
 			clazsContext.eval(instruction);
@@ -152,6 +153,13 @@ class ClazzClazsMethod implements ClazsMethod {
 			throw new ContractException(msg.toString(), positions.toArray(new Position[positions.size()]));
 		}
 		return ok;
+	}
+
+	private void evaluateOldData(final Context context) {
+		context.evaluateOldData(def.getEnsures());
+		for (final ClazzClazsMethod precursor : precursors) {
+			precursor.evaluateOldData(context);
+		}
 	}
 
 	private void checkEnsures(final Context context) {

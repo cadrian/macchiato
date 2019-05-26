@@ -40,6 +40,7 @@ import net.cadrian.macchiato.ruleset.ast.expression.ManifestDictionary;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestNumeric;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestRegex;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestString;
+import net.cadrian.macchiato.ruleset.ast.expression.Old;
 import net.cadrian.macchiato.ruleset.ast.expression.Result;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedBinary;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedUnary;
@@ -83,6 +84,11 @@ class AssignmentVisitor implements ExpressionVisitor {
 	@Override
 	public void visitFunctionCall(final FunctionCall functionCall) {
 		throw new InterpreterException("Cannot assign to a function call", functionCall.position());
+	}
+
+	@Override
+	public void visitOld(final Old old) {
+		throw new InterpreterException("Cannot assign to an old value", old.position());
 	}
 
 	private class IdentifierSetter implements Setter {

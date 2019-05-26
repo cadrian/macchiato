@@ -59,6 +59,7 @@ import net.cadrian.macchiato.ruleset.ast.expression.ManifestDictionary;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestNumeric;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestRegex;
 import net.cadrian.macchiato.ruleset.ast.expression.ManifestString;
+import net.cadrian.macchiato.ruleset.ast.expression.Old;
 import net.cadrian.macchiato.ruleset.ast.expression.Result;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedBinary;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedExpression;
@@ -83,6 +84,7 @@ public class Parser {
 
 	private Clazz inClass;
 	private boolean inDef;
+	private boolean inEnsure;
 
 	public Parser(final File relativeDirectory, final Reader reader, final String path) throws IOException {
 		this.relativeDirectory = relativeDirectory;
@@ -364,7 +366,9 @@ public class Parser {
 			if (buffer.off()) {
 				throw new ParserException(error("Expected expression"));
 			}
+			inEnsure = true;
 			ensures = parseExpression();
+			inEnsure = false;
 		} else {
 			ensures = null;
 		}
@@ -1173,56 +1177,66 @@ public class Parser {
 		if (buffer.off()) {
 			throw new ParserException(error("Expected expression"));
 		}
+
 		final Position position = buffer.position();
-		if (buffer.current() == '(') {
-			buffer.next();
-			atomic = parseExpression();
-			buffer.skipBlanks();
-			if (buffer.off() || buffer.current() != ')') {
-				throw new ParserException(error("Unfinished expresssion"));
+		if (readKeyword("old")) {
+			if (!inEnsure) {
+				throw new ParserException(error("Not in an ensures clause, cannot use 'old' here"));
 			}
-			buffer.next();
+			buffer.skipBlanks();
+			final Expression expression = parseExpression();
+			atomic = new Old(position, expression);
 		} else {
-			switch (buffer.current()) {
-			case '"':
-				atomic = parseManifestString();
-				break;
-			case '/':
-				atomic = parseManifestRegex();
-				break;
-			case '[':
-				atomic = parseManifestArray();
-				break;
-			case '{':
-				atomic = parseManifestDictionary();
-				break;
-			default:
-				if (Character.isDigit(buffer.current())) {
-					atomic = parseManifestNumber();
-				} else {
-					final String name = readRawIdentifier();
-					if (name == null) {
-						throw new ParserException(error("Expected identifier"));
-					}
-					switch (name) {
-					case "result":
-						atomic = new Result(position);
-						break;
-					case "true":
-						atomic = new ManifestBoolean(position, true);
-						break;
-					case "false":
-						atomic = new ManifestBoolean(position, false);
-						break;
-					default:
-						if (isReserved(name)) {
-							throw new ParserException(error("Unexpected keyword " + name, position));
+			if (buffer.current() == '(') {
+				buffer.next();
+				atomic = parseExpression();
+				buffer.skipBlanks();
+				if (buffer.off() || buffer.current() != ')') {
+					throw new ParserException(error("Unfinished expresssion"));
+				}
+				buffer.next();
+			} else {
+				switch (buffer.current()) {
+				case '"':
+					atomic = parseManifestString();
+					break;
+				case '/':
+					atomic = parseManifestRegex();
+					break;
+				case '[':
+					atomic = parseManifestArray();
+					break;
+				case '{':
+					atomic = parseManifestDictionary();
+					break;
+				default:
+					if (Character.isDigit(buffer.current())) {
+						atomic = parseManifestNumber();
+					} else {
+						final String name = readRawIdentifier();
+						if (name == null) {
+							throw new ParserException(error("Expected identifier"));
 						}
-						buffer.skipBlanks();
-						if (!buffer.off() && buffer.current() == '(') {
-							atomic = parseFunctionCall(position, null, new Identifier(name, position));
-						} else {
-							atomic = new Identifier(name, position);
+						switch (name) {
+						case "result":
+							atomic = new Result(position);
+							break;
+						case "true":
+							atomic = new ManifestBoolean(position, true);
+							break;
+						case "false":
+							atomic = new ManifestBoolean(position, false);
+							break;
+						default:
+							if (isReserved(name)) {
+								throw new ParserException(error("Unexpected keyword " + name, position));
+							}
+							buffer.skipBlanks();
+							if (!buffer.off() && buffer.current() == '(') {
+								atomic = parseFunctionCall(position, null, new Identifier(name, position));
+							} else {
+								atomic = new Identifier(name, position);
+							}
 						}
 					}
 				}
@@ -1588,7 +1602,7 @@ public class Parser {
 			final Ruleset ruleset = parser.parse();
 			System.out.println("Ruleset: " + ruleset);
 			return 0;
-		} catch (ParserException e) {
+		} catch (final ParserException e) {
 			LOGGER.error("Parse error: {}", e.getMessage(), e);
 			System.out.print(parser.error(e));
 			return 1;
