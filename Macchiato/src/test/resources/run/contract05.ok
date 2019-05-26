@@ -1,0 +1,20 @@
+class Test where a exists {
+    a;
+
+    def Test() {
+        a = "test";
+    }
+
+    def ToString() {
+        result = a;
+    }
+}
+
+def runTest() {
+    local test = Test();
+    print(test.ToString());
+}
+
+BEGIN SEQUENCE {
+    runTest();
+}

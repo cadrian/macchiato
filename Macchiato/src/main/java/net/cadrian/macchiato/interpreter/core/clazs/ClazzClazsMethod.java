@@ -16,10 +16,13 @@
  */
 package net.cadrian.macchiato.interpreter.core.clazs;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import net.cadrian.macchiato.interpreter.Clazs;
 import net.cadrian.macchiato.interpreter.ClazsMethod;
+import net.cadrian.macchiato.interpreter.ContractException;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
@@ -38,6 +41,7 @@ class ClazzClazsMethod implements ClazsMethod {
 	private final Ruleset ruleset;
 	private final Class<? extends MacObject>[] argTypes;
 	private final Identifier[] argNames;
+	private final List<ClazzClazsMethod> precursors = new ArrayList<>();
 
 	@SuppressWarnings("unchecked")
 	ClazzClazsMethod(final ClazzClazs clazzClazs, final Def def, final Identifier name, final Ruleset ruleset) {
@@ -50,6 +54,10 @@ class ClazzClazsMethod implements ClazsMethod {
 		argTypes = new Class[args.size()];
 		Arrays.fill(argTypes, MacObject.class);
 		argNames = args.toArray();
+	}
+
+	void addPrecursor(final ClazzClazsMethod precursor) {
+		precursors.add(precursor);
 	}
 
 	@Override
@@ -105,9 +113,51 @@ class ClazzClazsMethod implements ClazsMethod {
 			throw new InterpreterException("Def is not concrete", def.position());
 		}
 		try {
+			clazzClazs.checkInvariant(clazsContext);
+			checkRequires(clazsContext);
 			clazsContext.eval(instruction);
+			checkEnsures(clazsContext);
+			clazzClazs.checkInvariant(clazsContext);
 		} catch (final InterpreterException e) {
 			throw new InterpreterException(e.getMessage(), e, position);
+		}
+	}
+
+	private boolean checkRequires(final Context context) {
+		boolean ok = false;
+		final List<ContractException> fails = new ArrayList<>();
+		try {
+			if (context.checkContract(def.getRequires(), "Requires")) {
+				ok = true;
+			}
+		} catch (final ContractException e) {
+			fails.add(e);
+		}
+		for (final ClazzClazsMethod precursor : precursors) {
+			try {
+				if (precursor.checkRequires(context)) {
+					ok = true;
+				}
+			} catch (final ContractException e) {
+				fails.add(e);
+			}
+		}
+		if (!ok && !fails.isEmpty()) {
+			final List<Position> positions = new ArrayList<>(fails.size());
+			final StringBuilder msg = new StringBuilder("Requires failed:");
+			for (final ContractException fail : fails) {
+				msg.append('\n').append(fail.getMessage());
+				positions.addAll(Arrays.asList(fail.getPosition()));
+			}
+			throw new ContractException(msg.toString(), positions.toArray(new Position[positions.size()]));
+		}
+		return ok;
+	}
+
+	private void checkEnsures(final Context context) {
+		context.checkContract(def.getEnsures(), "Ensures");
+		for (final ClazzClazsMethod precursor : precursors) {
+			precursor.checkEnsures(context);
 		}
 	}
 

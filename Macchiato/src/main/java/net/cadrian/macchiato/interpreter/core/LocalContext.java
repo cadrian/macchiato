@@ -81,8 +81,8 @@ public class LocalContext extends Context {
 	}
 
 	@Override
-	protected Clazs getUncachedClazs(final Identifier name) {
-		final Clazs result = super.getUncachedClazs(name);
+	protected Clazs getUncachedClazs(Ruleset ruleset, final Identifier name) {
+		final Clazs result = super.getUncachedClazs(ruleset, name);
 		if (result == null) {
 			return parent.getClazs(name);
 		}

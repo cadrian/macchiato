@@ -1,0 +1,14 @@
+**** Any invariant failed
+src/test/resources/run/contract11o.ko at line 30, column 4
+    runTest();
+    ^
+Caused by:
+**** Any invariant failed
+src/test/resources/run/contract11o.ko at line 25, column 17
+    local test = Test();
+                 ^
+Caused by:
+**** Any invariant failed
+src/test/resources/run/contract11o.ko at line 1, column 18
+class Any where a exists {
+                  ^

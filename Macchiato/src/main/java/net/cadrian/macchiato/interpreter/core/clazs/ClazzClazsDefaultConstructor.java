@@ -19,6 +19,7 @@ package net.cadrian.macchiato.interpreter.core.clazs;
 import net.cadrian.macchiato.interpreter.Clazs;
 import net.cadrian.macchiato.interpreter.ClazsConstructor;
 import net.cadrian.macchiato.interpreter.Identifiers;
+import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
@@ -73,7 +74,14 @@ class ClazzClazsDefaultConstructor implements ClazsConstructor {
 
 	@Override
 	public void run(final Context context, final Position position) {
-		context.set(Identifiers.RESULT, new MacClazsObject(clazzClazs));
+		final MacClazsObject target = new MacClazsObject(clazzClazs);
+		final ClazsContext clazsContext = new ClazsContext(context, target, ruleset);
+		try {
+			clazzClazs.checkInvariant(clazsContext);
+		} catch (final InterpreterException e) {
+			throw new InterpreterException(e.getMessage(), e, position);
+		}
+		context.set(Identifiers.RESULT, target);
 	}
 
 }

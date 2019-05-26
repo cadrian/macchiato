@@ -1,0 +1,30 @@
+class Any where a exists {
+    a;
+    def ToString() requires a == "any" ensures a == "test";
+}
+
+class Other where o exists {
+    o;
+    def ToString() requires o == "other" ensures o == "test";
+}
+
+class Test(Any, Other) {
+
+    def Test() {
+        a = "any";
+        o = "other";
+    }
+
+    def ToString() {
+        result = "test";
+    }
+}
+
+def runTest() {
+    local test = Test();
+    print(test.ToString());
+}
+
+BEGIN SEQUENCE {
+    runTest();
+}

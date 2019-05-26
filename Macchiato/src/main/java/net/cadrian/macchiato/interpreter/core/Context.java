@@ -17,6 +17,7 @@
 package net.cadrian.macchiato.interpreter.core;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.sound.midi.MidiMessage;
@@ -25,12 +26,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.interpreter.Clazs;
+import net.cadrian.macchiato.interpreter.ContractException;
 import net.cadrian.macchiato.interpreter.Event;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.core.clazs.ClazzClazs;
+import net.cadrian.macchiato.interpreter.objects.MacBoolean;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.interpreter.objects.MacString;
+import net.cadrian.macchiato.interpreter.objects.container.MacArray;
+import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
 import net.cadrian.macchiato.midi.Message;
+import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedClazz;
@@ -65,10 +72,53 @@ public abstract class Context {
 	}
 
 	@SuppressWarnings("unchecked")
-	<T extends MacObject> T eval(final TypedExpression expression) {
+	public <T extends MacObject> T eval(final TypedExpression expression) {
 		final ExpressionEvaluationVisitor v = new ExpressionEvaluationVisitor(this, expression.getType());
 		expression.accept(v);
 		return (T) v.getLastValue();
+	}
+
+	public boolean checkContract(final Expression contract, final String tag) throws ContractException {
+		if (contract == null) {
+			return false;
+		}
+		final MacObject contractValue = eval(contract.typed(MacObject.class));
+		if (contractValue instanceof MacBoolean) {
+			if (((MacBoolean) contractValue).isFalse()) {
+				throw new ContractException(tag + " failed", contract.position());
+			}
+		} else if (contractValue instanceof MacArray) {
+			final MacArray contractArray = (MacArray) contractValue;
+			final Iterator<MacNumber> keys = contractArray.keys();
+			while (keys.hasNext()) {
+				final MacNumber key = keys.next();
+				final MacObject value = contractArray.get(key);
+				if (value instanceof MacBoolean) {
+					if (((MacBoolean) contractValue).isFalse()) {
+						throw new ContractException(tag + "[" + key + "] failed", contract.position());
+					}
+				} else {
+					throw new ContractException(tag + "[" + key + "] is not a boolean", contract.position());
+				}
+			}
+		} else if (contractValue instanceof MacDictionary) {
+			final MacDictionary contractDictionary = (MacDictionary) contractValue;
+			final Iterator<MacString> keys = contractDictionary.keys();
+			while (keys.hasNext()) {
+				final MacString key = keys.next();
+				final MacObject value = contractDictionary.get(key);
+				if (value instanceof MacBoolean) {
+					if (((MacBoolean) contractValue).isFalse()) {
+						throw new ContractException(tag + "[" + key + "] failed", contract.position());
+					}
+				} else {
+					throw new ContractException(tag + "[" + key + "] is not a boolean", contract.position());
+				}
+			}
+		} else {
+			throw new ContractException(tag + " is not a boolean or a collection of booleans", contract.position());
+		}
+		return true;
 	}
 
 	final Function getFunction(final Identifier name) {
@@ -86,13 +136,21 @@ public abstract class Context {
 	}
 
 	final Clazs getClazs(final Identifier name) {
+		return getClazs(getRuleset(), name);
+	}
+
+	final Clazs getClazs(final LocalizedClazz localizedClazz) {
+		return getClazs(localizedClazz.ruleset, localizedClazz.clazz.name());
+	}
+
+	private Clazs getClazs(final Ruleset ruleset, final Identifier name) {
 		LOGGER.debug("<-- {}", name);
 		final Clazs result;
 		final Clazs c = clazses.get(name);
 		if (c != null) {
 			result = c;
 		} else {
-			result = getUncachedClazs(name);
+			result = getUncachedClazs(ruleset, name);
 		}
 		clazses.put(name, result);
 		LOGGER.debug("--> {}", result);
@@ -117,14 +175,14 @@ public abstract class Context {
 		return result;
 	}
 
-	protected Clazs getUncachedClazs(final Identifier name) {
+	protected Clazs getUncachedClazs(final Ruleset ruleset, final Identifier name) {
 		LOGGER.debug("<-- {}", name);
 		final Clazs result;
-		final LocalizedClazz clazz = getRuleset().getClazz(name);
+		final LocalizedClazz clazz = ruleset.getClazz(name);
 		if (clazz == null) {
 			result = null;
 		} else {
-			result = new ClazzClazs(clazz);
+			result = new ClazzClazs(this::getClazs, clazz);
 		}
 		LOGGER.debug("--> {}", result);
 		return result;

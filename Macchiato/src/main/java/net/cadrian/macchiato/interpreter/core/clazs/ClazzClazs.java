@@ -33,8 +33,10 @@ import net.cadrian.macchiato.interpreter.ClazsConstructor;
 import net.cadrian.macchiato.interpreter.ClazsField;
 import net.cadrian.macchiato.interpreter.ClazsMethod;
 import net.cadrian.macchiato.interpreter.InterpreterException;
+import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Def;
+import net.cadrian.macchiato.ruleset.ast.Expression;
 import net.cadrian.macchiato.ruleset.ast.Inheritance;
 import net.cadrian.macchiato.ruleset.ast.Inheritance.Parent;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
@@ -44,6 +46,11 @@ import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 public class ClazzClazs implements Clazs {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ClazzClazs.class);
+
+	@FunctionalInterface
+	public static interface ClassRepository {
+		Clazs getClazs(LocalizedClazz localizedClazz);
+	}
 
 	private static class MethodDefinition {
 		@SuppressWarnings("unused")
@@ -88,21 +95,24 @@ public class ClazzClazs implements Clazs {
 
 	private final Ruleset ruleset;
 	private final Identifier name;
+	private final Expression invariant;
 	private final Map<Identifier, MethodDefinition> methods = new HashMap<>();
 	private final Map<Identifier, FieldDefinition> fields = new HashMap<>();
 	private final ClazsConstructor constructor;
 
-	private final Set<Clazs> conformance = new HashSet<>();
+	private final Set<ClazzClazs> parents = new HashSet<>();
+	private final Set<Clazs> conformanceCache = new HashSet<>();
 
-	public ClazzClazs(final LocalizedClazz localizedClazz) {
+	public ClazzClazs(final ClassRepository repository, final LocalizedClazz localizedClazz) {
 		this.ruleset = localizedClazz.ruleset;
 		this.name = localizedClazz.clazz.name();
+		this.invariant = localizedClazz.clazz.getInvariant();
 
 		final Map<Identifier, Map<Clazs, MethodDefinition>> precursors = new HashMap<>();
 		final Inheritance inheritance = localizedClazz.clazz.getInheritance();
 		if (inheritance != null) {
 			for (final Parent parent : inheritance.getParents()) {
-				resolve(parent, precursors);
+				resolve(repository, parent, precursors);
 			}
 			LOGGER.debug("resolved precursors for {}: {}", name, precursors);
 		}
@@ -137,6 +147,9 @@ public class ClazzClazs implements Clazs {
 						}
 
 						newDefinition.addPrecursorMethod(precursorDefinition);
+
+						final MethodDefinition precursor = ((ClazzClazs) precursorDefinition.owner).methods.get(name);
+						method.addPrecursor((ClazzClazsMethod) precursor.method);
 					}
 				}
 				methods.put(name, newDefinition);
@@ -180,7 +193,8 @@ public class ClazzClazs implements Clazs {
 		return result.toString();
 	}
 
-	private void resolve(final Parent parent, final Map<Identifier, Map<Clazs, MethodDefinition>> precursors) {
+	private void resolve(final ClassRepository repository, final Parent parent,
+			final Map<Identifier, Map<Clazs, MethodDefinition>> precursors) {
 		final Identifier[] name = parent.getName();
 		final int n = name.length - 1;
 		Ruleset scope = ruleset;
@@ -195,8 +209,9 @@ public class ClazzClazs implements Clazs {
 		if (localizedClazz == null) {
 			throw new InterpreterException("Class not found: " + dottedName(name, name.length), parent.position());
 		}
-		final ClazzClazs parentClazs = new ClazzClazs(localizedClazz);
-		conformance.add(parentClazs);
+		final ClazzClazs parentClazs = (ClazzClazs) repository.getClazs(localizedClazz);
+		parents.add(parentClazs);
+		conformanceCache.add(parentClazs);
 
 		for (final FieldDefinition fieldDefinition : parentClazs.fields.values()) {
 			final Identifier fieldName = fieldDefinition.name;
@@ -222,7 +237,7 @@ public class ClazzClazs implements Clazs {
 					throw new InterpreterException("Invalid redefinition: not the same number of arguments",
 							precursorDefinition.name.position(), methodName.position(), parent.position());
 				}
-				
+
 				methods.put(parentClazs, methodDefinition);
 			}
 		}
@@ -257,12 +272,12 @@ public class ClazzClazs implements Clazs {
 
 	@Override
 	public boolean conformsTo(final Clazs clazs) {
-		if (conformance.contains(clazs)) {
+		if (conformanceCache.contains(clazs)) {
 			return true;
 		}
-		for (final Clazs c : conformance) {
+		for (final Clazs c : conformanceCache) {
 			if (c.conformsTo(clazs)) {
-				conformance.add(clazs);
+				conformanceCache.add(clazs);
 				return true;
 			}
 		}
@@ -272,6 +287,13 @@ public class ClazzClazs implements Clazs {
 	@Override
 	public String toString() {
 		return "{ClazzClazs name=" + name + " fields=" + fields + " methods=" + methods + "}";
+	}
+
+	void checkInvariant(final Context context) {
+		context.checkContract(invariant, name.getName() + " invariant");
+		for (final ClazzClazs parent : parents) {
+			parent.checkInvariant(context);
+		}
 	}
 
 }

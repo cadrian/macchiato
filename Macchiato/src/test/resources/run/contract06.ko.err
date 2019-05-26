@@ -1,0 +1,14 @@
+**** Test invariant failed
+src/test/resources/run/contract06.ko at line 15, column 4
+    runTest();
+    ^
+Caused by:
+**** Test invariant failed
+src/test/resources/run/contract06.ko at line 10, column 17
+    local test = Test();
+                 ^
+Caused by:
+**** Test invariant failed
+src/test/resources/run/contract06.ko at line 1, column 19
+class Test where a exists {
+                   ^

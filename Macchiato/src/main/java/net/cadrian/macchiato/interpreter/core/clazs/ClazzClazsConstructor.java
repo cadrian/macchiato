@@ -88,6 +88,7 @@ class ClazzClazsConstructor implements ClazsConstructor {
 		final ClazsContext clazsContext = new ClazsContext(context, target, ruleset);
 		try {
 			clazsContext.eval(def.getInstruction());
+			clazzClazs.checkInvariant(clazsContext);
 		} catch (final InterpreterException e) {
 			throw new InterpreterException(e.getMessage(), e, position);
 		}

@@ -1,0 +1,14 @@
+**** Ensures failed
+src/test/resources/run/contract10.ko at line 29, column 4
+    runTest();
+    ^
+Caused by:
+**** Ensures failed
+src/test/resources/run/contract10.ko at line 25, column 15
+    print(test.ToString());
+               ^
+Caused by:
+**** Ensures failed
+src/test/resources/run/contract10.ko at line 3, column 47
+    def ToString() requires a == "any" ensures a == "test";
+                                               ^

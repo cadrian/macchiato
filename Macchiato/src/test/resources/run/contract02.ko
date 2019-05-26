@@ -1,0 +1,14 @@
+class Test {
+    def ToString() requires false {
+        result = "test";
+    }
+}
+
+def runTest() {
+    local test = Test();
+    print(test.ToString());
+}
+
+BEGIN SEQUENCE {
+    runTest();
+}
