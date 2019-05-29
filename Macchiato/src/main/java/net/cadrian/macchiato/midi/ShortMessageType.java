@@ -79,10 +79,10 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		@Override
 		public Message<ShortMessage> create(final MacObject... args) {
 			final MacNumber channel = (MacNumber) args[0];
-			final MacNumber velocity = (MacNumber) args[1];
-			final MacNumber pitch = (MacNumber) args[2];
-			return new NoteOffMessage(channel.getValue().intValueExact(), velocity.getValue().intValueExact(),
-					pitch.getValue().intValueExact());
+			final MacNumber pitch = (MacNumber) args[1];
+			final MacNumber velocity = (MacNumber) args[2];
+			return new NoteOffMessage(channel.getValue().intValueExact(), pitch.getValue().intValueExact(),
+					velocity.getValue().intValueExact());
 		}
 	},
 	NOTE_ON(0x90) {
@@ -123,10 +123,10 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		@Override
 		public Message<ShortMessage> create(final MacObject... args) {
 			final MacNumber channel = (MacNumber) args[0];
-			final MacNumber velocity = (MacNumber) args[1];
-			final MacNumber pitch = (MacNumber) args[2];
-			return new NoteOnMessage(channel.getValue().intValueExact(), velocity.getValue().intValueExact(),
-					pitch.getValue().intValueExact());
+			final MacNumber pitch = (MacNumber) args[1];
+			final MacNumber velocity = (MacNumber) args[2];
+			return new NoteOnMessage(channel.getValue().intValueExact(), pitch.getValue().intValueExact(),
+					velocity.getValue().intValueExact());
 		}
 	},
 	POLY_PRESSURE(0xA0) {
