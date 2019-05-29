@@ -126,9 +126,9 @@ def initTrack() {
 
 def tick(event, sign) {
     // humanize tick, except for the drummer (that sounds drunk)
-    if event.Channel == 10 {
+    if (event.Channel == 9) {
         result = event.Tick;
-    } else if sign == 0 {
+    } else if (sign == 0) {
         result = event.Tick + random(10) - 5;
     } else {
         result = event.Tick + random(5) * sign;
@@ -139,7 +139,7 @@ def noteOn(event) {
     // Record the velocity
     velocity[event.Channel][event.Pitch] = event.Velocity;
 
-    if (event.Channel == 10) or (volume[event.Channel] > 0) {
+    if (event.Channel == 9) or (volume[event.Channel] > 0) {
         // Emit an event with a velocity that depends on the expression,
         // and with a bit of random for rough "humanization"
         local v = velocity[event.Channel][event.Pitch];
@@ -162,7 +162,7 @@ def record_note_length(channel, pitch, tick) {
 }
 
 def noteOnOff(event) {
-    if (event.Channel != 10) and (volume[event.Channel] == 0) {
+    if (event.Channel != 9) and (volume[event.Channel] == 0) {
         next;
     }
 
@@ -253,8 +253,12 @@ BEGIN TRACK {
     next;
 }
 
-(event.Type == PROGRAM_CHANGE) and (event.Channel == 10) {
-    // Don't emit program change on channel 10
+(event.Type == PROGRAM_CHANGE) {
+    print("Program change on channel " + toString(event.Channel));
+}
+
+(event.Type == PROGRAM_CHANGE) and (event.Channel == 9) {
+    // Don't emit program change on channel "10" (9 actually)
     next;
 }
 
@@ -271,6 +275,34 @@ BEGIN TRACK {
 (event.Type == NOTE_OFF) {
     noteOff(event);
     next;
+}
+
+(event.Type == TEXT) {
+    print("TEXT: " + event.Text);
+}
+
+(event.Type == COPYRIGHT) {
+    print("COPYRIGHT: " + event.Text);
+}
+
+(event.Type == TRACK_NAME) {
+    print("TRACK_NAME: " + event.Text);
+}
+
+(event.Type == INSTRUMENT_NAME) {
+    print("INSTRUMENT_NAME: " + event.Text);
+}
+
+(event.Type == LYRICS) {
+    print("LYRICS: " + event.Text);
+}
+
+(event.Type == MARKER_TEXT) {
+    print("MARKER_TEXT: " + event.Text);
+}
+
+(event.Type == CUE_POINT) {
+    print("CUE_POINT: " + event.Text);
 }
 
 END TRACK {
