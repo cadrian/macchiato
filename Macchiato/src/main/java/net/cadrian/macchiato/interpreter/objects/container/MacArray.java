@@ -161,7 +161,7 @@ public class MacArray implements MacContainer<MacNumber> {
 			switch (argNames.length) {
 			case 1:
 				for (final MacObject value : target.array.values()) {
-					final LocalContext c = new LocalContext(context, getRuleset());
+					final LocalContext c = context.newLocalContext(getRuleset());
 					c.declareLocal(argNames[0]);
 					c.set(argNames[0], value);
 					callable.invoke(c, position);
@@ -169,7 +169,7 @@ public class MacArray implements MacContainer<MacNumber> {
 				break;
 			case 2:
 				for (final Map.Entry<MacNumber, MacObject> entry : target.array.entrySet()) {
-					final LocalContext c = new LocalContext(context, getRuleset());
+					final LocalContext c = context.newLocalContext(getRuleset());
 					c.declareLocal(argNames[0]);
 					c.declareLocal(argNames[1]);
 					c.set(argNames[0], entry.getKey());
@@ -234,7 +234,7 @@ public class MacArray implements MacContainer<MacNumber> {
 			switch (argNames.length) {
 			case 2:
 				for (final MacObject value : target.array.values()) {
-					final LocalContext c = new LocalContext(context, getRuleset());
+					final LocalContext c = context.newLocalContext(getRuleset());
 					c.declareLocal(argNames[0]);
 					c.declareLocal(argNames[1]);
 					c.set(argNames[0], value);
@@ -245,7 +245,7 @@ public class MacArray implements MacContainer<MacNumber> {
 				break;
 			case 3:
 				for (final Map.Entry<MacNumber, MacObject> entry : target.array.entrySet()) {
-					final LocalContext c = new LocalContext(context, getRuleset());
+					final LocalContext c = context.newLocalContext(getRuleset());
 					c.declareLocal(argNames[0]);
 					c.declareLocal(argNames[1]);
 					c.declareLocal(argNames[2]);

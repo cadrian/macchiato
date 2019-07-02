@@ -33,10 +33,17 @@ public class Ruleset {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Ruleset.class);
 
 	public static class LocalizedDef {
+		// non-null if it is a constructor
+		public final Clazz clazz;
+
+		// non-null if it is a normal def or if the clazz defines a constructor
 		public final Def def;
+
+		// always non-null
 		public final Ruleset ruleset;
 
-		LocalizedDef(final Def def, final Ruleset ruleset) {
+		LocalizedDef(final Clazz clazz, final Def def, final Ruleset ruleset) {
+			this.clazz = clazz;
 			this.def = def;
 			this.ruleset = ruleset;
 		}
@@ -55,7 +62,7 @@ public class Ruleset {
 	private final Map<Identifier, Def> defs = new LinkedHashMap<>();
 	private final Map<Identifier, Clazz> clazzes = new LinkedHashMap<>();
 	private final List<Filter> filters = new ArrayList<>();
-	private final Map<Identifier, Ruleset> scopes = new LinkedHashMap<>();
+	private final Map<Identifier, Ruleset> rulesets = new LinkedHashMap<>();
 	private final String path;
 	private final Position position; // position of import in parent ruleset
 
@@ -91,10 +98,16 @@ public class Ruleset {
 		final LocalizedDef result;
 		final Def def = defs.get(name);
 		if (def == null) {
-			LOGGER.debug("def {} not found in ruleset {}", name, path);
-			result = null;
+			final Clazz clazz = clazzes.get(name);
+			if (clazz == null) {
+				LOGGER.debug("def {} not found in ruleset {}", name, path);
+				result = null;
+			} else {
+				LOGGER.debug("def {} is a constructor in ruleset {}", name, path);
+				result = new LocalizedDef(clazz, clazz.getDef(name), this);
+			}
 		} else {
-			result = new LocalizedDef(def, this);
+			result = new LocalizedDef(null, def, this);
 		}
 		LOGGER.debug("--> {}", result);
 		return result;
@@ -124,28 +137,33 @@ public class Ruleset {
 	}
 
 	private void getFiltersIn(final List<Filter> filters) {
-		for (final Ruleset scope : scopes.values()) {
-			scope.getFiltersIn(filters);
+		for (final Ruleset ruleset : rulesets.values()) {
+			ruleset.getFiltersIn(filters);
 		}
 		filters.addAll(this.filters);
 	}
 
-	public Ruleset addScope(final Identifier name, final Ruleset scope) {
+	public Ruleset addRuleset(final Identifier name, final Ruleset ruleset) {
 		filtersCache = null;
-		return scopes.put(name, scope);
+		return rulesets.put(name, ruleset);
 	}
 
-	public boolean hasScope(final Identifier name) {
-		return scopes.containsKey(name);
+	public boolean hasRuleset(final Identifier name) {
+		return rulesets.containsKey(name);
 	}
 
-	public Ruleset getScope(final Identifier name) {
-		return scopes.get(name);
+	public Ruleset getRuleset(final Identifier name) {
+		LOGGER.debug("<-- {}", name);
+		LOGGER.debug("rulesets={}", rulesets);
+		final Ruleset result = rulesets.get(name);
+		LOGGER.debug("--> {}", result);
+		return result;
 	}
 
 	@Override
 	public String toString() {
-		return "{Ruleset clazzes=" + clazzes + " defs=" + defs + " filters=" + filters + " scopes=" + scopes + "}";
+		return "{Ruleset " + path + " clazzes=" + clazzes + " defs=" + defs + " filters=" + filters + " rulesets="
+				+ rulesets + "}";
 	}
 
 	public Ruleset simplify() {
@@ -155,12 +173,12 @@ public class Ruleset {
 			LOGGER.debug("Simplify #{}", 256 - simplifyCount, result);
 			boolean changed = false;
 			final Ruleset simplifyRuleset = new Ruleset(position, path);
-			for (final Map.Entry<Identifier, Ruleset> scope : result.scopes.entrySet()) {
-				final Identifier scopeName = scope.getKey();
-				LOGGER.debug("Simplify nested scope {}", scopeName);
-				final Ruleset value = scope.getValue();
+			for (final Map.Entry<Identifier, Ruleset> entry : result.rulesets.entrySet()) {
+				final Identifier rulesetName = entry.getKey();
+				LOGGER.debug("Simplify nested ruleset {}", rulesetName);
+				final Ruleset value = entry.getValue();
 				final Ruleset simplifyValue = value.simplify();
-				simplifyRuleset.addScope(scopeName, simplifyValue);
+				simplifyRuleset.addRuleset(rulesetName, simplifyValue);
 				changed |= simplifyValue != value;
 			}
 			for (final Def def : result.defs.values()) {

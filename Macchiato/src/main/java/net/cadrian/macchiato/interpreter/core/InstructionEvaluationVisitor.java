@@ -106,7 +106,7 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 				throw new InterpreterException("unknown procedure " + procedureCall.getName(), position);
 			}
 		}
-		final LocalContext callContext = new LocalContext(context, fn.getRuleset());
+		final LocalContext callContext = context.newLocalContext(fn.getRuleset());
 		final Identifier[] argNames = fn.getArgNames();
 		final Class<? extends MacObject>[] argTypes = fn.getArgTypes();
 		final List<Expression> arguments = procedureCall.getArguments();

@@ -18,6 +18,7 @@ package net.cadrian.macchiato.interpreter.core;
 
 import java.util.Arrays;
 
+import net.cadrian.macchiato.interpreter.Clazs;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
@@ -29,6 +30,10 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class DefFunction implements Function {
 
+	@SuppressWarnings("unchecked")
+	private static final Class<? extends MacObject>[] NO_ARG_TYPES = (Class<? extends MacObject>[]) new Class<?>[0];
+	private static final Identifier[] NO_ARG_NAMES = new Identifier[0];
+
 	private final LocalizedDef def;
 	private final Class<? extends MacObject>[] argTypes;
 	private final Identifier[] argNames;
@@ -36,10 +41,16 @@ public class DefFunction implements Function {
 	@SuppressWarnings("unchecked")
 	public DefFunction(final LocalizedDef def) {
 		this.def = def;
-		final FormalArgs args = def.def.getArgs();
-		argTypes = new Class[args.size()];
-		Arrays.fill(argTypes, MacObject.class);
-		argNames = args.toArray();
+		if (def.def != null) {
+			final FormalArgs args = def.def.getArgs();
+			argTypes = new Class[args.size()];
+			Arrays.fill(argTypes, MacObject.class);
+			argNames = args.toArray();
+		} else {
+			assert def.clazz != null;
+			argTypes = NO_ARG_TYPES;
+			argNames = NO_ARG_NAMES;
+		}
 	}
 
 	@Override
@@ -69,13 +80,20 @@ public class DefFunction implements Function {
 
 	@Override
 	public void run(final Context context, final Position position) {
-		try {
-			context.evaluateOldData(def.def.getEnsures());
-			context.checkContract(def.def.getRequires(), "Requires");
-			context.eval(def.def.getInstruction());
-			context.checkContract(def.def.getEnsures(), "Ensures");
-		} catch (final InterpreterException e) {
-			throw new InterpreterException(e.getMessage(), e, position);
+		if (def.clazz != null) {
+			final Clazs clazs = context.getClazs(def);
+			clazs.getConstructor().run(context, position);
+		} else if (def.def == null) {
+			throw new InterpreterException("No def!!");
+		} else {
+			try {
+				context.evaluateOldData(def.def.getEnsures());
+				context.checkContract(def.def.getRequires(), "Requires");
+				context.eval(def.def.getInstruction());
+				context.checkContract(def.def.getEnsures(), "Ensures");
+			} catch (final InterpreterException e) {
+				throw new InterpreterException(e.getMessage(), e, position);
+			}
 		}
 	}
 

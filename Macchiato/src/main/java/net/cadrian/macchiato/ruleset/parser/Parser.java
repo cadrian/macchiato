@@ -142,43 +142,43 @@ public class Parser {
 
 		buffer.skipBlanks();
 		final Position p1 = buffer.position();
-		final ManifestString scopePath = parseManifestString();
-		final File scopeFile = findFile(p1, scopePath.getValue());
-		if (scopeFile == null) {
-			throw new ParserException(error("Could not import scope " + name + " from " + scopePath.getValue()
+		final ManifestString rulesetPath = parseManifestString();
+		final File rulesetFile = findFile(p1, rulesetPath.getValue());
+		if (rulesetFile == null) {
+			throw new ParserException(error("Could not import ruleset " + name + " from " + rulesetPath.getValue()
 					+ ": file not found (relative directory: " + relativeDirectory.getPath() + ")", p1));
 		}
-		LOGGER.debug("Found {} at {}", scopePath.getValue(), scopeFile.getPath());
+		LOGGER.debug("Found {} at {}", rulesetPath.getValue(), rulesetFile.getPath());
 
-		final Ruleset scope;
-		try (final FileReader scopeReader = new FileReader(scopeFile)) {
-			final Parser scopeParser = new Parser(scopeFile.getParentFile(), scopeReader, scopeFile.getPath());
+		final Ruleset ruleset;
+		try (final FileReader rulesetReader = new FileReader(rulesetFile)) {
+			final Parser rulesetParser = new Parser(rulesetFile.getParentFile(), rulesetReader, rulesetFile.getPath());
 			try {
-				scope = scopeParser.parse(p);
+				ruleset = rulesetParser.parse(p);
 			} catch (final ParserException e) {
-				throw new ParserException(error("In " + scopePath.getValue(), p1) + '\n' + e.getMessage(), e);
+				throw new ParserException(error("In " + rulesetPath.getValue(), p1) + '\n' + e.getMessage(), e);
 			}
 		} catch (final IOException e) {
-			throw new ParserException(error("Could read " + scopeFile.getPath(), p1), e);
+			throw new ParserException(error("Could read " + rulesetFile.getPath(), p1), e);
 		}
-		final Ruleset old = result.addScope(new Identifier(name, namePosition), scope);
+		final Ruleset old = result.addRuleset(new Identifier(name, namePosition), ruleset);
 		if (old != null) {
-			throw new ParserException(error("Duplicate scope " + name, old.position(), scope.position()));
+			throw new ParserException(error("Duplicate ruleset " + name, old.position(), ruleset.position()));
 		}
 		buffer.skipBlanks();
 		if (!buffer.off() && buffer.current() == ';') {
 			buffer.next();
 		}
 
-		LOGGER.debug("--> {}", scope);
+		LOGGER.debug("--> {}", ruleset);
 	}
 
-	private File findFile(final Position position, final String scopePath) {
-		if (scopePath.isEmpty()) {
+	private File findFile(final Position position, final String rulesetPath) {
+		if (rulesetPath.isEmpty()) {
 			throw new ParserException(error("empty path", position));
 		}
 
-		final File raw = new File(scopePath);
+		final File raw = new File(rulesetPath);
 		if (raw.isAbsolute()) {
 			if (raw.exists()) {
 				return raw;
@@ -186,12 +186,12 @@ public class Parser {
 			return null;
 		}
 
-		final File relative = new File(relativeDirectory, scopePath);
+		final File relative = new File(relativeDirectory, rulesetPath);
 		if (relative.exists()) {
 			return relative;
 		}
 
-		return Platform.getConfigFile(scopePath);
+		return Platform.getConfigFile(rulesetPath);
 	}
 
 	private Clazz parseClass(final Position position) {

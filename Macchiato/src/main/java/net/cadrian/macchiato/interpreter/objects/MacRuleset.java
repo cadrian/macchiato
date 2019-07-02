@@ -61,7 +61,7 @@ public class MacRuleset implements MacObject {
 
 	private final Ruleset ruleset;
 	private final Map<Identifier, ReadOnlyField<MacRuleset, MacRuleset>> fields = new LinkedHashMap<>();
-	private final Map<Identifier, RulesetMethod> methods = new LinkedHashMap<>();
+	private final Map<Identifier, Method<MacRuleset>> methods = new LinkedHashMap<>();
 
 	public MacRuleset(final Ruleset ruleset) {
 		this.ruleset = ruleset;
@@ -73,9 +73,9 @@ public class MacRuleset implements MacObject {
 			final Identifier name) {
 		Field<T, R> result = (Field<T, R>) fields.get(name);
 		if (result == null) {
-			final Ruleset scope = this.ruleset.getScope(name);
-			if (scope != null) {
-				final MacRuleset rs = new MacRuleset(scope);
+			final Ruleset importedRuleset = this.ruleset.getRuleset(name);
+			if (importedRuleset != null) {
+				final MacRuleset rs = new MacRuleset(importedRuleset);
 				final ReadOnlyField<MacRuleset, MacRuleset> field = new ReadOnlyField<>(name, ruleset, MacRuleset.class,
 						MacRuleset.class, rs);
 				fields.put(name, field);
@@ -98,6 +98,11 @@ public class MacRuleset implements MacObject {
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "{MacRuleset ruleset=" + ruleset + " fields=" + fields + " methods=" + methods + "}";
 	}
 
 }

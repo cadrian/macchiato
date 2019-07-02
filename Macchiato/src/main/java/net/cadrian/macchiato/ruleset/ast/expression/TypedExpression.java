@@ -19,11 +19,11 @@ package net.cadrian.macchiato.ruleset.ast.expression;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.ruleset.ast.Expression;
 
-public abstract interface TypedExpression extends Expression {
+public interface TypedExpression extends Expression {
 
-	public Class<? extends MacObject> getType();
+	Class<? extends MacObject> getType();
 
 	@Override
-	public abstract TypedExpression simplify();
+	TypedExpression simplify();
 
 }

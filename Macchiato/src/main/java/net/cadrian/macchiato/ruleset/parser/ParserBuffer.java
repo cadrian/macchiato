@@ -115,19 +115,21 @@ public class ParserBuffer {
 		while (!eof && content.length < offset) {
 			readMore();
 		}
-		int startPosition = offset;
+		final int realOffset = offset < content.length ? offset : content.length;
+
+		int startPosition = realOffset;
 		if (startPosition >= content.length) {
 			startPosition = content.length - 1;
 		}
 		while (startPosition > 0 && content[startPosition] != '\n') {
 			startPosition--;
 		}
-		if (content[startPosition] == '\n' && startPosition < offset) {
+		if (content[startPosition] == '\n' && startPosition < realOffset) {
 			startPosition++;
 		}
 		int line = 1;
 		int column = 0;
-		for (int i = 0; i < offset; i++) {
+		for (int i = 0; i < realOffset; i++) {
 			if (content[i] == '\n') {
 				line++;
 				column = 0;
@@ -137,7 +139,7 @@ public class ParserBuffer {
 		}
 		final StringBuilder text = new StringBuilder();
 		final StringBuilder carret = new StringBuilder();
-		for (int i = startPosition; i < offset; i++) {
+		for (int i = startPosition; i < realOffset; i++) {
 			final char c = content[i];
 			text.append(c);
 			if (c == '\t') {
@@ -147,8 +149,8 @@ public class ParserBuffer {
 			}
 		}
 		carret.append('^');
-		if (offset < content.length && content[offset] != '\n') {
-			text.append(content[offset]);
+		if (realOffset < content.length && content[realOffset] != '\n') {
+			text.append(content[realOffset]);
 			rewind(offset);
 			next();
 			while (!off() && current() != '\n') {

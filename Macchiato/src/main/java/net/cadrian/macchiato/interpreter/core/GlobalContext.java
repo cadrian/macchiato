@@ -158,7 +158,7 @@ class GlobalContext extends Context {
 		LOGGER.debug("<-- {}", key);
 		T result = (T) global.get(key);
 		if (result == null) {
-			final Ruleset r = ruleset.getScope(key);
+			final Ruleset r = ruleset.getRuleset(key);
 			if (r != null) {
 				final MacRuleset newRuleset = new MacRuleset(r);
 				global.put(key, newRuleset);
@@ -191,6 +191,11 @@ class GlobalContext extends Context {
 	@Override
 	public boolean checkContract(final Expression contract, final String tag) throws ContractException {
 		throw new InterpreterException("BUG: unexpected contract checking in global context", contract.position());
+	}
+
+	@Override
+	public String toString() {
+		return "{GlobalContext " + ruleset + "}";
 	}
 
 }

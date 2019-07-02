@@ -53,4 +53,9 @@ class ClazsContext extends LocalContext {
 		return super.getUncachedFunction(name);
 	}
 
+	@Override
+	public LocalContext newLocalContext(final Ruleset ruleset) {
+		return new ClazsContext(this, target, ruleset);
+	}
+
 }

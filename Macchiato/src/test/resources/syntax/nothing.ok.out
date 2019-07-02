@@ -1,1 +1,1 @@
-Ruleset: {Ruleset clazzes={} defs={} filters=[] scopes={}}
+Ruleset: {Ruleset src/test/resources/syntax/nothing.ok clazzes={} defs={} filters=[] rulesets={}}

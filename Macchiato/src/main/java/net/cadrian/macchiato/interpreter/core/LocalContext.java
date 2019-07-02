@@ -33,6 +33,7 @@ import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.objects.MacBoolean;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.interpreter.objects.MacRuleset;
 import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.interpreter.objects.container.MacArray;
 import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
@@ -48,10 +49,11 @@ public class LocalContext extends Context {
 
 	protected final Ruleset ruleset;
 	private final Context parent;
-	private final Map<Identifier, Object> local = new LinkedHashMap<>();
+	private final Map<Identifier, MacObject> local = new LinkedHashMap<>();
 	private final Map<Integer, MacObject> oldValues = new TreeMap<>();
 
-	public LocalContext(final Context parent, final Ruleset ruleset) {
+	protected LocalContext(final Context parent, final Ruleset ruleset) {
+		LOGGER.debug("parent {} for ruleset {}", parent, ruleset);
 		this.parent = parent;
 		this.ruleset = ruleset;
 	}
@@ -107,16 +109,22 @@ public class LocalContext extends Context {
 		return parent.has(key);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends MacObject> T get(final Identifier key) {
 		LOGGER.debug("<-- {}", key);
-		T result;
+		final T result;
 		if (local.containsKey(key)) {
-			@SuppressWarnings("unchecked")
-			final T old = (T) local.get(key);
-			result = old;
+			result = (T) local.get(key);
 		} else {
-			result = parent.get(key);
+			final Ruleset r = ruleset.getRuleset(key);
+			if (r != null) {
+				final MacRuleset newRuleset = new MacRuleset(r);
+				local.put(key, newRuleset);
+				result = (T) newRuleset;
+			} else {
+				result = parent.get(key);
+			}
 		}
 		LOGGER.debug("--> {}", result);
 		return result;
@@ -148,7 +156,7 @@ public class LocalContext extends Context {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends MacObject> T eval(TypedExpression expression) {
+	public <T extends MacObject> T eval(final TypedExpression expression) {
 		final ExpressionEvaluationVisitor v = new ExpressionEvaluationVisitor(this, expression.getType(), oldValues);
 		expression.accept(v);
 		return (T) v.getLastValue();
@@ -204,6 +212,11 @@ public class LocalContext extends Context {
 			throw new ContractException(tag + " is not a boolean or a collection of booleans", contract.position());
 		}
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "{LocalContext " + ruleset + " parent=" + parent + "}";
 	}
 
 }

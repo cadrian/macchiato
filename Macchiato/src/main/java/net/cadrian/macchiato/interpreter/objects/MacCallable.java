@@ -53,7 +53,7 @@ public abstract class MacCallable implements MacObject {
 
 		private Context unpackArgs(final MacCallable target, final Context context, final Position position) {
 			final MacDictionary args = context.get(ARG_ARGS);
-			final LocalContext result = new LocalContext(context, getRuleset());
+			final LocalContext result = context.newLocalContext(getRuleset());
 			final Identifier[] argNames = target.getArgNames();
 			final Class<? extends MacObject>[] argTypes = target.getArgTypes();
 			assert argNames.length == argTypes.length;

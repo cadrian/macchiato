@@ -507,6 +507,8 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			fn = context.getFunction(functionCall.getName());
 			target = null;
 		} else {
+			LOGGER.debug("context is {}", context);
+			LOGGER.debug("targetExpression is {}", targetExpression);
 			target = context.eval(targetExpression.typed(MacObject.class));
 			if (target == null) {
 				throw new InterpreterException("null target", position);
@@ -519,7 +521,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		if (fn.getResultType() == null) {
 			throw new InterpreterException("cannot assign this function because it does not return anything", position);
 		}
-		final LocalContext callContext = new LocalContext(context, fn.getRuleset());
+		final LocalContext callContext = context.newLocalContext(fn.getRuleset());
 		final Identifier[] argNames = fn.getArgNames();
 		final Class<? extends MacObject>[] argTypes = fn.getArgTypes();
 		final List<Expression> arguments = functionCall.getArguments();

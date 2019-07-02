@@ -99,6 +99,10 @@ public abstract class Context {
 		return getClazs(localizedClazz.ruleset, localizedClazz.clazz.name());
 	}
 
+	final Clazs getClazs(final LocalizedDef localizedDef) {
+		return getClazs(localizedDef.ruleset, localizedDef.clazz.name());
+	}
+
 	private Clazs getClazs(final Ruleset ruleset, final Identifier name) {
 		LOGGER.debug("<-- {}", name);
 		final Clazs result;
@@ -151,5 +155,9 @@ public abstract class Context {
 	public abstract <T extends MacObject> T set(Identifier key, T value);
 
 	abstract void declareLocal(Identifier name);
+
+	public LocalContext newLocalContext(final Ruleset ruleset) {
+		return new LocalContext(this, ruleset);
+	}
 
 }

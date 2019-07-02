@@ -162,7 +162,7 @@ public class MacDictionary implements MacContainer<MacString> {
 			switch (argNames.length) {
 			case 1:
 				for (final MacObject value : target.dictionary.values()) {
-					final LocalContext c = new LocalContext(context, getRuleset());
+					final LocalContext c = context.newLocalContext(getRuleset());
 					c.declareLocal(argNames[0]);
 					c.set(argNames[0], value);
 					callable.invoke(c, position);
@@ -170,7 +170,7 @@ public class MacDictionary implements MacContainer<MacString> {
 				break;
 			case 2:
 				for (final Map.Entry<MacString, MacObject> entry : target.dictionary.entrySet()) {
-					final LocalContext c = new LocalContext(context, getRuleset());
+					final LocalContext c = context.newLocalContext(getRuleset());
 					c.declareLocal(argNames[0]);
 					c.declareLocal(argNames[1]);
 					c.set(argNames[0], entry.getKey());
@@ -235,7 +235,7 @@ public class MacDictionary implements MacContainer<MacString> {
 			switch (argNames.length) {
 			case 2:
 				for (final MacObject value : target.dictionary.values()) {
-					final LocalContext c = new LocalContext(context, getRuleset());
+					final LocalContext c = context.newLocalContext(getRuleset());
 					c.declareLocal(argNames[0]);
 					c.declareLocal(argNames[1]);
 					c.set(argNames[0], value);
@@ -246,7 +246,7 @@ public class MacDictionary implements MacContainer<MacString> {
 				break;
 			case 3:
 				for (final Map.Entry<MacString, MacObject> entry : target.dictionary.entrySet()) {
-					final LocalContext c = new LocalContext(context, getRuleset());
+					final LocalContext c = context.newLocalContext(getRuleset());
 					c.declareLocal(argNames[0]);
 					c.declareLocal(argNames[1]);
 					c.declareLocal(argNames[2]);

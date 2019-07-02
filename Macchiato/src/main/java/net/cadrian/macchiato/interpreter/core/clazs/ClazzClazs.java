@@ -52,7 +52,6 @@ public class ClazzClazs implements Clazs {
 	}
 
 	private static class MethodDefinition {
-		@SuppressWarnings("unused")
 		final Clazs owner;
 		final Identifier name;
 		final ClazsMethod method;
@@ -196,15 +195,15 @@ public class ClazzClazs implements Clazs {
 			final Map<Identifier, Map<Clazs, MethodDefinition>> precursors) {
 		final Identifier[] name = parent.getName();
 		final int n = name.length - 1;
-		Ruleset scope = ruleset;
+		Ruleset ruleset = this.ruleset;
 		for (int i = 0; i < n; i++) {
-			scope = scope.getScope(name[i]);
-			if (scope == null) {
-				throw new InterpreterException("Class not found (unknown scope " + name[i].getName() + " in "
+			ruleset = ruleset.getRuleset(name[i]);
+			if (ruleset == null) {
+				throw new InterpreterException("Class not found (unknown ruleset " + name[i].getName() + " in "
 						+ dottedName(name, i) + "): " + dottedName(name, name.length), parent.position());
 			}
 		}
-		final LocalizedClazz localizedClazz = scope.getClazz(name[n]);
+		final LocalizedClazz localizedClazz = ruleset.getClazz(name[n]);
 		if (localizedClazz == null) {
 			throw new InterpreterException("Class not found: " + dottedName(name, name.length), parent.position());
 		}

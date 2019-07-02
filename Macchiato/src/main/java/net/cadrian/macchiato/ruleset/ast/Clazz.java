@@ -92,7 +92,7 @@ public class Clazz implements Node {
 
 	@Override
 	public String toString() {
-		return "{Class: " + name + "}";
+		return "{Class: " + name + " fields=" + fields + " defs=" + defs + "}";
 	}
 
 }
