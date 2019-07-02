@@ -1,0 +1,201 @@
+#!/usr/bin/macchiato
+/*
+ * This file is part of Macchiato.
+ *
+ * Macchiato is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * Macchiato is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Macchiato.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/*
+ * This is the default advanced humanization.
+ */
+
+import i "interface.mac";
+
+import u "utils.mac";
+
+def humanize(value, anchor, percent) {
+    if value == 0 {
+        result = 0;
+    } else {
+        result = u.Anchored(value, anchor, percent);
+        if result <= 0 {
+            result = 1;
+        }
+    }
+}
+
+class DefaultHumanizer (i.Humanizer) {
+
+    tracknum;
+    portamento;
+    velocity;
+    expression;
+    volume;
+    running;
+    notes;
+
+    def DefaultHumanizer() {
+        tracknum = 0;
+        print("Loaded default humanizer");
+    }
+
+    def StartSequence() {
+    }
+
+    def EndSequence() {
+        write("record" + toString(tracknum), record);
+        write("notes" + toString(tracknum), notes);
+    }
+
+    def StartTrack() {
+        // velocity records the current velocity, per channel, per pitch
+        velocity = [[], [], [], [], [], [], [], [],
+                    [], [], [], [], [], [], [], []];
+
+        // expression records the current expression, per channel
+        expression = [127, 127, 127, 127, 127, 127, 127, 127,
+                      127, 127, 127, 127, 127, 127, 127, 127];
+
+        // volume records the current expression, per channel
+        volume = [127, 127, 127, 127, 127, 127, 127, 127,
+                  127, 127, 127, 127, 127, 127, 127, 127];
+
+        // running records the currently running notes per channel
+        // For each channel, the array index is the pitch of the note;
+        // its value is the start tick of the note
+        running = [[], [], [], [], [], [], [], [],
+                   [], [], [], [], [], [], [], []];
+
+        // notes records the note lengths per track, per channel
+        // For each track, each channel, the array index is the start tick of each note;
+        // its value is an array: index = pitch, value = length
+        notes[tracknum] = [[], [], [], [], [], [], [], [],
+                           [], [], [], [], [], [], [], []];
+
+        // Portamento pedal state
+        portamento = false;
+    }
+
+    def EndTrack() {
+        record[tracknum] = {
+            "velocity": velocity,
+            "expression": expression
+        };
+        tracknum = tracknum + 1;
+    }
+
+    def TrackNumber() {
+        result = tracknum;
+    }
+
+    def Tick(event, sign) {
+        // humanize tick, except for the drummer (that sounds drunk)
+        if (event.Channel == 9) {
+            result = event.Tick;
+        } else if (sign == 0) {
+            result = event.Tick + random(10) - 5;
+        } else {
+            result = event.Tick + random(5) * sign;
+        }
+    }
+
+    def NoteOn(event) {
+        // Record the velocity
+        velocity[event.Channel][event.Pitch] = event.Velocity;
+
+        if (event.Channel == 9) or (volume[event.Channel] > 0) {
+            // Emit an event with a velocity that depends on the expression,
+            // and with a bit of random for rough "humanization"
+            local v = velocity[event.Channel][event.Pitch];
+            local e = expression[event.Channel];
+            if (v > 0) and (e > 0) {
+                v = (humanize(v, v, 10) * e) / 127;
+                local t = Tick(event, 1);
+                running[event.Channel][event.Pitch] = t;
+                emit NOTE_ON(event.Channel, event.Pitch, v) at t;
+            } else {
+                velocity[event.Channel][event.Pitch] = 0;
+            }
+        }
+    }
+
+    def NoteOnOff(event) {
+        if (event.Channel != 9) and (volume[event.Channel] == 0) {
+            next;
+        }
+
+        // Emit an event with a velocity that depends on the expression,
+        // and with a bit of random for rough "humanization"
+        // Note that expression may have changed so the release velocity is not
+        // necessarily equal to the press velocity
+        local t = Tick(event, -1);
+        if portamento {
+            velocity[event.Channel][event.Pitch] = t;
+            emit NOTE_ON(event.Channel, event.Pitch, 0) at t;
+        } else if velocity[event.Channel][event.Pitch] > 0 {
+            local v = velocity[event.Channel][event.Pitch];
+            local e = expression[event.Channel];
+            v = (humanize(v, v, 10) * e) / 127;
+            record_note_length(event.Channel, event.Pitch, t);
+            emit NOTE_OFF(event.Channel, event.Pitch, v) at t;
+        }
+    }
+
+    def record_note_length(channel, pitch, tick) {
+        local start = running[channel][pitch];
+        local length = tick - start;
+        notes[tracknum][channel][start][pitch] = length;
+    }
+
+    def NoteOff(event) {
+        // For completion only -- because NoteWorthy Composer
+        // does not emit those events
+
+        if (volume[event.Channel] > 0) and (velocity[event.Channel][event.Pitch] > 0) {
+            // Emit an event with a velocity that depends on the expression,
+            // and with a bit of random for rough "humanization"
+            // Note that expression may have changed so the release velocity is not
+            // necessarily equal to the press velocity
+            local v = (event.Velocity * expression[event.Channel]) / 127;
+            v = humanize(v, v, 10);
+            local t = Tick(event, -1);
+            record_note_length(event.Channel, event.Pitch, t);
+            velocity[event.Channel][event.Pitch] = 0;
+            emit NOTE_OFF(event.Channel, event.Pitch, v) at t;
+        }
+    }
+
+    def Expression(event) {
+        // Record the expression value
+        expression[event.Channel] = event.Value;
+    }
+
+    def Volume(event) {
+        // Record the volume value
+        volume[event.Channel] = event.Value;
+    }
+
+    def Portamento(event) {
+        portamento = event.Value
+    }
+
+    def PortamentoTime(event) {
+        // humanize this event too
+        local v = event.Value;
+        v = humanize(v, v, 10);
+        local t = Tick(event, 0);
+        emit CONTROL_CHANGE(event.Channel, PORTAMENTO_TIME, v) at t;
+    }
+
+}

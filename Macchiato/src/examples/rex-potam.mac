@@ -39,18 +39,7 @@
  * This also adds a bit of random for "humanization".
  */
 
-import h "humanize.mac";
-
-def humanize(value, anchor, percent) {
-    if value == 0 {
-        result = 0;
-    } else {
-        result = h.Anchored(value, anchor, percent);
-        if result <= 0 {
-            result = 1;
-        }
-    }
-}
+import h "rex-potam/humanization.mac";
 
 def loadChannelArray(arg) {
     local p = /map=(?<value>.*)/;
@@ -71,7 +60,7 @@ def loadTracks(arg) {
 }
 
 def checkTrackNumber(tn, val) {
-    result = val or (tn == tracknum);
+    result = val or (tn == humanizer.TrackNumber());
 }
 
 def isValidTrack() {
@@ -95,136 +84,23 @@ def fixEventChannel() {
     }
 }
 
-def initTrack() {
-    // velocity records the current velocity, per channel, per pitch
-    velocity = [[], [], [], [], [], [], [], [],
-                [], [], [], [], [], [], [], []];
-
-    // expression records the current expression, per channel
-    expression = [127, 127, 127, 127, 127, 127, 127, 127,
-                  127, 127, 127, 127, 127, 127, 127, 127];
-
-    // volume records the current expression, per channel
-    volume = [127, 127, 127, 127, 127, 127, 127, 127,
-              127, 127, 127, 127, 127, 127, 127, 127];
-
-    // running records the currently running notes per channel
-    // For each channel, the array index is the pitch of the note;
-    // its value is the start tick of the note
-    running = [[], [], [], [], [], [], [], [],
-               [], [], [], [], [], [], [], []];
-
-    // notes records the note lengths per track, per channel
-    // For each track, each channel, the array index is the start tick of each note;
-    // its value is an array: index = pitch, value = length
-    notes[tracknum] = [[], [], [], [], [], [], [], [],
-                       [], [], [], [], [], [], [], []];
-
-    // Portamento pedal state
-    portamento = false;
-}
-
-def tick(event, sign) {
-    // humanize tick, except for the drummer (that sounds drunk)
-    if (event.Channel == 9) {
-        result = event.Tick;
-    } else if (sign == 0) {
-        result = event.Tick + random(10) - 5;
-    } else {
-        result = event.Tick + random(5) * sign;
-    }
-}
-
-def noteOn(event) {
-    // Record the velocity
-    velocity[event.Channel][event.Pitch] = event.Velocity;
-
-    if (event.Channel == 9) or (volume[event.Channel] > 0) {
-        // Emit an event with a velocity that depends on the expression,
-        // and with a bit of random for rough "humanization"
-        local v = velocity[event.Channel][event.Pitch];
-        local e = expression[event.Channel];
-        if (v > 0) and (e > 0) {
-            v = (humanize(v, v, 10) * e) / 127;
-            local t = tick(event, 1);
-            running[event.Channel][event.Pitch] = t;
-            emit NOTE_ON(event.Channel, event.Pitch, v) at t;
-        } else {
-            velocity[event.Channel][event.Pitch] = 0;
-        }
-    }
-}
-
-def record_note_length(channel, pitch, tick) {
-    local start = running[channel][pitch];
-    local length = tick - start;
-    notes[tracknum][channel][start][pitch] = length;
-}
-
-def noteOnOff(event) {
-    if (event.Channel != 9) and (volume[event.Channel] == 0) {
-        next;
-    }
-
-    // Emit an event with a velocity that depends on the expression,
-    // and with a bit of random for rough "humanization"
-    // Note that expression may have changed so the release velocity is not
-    // necessarily equal to the press velocity
-    local t = tick(event, -1);
-    if portamento {
-        velocity[event.Channel][event.Pitch] = t;
-        emit NOTE_ON(event.Channel, event.Pitch, 0) at t;
-    } else if velocity[event.Channel][event.Pitch] > 0 {
-        local v = velocity[event.Channel][event.Pitch];
-        local e = expression[event.Channel];
-        v = (humanize(v, v, 10) * e) / 127;
-        record_note_length(event.Channel, event.Pitch, t);
-        emit NOTE_OFF(event.Channel, event.Pitch, v) at t;
-    }
-}
-
-def noteOff(event) {
-    // For completion only -- because NoteWorthy Composer
-    // does not emit those events
-
-    if (volume[event.Channel] > 0) and (velocity[event.Channel][event.Pitch] > 0) {
-        // Emit an event with a velocity that depends on the expression,
-        // and with a bit of random for rough "humanization"
-        // Note that expression may have changed so the release velocity is not
-        // necessarily equal to the press velocity
-        local v = (event.Velocity * expression[event.Channel]) / 127;
-        v = humanize(v, v, 10);
-        local t = tick(event, -1);
-        record_note_length(event.Channel, event.Pitch, t);
-        velocity[event.Channel][event.Pitch] = 0;
-        emit NOTE_OFF(event.Channel, event.Pitch, v) at t;
-    }
-}
-
-def portamentoTime(event) {
-    // humanize this event too
-    local v = event.Value;
-    v = humanize(v, v, 10);
-    local t = tick(event, 0);
-    emit CONTROL_CHANGE(event.Channel, PORTAMENTO_TIME, v) at t;
-}
-
 true {
     fixEventChannel();
 }
 
 BEGIN SEQUENCE {
-    tracknum = 0;
     channel_array = [];
     tracks = [];
     arguments.ForEach(loadChannelArray);
     arguments.ForEach(loadTracks);
     print("channel_array=" + toString(channel_array));
     print("tracks=" + toString(tracks));
+    humanizer = h.LoadHumanizer();
+    humanizer.StartSequence();
 }
 
 BEGIN TRACK {
-    initTrack();
+    humanizer.StartTrack();
     if (not isValidTrack()) {
         // skip the track
         next;
@@ -232,48 +108,47 @@ BEGIN TRACK {
 }
 
 (event.Type == CONTROL_CHANGE) and (event.Mpc == PORTAMENTO) {
-    portamento = event.Value;
+    humanizer.Portamento(event);
 }
 
 (event.Type == CONTROL_CHANGE) and (event.Mpc == PORTAMENTO_TIME) {
-    portamentoTime(event);
+    humanizer.PortamentoTime(event);
     next;
 }
 
 (event.Type == CONTROL_CHANGE) and (event.Mpc == EXPRESSION) {
-    // Record the expression value
-    expression[event.Channel] = event.Value;
+    humanizer.Expression(event);
     next;
 }
 
 (event.Type == CONTROL_CHANGE) and (event.Mpc == CHANNEL_VOLUME) {
-    // Record the volume value
-    volume[event.Channel] = event.Value;
+    humanizer.Volume(event);
     emit;
     next;
 }
 
 (event.Type == PROGRAM_CHANGE) {
-    print("Program change on channel " + toString(event.Channel));
+    // print("Program change on channel " + toString(event.Channel));
 }
 
 (event.Type == PROGRAM_CHANGE) and (event.Channel == 9) {
     // Don't emit program change on channel "10" (9 actually)
+    print("Ignore program change on drums channel");
     next;
 }
 
 (event.Type == NOTE_ON) and (event.Velocity > 0) {
-    noteOn(event);
+    humanizer.NoteOn(event);
     next;
 }
 
 (event.Type == NOTE_ON) and (event.Velocity == 0) {
-    noteOnOff(event);
+    humanizer.NoteOnOff(event);
     next;
 }
 
 (event.Type == NOTE_OFF) {
-    noteOff(event);
+    humanizer.NoteOff(event);
     next;
 }
 
@@ -306,14 +181,9 @@ BEGIN TRACK {
 }
 
 END TRACK {
-    record[tracknum] = {
-        "velocity": velocity,
-        "expression": expression
-    };
-    tracknum = tracknum + 1;
+    humanizer.EndTrack();
 }
 
 END SEQUENCE {
-    write("record", record);
-    write("notes", notes);
+    humanizer.EndSequence();
 }
