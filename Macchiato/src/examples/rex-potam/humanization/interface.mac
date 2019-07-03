@@ -30,9 +30,9 @@ class Humanizer {
 
     def EndTrack();
 
-    def TrackNumber() ensures result >= 0;
+    def TrackNumber(); // ensures result >= 0; // TODO: does not work
 
-    def Tick(event, sign);
+    def Tempo(event);
 
     def NoteOn(event);
 

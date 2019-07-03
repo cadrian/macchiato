@@ -20,7 +20,8 @@
  * The humanizer factory
  */
 
-import d "humanization/default.mac";
+import dft "humanization/default.mac";
+import kb "humanization/keyboards.mac";
 
 def loadHumanizer(arg) {
     local p = /humanizer=(?<value>.*)/;
@@ -29,6 +30,8 @@ def loadHumanizer(arg) {
         local value = m.Group("value");
         if value == "default" {
             // OK, it is the default
+        } else if value == "keyboards" {
+            humanizer = kb.KeyboardsHumanizer();
         } else {
             print("unknown humanizer, ignored: " + value);
         }
@@ -37,7 +40,7 @@ def loadHumanizer(arg) {
 
 def LoadHumanizer() {
     // Set default
-    humanizer = d.DefaultHumanizer();
+    humanizer = dft.DefaultHumanizer();
     // See if another is found
     arguments.ForEach(loadHumanizer);
     // Return the humanizer

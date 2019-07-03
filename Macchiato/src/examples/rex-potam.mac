@@ -101,6 +101,7 @@ BEGIN SEQUENCE {
 
 BEGIN TRACK {
     humanizer.StartTrack();
+    print("Starting track: " + toString(humanizer.TrackNumber()));
     if (not isValidTrack()) {
         // skip the track
         next;
@@ -129,6 +130,12 @@ BEGIN TRACK {
 
 (event.Type == PROGRAM_CHANGE) {
     // print("Program change on channel " + toString(event.Channel));
+}
+
+(event.Type == TEMPO) {
+    humanizer.Tempo(event);
+    emit;
+    next;
 }
 
 (event.Type == PROGRAM_CHANGE) and (event.Channel == 9) {
