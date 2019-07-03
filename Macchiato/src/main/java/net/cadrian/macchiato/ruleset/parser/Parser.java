@@ -17,9 +17,7 @@
 package net.cadrian.macchiato.ruleset.parser;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,9 +84,9 @@ public class Parser {
 	private boolean inDef;
 	private boolean inEnsure;
 
-	public Parser(final File relativeDirectory, final Reader reader, final String path) throws IOException {
+	public Parser(final File relativeDirectory, final String path) throws IOException {
 		this.relativeDirectory = relativeDirectory;
-		this.buffer = new ParserBuffer(reader, path);
+		this.buffer = ParserBuffer.getParserBuffer(path);
 	}
 
 	public Ruleset parse() {
@@ -151,15 +149,13 @@ public class Parser {
 		LOGGER.debug("Found {} at {}", rulesetPath.getValue(), rulesetFile.getPath());
 
 		final Ruleset ruleset;
-		try (final FileReader rulesetReader = new FileReader(rulesetFile)) {
-			final Parser rulesetParser = new Parser(rulesetFile.getParentFile(), rulesetReader, rulesetFile.getPath());
-			try {
-				ruleset = rulesetParser.parse(p);
-			} catch (final ParserException e) {
-				throw new ParserException(error("In " + rulesetPath.getValue(), p1) + '\n' + e.getMessage(), e);
-			}
+		try {
+			final Parser rulesetParser = new Parser(rulesetFile.getParentFile(), rulesetFile.getPath());
+			ruleset = rulesetParser.parse(p);
 		} catch (final IOException e) {
 			throw new ParserException(error("Could read " + rulesetFile.getPath(), p1), e);
+		} catch (final ParserException e) {
+			throw new ParserException(error("In " + rulesetPath.getValue(), p1) + '\n' + e.getMessage(), e);
 		}
 		final Ruleset old = result.addRuleset(new Identifier(name, namePosition), ruleset);
 		if (old != null) {
@@ -1596,8 +1592,7 @@ public class Parser {
 
 	static int run(final String[] args) throws IOException {
 		final File file = new File(args[0]);
-		final FileReader fileReader = new FileReader(file);
-		final Parser parser = new Parser(file.getParentFile(), fileReader, file.getPath());
+		final Parser parser = new Parser(file.getParentFile(), file.getPath());
 		try {
 			final Ruleset ruleset = parser.parse();
 			System.out.println("Ruleset: " + ruleset);

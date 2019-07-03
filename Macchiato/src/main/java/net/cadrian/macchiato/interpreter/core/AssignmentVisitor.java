@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.interpreter.InterpreterException;
+import net.cadrian.macchiato.interpreter.ObjectInexistentException;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacString;
@@ -208,7 +209,7 @@ class AssignmentVisitor implements ExpressionVisitor {
 			setter = new DictionarySetter((MacDictionary) previousValue, indexedSetter, (MacString) index);
 			previousValue = previousValue == null ? null : ((MacDictionary) previousValue).get((MacString) index);
 		} else if (index == null) {
-			throw new InterpreterException("Cannot assign: index does not exist", indexedExpression.position());
+			throw new ObjectInexistentException("Cannot assign: index does not exist", indexedExpression.position());
 		} else {
 			throw new InterpreterException("Cannot use " + index.getClass().getSimpleName() + " as index",
 					indexedExpression.position());

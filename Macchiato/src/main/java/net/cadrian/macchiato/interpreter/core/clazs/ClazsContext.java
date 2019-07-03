@@ -3,7 +3,7 @@ package net.cadrian.macchiato.interpreter.core.clazs;
 import net.cadrian.macchiato.interpreter.ClazsMethod;
 import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Function;
-import net.cadrian.macchiato.interpreter.InterpreterException;
+import net.cadrian.macchiato.interpreter.ObjectInexistentException;
 import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.core.LocalContext;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
@@ -17,7 +17,7 @@ class ClazsContext extends LocalContext {
 	ClazsContext(final Context parent, final MacClazsObject target, final Ruleset ruleset) {
 		super(parent, ruleset);
 		if (target == null) {
-			throw new InterpreterException("BUG: Method target does not exist");
+			throw new ObjectInexistentException("BUG: Method target does not exist");
 		}
 		this.target = target;
 	}

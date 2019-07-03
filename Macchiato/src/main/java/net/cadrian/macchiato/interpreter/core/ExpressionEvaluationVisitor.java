@@ -27,6 +27,7 @@ import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.Method;
+import net.cadrian.macchiato.interpreter.ObjectInexistentException;
 import net.cadrian.macchiato.interpreter.objects.MacBoolean;
 import net.cadrian.macchiato.interpreter.objects.MacFunction;
 import net.cadrian.macchiato.interpreter.objects.MacMethod;
@@ -86,7 +87,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		typedUnary.getOperand().accept(this);
 		final MacObject operand = lastValue;
 		if (operand == null) {
-			throw new InterpreterException("expression does not exist", typedUnary.getOperand().position());
+			throw new ObjectInexistentException("expression does not exist", typedUnary.getOperand().position());
 		}
 		switch (typedUnary.getOperator()) {
 		case NOT:
@@ -114,7 +115,8 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		typedBinary.getLeftOperand().accept(this);
 		final MacObject left = lastValue;
 		if (left == null) {
-			throw new InterpreterException("left expression does not exist", typedBinary.getLeftOperand().position());
+			throw new ObjectInexistentException("left expression does not exist",
+					typedBinary.getLeftOperand().position());
 		}
 		switch (typedBinary.getOperator()) {
 		case ADD:
@@ -123,7 +125,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new InterpreterException("right expression does not exist",
+				throw new ObjectInexistentException("right expression does not exist",
 						typedBinary.getLeftOperand().position());
 			}
 			if (lastValue.getClass() != left.getClass()) {
@@ -144,7 +146,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (MacBoolean.TRUE.equals(lastValue)) {
 				typedBinary.getRightOperand().accept(this);
 				if (lastValue == null) {
-					throw new InterpreterException("right expression does not exist",
+					throw new ObjectInexistentException("right expression does not exist",
 							typedBinary.getLeftOperand().position());
 				}
 				if (!(lastValue instanceof MacBoolean)) {
@@ -159,7 +161,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new InterpreterException("right expression does not exist",
+				throw new ObjectInexistentException("right expression does not exist",
 						typedBinary.getLeftOperand().position());
 			}
 			if (!(lastValue instanceof MacNumber)) {
@@ -170,7 +172,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		case EQ:
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new InterpreterException("right expression does not exist",
+				throw new ObjectInexistentException("right expression does not exist",
 						typedBinary.getLeftOperand().position());
 			}
 			lastValue = MacBoolean.valueOf(left.equals(lastValue));
@@ -181,7 +183,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new InterpreterException("right expression does not exist",
+				throw new ObjectInexistentException("right expression does not exist",
 						typedBinary.getLeftOperand().position());
 			}
 			if (lastValue.getClass() != left.getClass()) {
@@ -195,7 +197,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new InterpreterException("right expression does not exist",
+				throw new ObjectInexistentException("right expression does not exist",
 						typedBinary.getLeftOperand().position());
 			}
 			if (lastValue.getClass() != left.getClass()) {
@@ -209,7 +211,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new InterpreterException("right expression does not exist",
+				throw new ObjectInexistentException("right expression does not exist",
 						typedBinary.getLeftOperand().position());
 			}
 			if (lastValue.getClass() != left.getClass()) {
@@ -223,7 +225,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new InterpreterException("right expression does not exist",
+				throw new ObjectInexistentException("right expression does not exist",
 						typedBinary.getLeftOperand().position());
 			}
 			if (lastValue.getClass() != left.getClass()) {
@@ -237,7 +239,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new InterpreterException("right expression does not exist",
+				throw new ObjectInexistentException("right expression does not exist",
 						typedBinary.getLeftOperand().position());
 			}
 			if (!(lastValue instanceof MacPattern)) {
@@ -251,7 +253,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new InterpreterException("right expression does not exist",
+				throw new ObjectInexistentException("right expression does not exist",
 						typedBinary.getLeftOperand().position());
 			}
 			if (!(lastValue instanceof MacNumber)) {
@@ -262,7 +264,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		case NE:
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new InterpreterException("right expression does not exist",
+				throw new ObjectInexistentException("right expression does not exist",
 						typedBinary.getLeftOperand().position());
 			}
 			lastValue = MacBoolean.valueOf(!left.equals(lastValue));
@@ -274,7 +276,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (MacBoolean.FALSE.equals(lastValue)) {
 				typedBinary.getRightOperand().accept(this);
 				if (lastValue == null) {
-					throw new InterpreterException("right expression does not exist",
+					throw new ObjectInexistentException("right expression does not exist",
 							typedBinary.getLeftOperand().position());
 				}
 				if (!(lastValue instanceof MacBoolean)) {
@@ -289,7 +291,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new InterpreterException("right expression does not exist",
+				throw new ObjectInexistentException("right expression does not exist",
 						typedBinary.getLeftOperand().position());
 			}
 			if (!(lastValue instanceof MacNumber)) {
@@ -303,7 +305,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new InterpreterException("right expression does not exist",
+				throw new ObjectInexistentException("right expression does not exist",
 						typedBinary.getLeftOperand().position());
 			}
 			if (!(lastValue instanceof MacNumber)) {
@@ -317,7 +319,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new InterpreterException("right expression does not exist",
+				throw new ObjectInexistentException("right expression does not exist",
 						typedBinary.getLeftOperand().position());
 			}
 			if (!(lastValue instanceof MacNumber)) {
@@ -331,7 +333,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new InterpreterException("right expression does not exist",
+				throw new ObjectInexistentException("right expression does not exist",
 						typedBinary.getLeftOperand().position());
 			}
 			if (!(lastValue instanceof MacBoolean)) {
@@ -417,7 +419,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		dottedExpression.getTarget().accept(this);
 		final MacObject target = lastValue;
 		if (target == null) {
-			throw new InterpreterException("target does not exist", dottedExpression.getTarget().position());
+			throw new ObjectInexistentException("target does not exist", dottedExpression.getTarget().position());
 		}
 		final Identifier selector = dottedExpression.getSelector();
 		final Field<MacObject, MacObject> field = target.getField(context.getRuleset(), selector);
@@ -436,12 +438,12 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		indexedExpression.getIndexed().accept(this);
 		final MacObject target = lastValue;
 		if (target == null) {
-			throw new InterpreterException("target does not exist", indexedExpression.getIndexed().position());
+			throw new ObjectInexistentException("target does not exist", indexedExpression.getIndexed().position());
 		}
 		indexedExpression.getIndex().accept(this);
 		final MacObject index = lastValue;
 		if (index == null) {
-			throw new InterpreterException("index does not exist", indexedExpression.getIndex().position());
+			throw new ObjectInexistentException("index does not exist", indexedExpression.getIndex().position());
 		}
 		if (index instanceof MacNumber) {
 			if (!(target instanceof MacArray)) {
@@ -550,8 +552,12 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	@Override
 	public void visitExistsExpression(final ExistsExpression existsExpression) {
 		LOGGER.debug("<-- {}", existsExpression);
-		existsExpression.getExpression().accept(this);
-		lastValue = MacBoolean.valueOf(lastValue != null);
+		try {
+			existsExpression.getExpression().accept(this);
+			lastValue = MacBoolean.valueOf(lastValue != null);
+		} catch (final ObjectInexistentException e) {
+			lastValue = MacBoolean.FALSE;
+		}
 		LOGGER.debug("--> {}", lastValue);
 	}
 

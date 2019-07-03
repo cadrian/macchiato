@@ -19,6 +19,7 @@ package net.cadrian.macchiato.interpreter.objects;
 import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.Method;
+import net.cadrian.macchiato.interpreter.ObjectInexistentException;
 import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.core.LocalContext;
 import net.cadrian.macchiato.interpreter.objects.container.MacDictionary;
@@ -63,7 +64,7 @@ public abstract class MacCallable implements MacObject {
 
 				final MacObject arg = args.get(MacString.valueOf(argName.getName()));
 				if (arg == null) {
-					throw new InterpreterException("invalid argument " + argName + ": does not exist", position);
+					throw new ObjectInexistentException("invalid argument " + argName + ": does not exist", position);
 				}
 				if (!argType.isAssignableFrom(arg.getClass())) {
 					throw new InterpreterException("invalid argument " + argName + ": incompatible type", position);

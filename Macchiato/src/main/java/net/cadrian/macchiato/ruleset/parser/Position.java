@@ -28,4 +28,9 @@ public class Position {
 		this.offset = position;
 	}
 
+	@Override
+	public String toString() {
+		return "{Position " + path + "@" + offset + "}";
+	}
+
 }

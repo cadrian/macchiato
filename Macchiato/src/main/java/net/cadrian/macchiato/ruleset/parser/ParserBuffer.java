@@ -16,10 +16,14 @@
  */
 package net.cadrian.macchiato.ruleset.parser;
 
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.math.BigInteger;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -29,31 +33,71 @@ public class ParserBuffer {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ParserBuffer.class);
 
+	private static final Map<String, ParserBuffer> FLYWEIGHT = new ConcurrentHashMap<>();
+
+	public static ParserBuffer getParserBuffer(final String path) throws IOException {
+		final AtomicReference<IOException> exception = new AtomicReference<>();
+		final ParserBuffer result = FLYWEIGHT.computeIfAbsent(path, p -> {
+			try {
+				return new ParserBuffer(p, null);
+			} catch (final IOException e) {
+				LOGGER.error("Error reading file: {}", path, e);
+				exception.set(e);
+			}
+			return null;
+		});
+		if (result == null) {
+			assert exception.get() != null;
+			throw exception.get();
+		}
+		result.rewind(0);
+		return result;
+	}
+
+	public static ParserBuffer getParserBuffer(final Reader reader) throws IOException {
+		return new ParserBuffer(null, reader);
+	}
+
 	final String path;
 
 	private final Reader reader;
 	private boolean eof;
 	private char[] content;
+	private int length;
 	private int offset;
 
-	public ParserBuffer(final Reader reader, final String path) {
+	private ParserBuffer(final String path, final Reader reader) throws IOException {
 		this.path = path;
-		this.reader = reader;
-		this.content = new char[0];
+		this.reader = reader == null ? new BufferedReader(new FileReader(path)) : reader;
+		this.content = new char[4096];
 		this.offset = 0;
 		readMore();
 	}
 
 	public boolean off() {
-		if (!eof && offset == content.length) {
+		if (!eof && offset == length) {
 			readMore();
 		}
-		return eof && offset == content.length;
+		return eof && offset == length;
 	}
 
 	public char current() {
 		assert !off();
 		return content[offset];
+	}
+
+	private char[] ensureContentLength(final int wantedLength) {
+		int newLength = content.length;
+		if (wantedLength < newLength) {
+			return content;
+		}
+		do {
+			newLength *= 2;
+		} while (newLength < wantedLength);
+		final char[] newContent = new char[newLength];
+		System.arraycopy(content, 0, newContent, 0, content.length);
+		content = newContent;
+		return newContent;
 	}
 
 	private void readMore() {
@@ -65,13 +109,17 @@ public class ParserBuffer {
 			LOGGER.error("IO error", e);
 			throw new ParserException(error("Error while reading input file"), e);
 		}
+		final int length = this.length;
 		if (n == -1) {
 			eof = true;
+			try {
+				reader.close();
+			} catch (final IOException e) {
+				LOGGER.debug("Ignored close exception", e);
+			}
 		} else {
-			final char[] newContent = new char[content.length + n];
-			System.arraycopy(content, 0, newContent, 0, content.length);
-			System.arraycopy(buffer, 0, newContent, content.length, n);
-			content = newContent;
+			System.arraycopy(buffer, 0, ensureContentLength(length + n), length, n);
+			this.length += n;
 		}
 	}
 
@@ -80,7 +128,7 @@ public class ParserBuffer {
 	}
 
 	public void next() {
-		if (!eof && offset == content.length) {
+		if (!eof && offset == length) {
 			readMore();
 		}
 		if (!off()) {
@@ -103,33 +151,29 @@ public class ParserBuffer {
 	}
 
 	public String error(final String message, final Position position) throws IOException {
-		if (position.path == path) {
-			return error(message, position.offset);
-		}
-		return new ParserBuffer(new FileReader(position.path), path).error(message, offset);
+		return (position.path == path ? this : getParserBuffer(position.path)).error(message, position.offset);
 	}
 
 	private String error(final String message, final int offset) {
 		final int oldOffset = this.offset;
 
-		while (!eof && content.length < offset) {
+		while (!eof && length < offset) {
 			readMore();
 		}
-		final int realOffset = offset < content.length ? offset : content.length;
 
-		int startPosition = realOffset;
-		if (startPosition >= content.length) {
-			startPosition = content.length - 1;
+		int startPosition = offset;
+		if (startPosition >= length) {
+			startPosition = length - 1;
 		}
 		while (startPosition > 0 && content[startPosition] != '\n') {
 			startPosition--;
 		}
-		if (content[startPosition] == '\n' && startPosition < realOffset) {
+		if (content[startPosition] == '\n' && startPosition < offset && startPosition < length) {
 			startPosition++;
 		}
 		int line = 1;
 		int column = 0;
-		for (int i = 0; i < realOffset; i++) {
+		for (int i = 0; i < offset && i < length; i++) {
 			if (content[i] == '\n') {
 				line++;
 				column = 0;
@@ -139,7 +183,7 @@ public class ParserBuffer {
 		}
 		final StringBuilder text = new StringBuilder();
 		final StringBuilder carret = new StringBuilder();
-		for (int i = startPosition; i < realOffset; i++) {
+		for (int i = startPosition; i < offset && i < length; i++) {
 			final char c = content[i];
 			text.append(c);
 			if (c == '\t') {
@@ -149,8 +193,8 @@ public class ParserBuffer {
 			}
 		}
 		carret.append('^');
-		if (realOffset < content.length && content[realOffset] != '\n') {
-			text.append(content[realOffset]);
+		if (offset < length && content[offset] != '\n') {
+			text.append(content[offset]);
 			rewind(offset);
 			next();
 			while (!off() && current() != '\n') {

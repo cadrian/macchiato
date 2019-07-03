@@ -28,6 +28,7 @@ import net.cadrian.macchiato.interpreter.Callable;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.Method;
+import net.cadrian.macchiato.interpreter.ObjectInexistentException;
 import net.cadrian.macchiato.interpreter.objects.MacBoolean;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
@@ -117,7 +118,7 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 			final Expression argument = arguments.get(i);
 			final MacObject value = context.eval(argument.typed(argTypes[i]));
 			if (value == null) {
-				throw new InterpreterException("value does not exist", argument.position());
+				throw new ObjectInexistentException("value does not exist", argument.position());
 			}
 			callContext.declareLocal(argNames[i]);
 			callContext.set(argNames[i], value);

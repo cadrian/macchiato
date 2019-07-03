@@ -76,7 +76,7 @@ class FromStringFunction extends AbstractObjectReaderFunction implements Functio
 		final MacObject result;
 
 		try (final Reader reader = new StringReader(data.getValue())) {
-			final ParserBuffer buffer = new ParserBuffer(reader, null);
+			final ParserBuffer buffer = ParserBuffer.getParserBuffer(reader);
 			result = parseObject(buffer);
 		} catch (final IOException e) {
 			throw new InterpreterException(e.getMessage(), e, position);

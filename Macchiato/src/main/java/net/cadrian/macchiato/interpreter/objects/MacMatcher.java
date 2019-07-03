@@ -22,6 +22,7 @@ import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.Method;
+import net.cadrian.macchiato.interpreter.ObjectInexistentException;
 import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
@@ -97,7 +98,7 @@ public class MacMatcher implements MacObject {
 			final MacString result;
 			final MacComparable<?> group = context.get(ARG_GROUP);
 			if (group == null) {
-				throw new InterpreterException("group does not exist", position);
+				throw new ObjectInexistentException("group does not exist", position);
 			}
 			if (group instanceof MacNumber) {
 				final MacNumber index = (MacNumber) group;

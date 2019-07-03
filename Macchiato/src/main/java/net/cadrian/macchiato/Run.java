@@ -18,12 +18,9 @@ package net.cadrian.macchiato;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.Reader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,18 +50,15 @@ public class Run {
 			final String rulesetName = getRulesetName(args);
 			final String midiInputName = getMidiInputName(args);
 			final File rulesetFile = new File(rulesetName);
-			final Parser parser;
 			final Ruleset ruleset;
-			try (final Reader reader = new BufferedReader(new FileReader(rulesetName))) {
-				parser = new Parser(rulesetFile.getParentFile(), reader, rulesetFile.getPath());
-				try {
-					LOGGER.info("Parsing ruleset: {}", rulesetName);
-					ruleset = parser.parse().simplify();
-					LOGGER.debug("Parsed ruleset: {}", ruleset);
-				} catch (final ParserException e) {
-					System.err.println(parser.error(e));
-					return 1;
-				}
+			final Parser parser = new Parser(rulesetFile.getParentFile(), rulesetFile.getPath());
+			try {
+				LOGGER.info("Parsing ruleset: {}", rulesetName);
+				ruleset = parser.parse().simplify();
+				LOGGER.debug("Parsed ruleset: {}", ruleset);
+			} catch (final ParserException e) {
+				System.err.println(parser.error(e));
+				return 1;
 			}
 			try {
 				final Interpreter interpreter = new Interpreter(ruleset);

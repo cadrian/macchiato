@@ -16,10 +16,7 @@
  */
 package net.cadrian.macchiato.interpreter.functions.natfun;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,8 +73,8 @@ class ReadFunction extends AbstractObjectReaderFunction implements Function {
 		LOGGER.debug("<-- {}", file);
 		final MacObject result;
 
-		try (final Reader reader = new BufferedReader(new FileReader(file))) {
-			final ParserBuffer buffer = new ParserBuffer(reader, file);
+		try {
+			final ParserBuffer buffer = ParserBuffer.getParserBuffer(file);
 			result = parseObject(buffer);
 		} catch (final IOException e) {
 			throw new InterpreterException(e.getMessage(), e, position);

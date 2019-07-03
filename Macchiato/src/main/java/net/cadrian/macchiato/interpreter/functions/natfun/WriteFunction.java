@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.interpreter.InterpreterException;
+import net.cadrian.macchiato.interpreter.ObjectInexistentException;
 import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacString;
@@ -76,7 +77,7 @@ class WriteFunction extends AbstractObjectWriterFunction implements Function {
 		LOGGER.debug("<-- {}: {}", file, value);
 
 		if (value == null) {
-			throw new InterpreterException("value does not exist", position);
+			throw new ObjectInexistentException("value does not exist", position);
 		}
 
 		try (final Writer writer = new BufferedWriter(new FileWriter(file.getValue()))) {
