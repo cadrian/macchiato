@@ -132,7 +132,7 @@ class AssignmentVisitor implements ExpressionVisitor {
 	@Override
 	public void visitResult(final Result result) {
 		LOGGER.debug("<-- {}", result);
-		final Identifier resultIdentifier = new Identifier("result", result.position());
+		final Identifier resultIdentifier = new Identifier("Result", result.position());
 		previousValue = context.get(resultIdentifier);
 		setter = new ResultSetter(resultIdentifier);
 		LOGGER.debug("--> {}", previousValue);

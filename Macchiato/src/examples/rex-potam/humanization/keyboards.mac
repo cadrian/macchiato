@@ -28,19 +28,19 @@ import utl "utils.mac";
 
 def humanize(value, anchor, percent) {
     if value == 0 {
-        result = 0;
+        Result = 0;
     } else {
-        result = utl.Anchored(value, anchor, percent);
-        if result <= 0 {
-            result = 1;
+        Result = utl.Anchored(value, anchor, percent);
+        if Result <= 0 {
+            Result = 1;
         }
     }
 }
 
 def range(bpm, percent) {
-    result = bpm * 2 / percent;
-    if result < percent {
-        result = percent;
+    Result = bpm * 2 / percent;
+    if Result < percent {
+        Result = percent;
     }
 }
 
@@ -48,7 +48,7 @@ def tick(tick, bpm, percent, sign, canCollide) {
     local r = range(bpm, percent);
     if (sign == 0) {
         // +/- 'percent'% bpm
-        result = tick + random(r) - r;
+        Result = tick + random(r) - r;
     } else {
         // 10% bpm * sign with a slight offset to allow small collisions
         local t = random(r / 2);
@@ -58,10 +58,10 @@ def tick(tick, bpm, percent, sign, canCollide) {
                 t = t - random(m);
             }
         }
-        result = tick + t * sign;
+        Result = tick + t * sign;
     }
-    if result < 1 {
-        result = 1;
+    if Result < 1 {
+        Result = 1;
     }
 }
 
@@ -167,78 +167,78 @@ class KeyboardsHumanizer (itf.Humanizer) {
     }
 
     def TrackNumber() {
-        result = tracknum;
+        Result = tracknum;
     }
 
-    def Tempo(event) {
-        bpm = event.Bpm;
+    def Tempo(Event) {
+        bpm = Event.Bpm;
     }
 
-    def NoteOn(event) {
+    def NoteOn(Event) {
         // Record the velocity
-        velocity[event.Channel][event.Pitch] = event.Velocity;
+        velocity[Event.Channel][Event.Pitch] = Event.Velocity;
 
-        if (event.Channel == 9) or (volume[event.Channel] > 0) {
-            // Emit an event with a velocity that depends on the expression,
+        if (Event.Channel == 9) or (volume[Event.Channel] > 0) {
+            // Emit an Event with a velocity that depends on the expression,
             // and with a bit of random for rough "humanization"
-            local v = velocity[event.Channel][event.Pitch];
-            local e = expression[event.Channel];
+            local v = velocity[Event.Channel][Event.Pitch];
+            local e = expression[Event.Channel];
             if (v > 0) and (e > 0) {
                 v = (humanize(v, v, percent_velocity) * e) / 127;
                 local t;
-                if start[event.Tick] exists {
-                    t = tick(start[event.Tick], bpm, percent_tick / 2, 1,
-                             (running[event.Channel][event.Pitch] exists) and (running[event.Channel][event.Pitch].In > 0));
+                if start[Event.Tick] exists {
+                    t = tick(start[Event.Tick], bpm, percent_tick / 2, 1,
+                             (running[Event.Channel][Event.Pitch] exists) and (running[Event.Channel][Event.Pitch].In > 0));
                 } else {
-                    t = tick(event.Tick, bpm, percent_tick, 1,
-                             (running[event.Channel][event.Pitch] exists) and (running[event.Channel][event.Pitch].In > 0));
-                    start[event.Tick] = t;
+                    t = tick(Event.Tick, bpm, percent_tick, 1,
+                             (running[Event.Channel][Event.Pitch] exists) and (running[Event.Channel][Event.Pitch].In > 0));
+                    start[Event.Tick] = t;
                 }
-                running[event.Channel][event.Pitch] = runningRecord(event.Tick, t);
-                emit NOTE_ON(event.Channel, event.Pitch, v) at t;
+                running[Event.Channel][Event.Pitch] = runningRecord(Event.Tick, t);
+                emit NOTE_ON(Event.Channel, Event.Pitch, v) at t;
             } else {
-                velocity[event.Channel][event.Pitch] = 0;
+                velocity[Event.Channel][Event.Pitch] = 0;
             }
         }
     }
 
-    def NoteOnOff(event) {
-        if (event.Channel != 9) and (volume[event.Channel] == 0) {
+    def NoteOnOff(Event) {
+        if (Event.Channel != 9) and (volume[Event.Channel] == 0) {
             next;
         }
 
-        // Emit an event with a velocity that depends on the expression,
+        // Emit an Event with a velocity that depends on the expression,
         // and with a bit of random for rough "humanization"
         // Note that expression may have changed so the release velocity is not
         // necessarily equal to the press velocity
         local t;
-        if stop[event.Tick] exists {
-            t = tick(stop[event.Tick], bpm, percent_tick / 2, 1,
-                     (running[event.Channel][event.Pitch] exists) and (running[event.Channel][event.Pitch].In > 0));
+        if stop[Event.Tick] exists {
+            t = tick(stop[Event.Tick], bpm, percent_tick / 2, 1,
+                     (running[Event.Channel][Event.Pitch] exists) and (running[Event.Channel][Event.Pitch].In > 0));
         } else {
-            t = tick(event.Tick, bpm, percent_tick, -1,
-                     (running[event.Channel][event.Pitch] exists) and (running[event.Channel][event.Pitch].In > 0));
-            stop[event.Tick] = t;
+            t = tick(Event.Tick, bpm, percent_tick, -1,
+                     (running[Event.Channel][Event.Pitch] exists) and (running[Event.Channel][Event.Pitch].In > 0));
+            stop[Event.Tick] = t;
         }
         if portamento {
-            velocity[event.Channel][event.Pitch] = t;
-            emit NOTE_ON(event.Channel, event.Pitch, 0) at t;
-        } else if velocity[event.Channel][event.Pitch] > 0 {
-            if t < running[event.Channel][event.Pitch].Out {
-                if t < running[event.Channel][event.Pitch].In {
+            velocity[Event.Channel][Event.Pitch] = t;
+            emit NOTE_ON(Event.Channel, Event.Pitch, 0) at t;
+        } else if velocity[Event.Channel][Event.Pitch] > 0 {
+            if t < running[Event.Channel][Event.Pitch].Out {
+                if t < running[Event.Channel][Event.Pitch].In {
                     print("**** note-on after actual note-off!!");
-                    t = running[event.Channel][event.Pitch].In + bpm / percent;
+                    t = running[Event.Channel][Event.Pitch].In + bpm / percent;
                 } else {
                     print("**** note-off before note-on, using real value");
-                    t = event.Tick;
+                    t = Event.Tick;
                 }
             }
-            local v = velocity[event.Channel][event.Pitch];
-            local e = expression[event.Channel];
+            local v = velocity[Event.Channel][Event.Pitch];
+            local e = expression[Event.Channel];
             v = (humanize(v, v, percent_velocity) * e) / 127;
-            record_note_length(event.Channel, event.Pitch, t);
-            running[event.Channel][event.Pitch] = runningRecord(-1, -1);
-            emit NOTE_OFF(event.Channel, event.Pitch, v) at t;
+            record_note_length(Event.Channel, Event.Pitch, t);
+            running[Event.Channel][Event.Pitch] = runningRecord(-1, -1);
+            emit NOTE_OFF(Event.Channel, Event.Pitch, v) at t;
         }
     }
 
@@ -252,61 +252,61 @@ class KeyboardsHumanizer (itf.Humanizer) {
         }
     }
 
-    def NoteOff(event) {
+    def NoteOff(Event) {
         // For completion only -- because NoteWorthy Composer
-        // does not emit those events
+        // does not emit those Events
 
-        if (volume[event.Channel] > 0) and (velocity[event.Channel][event.Pitch] > 0) {
-            // Emit an event with a velocity that depends on the expression,
+        if (volume[Event.Channel] > 0) and (velocity[Event.Channel][Event.Pitch] > 0) {
+            // Emit an Event with a velocity that depends on the expression,
             // and with a bit of random for rough "humanization"
             // Note that expression may have changed so the release velocity is not
             // necessarily equal to the press velocity
-            local v = (event.Velocity * expression[event.Channel]) / 127;
+            local v = (Event.Velocity * expression[Event.Channel]) / 127;
             v = humanize(v, v, percent_velocity);
             local t;
-            if stop[event.Tick] exists {
-                t = tick(stop[event.Tick], bpm, percent_tick / 2, -1,
-                         (running[event.Channel][event.Pitch] exists) and (running[event.Channel][event.Pitch].In > 0));
+            if stop[Event.Tick] exists {
+                t = tick(stop[Event.Tick], bpm, percent_tick / 2, -1,
+                         (running[Event.Channel][Event.Pitch] exists) and (running[Event.Channel][Event.Pitch].In > 0));
             } else {
-                t = tick(event.Tick, bpm, percent_tick, -1,
-                         (running[event.Channel][event.Pitch] exists) and (running[event.Channel][event.Pitch].In > 0));
+                t = tick(Event.Tick, bpm, percent_tick, -1,
+                         (running[Event.Channel][Event.Pitch] exists) and (running[Event.Channel][Event.Pitch].In > 0));
             }
-            if t < running[event.Channel][event.Pitch].Out {
-                if t < running[event.Channel][event.Pitch].In {
+            if t < running[Event.Channel][Event.Pitch].Out {
+                if t < running[Event.Channel][Event.Pitch].In {
                     print("**** note-on after actual note-off!!");
-                    t = running[event.Channel][event.Pitch].In + bpm / percent;
+                    t = running[Event.Channel][Event.Pitch].In + bpm / percent;
                 } else {
                     print("**** note-off before note-on, using real value");
-                    t = event.Tick;
+                    t = Event.Tick;
                 }
             }
-            record_note_length(event.Channel, event.Pitch, t);
-            velocity[event.Channel][event.Pitch] = 0;
-            running[event.Channel][event.Pitch] = runningRecord(-1, -1);
-            emit NOTE_OFF(event.Channel, event.Pitch, v) at t;
+            record_note_length(Event.Channel, Event.Pitch, t);
+            velocity[Event.Channel][Event.Pitch] = 0;
+            running[Event.Channel][Event.Pitch] = runningRecord(-1, -1);
+            emit NOTE_OFF(Event.Channel, Event.Pitch, v) at t;
         }
     }
 
-    def Expression(event) {
+    def Expression(Event) {
         // Record the expression value
-        expression[event.Channel] = event.Value;
+        expression[Event.Channel] = Event.Value;
     }
 
-    def Volume(event) {
+    def Volume(Event) {
         // Record the volume value
-        volume[event.Channel] = event.Value;
+        volume[Event.Channel] = Event.Value;
     }
 
-    def Portamento(event) {
-        portamento = event.Value
+    def Portamento(Event) {
+        portamento = Event.Value
     }
 
-    def PortamentoTime(event) {
-        // humanize this event too
-        local v = event.Value;
+    def PortamentoTime(Event) {
+        // humanize this Event too
+        local v = Event.Value;
         v = humanize(v, v, percent_velocity);
-        local t = tick(event.Tick, bpm, percent_tick / 2, 0, false);
-        emit CONTROL_CHANGE(event.Channel, PORTAMENTO_TIME, v) at t;
+        local t = tick(Event.Tick, bpm, percent_tick / 2, 0, false);
+        emit CONTROL_CHANGE(Event.Channel, PORTAMENTO_TIME, v) at t;
     }
 
 }

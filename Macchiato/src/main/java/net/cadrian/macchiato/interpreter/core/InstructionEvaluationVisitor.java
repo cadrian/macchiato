@@ -123,7 +123,7 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 			callContext.declareLocal(argNames[i]);
 			callContext.set(argNames[i], value);
 		}
-		final Identifier resultIdentifier = new Identifier("result", position);
+		final Identifier resultIdentifier = new Identifier("Result", position);
 		if (fn.getResultType() != null) {
 			callContext.declareLocal(resultIdentifier);
 		}

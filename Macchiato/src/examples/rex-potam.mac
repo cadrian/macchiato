@@ -24,7 +24,7 @@
  * used by the songwriter:
  *
  * - NoteWorthy Composer emits NOTE_ON(velocity=0) instead of NOTE_OFF
- *   events -- replace by NOTE_OFF, except if the PORTAMENTO pedal is on
+ *   Events -- replace by NOTE_OFF, except if the PORTAMENTO pedal is on
  *
  * - NoteWorthy Composer emits all tracks, even if they are muted --
  *   an input file may be used to map the actual channels to some
@@ -60,26 +60,26 @@ def loadTracks(arg) {
 }
 
 def checkTrackNumber(tn, val) {
-    result = val or (tn == humanizer.TrackNumber());
+    Result = val or (tn == humanizer.TrackNumber());
 }
 
 def isValidTrack() {
     if tracks.Size() == 0 {
-        result = true;
+        Result = true;
     } else {
-        result = tracks.Map(checkTrackNumber, false);
+        Result = tracks.Map(checkTrackNumber, false);
     }
 }
 
 def fixEventChannel() {
-    if event.Channel exists {
-        local c = channel_array[event.Channel]
+    if Event.Channel exists {
+        local c = channel_array[Event.Channel]
         if c exists {
             if c < 0 {
-                // forget this event as it is not mapped
+                // forget this Event as it is not mapped
                 next;
             }
-            event.Channel = c;
+            Event.Channel = c;
         }
     }
 }
@@ -91,8 +91,8 @@ true {
 BEGIN SEQUENCE {
     channel_array = [];
     tracks = [];
-    arguments.ForEach(loadChannelArray);
-    arguments.ForEach(loadTracks);
+    Arguments.ForEach(loadChannelArray);
+    Arguments.ForEach(loadTracks);
     print("channel_array=" + toString(channel_array));
     print("tracks=" + toString(tracks));
     humanizer = h.LoadHumanizer();
@@ -108,83 +108,83 @@ BEGIN TRACK {
     }
 }
 
-(event.Type == CONTROL_CHANGE) and (event.Mpc == PORTAMENTO) {
-    humanizer.Portamento(event);
+(Event.Type == CONTROL_CHANGE) and (Event.Mpc == PORTAMENTO) {
+    humanizer.Portamento(Event);
 }
 
-(event.Type == CONTROL_CHANGE) and (event.Mpc == PORTAMENTO_TIME) {
-    humanizer.PortamentoTime(event);
+(Event.Type == CONTROL_CHANGE) and (Event.Mpc == PORTAMENTO_TIME) {
+    humanizer.PortamentoTime(Event);
     next;
 }
 
-(event.Type == CONTROL_CHANGE) and (event.Mpc == EXPRESSION) {
-    humanizer.Expression(event);
+(Event.Type == CONTROL_CHANGE) and (Event.Mpc == EXPRESSION) {
+    humanizer.Expression(Event);
     next;
 }
 
-(event.Type == CONTROL_CHANGE) and (event.Mpc == CHANNEL_VOLUME) {
-    humanizer.Volume(event);
+(Event.Type == CONTROL_CHANGE) and (Event.Mpc == CHANNEL_VOLUME) {
+    humanizer.Volume(Event);
     emit;
     next;
 }
 
-(event.Type == PROGRAM_CHANGE) {
-    // print("Program change on channel " + toString(event.Channel));
+(Event.Type == PROGRAM_CHANGE) {
+    // print("Program change on channel " + toString(Event.Channel));
 }
 
-(event.Type == TEMPO) {
-    humanizer.Tempo(event);
+(Event.Type == TEMPO) {
+    humanizer.Tempo(Event);
     emit;
     next;
 }
 
-(event.Type == PROGRAM_CHANGE) and (event.Channel == 9) {
+(Event.Type == PROGRAM_CHANGE) and (Event.Channel == 9) {
     // Don't emit program change on channel "10" (9 actually)
     print("Ignore program change on drums channel");
     next;
 }
 
-(event.Type == NOTE_ON) and (event.Velocity > 0) {
-    humanizer.NoteOn(event);
+(Event.Type == NOTE_ON) and (Event.Velocity > 0) {
+    humanizer.NoteOn(Event);
     next;
 }
 
-(event.Type == NOTE_ON) and (event.Velocity == 0) {
-    humanizer.NoteOnOff(event);
+(Event.Type == NOTE_ON) and (Event.Velocity == 0) {
+    humanizer.NoteOnOff(Event);
     next;
 }
 
-(event.Type == NOTE_OFF) {
-    humanizer.NoteOff(event);
+(Event.Type == NOTE_OFF) {
+    humanizer.NoteOff(Event);
     next;
 }
 
-(event.Type == TEXT) {
-    print("TEXT: " + event.Text);
+(Event.Type == TEXT) {
+    print("TEXT: " + Event.Text);
 }
 
-(event.Type == COPYRIGHT) {
-    print("COPYRIGHT: " + event.Text);
+(Event.Type == COPYRIGHT) {
+    print("COPYRIGHT: " + Event.Text);
 }
 
-(event.Type == TRACK_NAME) {
-    print("TRACK_NAME: " + event.Text);
+(Event.Type == TRACK_NAME) {
+    print("TRACK_NAME: " + Event.Text);
 }
 
-(event.Type == INSTRUMENT_NAME) {
-    print("INSTRUMENT_NAME: " + event.Text);
+(Event.Type == INSTRUMENT_NAME) {
+    print("INSTRUMENT_NAME: " + Event.Text);
 }
 
-(event.Type == LYRICS) {
-    print("LYRICS: " + event.Text);
+(Event.Type == LYRICS) {
+    print("LYRICS: " + Event.Text);
 }
 
-(event.Type == MARKER_TEXT) {
-    print("MARKER_TEXT: " + event.Text);
+(Event.Type == MARKER_TEXT) {
+    print("MARKER_TEXT: " + Event.Text);
 }
 
-(event.Type == CUE_POINT) {
-    print("CUE_POINT: " + event.Text);
+(Event.Type == CUE_POINT) {
+    print("CUE_POINT: " + Event.Text);
 }
 
 END TRACK {

@@ -482,7 +482,7 @@ public class Parser {
 				LOGGER.debug("--> {}", result);
 				return result;
 			}
-			case "result": {
+			case "Result": {
 				final Instruction result = parseInstructionSuffix(parseInstructionTarget(new Result(position)));
 				LOGGER.debug("--> {}", result);
 				return result;
@@ -1214,7 +1214,7 @@ public class Parser {
 							throw new ParserException(error("Expected identifier"));
 						}
 						switch (name) {
-						case "result":
+						case "Result":
 							atomic = new Result(position);
 							break;
 						case "true":
@@ -1567,7 +1567,7 @@ public class Parser {
 		case "old":
 		case "or":
 		case "requires":
-		case "result":
+		case "Result":
 		case "switch":
 		case "true":
 		case "where":

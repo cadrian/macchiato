@@ -66,7 +66,7 @@ class GlobalContext extends Context {
 		for (int i = 0; i < args.length; i++) {
 			arguments.set(MacNumber.valueOf(i), MacString.valueOf(args[i]));
 		}
-		global.put(new Identifier("arguments", Position.NONE), arguments);
+		global.put(new Identifier("Arguments", Position.NONE), arguments);
 
 		for (final MetaMessageType type : MetaMessageType.values()) {
 			global.put(new Identifier(type.name(), Position.NONE), type);

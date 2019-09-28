@@ -54,7 +54,7 @@ def LoadHumanizer() {
     // Set default
     humanizer = dft.DefaultHumanizer();
     // See if another is found
-    arguments.ForEach(loadHumanizer);
+    Arguments.ForEach(loadHumanizer);
     // Return the humanizer
-    result = humanizer;
+    Result = humanizer;
 }

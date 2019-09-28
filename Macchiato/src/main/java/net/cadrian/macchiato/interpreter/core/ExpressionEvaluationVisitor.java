@@ -494,7 +494,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	@Override
 	public void visitResult(final Result result) {
 		LOGGER.debug("<-- {}", result);
-		this.lastValue = context.get(new Identifier("result", result.position()));
+		this.lastValue = context.get(new Identifier("Result", result.position()));
 		LOGGER.debug("--> {}", lastValue);
 	}
 
@@ -536,7 +536,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			callContext.declareLocal(argNames[i]);
 			callContext.set(argNames[i], value);
 		}
-		final Identifier resultIdentifier = new Identifier("result", position);
+		final Identifier resultIdentifier = new Identifier("Result", position);
 		callContext.declareLocal(resultIdentifier);
 		if (targetExpression == null) {
 			((Function) fn).run(callContext, position);

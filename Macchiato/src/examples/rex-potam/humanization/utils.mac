@@ -17,23 +17,23 @@
 
 def box(value) {
     if value < 0 {
-        result = 0;
+        Result = 0;
     } else if value > 127 {
-        result = 127;
+        Result = 127;
     } else {
-        result = value;
+        Result = value;
     }
 }
 
 def Valued(value, percent) {
-    result = Anchored(value, value, percent);
+    Result = Anchored(value, value, percent);
 }
 
 def Anchored(value, anchor, percent) {
     local max = anchor * percent;
     if max == 0 {
-        result = value;
+        Result = value;
     } else {
-        result = box(value + ((max / 2) - random(max)) / 100);
+        Result = box(value + ((max / 2) - random(max)) / 100);
     }
 }

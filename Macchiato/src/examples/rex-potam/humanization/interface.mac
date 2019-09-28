@@ -30,22 +30,22 @@ class Humanizer {
 
     def EndTrack();
 
-    def TrackNumber(); // ensures result >= 0; // TODO: does not work
+    def TrackNumber(); // ensures Result >= 0; // TODO: does not work
 
-    def Tempo(event);
+    def Tempo(Event);
 
-    def NoteOn(event);
+    def NoteOn(Event);
 
-    def NoteOnOff(event);
+    def NoteOnOff(Event);
 
-    def NoteOff(event);
+    def NoteOff(Event);
 
-    def Expression(event);
+    def Expression(Event);
 
-    def Volume(event);
+    def Volume(Event);
 
-    def Portamento(event);
+    def Portamento(Event);
 
-    def PortamentoTime(event);
+    def PortamentoTime(Event);
 
 }
