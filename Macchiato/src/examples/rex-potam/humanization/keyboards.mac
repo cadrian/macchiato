@@ -244,10 +244,10 @@ class KeyboardsHumanizer (itf.Humanizer) {
 
     def record_note_length(channel, pitch, tick) {
         if running[channel][pitch] exists {
-            local s = running[channel][pitch].Out;
-            if s > 0 {
-                local length = tick - s;
-                notes[tracknum][channel][s][pitch] = length;
+            local start = running[channel][pitch].Out;
+            if start > 0 {
+                local length = tick - start;
+                notes[tracknum][channel][start][pitch] = length;
             }
         }
     }
