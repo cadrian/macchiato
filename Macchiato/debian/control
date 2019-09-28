@@ -11,6 +11,7 @@ Homepage:
 Package: libmacchiato-java
 Architecture: all
 Depends: ${misc:Depends}, ${maven:Depends}
+Recommends: haveged
 Suggests: ${maven:OptionalDepends}
 Description: MIDI file filter library
  Macchiato is a MIDI file filter library, that transforms a MIDI file

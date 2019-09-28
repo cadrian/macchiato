@@ -18,6 +18,9 @@
 
 /*
  * This is the humanization for keyboards.
+ *
+ * In fact, it is a bit badly named; should be for SOLOISTS. Notes run
+ * a bit wilder, except chords that are tighter.
  */
 
 import itf "interface.mac";
@@ -34,44 +37,91 @@ def humanize(value, anchor, percent) {
     }
 }
 
-def range(bpm) {
-    result = bpm / 5;
-    if result < 10 {
-        result = 10;
+def range(bpm, percent) {
+    result = bpm * 2 / percent;
+    if result < percent {
+        result = percent;
     }
 }
 
-def tick(event, bpm, sign, canCollide) {
-    local r = range(bpm);
+def tick(tick, bpm, percent, sign, canCollide) {
+    local r = range(bpm, percent);
     if (sign == 0) {
-        // +/- 10% bpm
-        result = event.Tick + random(r) - r;
+        // +/- 'percent'% bpm
+        result = tick + random(r) - r;
     } else {
         // 10% bpm * sign with a slight offset to allow small collisions
         local t = random(r / 2);
         if canCollide {
-            t = t - random(r / 8);
+            local m = (r * percent) / 80;
+            if m > 0 {
+                t = t - random(m);
+            }
         }
-        result = event.Tick + t * sign;
+        result = tick + t * sign;
     }
     if result < 1 {
         result = 1;
     }
 }
 
+class runningRecord {
+
+    In;
+    Out;
+
+    def runningRecord(i, o) {
+        In = i;
+        Out = o;
+    }
+
+}
+
 class KeyboardsHumanizer (itf.Humanizer) {
 
+    // current track number
     tracknum;
+
+    // portamento pedal state (true is down)
     portamento;
-    velocity;
-    expression;
-    volume;
-    running;
-    notes;
+
+    // beats per minute
     bpm;
 
-    def KeyboardsHumanizer() {
+    // current velocity, per channel, per pitch
+    velocity;
+
+    // current expression, per channel
+    expression;
+
+    // current volume, per channel
+    volume;
+
+    // currently running notes per channel
+    // For each channel, the array index is the pitch of the note;
+    // its value is the start tick of the note
+    running;
+    // actual start of notes for a same chord
+    start;
+    // actual end of notes for a same chord
+    stop;
+
+    // note lengths per track, per channel
+    // For each track, each channel, the array index is the start tick of each note;
+    // its value is an array: index = pitch, value = length
+    notes;
+
+    // configuration: velocity wildness (in %)
+    percent_velocity;
+
+    // configuration: ticks wildness (in % of BPM)
+    percent_tick;
+
+    def KeyboardsHumanizer(pv, pt) {
         tracknum = 0;
+        percent_velocity = pv;
+        percent_tick = pt;
+        print("v:" + toString(percent_velocity) + "% - t:" + toString(percent_tick) + "%");
     }
 
     def StartSequence() {
@@ -84,34 +134,27 @@ class KeyboardsHumanizer (itf.Humanizer) {
     }
 
     def StartTrack() {
-        // velocity records the current velocity, per channel, per pitch
         velocity = [[], [], [], [], [], [], [], [],
                     [], [], [], [], [], [], [], []];
 
-        // expression records the current expression, per channel
         expression = [127, 127, 127, 127, 127, 127, 127, 127,
                       127, 127, 127, 127, 127, 127, 127, 127];
 
-        // volume records the current expression, per channel
         volume = [127, 127, 127, 127, 127, 127, 127, 127,
                   127, 127, 127, 127, 127, 127, 127, 127];
 
-        // running records the currently running notes per channel
-        // For each channel, the array index is the pitch of the note;
-        // its value is the start tick of the note
         running = [[], [], [], [], [], [], [], [],
                    [], [], [], [], [], [], [], []];
 
-        // notes records the note lengths per track, per channel
-        // For each track, each channel, the array index is the start tick of each note;
-        // its value is an array: index = pitch, value = length
+        start = [];
+
+        stop = [];
+
         notes[tracknum] = [[], [], [], [], [], [], [], [],
                            [], [], [], [], [], [], [], []];
 
-        // Portamento pedal state
         portamento = false;
 
-        // Not set yet
         bpm = 100;
     }
 
@@ -141,9 +184,17 @@ class KeyboardsHumanizer (itf.Humanizer) {
             local v = velocity[event.Channel][event.Pitch];
             local e = expression[event.Channel];
             if (v > 0) and (e > 0) {
-                v = (humanize(v, v, 10) * e) / 127;
-                local t = tick(event, bpm, 1, (running[event.Channel][event.Pitch] exists) and (running[event.Channel][event.Pitch] > 0));
-                running[event.Channel][event.Pitch] = t;
+                v = (humanize(v, v, percent_velocity) * e) / 127;
+                local t;
+                if start[event.Tick] exists {
+                    t = tick(start[event.Tick], bpm, percent_tick / 2, 1,
+                             (running[event.Channel][event.Pitch] exists) and (running[event.Channel][event.Pitch].In > 0));
+                } else {
+                    t = tick(event.Tick, bpm, percent_tick, 1,
+                             (running[event.Channel][event.Pitch] exists) and (running[event.Channel][event.Pitch].In > 0));
+                    start[event.Tick] = t;
+                }
+                running[event.Channel][event.Pitch] = runningRecord(event.Tick, t);
                 emit NOTE_ON(event.Channel, event.Pitch, v) at t;
             } else {
                 velocity[event.Channel][event.Pitch] = 0;
@@ -160,26 +211,43 @@ class KeyboardsHumanizer (itf.Humanizer) {
         // and with a bit of random for rough "humanization"
         // Note that expression may have changed so the release velocity is not
         // necessarily equal to the press velocity
-        local t = tick(event, bpm, -1, (running[event.Channel][event.Pitch] exists) and (running[event.Channel][event.Pitch] > 0));
+        local t;
+        if stop[event.Tick] exists {
+            t = tick(stop[event.Tick], bpm, percent_tick / 2, 1,
+                     (running[event.Channel][event.Pitch] exists) and (running[event.Channel][event.Pitch].In > 0));
+        } else {
+            t = tick(event.Tick, bpm, percent_tick, -1,
+                     (running[event.Channel][event.Pitch] exists) and (running[event.Channel][event.Pitch].In > 0));
+            stop[event.Tick] = t;
+        }
         if portamento {
             velocity[event.Channel][event.Pitch] = t;
             emit NOTE_ON(event.Channel, event.Pitch, 0) at t;
         } else if velocity[event.Channel][event.Pitch] > 0 {
+            if t < running[event.Channel][event.Pitch].Out {
+                if t < running[event.Channel][event.Pitch].In {
+                    print("**** note-on after actual note-off!!");
+                    t = running[event.Channel][event.Pitch].In + bpm / percent;
+                } else {
+                    print("**** note-off before note-on, using real value");
+                    t = event.Tick;
+                }
+            }
             local v = velocity[event.Channel][event.Pitch];
             local e = expression[event.Channel];
-            v = (humanize(v, v, 10) * e) / 127;
+            v = (humanize(v, v, percent_velocity) * e) / 127;
             record_note_length(event.Channel, event.Pitch, t);
-            running[event.Channel][event.Pitch] = -1;
+            running[event.Channel][event.Pitch] = runningRecord(-1, -1);
             emit NOTE_OFF(event.Channel, event.Pitch, v) at t;
         }
     }
 
     def record_note_length(channel, pitch, tick) {
         if running[channel][pitch] exists {
-            local start = running[channel][pitch];
-            if start > 0 {
-                local length = tick - start;
-                notes[tracknum][channel][start][pitch] = length;
+            local s = running[channel][pitch].Out;
+            if s > 0 {
+                local length = tick - s;
+                notes[tracknum][channel][s][pitch] = length;
             }
         }
     }
@@ -194,11 +262,27 @@ class KeyboardsHumanizer (itf.Humanizer) {
             // Note that expression may have changed so the release velocity is not
             // necessarily equal to the press velocity
             local v = (event.Velocity * expression[event.Channel]) / 127;
-            v = humanize(v, v, 10);
-            local t = tick(event, bpm, -1, (running[event.Channel][event.Pitch] exists) and (running[event.Channel][event.Pitch] > 0));
+            v = humanize(v, v, percent_velocity);
+            local t;
+            if stop[event.Tick] exists {
+                t = tick(stop[event.Tick], bpm, percent_tick / 2, -1,
+                         (running[event.Channel][event.Pitch] exists) and (running[event.Channel][event.Pitch].In > 0));
+            } else {
+                t = tick(event.Tick, bpm, percent_tick, -1,
+                         (running[event.Channel][event.Pitch] exists) and (running[event.Channel][event.Pitch].In > 0));
+            }
+            if t < running[event.Channel][event.Pitch].Out {
+                if t < running[event.Channel][event.Pitch].In {
+                    print("**** note-on after actual note-off!!");
+                    t = running[event.Channel][event.Pitch].In + bpm / percent;
+                } else {
+                    print("**** note-off before note-on, using real value");
+                    t = event.Tick;
+                }
+            }
             record_note_length(event.Channel, event.Pitch, t);
             velocity[event.Channel][event.Pitch] = 0;
-            running[event.Channel][event.Pitch] = -1;
+            running[event.Channel][event.Pitch] = runningRecord(-1, -1);
             emit NOTE_OFF(event.Channel, event.Pitch, v) at t;
         }
     }
@@ -220,8 +304,8 @@ class KeyboardsHumanizer (itf.Humanizer) {
     def PortamentoTime(event) {
         // humanize this event too
         local v = event.Value;
-        v = humanize(v, v, 10);
-        local t = tick(event, bpm, 0, false);
+        v = humanize(v, v, percent_velocity);
+        local t = tick(event.Tick, bpm, percent_tick / 2, 0, false);
         emit CONTROL_CHANGE(event.Channel, PORTAMENTO_TIME, v) at t;
     }
 

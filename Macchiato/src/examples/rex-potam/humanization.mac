@@ -24,14 +24,26 @@ import dft "humanization/default.mac";
 import kb "humanization/keyboards.mac";
 
 def loadHumanizer(arg) {
-    local p = /humanizer=(?<value>.*)/;
+    local p = /humanizer=(?<value>[a-z]*?)(:(?<arg>.*))?/;
     local m = p.Matcher(arg);
     if m.Matches() {
         local value = m.Group("value");
+        local arg = m.Group("arg");
         if value == "default" {
             // OK, it is the default
         } else if value == "keyboards" {
-            humanizer = kb.KeyboardsHumanizer();
+            // TODO allow to customize the values
+            if (arg exists) and not (arg == "") {
+                print("arg: `" + arg + "'");
+                local a = fromString(arg);
+                if (a[0] exists) and (a[1] exists) {
+                    humanizer = kb.KeyboardsHumanizer(a[0], a[1]);
+                } else {
+                    humanizer = kb.KeyboardsHumanizer(10, 35);
+                }
+            } else {
+                humanizer = kb.KeyboardsHumanizer(10, 35);
+            }
         } else {
             print("unknown humanizer, ignored: " + value);
         }
