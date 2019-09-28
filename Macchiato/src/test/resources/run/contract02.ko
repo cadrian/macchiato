@@ -1,6 +1,6 @@
 class Test {
     def ToString() requires false {
-        result = "test";
+        Result = "test";
     }
 }
 

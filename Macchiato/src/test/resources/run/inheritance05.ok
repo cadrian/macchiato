@@ -4,7 +4,7 @@ class Any {
 
 class Other {
     def ToString() {
-        result = "test";
+        Result = "test";
     }
 }
 

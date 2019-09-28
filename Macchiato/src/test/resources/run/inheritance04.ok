@@ -1,6 +1,6 @@
 class Any {
     def ToString() {
-        result = "test";
+        Result = "test";
     }
 }
 

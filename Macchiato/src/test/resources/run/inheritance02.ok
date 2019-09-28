@@ -4,7 +4,7 @@ class Any {
 
 class Test(Any) {
     def ToString() {
-        result = "test";
+        Result = "test";
     }
 }
 

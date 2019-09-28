@@ -8,7 +8,7 @@ class Other {
 
 class Test(Any, Other) {
     def ToString() {
-        result = "test";
+        Result = "test";
     }
 }
 

@@ -18,7 +18,7 @@ class Test(Any, Other) {
     def ToString() {
         a = "test";
         o = "test";
-        result = "test";
+        Result = "test";
     }
 }
 

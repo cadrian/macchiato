@@ -6,7 +6,7 @@ class Test where a exists {
     }
 
     def ToString() {
-        result = a;
+        Result = a;
     }
 }
 

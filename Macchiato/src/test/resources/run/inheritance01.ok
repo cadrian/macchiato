@@ -1,6 +1,6 @@
 class Test {
     def ToString() {
-        result = "test";
+        Result = "test";
     }
 }
 

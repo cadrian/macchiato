@@ -1,18 +1,18 @@
 class Any {
     def ToString() {
-        result = "any";
+        Result = "any";
     }
 }
 
 class Other {
     def ToString() {
-        result = "other";
+        Result = "other";
     }
 }
 
 class Test(Any, Other) {
     def ToString() {
-        result = "test";
+        Result = "test";
     }
 }
 

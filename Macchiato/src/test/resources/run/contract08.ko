@@ -11,7 +11,7 @@ class Other where o exists {
 class Test(Any, Other) {
 
     def ToString() {
-        result = "test";
+        Result = "test";
     }
 }
 

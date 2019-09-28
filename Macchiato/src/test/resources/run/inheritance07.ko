@@ -1,12 +1,12 @@
 class Any {
     def ToString() {
-        result = "any";
+        Result = "any";
     }
 }
 
 class Other {
     def ToString() {
-        result = "other";
+        Result = "other";
     }
 }
 
