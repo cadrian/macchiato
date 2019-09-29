@@ -1,0 +1,12 @@
+def val(a) {
+    System.Print(System.ToString(a));
+    Result = a;
+}
+
+def runTest() {
+    System.Print(System.ToString(val(1) * val(2) * val(3)));
+}
+
+BEGIN SEQUENCE {
+    runTest();
+}

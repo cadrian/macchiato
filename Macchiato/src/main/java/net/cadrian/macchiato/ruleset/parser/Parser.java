@@ -1066,12 +1066,12 @@ public class Parser {
 				buffer.next();
 				final TypedExpression leftOperand = left.typed(MacNumber.class);
 				if (leftOperand == null) {
-					throw new ParserException(error("Expected comparable expression", left.position()));
+					throw new ParserException(error("Expected numeric expression", left.position()));
 				}
 				final Expression right = parseExpression();
 				final TypedExpression rightOperand = right.typed(MacNumber.class);
 				if (rightOperand == null) {
-					throw new ParserException(error("Expected comparable expression", right.position()));
+					throw new ParserException(error("Expected numeric expression", right.position()));
 				}
 				result = parseMultiplicationRight(
 						new TypedBinary(leftOperand, operator, rightOperand, MacNumber.class));
@@ -1099,10 +1099,11 @@ public class Parser {
 			if (leftOperand == null) {
 				throw new ParserException(error("Expected numeric expression", left.position()));
 			}
+			buffer.next();
 			final Expression right = parsePowerRight(parsePowerLeft());
 			final TypedExpression rightOperand = right.typed(MacNumber.class);
 			if (rightOperand == null) {
-				throw new ParserException(error("Expected comparable expression", right.position()));
+				throw new ParserException(error("Expected numeric expression", right.position()));
 			}
 			result = new TypedBinary(leftOperand, Binary.Operator.POWER, rightOperand, MacNumber.class);
 		}
@@ -1132,7 +1133,7 @@ public class Parser {
 				final Expression operand = parseUnary();
 				final TypedExpression typedOperand = operand.typed(MacNumber.class);
 				if (typedOperand == null) {
-					throw new ParserException(error("Expected comparable expression", operand.position()));
+					throw new ParserException(error("Expected numeric expression", operand.position()));
 				}
 				result = operand;
 				break;
@@ -1142,7 +1143,7 @@ public class Parser {
 				final Expression operand = parseUnary();
 				final TypedExpression typedOperand = operand.typed(MacNumber.class);
 				if (typedOperand == null) {
-					throw new ParserException(error("Expected comparable expression", operand.position()));
+					throw new ParserException(error("Expected numeric expression", operand.position()));
 				}
 				result = new TypedUnary(position, Unary.Operator.MINUS, typedOperand, MacNumber.class);
 				break;
