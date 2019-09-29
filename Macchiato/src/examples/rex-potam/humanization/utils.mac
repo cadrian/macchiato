@@ -34,6 +34,6 @@ def Anchored(value, anchor, percent) {
     if max == 0 {
         Result = value;
     } else {
-        Result = box(value + ((max / 2) - random(max)) / 100);
+        Result = box(value + ((max / 2) - System.Random(max)) / 100);
     }
 }

@@ -39,12 +39,12 @@ def tick(Event, sign) {
     if (Event.Channel == 9) {
         Result = Event.Tick;
     } else if (sign == 0) {
-        Result = Event.Tick + random(10) - 5;
+        Result = Event.Tick + System.Random(10) - 5;
         if Result < 0 {
             Result = 0;
         }
     } else {
-        Result = Event.Tick + random(5) * sign;
+        Result = Event.Tick + System.Random(5) * sign;
     }
 }
 
@@ -63,12 +63,12 @@ class DefaultHumanizer (itf.Humanizer) {
     }
 
     def StartSequence() {
-        print("Running default humanizer");
+        System.Print("Running default humanizer");
     }
 
     def EndSequence() {
-        write("record", record);
-        write("notes", notes);
+        System.Write("record", record);
+        System.Write("notes", notes);
     }
 
     def StartTrack() {

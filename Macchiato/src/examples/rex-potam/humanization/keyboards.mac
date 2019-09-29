@@ -48,14 +48,14 @@ def tick(tick, bpm, percent, sign, canCollide) {
     local r = range(bpm, percent);
     if (sign == 0) {
         // +/- 'percent'% bpm
-        Result = tick + random(r) - r;
+        Result = tick + System.Random(r) - r;
     } else {
         // 10% bpm * sign with a slight offset to allow small collisions
-        local t = random(r / 2);
+        local t = System.Random(r / 2);
         if canCollide {
             local m = (r * percent) / 80;
             if m > 0 {
-                t = t - random(m);
+                t = t - System.Random(m);
             }
         }
         Result = tick + t * sign;
@@ -121,16 +121,16 @@ class KeyboardsHumanizer (itf.Humanizer) {
         tracknum = 0;
         percent_velocity = pv;
         percent_tick = pt;
-        print("v:" + toString(percent_velocity) + "% - t:" + toString(percent_tick) + "%");
+        System.Print("v:" + System.ToString(percent_velocity) + "% - t:" + System.ToString(percent_tick) + "%");
     }
 
     def StartSequence() {
-        print("Running keyboards humanizer");
+        System.Print("Running keyboards humanizer");
     }
 
     def EndSequence() {
-        write("record", record);
-        write("notes", notes);
+        System.Write("record", record);
+        System.Write("notes", notes);
     }
 
     def StartTrack() {
@@ -226,10 +226,10 @@ class KeyboardsHumanizer (itf.Humanizer) {
         } else if velocity[Event.Channel][Event.Pitch] > 0 {
             if t < running[Event.Channel][Event.Pitch].Out {
                 if t < running[Event.Channel][Event.Pitch].In {
-                    print("**** note-on after actual note-off!!");
+                    System.Print("**** note-on after actual note-off!!");
                     t = running[Event.Channel][Event.Pitch].In + bpm / percent;
                 } else {
-                    print("**** note-off before note-on, using real value");
+                    System.Print("**** note-off before note-on, using real value");
                     t = Event.Tick;
                 }
             }
@@ -273,10 +273,10 @@ class KeyboardsHumanizer (itf.Humanizer) {
             }
             if t < running[Event.Channel][Event.Pitch].Out {
                 if t < running[Event.Channel][Event.Pitch].In {
-                    print("**** note-on after actual note-off!!");
+                    System.Print("**** note-on after actual note-off!!");
                     t = running[Event.Channel][Event.Pitch].In + bpm / percent;
                 } else {
-                    print("**** note-off before note-on, using real value");
+                    System.Print("**** note-off before note-on, using real value");
                     t = Event.Tick;
                 }
             }

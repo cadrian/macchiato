@@ -12,9 +12,9 @@ Requires failed:
 Requires failed
 Requires failed:
 Requires failed
-src/test/resources/run/contract09.ko at line 27, column 15
-    print(test.ToString());
-               ^
+src/test/resources/run/contract09.ko at line 27, column 22
+    System.Print(test.ToString());
+                      ^
 Caused by:
 **** Requires failed:
 Requires failed:

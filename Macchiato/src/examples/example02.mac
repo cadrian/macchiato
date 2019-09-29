@@ -88,9 +88,9 @@ def tick(Event, sign) {
     if Event.Channel == 10 {
         Result = Event.Tick;
     } else if sign == 0 {
-        Result = Event.Tick + random(10) - 5;
+        Result = Event.Tick + System.Random(10) - 5;
     } else {
-        Result = Event.Tick + random(5) * sign;
+        Result = Event.Tick + System.Random(5) * sign;
     }
 }
 
@@ -100,7 +100,7 @@ def note_on(Event) {
 
     if (Event.Channel == 10) or (volume[Event.Channel] > 0) {
         // Emit an Event with a velocity that depends on the expression,
-        // and with a bit of random for rough "humanization"
+        // and with a bit of System.Random for rough "humanization"
         local v = velocity[Event.Channel][Event.Pitch];
         local e = expression[Event.Channel];
         if (v > 0) and (e > 0) {
@@ -228,6 +228,6 @@ END TRACK {
 }
 
 END SEQUENCE {
-    write("record", record);
-    write("notes", notes);
+    System.Write("record", record);
+    System.Write("notes", notes);
 }

@@ -4,9 +4,9 @@ src/test/resources/run/contract04.ko at line 13, column 4
     ^
 Caused by:
 **** Ensures failed
-src/test/resources/run/contract04.ko at line 9, column 15
-    print(test.ToString());
-               ^
+src/test/resources/run/contract04.ko at line 9, column 22
+    System.Print(test.ToString());
+                      ^
 Caused by:
 **** Ensures failed
 src/test/resources/run/contract04.ko at line 2, column 27

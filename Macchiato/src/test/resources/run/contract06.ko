@@ -8,7 +8,7 @@ class Test where a exists {
 
 def runTest() {
     local test = Test();
-    print(test.ToString());
+    System.Print(test.ToString());
 }
 
 BEGIN SEQUENCE {

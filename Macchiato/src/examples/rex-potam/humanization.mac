@@ -34,8 +34,8 @@ def loadHumanizer(arg) {
         } else if value == "keyboards" {
             // TODO allow to customize the values
             if (arg exists) and not (arg == "") {
-                print("arg: `" + arg + "'");
-                local a = fromString(arg);
+                System.Print("arg: `" + arg + "'");
+                local a = System.FromString(arg);
                 if (a[0] exists) and (a[1] exists) {
                     humanizer = kb.KeyboardsHumanizer(a[0], a[1]);
                 } else {
@@ -45,7 +45,7 @@ def loadHumanizer(arg) {
                 humanizer = kb.KeyboardsHumanizer(10, 35);
             }
         } else {
-            print("unknown humanizer, ignored: " + value);
+            System.Print("unknown humanizer, ignored: " + value);
         }
     }
 }

@@ -15,7 +15,7 @@ class Test(Any, Other) {
 
 def runTest() {
     local test = Test();
-    print(test.ToString());
+    System.Print(test.ToString());
 }
 
 BEGIN SEQUENCE {

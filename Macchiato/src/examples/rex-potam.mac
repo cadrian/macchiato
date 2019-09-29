@@ -46,7 +46,7 @@ def loadChannelArray(arg) {
     local m = p.Matcher(arg);
     if m.Matches() {
         local value = m.Group("value");
-        channel_array = fromString(value);
+        channel_array = System.FromString(value);
     }
 }
 
@@ -55,7 +55,7 @@ def loadTracks(arg) {
     local m = p.Matcher(arg);
     if m.Matches() {
         local value = m.Group("value");
-        tracks = fromString(value);
+        tracks = System.FromString(value);
     }
 }
 
@@ -93,15 +93,15 @@ BEGIN SEQUENCE {
     tracks = [];
     Arguments.ForEach(loadChannelArray);
     Arguments.ForEach(loadTracks);
-    print("channel_array=" + toString(channel_array));
-    print("tracks=" + toString(tracks));
+    System.Print("channel_array=" + System.ToString(channel_array));
+    System.Print("tracks=" + System.ToString(tracks));
     humanizer = h.LoadHumanizer();
     humanizer.StartSequence();
 }
 
 BEGIN TRACK {
     humanizer.StartTrack();
-    print("Starting track: " + toString(humanizer.TrackNumber()));
+    System.Print("Starting track: " + System.ToString(humanizer.TrackNumber()));
     if (not isValidTrack()) {
         // skip the track
         next;
@@ -129,7 +129,7 @@ BEGIN TRACK {
 }
 
 (Event.Type == PROGRAM_CHANGE) {
-    // print("Program change on channel " + toString(Event.Channel));
+    // System.Print("Program change on channel " + System.ToString(Event.Channel));
 }
 
 (Event.Type == TEMPO) {
@@ -140,7 +140,7 @@ BEGIN TRACK {
 
 (Event.Type == PROGRAM_CHANGE) and (Event.Channel == 9) {
     // Don't emit program change on channel "10" (9 actually)
-    print("Ignore program change on drums channel");
+    System.Print("Ignore program change on drums channel");
     next;
 }
 
@@ -160,31 +160,31 @@ BEGIN TRACK {
 }
 
 (Event.Type == TEXT) {
-    print("TEXT: " + Event.Text);
+    System.Print("TEXT: " + Event.Text);
 }
 
 (Event.Type == COPYRIGHT) {
-    print("COPYRIGHT: " + Event.Text);
+    System.Print("COPYRIGHT: " + Event.Text);
 }
 
 (Event.Type == TRACK_NAME) {
-    print("TRACK_NAME: " + Event.Text);
+    System.Print("TRACK_NAME: " + Event.Text);
 }
 
 (Event.Type == INSTRUMENT_NAME) {
-    print("INSTRUMENT_NAME: " + Event.Text);
+    System.Print("INSTRUMENT_NAME: " + Event.Text);
 }
 
 (Event.Type == LYRICS) {
-    print("LYRICS: " + Event.Text);
+    System.Print("LYRICS: " + Event.Text);
 }
 
 (Event.Type == MARKER_TEXT) {
-    print("MARKER_TEXT: " + Event.Text);
+    System.Print("MARKER_TEXT: " + Event.Text);
 }
 
 (Event.Type == CUE_POINT) {
-    print("CUE_POINT: " + Event.Text);
+    System.Print("CUE_POINT: " + Event.Text);
 }
 
 END TRACK {

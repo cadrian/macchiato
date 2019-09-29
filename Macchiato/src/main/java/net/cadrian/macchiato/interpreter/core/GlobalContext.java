@@ -33,12 +33,12 @@ import net.cadrian.macchiato.interpreter.Identifiers;
 import net.cadrian.macchiato.interpreter.InterpreterException;
 import net.cadrian.macchiato.interpreter.event.MetaEvent;
 import net.cadrian.macchiato.interpreter.event.ShortEvent;
-import net.cadrian.macchiato.interpreter.functions.natfun.Native;
 import net.cadrian.macchiato.interpreter.objects.MacEvent;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 import net.cadrian.macchiato.interpreter.objects.MacRuleset;
 import net.cadrian.macchiato.interpreter.objects.MacString;
+import net.cadrian.macchiato.interpreter.objects.MacSystem;
 import net.cadrian.macchiato.interpreter.objects.container.MacArray;
 import net.cadrian.macchiato.midi.ControlChange;
 import net.cadrian.macchiato.midi.Message;
@@ -62,6 +62,9 @@ class GlobalContext extends Context {
 	public GlobalContext(final Ruleset ruleset, final String[] args) {
 		this.ruleset = ruleset;
 
+		final MacSystem system = new MacSystem();
+		global.put(new Identifier("System", Position.NONE), system);
+
 		final MacArray arguments = new MacArray();
 		for (int i = 0; i < args.length; i++) {
 			arguments.set(MacNumber.valueOf(i), MacString.valueOf(args[i]));
@@ -80,10 +83,6 @@ class GlobalContext extends Context {
 		}
 		for (final ControlChange mpc : ControlChange.values()) {
 			global.put(new Identifier(mpc.name(), Position.NONE), mpc);
-		}
-		for (final Native fun : Native.values()) {
-			final Function function = fun.getFunction(ruleset);
-			nativeFunctions.put(function.name(), function);
 		}
 	}
 

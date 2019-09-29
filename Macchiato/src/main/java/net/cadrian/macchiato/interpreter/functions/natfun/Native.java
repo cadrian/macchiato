@@ -20,37 +20,37 @@ import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
 public enum Native {
-	random {
+	Random {
 		@Override
 		public Function getFunction(final Ruleset ruleset) {
 			return new RandomFunction(ruleset);
 		};
 	},
-	read {
+	Read {
 		@Override
 		public Function getFunction(final Ruleset ruleset) {
 			return new ReadFunction(ruleset);
 		}
 	},
-	write {
+	Write {
 		@Override
 		public Function getFunction(final Ruleset ruleset) {
 			return new WriteFunction(ruleset);
 		}
 	},
-	toString {
+	ToString {
 		@Override
 		public Function getFunction(final Ruleset ruleset) {
 			return new ToStringFunction(ruleset);
 		}
 	},
-	fromString {
+	FromString {
 		@Override
 		public Function getFunction(final Ruleset ruleset) {
 			return new FromStringFunction(ruleset);
 		}
 	},
-	print {
+	Print {
 		@Override
 		public Function getFunction(final Ruleset ruleset) {
 			return new PrintFunction(ruleset);
