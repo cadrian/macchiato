@@ -27,21 +27,21 @@ class ClazsContext extends LocalContext {
 	}
 
 	@Override
-	public <T extends MacObject> T get(final Identifier key) {
+	protected <T extends MacObject> T getDefault(final Identifier key) {
 		final Field<MacClazsObject, T> field = target.getField(ruleset, key);
 		if (field != null) {
 			return field.get(getTarget(), this, key.position());
 		}
-		return super.get(key);
+		return super.getDefault(key);
 	}
 
 	@Override
-	public <T extends MacObject> T set(final Identifier key, final T value) {
+	protected <T extends MacObject> T setDefault(final Identifier key, final T value) {
 		final Field<MacClazsObject, T> field = target.getField(ruleset, key);
 		if (field != null) {
 			return field.set(getTarget(), this, key.position(), value);
 		}
-		return super.set(key, value);
+		return super.setDefault(key, value);
 	}
 
 	@Override

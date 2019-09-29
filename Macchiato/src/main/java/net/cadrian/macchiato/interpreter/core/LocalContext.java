@@ -123,11 +123,15 @@ public class LocalContext extends Context {
 				local.put(key, newRuleset);
 				result = (T) newRuleset;
 			} else {
-				result = parent.get(key);
+				result = getDefault(key);
 			}
 		}
 		LOGGER.debug("--> {}", result);
 		return result;
+	}
+
+	protected <T extends MacObject> T getDefault(final Identifier key) {
+		return parent.get(key);
 	}
 
 	@Override
@@ -139,10 +143,14 @@ public class LocalContext extends Context {
 			final T old = (T) local.put(key, value);
 			result = old;
 		} else {
-			result = parent.set(key, value);
+			result = setDefault(key, value);
 		}
 		LOGGER.debug("--> {}", result);
 		return result;
+	}
+
+	protected <T extends MacObject> T setDefault(final Identifier key, final T value) {
+		return parent.set(key, value);
 	}
 
 	@Override

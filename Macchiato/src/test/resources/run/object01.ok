@@ -1,0 +1,28 @@
+class Foo {
+
+    field;
+
+    def Foo() {
+        field = [];
+    }
+
+    def Test() {
+        field[0] = "test";
+        testLocalField();
+        System.Print(field[0]);
+    }
+
+    def testLocalField() {
+        local field = 4;
+    }
+
+}
+
+def runTest() {
+    local foo = Foo();
+    foo.Test();
+}
+
+BEGIN SEQUENCE {
+    runTest();
+}
