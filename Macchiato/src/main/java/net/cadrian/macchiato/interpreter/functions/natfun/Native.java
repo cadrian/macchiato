@@ -26,6 +26,12 @@ public enum Native {
 			return new RandomFunction(ruleset);
 		};
 	},
+	GaussRandom {
+		@Override
+		public Function getFunction(final Ruleset ruleset) {
+			return new GaussRandomFunction(ruleset);
+		}
+	},
 	Read {
 		@Override
 		public Function getFunction(final Ruleset ruleset) {

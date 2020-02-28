@@ -30,18 +30,18 @@ import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 import net.cadrian.macchiato.ruleset.parser.Position;
 
-class RandomFunction extends AbstractRandomFunction {
+class GaussRandomFunction extends AbstractRandomFunction {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(RandomFunction.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(GaussRandomFunction.class);
 
-	private static final Identifier NAME = new Identifier("random", Position.NONE);
-	private static final Identifier ARG_MAX = new Identifier("max", Position.NONE);
+	private static final Identifier NAME = new Identifier("gaussRandom", Position.NONE);
+	private static final Identifier ARG_RANGE = new Identifier("range", Position.NONE);
 
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] { MacNumber.class };
-	private static final Identifier[] ARG_NAMES = { ARG_MAX };
+	private static final Identifier[] ARG_NAMES = { ARG_RANGE };
 
-	RandomFunction(final Ruleset ruleset) {
+	GaussRandomFunction(final Ruleset ruleset) {
 		super(ruleset);
 	}
 
@@ -67,20 +67,34 @@ class RandomFunction extends AbstractRandomFunction {
 
 	@Override
 	public void run(final Context context, final Position position) {
-		final BigInteger max = ((MacNumber) context.get(ARG_MAX)).getValue();
-		LOGGER.debug("<-- {}", max);
-		if (max.signum() != 1) {
+		final BigInteger range = ((MacNumber) context.get(ARG_RANGE)).getValue();
+		LOGGER.debug("<-- {}", range);
+		if (range.signum() != 1) {
 			throw new InterpreterException("invalid max value: must be strictly positive", position);
 		}
-		final int randomSize = (max.bitLength() + 7) / 8;
-		final byte[] randomBytes = new byte[randomSize];
-		RANDOM.nextBytes(randomBytes);
-		LOGGER.debug("random bytes={}", randomBytes);
-		final BigInteger random = new BigInteger(1, randomBytes);
-		LOGGER.debug("random={}", random);
-		final BigInteger result = random.mod(max);
+
+		final double u1 = getRandom();
+		final double u2 = getRandom();
+		LOGGER.debug("u1={} u2={}", u1, u2);
+
+		// https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
+		// sqrt(-2 * ln(u1)) * cos(2 * pi * u2)
+		final double gauss = Math.sqrt(-2L * Math.log(1L / u1)) * Math.cos(2 * Math.PI / u2);
+		LOGGER.debug("gauss={}", gauss);
+
+		final BigInteger result = new BigInteger(Long.toString(Math.round(gauss * range.doubleValue())));
+
 		LOGGER.debug("<-- {}", result);
 		context.set(Identifiers.RESULT, MacNumber.valueOf(result));
+	}
+
+	private double getRandom() {
+		while (true) {
+			final double result = RANDOM.nextDouble();
+			if (1L / result != 0L) {
+				return result;
+			}
+		}
 	}
 
 }
