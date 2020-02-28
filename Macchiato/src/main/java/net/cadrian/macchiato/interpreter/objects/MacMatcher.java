@@ -102,10 +102,12 @@ public class MacMatcher implements MacObject {
 			}
 			if (group instanceof MacNumber) {
 				final MacNumber index = (MacNumber) group;
-				result = MacString.valueOf(target.value.group(index.getValue().intValueExact()));
+				final String value = target.value.group(index.getValue().intValueExact());
+				result = value == null ? null : MacString.valueOf(value);
 			} else if (group instanceof MacString) {
 				final MacString name = (MacString) group;
-				result = MacString.valueOf(target.value.group(name.getValue()));
+				final String value = target.value.group(name.getValue());
+				result = value == null ? null : MacString.valueOf(value);
 			} else {
 				throw new InterpreterException("invalid group value: must be a number or a string", position);
 			}
