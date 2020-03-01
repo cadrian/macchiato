@@ -48,6 +48,14 @@ public class MacClazsObject implements MacObject {
 		return (Method<T>) clazs.getMethod(ruleset, name);
 	}
 
+	@Override
+	public <T extends MacObject> T asIndexType(final Class<T> type) {
+		if (type == getClass()) {
+			return type.cast(this);
+		}
+		return null;
+	}
+
 	MacObject getFieldValue(final String name) {
 		return fieldValues.get(name);
 	}

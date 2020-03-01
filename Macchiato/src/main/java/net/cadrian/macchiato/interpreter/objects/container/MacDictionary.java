@@ -331,6 +331,14 @@ public class MacDictionary implements MacContainer<MacString> {
 	}
 
 	@Override
+	public <T extends MacObject> T asIndexType(final Class<T> type) {
+		if (type == getClass()) {
+			return type.cast(this);
+		}
+		return null;
+	}
+
+	@Override
 	public String toString() {
 		final Set<MacDictionary> gate = TO_STRING_GATE.get();
 		if (gate.contains(this)) {

@@ -106,6 +106,14 @@ public class MacPattern implements MacObject {
 	}
 
 	@Override
+	public <T extends MacObject> T asIndexType(final Class<T> type) {
+		if (type == getClass()) {
+			return type.cast(this);
+		}
+		return null;
+	}
+
+	@Override
 	public String toString() {
 		return value.toString();
 	}

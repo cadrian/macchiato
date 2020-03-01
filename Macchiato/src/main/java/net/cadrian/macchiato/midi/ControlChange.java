@@ -22,10 +22,10 @@ import java.util.Map;
 
 import net.cadrian.macchiato.interpreter.Field;
 import net.cadrian.macchiato.interpreter.Method;
-import net.cadrian.macchiato.interpreter.objects.MacBoolean;
 import net.cadrian.macchiato.interpreter.objects.MacComparable;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
@@ -86,11 +86,9 @@ public enum ControlChange implements MacComparable<ControlChange> {
 	}
 
 	public final int code;
-	private final boolean flag;
 
 	private ControlChange(final int code) {
 		this.code = code;
-		this.flag = code > 63;
 	}
 
 	public static ControlChange at(final int id) {
@@ -98,36 +96,15 @@ public enum ControlChange implements MacComparable<ControlChange> {
 	}
 
 	public String toString(final int data) {
-		if (flag) {
-			return (data > 63) ? "on" : "off";
-		}
 		return Integer.toString(data);
 	}
 
 	public MacObject valueOf(final int midiValue) {
-		switch (this) {
-		case DAMPER_PEDAL:
-		case PORTAMENTO:
-		case SOSTENUTO:
-		case SOFT_PEDAL:
-		case LEGATO_PEDAL:
-			return MacBoolean.valueOf(midiValue < 64);
-		default:
-			return MacNumber.valueOf(midiValue);
-		}
+		return MacNumber.valueOf(midiValue);
 	}
 
 	public int midiValueOf(final MacObject value) {
-		switch (this) {
-		case DAMPER_PEDAL:
-		case PORTAMENTO:
-		case SOSTENUTO:
-		case SOFT_PEDAL:
-		case LEGATO_PEDAL:
-			return MacBoolean.TRUE.equals(value) ? 127 : 0;
-		default:
-			return ((MacNumber) value).getValue().intValueExact();
-		}
+		return ((MacNumber) value).getValue().intValueExact();
 	}
 
 	@Override
@@ -138,6 +115,20 @@ public enum ControlChange implements MacComparable<ControlChange> {
 
 	@Override
 	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
+		return null;
+	}
+
+	@Override
+	public <T extends MacObject> T asIndexType(final Class<T> type) {
+		if (type == getClass()) {
+			return type.cast(this);
+		}
+		if (type == MacNumber.class) {
+			return type.cast(MacNumber.valueOf(code));
+		}
+		if (type == MacString.class) {
+			return type.cast(MacString.valueOf(name()));
+		}
 		return null;
 	}
 

@@ -27,6 +27,7 @@ import net.cadrian.macchiato.interpreter.event.ShortEvent;
 import net.cadrian.macchiato.interpreter.objects.MacComparable;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.midi.Message;
 import net.cadrian.macchiato.midi.ShortMessageType;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
@@ -67,6 +68,20 @@ public abstract class ShortMessage implements MacComparable<ShortMessage>, Messa
 
 	@Override
 	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
+		return null;
+	}
+
+	@Override
+	public <T extends MacObject> T asIndexType(final Class<T> type) {
+		if (type == getClass()) {
+			return type.cast(this);
+		}
+		if (type == MacNumber.class) {
+			return messageType.asIndexType(type);
+		}
+		if (type == MacString.class) {
+			return type.cast(MacString.valueOf(toString()));
+		}
 		return null;
 	}
 

@@ -27,4 +27,6 @@ public interface MacObject {
 
 	<T extends MacObject> Method<T> getMethod(Ruleset ruleset, Identifier name);
 
+	<T extends MacObject> T asIndexType(Class<T> type);
+
 }

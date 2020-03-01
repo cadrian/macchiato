@@ -793,4 +793,18 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 		return null;
 	}
 
+	@Override
+	public <T extends MacObject> T asIndexType(final Class<T> type) {
+		if (type == getClass()) {
+			return type.cast(this);
+		}
+		if (type == MacNumber.class) {
+			return type.cast(MacNumber.valueOf(this.type));
+		}
+		if (type == MacString.class) {
+			return type.cast(MacString.valueOf(name()));
+		}
+		return null;
+	}
+
 }

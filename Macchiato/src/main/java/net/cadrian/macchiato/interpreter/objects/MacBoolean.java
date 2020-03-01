@@ -52,6 +52,14 @@ public class MacBoolean implements MacComparable<MacBoolean> {
 	}
 
 	@Override
+	public <T extends MacObject> T asIndexType(final Class<T> type) {
+		if (type == getClass()) {
+			return type.cast(this);
+		}
+		return null;
+	}
+
+	@Override
 	public String toString() {
 		return Boolean.toString(value);
 	}

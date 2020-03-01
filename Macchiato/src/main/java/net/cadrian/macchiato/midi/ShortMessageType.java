@@ -29,6 +29,7 @@ import net.cadrian.macchiato.interpreter.objects.MacComparable;
 import net.cadrian.macchiato.interpreter.objects.MacEvent;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
+import net.cadrian.macchiato.interpreter.objects.MacString;
 import net.cadrian.macchiato.midi.message.s.ChannelPressureMessage;
 import net.cadrian.macchiato.midi.message.s.ControlChangeMessage;
 import net.cadrian.macchiato.midi.message.s.NoteOffMessage;
@@ -420,6 +421,20 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 
 	@Override
 	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
+		return null;
+	}
+
+	@Override
+	public <T extends MacObject> T asIndexType(final Class<T> type) {
+		if (type == getClass()) {
+			return type.cast(this);
+		}
+		if (type == MacNumber.class) {
+			return type.cast(MacNumber.valueOf(command));
+		}
+		if (type == MacString.class) {
+			return type.cast(MacString.valueOf(name()));
+		}
 		return null;
 	}
 

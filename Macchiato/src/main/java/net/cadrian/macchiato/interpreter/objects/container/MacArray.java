@@ -330,6 +330,14 @@ public class MacArray implements MacContainer<MacNumber> {
 	}
 
 	@Override
+	public <T extends MacObject> T asIndexType(final Class<T> type) {
+		if (type == getClass()) {
+			return type.cast(this);
+		}
+		return null;
+	}
+
+	@Override
 	public String toString() {
 		final Set<MacArray> gate = TO_STRING_GATE.get();
 		if (gate.contains(this)) {

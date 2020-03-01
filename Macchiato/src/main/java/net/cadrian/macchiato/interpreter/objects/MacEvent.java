@@ -63,4 +63,12 @@ public class MacEvent implements MacObject {
 		return null;
 	}
 
+	@Override
+	public <T extends MacObject> T asIndexType(final Class<T> type) {
+		if (type == getClass()) {
+			return type.cast(this);
+		}
+		return null;
+	}
+
 }

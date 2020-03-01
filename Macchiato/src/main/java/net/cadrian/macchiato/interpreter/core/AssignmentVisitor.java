@@ -191,28 +191,38 @@ class AssignmentVisitor implements ExpressionVisitor {
 	@Override
 	public void visitIndexedExpression(final IndexedExpression indexedExpression) {
 		LOGGER.debug("<-- {}", indexedExpression);
-		final Object index = context.eval(indexedExpression.getIndex());
-		indexedExpression.getIndexed().accept(this);
-		final Setter indexedSetter = setter;
-		if (index instanceof MacNumber) {
-			if (previousValue != null && !(previousValue instanceof MacArray)) {
-				throw new InterpreterException("invalid index", indexedExpression.getIndex().position());
-			}
-			LOGGER.debug("previous value array: {}", previousValue);
-			setter = new ArraySetter((MacArray) previousValue, indexedSetter, (MacNumber) index);
-			previousValue = previousValue == null ? null : ((MacArray) previousValue).get((MacNumber) index);
-		} else if (index instanceof MacString) {
-			if (previousValue != null && !(previousValue instanceof MacDictionary)) {
-				throw new InterpreterException("invalid index", indexedExpression.getIndex().position());
-			}
-			LOGGER.debug("previous value dictionary: {}", previousValue);
-			setter = new DictionarySetter((MacDictionary) previousValue, indexedSetter, (MacString) index);
-			previousValue = previousValue == null ? null : ((MacDictionary) previousValue).get((MacString) index);
-		} else if (index == null) {
+		final MacObject indexValue = context.eval(indexedExpression.getIndex());
+		if (indexValue == null) {
 			throw new ObjectInexistentException("Cannot assign: index does not exist", indexedExpression.position());
 		} else {
-			throw new InterpreterException("Cannot use " + index.getClass().getSimpleName() + " as index",
-					indexedExpression.position());
+			final MacNumber numericIndex = indexValue.asIndexType(MacNumber.class);
+			if (numericIndex != null) {
+				indexedExpression.getIndexed().accept(this);
+				final Setter indexedSetter = setter;
+				if (previousValue != null && !(previousValue instanceof MacArray)) {
+					throw new InterpreterException("invalid index", indexedExpression.getIndex().position());
+				}
+				LOGGER.debug("previous value array: {}", previousValue);
+				setter = new ArraySetter((MacArray) previousValue, indexedSetter, (MacNumber) numericIndex);
+				previousValue = previousValue == null ? null : ((MacArray) previousValue).get((MacNumber) numericIndex);
+			} else {
+				final MacString stringIndex = indexValue.asIndexType(MacString.class);
+				if (stringIndex != null) {
+					indexedExpression.getIndexed().accept(this);
+					final Setter indexedSetter = setter;
+					if (previousValue != null && !(previousValue instanceof MacDictionary)) {
+						throw new InterpreterException("invalid index", indexedExpression.getIndex().position());
+					}
+					LOGGER.debug("previous value dictionary: {}", previousValue);
+					setter = new DictionarySetter((MacDictionary) previousValue, indexedSetter,
+							(MacString) stringIndex);
+					previousValue = previousValue == null ? null
+							: ((MacDictionary) previousValue).get((MacString) stringIndex);
+				} else {
+					throw new InterpreterException("Cannot use " + indexValue.getClass().getSimpleName() + " as index",
+							indexedExpression.position());
+				}
+			}
 		}
 		LOGGER.debug("--> {}", previousValue);
 	}
