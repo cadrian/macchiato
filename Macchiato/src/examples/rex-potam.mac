@@ -138,6 +138,12 @@ BEGIN TRACK {
     next;
 }
 
+(Event.Type == TIME_SIGNATURE) {
+    humanizer.TimeSignature(Event);
+    emit;
+    next;
+}
+
 (Event.Type == PROGRAM_CHANGE) and (Event.Channel == 9) {
     // Don't emit program change on channel "10" (9 actually)
     System.Print("Ignore program change on drums channel");

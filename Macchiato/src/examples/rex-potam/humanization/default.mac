@@ -38,9 +38,13 @@ def humanize(value, anchor, percent) {
 }
 
 def tick(t, sign, width) {
-    Result = t + System.GaussRandom(2 * width) + (sign * width);
-    if Result < 1 {
-        Result = 1;
+    if width < 1 {
+        Result = t
+    } else {
+        Result = t + System.GaussRandom(2 * width) + (sign * width);
+        if Result < 1 {
+            Result = 1;
+        }
     }
 }
 
@@ -56,12 +60,15 @@ class DefaultHumanizer (itf.Humanizer) {
     tickWidth;
     velocityWidth;
     bpm;
-    chord;
+    beat;
+    chordOn;
+    chordOff;
 
     def DefaultHumanizer() {
         tracknum = 0;
         tickWidth = 20;
         velocityWidth = 20;
+        beat = 4;
     }
 
     def StartSequence() {
@@ -92,9 +99,13 @@ class DefaultHumanizer (itf.Humanizer) {
         running = [[], [], [], [], [], [], [], [],
                    [], [], [], [], [], [], [], []];
 
-        // chord records the first humanized start tick in a chord
-        chord = [[], [], [], [], [], [], [], [],
-                 [], [], [], [], [], [], [], []];
+        // chordOn records the first humanized start tick in a chord
+        chordOn = [[], [], [], [], [], [], [], [],
+                   [], [], [], [], [], [], [], []];
+
+        // chordOff records the first humanized end tick in a chord
+        chordOff = [[], [], [], [], [], [], [], [],
+                    [], [], [], [], [], [], [], []];
 
         // notes records the note lengths per track, per channel
         // For each track, each channel, the array index is the start tick of each note;
@@ -120,7 +131,17 @@ class DefaultHumanizer (itf.Humanizer) {
 
     def Tempo(Event) {
         bpm = Event.Bpm;
-        tickWidth = bpm / 4;
+        System.Print("TEMPO: " + System.ToString(bpm) + " BPM")
+        tickWidth = bpm / (2 * (beat + 1));
+        if tickWidth < 1 {
+            tickWidth = 1
+        }
+        System.Print("TICK WIDTH: " + System.ToString(tickWidth))
+    }
+
+    def TimeSignature(Event) {
+        beat = 2 ^ Event.Denominator;
+        System.Print("SIG: " + System.ToString(Event.Numerator) + "/" + System.ToString(beat))
     }
 
     def NoteOn(Event) {
@@ -137,11 +158,19 @@ class DefaultHumanizer (itf.Humanizer) {
             if (v > 0) and (e > 0) {
                 v = (humanize(v, v, velocityWidth) * e) / 127;
                 local t;
-                if chord[Event.Channel][Event.Tick] exists {
-                    t = tick(chord[Event.Channel][Event.Tick], 1, tickWidth / 5);
+                if chordOn[Event.Channel][Event.Tick] exists {
+                    t = tick(chordOn[Event.Channel][Event.Tick], 1, tickWidth / beat);
+                } else if chordOff[Event.Channel][Event.Tick] exists {
+                    // legato -- be careful not to accumulate "lateness"
+                    local l = Event.Tick - chordOff[Event.Channel][Event.Tick]
+                    if l <= 0 {
+                        l = tickWidth / 2;
+                    }
+                    t = tick(Event.Tick, 0, l);
+                    chordOn[Event.Channel][Event.Tick] = t;
                 } else {
-                    t = tick(Event.Tick, 1, tickWidth);
-                    chord[Event.Channel][Event.Tick] = t;
+                    t = tick(Event.Tick, 1, tickWidth / 2);
+                    chordOn[Event.Channel][Event.Tick] = t;
                 }
                 running[Event.Channel][Event.Pitch] = t;
                 System.Print("NOTE ON:  " + System.ToString(Event.Tick) + " => " + System.ToString(t));
@@ -191,19 +220,38 @@ class DefaultHumanizer (itf.Humanizer) {
         // and with a bit of random for rough "humanization"
         // Note that expression may have changed so the release velocity is not
         // necessarily equal to the press velocity
-        local w = (Event.Tick - r) / 4;
-        if w < tickWidth {
-            w = tickWidth;
+        local w = ((Event.Tick - r) / beat) / 4;
+        if w < 1 {
+            w = 1;
+        } else if w > tickWidth {
+            w = tickWidth
         }
-        Result = tick(Event.Tick, -1, w);
+
+        local c;
+        local n;
+
+        if chordOff[Event.Channel][Event.Tick] exists {
+            c = chordOff[Event.Channel][Event.Tick]
+            w = w / (beat + 1)
+            n = false
+        } else {
+            c = Event.Tick
+            n = true
+        }
+
+        Result = tick(c, -1, w);
         if Result < r {
-            Result = tick(Event.Tick, 0, w);
+            Result = tick(c, 0, w);
             if Result < r {
                 Result = Event.Tick;
                 if Result < r {
-                    Result = r + 1;
+                    Result = r + w;
                 }
             }
+        }
+
+        if n {
+            chordOff[Event.Channel][Event.Tick] = Result
         }
     }
 
