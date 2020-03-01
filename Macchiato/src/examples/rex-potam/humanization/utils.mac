@@ -30,10 +30,10 @@ def Valued(value, percent) {
 }
 
 def Anchored(value, anchor, percent) {
-    local max = anchor * percent;
-    if max == 0 {
+    local range = anchor * percent / 2;
+    if range == 0 {
         Result = value;
     } else {
-        Result = box(value + ((max / 2) - System.Random(max)) / 100);
+        Result = box(value + (System.Random(range) - (range / 2)) / 100);
     }
 }

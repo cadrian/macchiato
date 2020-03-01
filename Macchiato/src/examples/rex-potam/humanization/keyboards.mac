@@ -31,7 +31,7 @@ def humanize(value, anchor, percent) {
         Result = 0;
     } else {
         Result = utl.Anchored(value, anchor, percent);
-        if Result <= 0 {
+        if Result < 1 {
             Result = 1;
         }
     }
@@ -44,35 +44,29 @@ def range(bpm, percent) {
     }
 }
 
-def tick(tick, bpm, percent, sign, canCollide) {
+def tick(tick, bpm, percent, sign, collision) {
     local r = range(bpm, percent);
-    if (sign == 0) {
-        // +/- 'percent'% bpm
-        Result = tick + System.Random(r) - r;
-    } else {
-        // 10% bpm * sign with a slight offset to allow small collisions
-        local t = System.Random(r / 2);
-        if canCollide {
-            local m = (r * percent) / 80;
-            if m > 0 {
-                t = t - System.Random(m);
-            }
-        }
-        Result = tick + t * sign;
-    }
+
+    // +/- 'percent'% bpm
+    Result = tick + System.GaussRandom(r) + (sign * r) + (collision * (r * percent) / 80);
+
     if Result < 1 {
         Result = 1;
     }
 }
 
-class runningRecord {
+class eventHumanization {
 
-    In;
-    Out;
+    Tick;
+    HumanizedTick;
+    Velocity;
+    HumanizedVelocity;
 
-    def runningRecord(i, o) {
-        In = i;
-        Out = o;
+    def eventHumanization(t, ht, v, hv) {
+        Tick = t;
+        HumanizedTick = ht;
+        Velocity = v;
+        HumanizedVelocity = hv;
     }
 
 }
@@ -88,9 +82,6 @@ class KeyboardsHumanizer (itf.Humanizer) {
     // beats per minute
     bpm;
 
-    // current velocity, per channel, per pitch
-    velocity;
-
     // current expression, per channel
     expression;
 
@@ -105,11 +96,6 @@ class KeyboardsHumanizer (itf.Humanizer) {
     start;
     // actual end of notes for a same chord
     stop;
-
-    // note lengths per track, per channel
-    // For each track, each channel, the array index is the start tick of each note;
-    // its value is an array: index = pitch, value = length
-    notes;
 
     // configuration: velocity wildness (in %)
     percent_velocity;
@@ -129,14 +115,9 @@ class KeyboardsHumanizer (itf.Humanizer) {
     }
 
     def EndSequence() {
-        System.Write("record", record);
-        System.Write("notes", notes);
     }
 
     def StartTrack() {
-        velocity = [[], [], [], [], [], [], [], [],
-                    [], [], [], [], [], [], [], []];
-
         expression = [127, 127, 127, 127, 127, 127, 127, 127,
                       127, 127, 127, 127, 127, 127, 127, 127];
 
@@ -150,19 +131,12 @@ class KeyboardsHumanizer (itf.Humanizer) {
 
         stop = [];
 
-        notes[tracknum] = [[], [], [], [], [], [], [], [],
-                           [], [], [], [], [], [], [], []];
-
         portamento = false;
 
         bpm = 100;
     }
 
     def EndTrack() {
-        record[tracknum] = {
-            "velocity": velocity,
-            "expression": expression
-        };
         tracknum = tracknum + 1;
     }
 
@@ -175,79 +149,106 @@ class KeyboardsHumanizer (itf.Humanizer) {
     }
 
     def NoteOn(Event) {
-        // Record the velocity
-        velocity[Event.Channel][Event.Pitch] = Event.Velocity;
-
-        if (Event.Channel == 9) or (volume[Event.Channel] > 0) {
+        if (Event.Channel != 9) and (volume[Event.Channel] > 0) {
             // Emit an Event with a velocity that depends on the expression,
             // and with a bit of random for rough "humanization"
-            local v = velocity[Event.Channel][Event.Pitch];
+            local v = Event.Velocity;
             local e = expression[Event.Channel];
             if (v > 0) and (e > 0) {
                 v = (humanize(v, v, percent_velocity) * e) / 127;
-                local t;
-                if start[Event.Tick] exists {
-                    t = tick(start[Event.Tick], bpm, percent_tick / 2, 1,
-                             (running[Event.Channel][Event.Pitch] exists) and (running[Event.Channel][Event.Pitch].In > 0));
-                } else {
-                    t = tick(Event.Tick, bpm, percent_tick, 1,
-                             (running[Event.Channel][Event.Pitch] exists) and (running[Event.Channel][Event.Pitch].In > 0));
-                    start[Event.Tick] = t;
+                if v > 0 {
+                    local t;
+                    if start[Event.Tick] exists {
+                        // another note starting on the same chord
+                        if stop[Event.Tick] exists {
+                            t = tick(start[Event.Tick], bpm, percent_tick / 2, 0, 1);
+                        } else {
+                            t = tick(start[Event.Tick], bpm, percent_tick / 2, 0, 0);
+                        }
+                    } else if stop[Event.Tick] exists {
+                        // previous chord stopped just when this one begins, this is legato, try not to break it too much
+                        t = tick(stop[Event.Tick], bpm, percent_tick / 2, 1, 1);
+                    } else {
+                        t = tick(Event.Tick, bpm, percent_tick, 1, 0);
+                        start[Event.Tick] = t;
+                    }
+                    running[Event.Channel][Event.Pitch] = eventHumanization(Event.Tick, t, Event.Velocity, v);
                 }
-                running[Event.Channel][Event.Pitch] = runningRecord(Event.Tick, t);
-                emit NOTE_ON(Event.Channel, Event.Pitch, v) at t;
-            } else {
-                velocity[Event.Channel][Event.Pitch] = 0;
             }
         }
     }
 
-    def NoteOnOff(Event) {
-        if (Event.Channel != 9) and (volume[Event.Channel] == 0) {
+    def play(startRunningRecord, endRunningRecord, channel, pitch) {
+        local startTick;
+        local endTick;
+        local length = endRunningRecord.Tick - startRunningRecord.Tick;
+
+        if length == 0 {
             next;
         }
 
-        // Emit an Event with a velocity that depends on the expression,
-        // and with a bit of random for rough "humanization"
-        // Note that expression may have changed so the release velocity is not
-        // necessarily equal to the press velocity
-        local t;
-        if stop[Event.Tick] exists {
-            t = tick(stop[Event.Tick], bpm, percent_tick / 2, 1,
-                     (running[Event.Channel][Event.Pitch] exists) and (running[Event.Channel][Event.Pitch].In > 0));
+        startTick = tick(startRunningRecord.HumanizedTick, bpm + length, percent_tick / 4, 1, 0);
+
+        if stop[endRunningRecord.Tick] exists {
+            // this is another note stopping on the same chord
+            endTick = tick(stop[endRunningRecord.Tick], bpm + length, percent_tick / 2, 0, 0);
         } else {
-            t = tick(Event.Tick, bpm, percent_tick, -1,
-                     (running[Event.Channel][Event.Pitch] exists) and (running[Event.Channel][Event.Pitch].In > 0));
-            stop[Event.Tick] = t;
+            endTick = tick(Event.Tick, bpm + length, percent_tick, -1, 0);
+            stop[endRunningRecord.Tick] = endTick;
         }
-        if portamento {
-            velocity[Event.Channel][Event.Pitch] = t;
-            emit NOTE_ON(Event.Channel, Event.Pitch, 0) at t;
-        } else if velocity[Event.Channel][Event.Pitch] > 0 {
-            if t < running[Event.Channel][Event.Pitch].Out {
-                if t < running[Event.Channel][Event.Pitch].In {
-                    System.Print("**** note-on after actual note-off!!");
-                    t = running[Event.Channel][Event.Pitch].In + bpm / percent;
-                } else {
-                    System.Print("**** note-off before note-on, using real value");
-                    t = Event.Tick;
-                }
-            }
-            local v = velocity[Event.Channel][Event.Pitch];
-            local e = expression[Event.Channel];
-            v = (humanize(v, v, percent_velocity) * e) / 127;
-            record_note_length(Event.Channel, Event.Pitch, t);
-            running[Event.Channel][Event.Pitch] = runningRecord(-1, -1);
-            emit NOTE_OFF(Event.Channel, Event.Pitch, v) at t;
+
+        local st;
+        local et;
+
+        if startTick < endTick {
+            st = startTick;
+            et = endTick;
+        } else if startRunningRecord.HumanizedTick < endTick {
+            System.Print("**** Note PARTIALLY HUMANIZED");
+            st = startRunningRecord.HumanizedTick;
+            et = endTick;
+        } else {
+            System.Print("**** Note NOT HUMANIZED");
+            st = startRunningRecord.Tick;
+            et = endRunningRecord.Tick;
         }
+        System.Print("NOTE: " + System.ToString(startRunningRecord.Tick) + "-" + System.ToString(endRunningRecord.Tick)
+            + " => " + System.ToString(st) + "-" + System.ToString(et));
+        emit NOTE_ON(channel, pitch, startRunningRecord.HumanizedVelocity) at st;
+        emit NOTE_OFF(channel, pitch, endRunningRecord.HumanizedVelocity) at et;
+
+        // done for this note
+        running[channel][pitch] = eventHumanization(-1, -1, 0, 0);
     }
 
-    def record_note_length(channel, pitch, tick) {
-        if running[channel][pitch] exists {
-            local start = running[channel][pitch].Out;
-            if start > 0 {
-                local length = tick - start;
-                notes[tracknum][channel][start][pitch] = length;
+    def NoteOnOff(Event) {
+        if (Event.Channel != 9) and (volume[Event.Channel] > 0) {
+            // Emit an Event with a velocity that depends on the expression,
+            // and with a bit of random for rough "humanization"
+            // Note that expression may have changed so the release velocity is not
+            // necessarily equal to the press velocity
+            local t;
+            local r;
+
+            if running[Event.Channel][Event.Pitch] exists {
+                r = running[Event.Channel][Event.Pitch]
+            } else {
+                next;
+            }
+
+            if portamento {
+                if stop[Event.Tick] exists {
+                    t = tick(stop[Event.Tick], bpm, percent_tick / 2, 1, r.In > 0);
+                } else {
+                    t = tick(Event.Tick, bpm, percent_tick, -1, r.In > 0);
+                    stop[Event.Tick] = t;
+                }
+                emit NOTE_ON(Event.Channel, Event.Pitch, 0) at t;
+            } else if r.Velocity > 0 {
+                local v = r.Velocity;
+                local e = expression[Event.Channel];
+                v = (humanize(v, v, percent_velocity) * e) / 127;
+                play(r, eventHumanization(Event.Tick, -1, r.Velocity, v), Event.Channel, Event.Pitch);
             }
         }
     }
@@ -256,34 +257,18 @@ class KeyboardsHumanizer (itf.Humanizer) {
         // For completion only -- because NoteWorthy Composer
         // does not emit those Events
 
-        if (volume[Event.Channel] > 0) and (velocity[Event.Channel][Event.Pitch] > 0) {
+        if (Event.Channel != 9) and (volume[Event.Channel] > 0) {
             // Emit an Event with a velocity that depends on the expression,
             // and with a bit of random for rough "humanization"
             // Note that expression may have changed so the release velocity is not
             // necessarily equal to the press velocity
-            local v = (Event.Velocity * expression[Event.Channel]) / 127;
-            v = humanize(v, v, percent_velocity);
-            local t;
-            if stop[Event.Tick] exists {
-                t = tick(stop[Event.Tick], bpm, percent_tick / 2, -1,
-                         (running[Event.Channel][Event.Pitch] exists) and (running[Event.Channel][Event.Pitch].In > 0));
-            } else {
-                t = tick(Event.Tick, bpm, percent_tick, -1,
-                         (running[Event.Channel][Event.Pitch] exists) and (running[Event.Channel][Event.Pitch].In > 0));
+            local r = running[Event.Channel][Event.Pitch]
+            if r.Velocity > 0 {
+                local v = Event.Velocity;
+                local e = expression[Event.Channel];
+                v = (humanize(v, v, percent_velocity) * e) / 127;
+                play(r, eventHumanization(Event.Tick, -1, Event.Velocity, v), Event.Channel, Event.Pitch);
             }
-            if t < running[Event.Channel][Event.Pitch].Out {
-                if t < running[Event.Channel][Event.Pitch].In {
-                    System.Print("**** note-on after actual note-off!!");
-                    t = running[Event.Channel][Event.Pitch].In + bpm / percent;
-                } else {
-                    System.Print("**** note-off before note-on, using real value");
-                    t = Event.Tick;
-                }
-            }
-            record_note_length(Event.Channel, Event.Pitch, t);
-            velocity[Event.Channel][Event.Pitch] = 0;
-            running[Event.Channel][Event.Pitch] = runningRecord(-1, -1);
-            emit NOTE_OFF(Event.Channel, Event.Pitch, v) at t;
         }
     }
 
