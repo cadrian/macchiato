@@ -134,7 +134,13 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (lastValue instanceof MacString) {
 				lastValue = ((MacString) left).concat((MacString) lastValue);
 			} else if (lastValue instanceof MacNumber) {
-				lastValue = ((MacNumber) left).add((MacNumber) lastValue);
+				if (((MacNumber) left).compareTo(MacNumber.ZERO) == 0) {
+					// nothing
+				} else if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
+					lastValue = (left);
+				} else {
+					lastValue = ((MacNumber) left).add((MacNumber) lastValue);
+				}
 			} else {
 				throw new InterpreterException("BUG: invalid type", typedBinary.getLeftOperand().position());
 			}
@@ -167,7 +173,13 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (!(lastValue instanceof MacNumber)) {
 				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
 			}
-			lastValue = ((MacNumber) left).divide((MacNumber) lastValue);
+			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
+				throw new ObjectInexistentException("Division by zero", typedBinary.getLeftOperand().position());
+			} else if (((MacNumber) lastValue).compareTo(MacNumber.ONE) == 0) {
+				lastValue = left;
+			} else {
+				lastValue = ((MacNumber) left).divide((MacNumber) lastValue);
+			}
 			break;
 		case EQ:
 			typedBinary.getRightOperand().accept(this);
@@ -259,7 +271,13 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (!(lastValue instanceof MacNumber)) {
 				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
 			}
-			lastValue = ((MacNumber) left).multiply((MacNumber) lastValue);
+			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
+				lastValue = MacNumber.ZERO;
+			} else if (((MacNumber) lastValue).compareTo(MacNumber.ONE) == 0) {
+				lastValue = left;
+			} else {
+				lastValue = ((MacNumber) left).multiply((MacNumber) lastValue);
+			}
 			break;
 		case NE:
 			typedBinary.getRightOperand().accept(this);
@@ -297,7 +315,13 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (!(lastValue instanceof MacNumber)) {
 				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
 			}
-			lastValue = ((MacNumber) left).pow((MacNumber) lastValue);
+			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
+				lastValue = MacNumber.ONE;
+			} else if (((MacNumber) lastValue).compareTo(MacNumber.ONE) == 0) {
+				lastValue = (left);
+			} else {
+				lastValue = ((MacNumber) left).pow((MacNumber) lastValue);
+			}
 			break;
 		case REMAINDER:
 			if (!(left instanceof MacNumber)) {
@@ -311,7 +335,13 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (!(lastValue instanceof MacNumber)) {
 				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
 			}
-			lastValue = ((MacNumber) left).remainder((MacNumber) lastValue);
+			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
+				throw new ObjectInexistentException("Division by zero", typedBinary.getLeftOperand().position());
+			} else if (((MacNumber) lastValue).compareTo(MacNumber.ONE) == 0) {
+				lastValue = MacNumber.ZERO;
+			} else {
+				lastValue = ((MacNumber) left).remainder((MacNumber) lastValue);
+			}
 			break;
 		case SUBTRACT:
 			if (!(left instanceof MacNumber)) {
@@ -325,7 +355,11 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (!(lastValue instanceof MacNumber)) {
 				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
 			}
-			lastValue = ((MacNumber) left).subtract((MacNumber) lastValue);
+			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
+				lastValue = (left);
+			} else {
+				lastValue = ((MacNumber) left).subtract((MacNumber) lastValue);
+			}
 			break;
 		case XOR:
 			if (!(left instanceof MacBoolean)) {
