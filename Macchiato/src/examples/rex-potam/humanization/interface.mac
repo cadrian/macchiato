@@ -50,4 +50,6 @@ class Humanizer {
 
     def PortamentoTime(Event);
 
+    def Pedal(Event);
+
 }

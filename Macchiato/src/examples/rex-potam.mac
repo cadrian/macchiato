@@ -128,6 +128,13 @@ BEGIN TRACK {
     next;
 }
 
+(Event.Type == CONTROL_CHANGE) and (
+    (Event.Mpc == DAMPER_PEDAL) or (Event.Mpc == SOFT_PEDAL) or (Event.Mpc == LEGATO_PEDAL) or (Event.Mpc == SOSTENUTO)) {
+    humanizer.Pedal(Event);
+    emit;
+    next;
+}
+
 (Event.Type == PROGRAM_CHANGE) {
     // System.Print("Program change on channel " + System.ToString(Event.Channel));
 }

@@ -152,6 +152,10 @@ class KeyboardsHumanizer (itf.Humanizer) {
         // TODO
     }
 
+    def Pedal(Event) {
+        // TODO
+    }
+
     def NoteOn(Event) {
         if (Event.Channel != 9) and (volume[Event.Channel] > 0) {
             // Emit an Event with a velocity that depends on the expression,
