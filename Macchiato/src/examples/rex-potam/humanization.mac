@@ -30,9 +30,18 @@ def loadHumanizer(arg) {
         local value = m.Group("value");
         local arg = m.Group("arg");
         if value == "default" {
-            // OK, it is the default
+            if (arg exists) and not (arg == "") {
+                local a = System.FromString(arg);
+                if (a[0] exists) and (a[1] exists) {
+                    humanizer = dft.DefaultHumanizer(a[0], a[1]);
+                } else {
+                    // OK, it is the default
+                }
+            } else {
+                // OK, it is the default
+            }
         } else if value == "keyboards" {
-            // TODO allow to customize the values
+            // allow to customize the values
             if (arg exists) and not (arg == "") {
                 System.Print("arg: `" + arg + "'");
                 local a = System.FromString(arg);
@@ -52,7 +61,7 @@ def loadHumanizer(arg) {
 
 def LoadHumanizer() {
     // Set default
-    humanizer = dft.DefaultHumanizer();
+    humanizer = dft.DefaultHumanizer(1, 1);
     // See if another is found
     Arguments.ForEach(loadHumanizer);
     // Return the humanizer

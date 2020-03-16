@@ -37,7 +37,7 @@ def humanize(value, anchor, percent) {
     }
 }
 
-def tick(t, sign, width) {
+def tick(t, sign, width, tn, td) {
     if width < 1 {
         Result = t
     } else {
@@ -46,6 +46,8 @@ def tick(t, sign, width) {
             Result = 1;
         }
     }
+    System.Print("TICK: " + System.ToString(tn) + "/" + System.ToString(td));
+    Result = (Result * tn) / td;
 }
 
 class DefaultHumanizer (itf.Humanizer) {
@@ -65,11 +67,17 @@ class DefaultHumanizer (itf.Humanizer) {
     chordOff;
     pedal;
 
-    def DefaultHumanizer() {
+    timeN0;
+    timeD;
+
+    def DefaultHumanizer(tn, td) {
         tracknum = 0;
         tickWidth = 20;
         velocityWidth = 20;
         beat = 4;
+        timeN = tn;
+        timeD = td;
+        System.Print("**** DEFAULT HUMANIZER: " + System.ToString(tn) + "/" + System.ToString(td));
     }
 
     def StartSequence() {
@@ -154,13 +162,12 @@ class DefaultHumanizer (itf.Humanizer) {
     def Pedal(Event) {
         local v = Event.Value;
         if v > 0 {
-            local e = expression[Event.Channel];
-            v = (humanize(v, v, velocityWidth) * e) / 127;
+            v = humanize(v, v, velocityWidth);
             if v < 1 {
                 v = 1
             }
         }
-        local t = tick(Event.Tick, 1, tickWidth);
+        local t = tick(Event.Tick, 1, tickWidth, timeN, timeD);
         System.Print("PEDAL: " + System.ToString(Event.Tick) + " => " + System.ToString(t))
         pedal[Event.Mpc] = v;
         emit CONTROL_CHANGE(Event.Channel, Event.Mpc, v) at t;
@@ -181,7 +188,7 @@ class DefaultHumanizer (itf.Humanizer) {
                 v = (humanize(v, v, velocityWidth) * e) / 127;
                 local t;
                 if chordOn[Event.Channel][Event.Tick] exists {
-                    t = tick(chordOn[Event.Channel][Event.Tick], 1, tickWidth / beat);
+                    t = tick(chordOn[Event.Channel][Event.Tick], 1, tickWidth / beat, timeN, timeD);
                 } else if chordOff[Event.Channel][Event.Tick] exists {
                     // legato -- be careful not to accumulate "lateness"
                     local o = chordOff[Event.Channel][Event.Tick];
@@ -189,13 +196,13 @@ class DefaultHumanizer (itf.Humanizer) {
                     if l <= 0 {
                         l = tickWidth / 2;
                     }
-                    t = tick(Event.Tick, 0, l);
+                    t = tick(Event.Tick, 0, l, timeN, timeD);
                     if t < o {
                         t = o;
                     }
                     chordOn[Event.Channel][Event.Tick] = t;
                 } else {
-                    t = tick(Event.Tick, 1, tickWidth / 2);
+                    t = tick(Event.Tick, 1, tickWidth / 2, timeN, timeD);
                     chordOn[Event.Channel][Event.Tick] = t;
                 }
                 running[Event.Channel][Event.Pitch] = t;
@@ -265,9 +272,9 @@ class DefaultHumanizer (itf.Humanizer) {
             n = true
         }
 
-        Result = tick(c, -1, w);
+        Result = tick(c, -1, w, timeN, timeD);
         if Result < r {
-            Result = tick(c, 0, w);
+            Result = tick(c, 0, w, timeN, timeD);
             if Result < r {
                 Result = Event.Tick;
                 if Result < r {
@@ -314,7 +321,7 @@ class DefaultHumanizer (itf.Humanizer) {
         // humanize this Event too
         local v = Event.Value;
         v = humanize(v, v, velocityWidth);
-        local t = tick(Event.Tick, 0);
+        local t = tick(Event.Tick, 0, timeN, timeD);
         emit CONTROL_CHANGE(Event.Channel, PORTAMENTO_TIME, v) at t;
     }
 
