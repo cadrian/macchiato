@@ -33,7 +33,7 @@ def humanize(value, anchor, percent) {
         } else if (Result > 127) {
             Result = 127;
         }
-        System.Print("VELOCITY: " + System.ToString(value) + " (" + System.ToString(percent) + "%) => " + System.ToString(Result))
+        System.Print("humanize: " + System.ToString(value) + " (" + System.ToString(percent) + "%) => " + System.ToString(Result))
     }
 }
 
@@ -67,17 +67,76 @@ class DefaultHumanizer (itf.Humanizer) {
     chordOff;
     pedal;
 
-    timeN0;
+    timeN;
     timeD;
 
-    def DefaultHumanizer(tn, td) {
+    factorVelocity;
+    factorExpression;
+    factorVolume;
+
+    def DefaultHumanizer(arg) {
         tracknum = 0;
         tickWidth = 20;
         velocityWidth = 20;
         beat = 4;
-        timeN = tn;
-        timeD = td;
-        System.Print("**** DEFAULT HUMANIZER: " + System.ToString(tn) + "/" + System.ToString(td));
+
+        timeN = 1;
+        timeD = 1;
+        factorVelocity = 1;
+        factorExpression = 1;
+        factorVolume = 0;
+
+        if (arg exists) and not (arg == "") {
+            setFromArg(System.FromString(arg));
+        }
+        System.Print("**** DEFAULT HUMANIZER: " + System.ToString(timeN) + "/" + System.ToString(timeD));
+    }
+
+    def setFromArg(arg) {
+        if (arg[0] exists) and (arg[1] exists) {
+            // legacy
+            timeN = arg[0];
+            timeD = arg[1];
+        } else {
+            System.Print("Setting arg: " + System.ToString(arg))
+            // cleaner way to set conf
+            if arg["timeNumerator"] exists {
+                timeN = arg["timeNumerator"];
+                System.Print("Setting time numerator to " + System.ToString(timeN));
+            }
+            if arg["timeDenominator"] exists {
+                timeD = arg["timeDenominator"];
+                System.Print("Setting time denominator to " + System.ToString(timeD));
+            }
+            if arg["velocityWidth"] exists {
+                velocityWidth = arg["velocityWidth"]
+                System.Print("Setting velocity width to " + System.ToString(velocityWidth));
+            }
+            if arg["factorVelocity"] exists {
+                if arg["factorVelocity"] > 0 {
+                    factorVelocity = arg["factorVelocity"]
+                    System.Print("Setting factor velocity to " + System.ToString(factorVelocity));
+                } else {
+                    System.Print("Invalid factor_velocity (cannot be null or negative)")
+                }
+            }
+            if arg["factorExpression"] exists {
+                if arg["factorExpression"] >= 0 {
+                    factorExpression = arg["factorExpression"]
+                    System.Print("Setting factor expression to " + System.ToString(factorExpression));
+                } else {
+                    System.Print("Invalid factor_expression (cannot be negative)")
+                }
+            }
+            if arg["factorVolume"] exists {
+                if arg["factorVolume"] >= 0 {
+                    factorVolume = arg["factorVolume"]
+                    System.Print("Setting factor volume to " + System.ToString(factorVolume));
+                } else {
+                    System.Print("Invalid factor_volume (cannot be negative)")
+                }
+            }
+        }
     }
 
     def StartSequence() {
@@ -98,7 +157,7 @@ class DefaultHumanizer (itf.Humanizer) {
         expression = [127, 127, 127, 127, 127, 127, 127, 127,
                       127, 127, 127, 127, 127, 127, 127, 127];
 
-        // volume records the current expression, per channel
+        // volume records the current volume, per channel
         volume = [127, 127, 127, 127, 127, 127, 127, 127,
                   127, 127, 127, 127, 127, 127, 127, 127];
 
@@ -135,7 +194,8 @@ class DefaultHumanizer (itf.Humanizer) {
     def EndTrack() {
         record[tracknum] = {
             "velocity": velocity,
-            "expression": expression
+            "expression": expression,
+            "volume": volume
         };
         tracknum = tracknum + 1;
     }
@@ -182,10 +242,21 @@ class DefaultHumanizer (itf.Humanizer) {
         } else if volume[Event.Channel] > 0 {
             // Emit an Event with a velocity that depends on the expression,
             // and with a bit of random for rough "humanization"
-            local v = velocity[Event.Channel][Event.Pitch];
+            local v0 = velocity[Event.Channel][Event.Pitch];
+            local h = humanize(v0, v0, velocityWidth);
             local e = expression[Event.Channel];
-            if (v > 0) and (e > 0) {
-                v = (humanize(v, v, velocityWidth) * e) / 127;
+            local p = volume[Event.Channel];
+
+            // IDEAL SHOULD BE: (but Macchiato does not support floating point numbers)
+            // v = ((h ^ factorVelocity) * (e ^ factorExpression) * (p ^ factorVolume)) ^ (1 / (factorVelocity + factorExpression + factorVolume))
+            v = ((h ^ factorVelocity) * (e ^ factorExpression) * (p ^ factorVolume)) / (127 ^ (factorVelocity + factorExpression + factorVolume - 1))
+            System.Print("VELOCITY: " + System.ToString(v0)
+                + " [" + System.ToString(h) + "*" + System.ToString(factorVelocity)
+                + ", " + System.ToString(e) + "*" + System.ToString(factorExpression)
+                + ", " + System.ToString(p) + "*" + System.ToString(factorVolume)
+                +"] => " + System.ToString(v))
+
+            if (v > 0) {
                 local t;
                 if chordOn[Event.Channel][Event.Tick] exists {
                     t = tick(chordOn[Event.Channel][Event.Tick], 1, tickWidth / beat, timeN, timeD);
@@ -306,11 +377,17 @@ class DefaultHumanizer (itf.Humanizer) {
     def Expression(Event) {
         // Record the expression value
         expression[Event.Channel] = Event.Value;
+        if factorExpression == 0 {
+            emit;
+        }
     }
 
     def Volume(Event) {
         // Record the volume value
         volume[Event.Channel] = Event.Value;
+        if factorVolume == 0 {
+            emit;
+        }
     }
 
     def Portamento(Event) {
@@ -323,6 +400,52 @@ class DefaultHumanizer (itf.Humanizer) {
         v = humanize(v, v, velocityWidth);
         local t = tick(Event.Tick, 0, timeN, timeD);
         emit CONTROL_CHANGE(Event.Channel, PORTAMENTO_TIME, v) at t;
+    }
+
+    def GeneralPurpose1(Event){
+    }
+
+    def GeneralPurpose2(Event){
+    }
+
+    def GeneralPurpose3(Event){
+    }
+
+    def GeneralPurpose4(Event){
+    }
+
+    def Effect1(Event) {
+    }
+
+    def Effect2(Event) {
+    }
+
+    def ParseText(Event) {
+        local m = /^(?<free>.*?)=mac:(?<var>[a-zA-Z]+)=(?<expr>.*)$/.Matcher(Event.Text)
+        if m.Matches() {
+            local free = m.Group("free");
+            local var = m.Group("var");
+            local expr = m.Group("expr");
+            System.Print("==> Text | free: " + free +" | var: " + var + " | expr: " + expr);
+            local value = System.FromString(expr);
+            if var == "set" {
+                setFromArg(System.FromString(expr));
+            } else if var == "time_numerator" {
+                timeN = value;
+            } else if var == "time_denominator" {
+                timeD = value;
+            } else {
+                System.Print("**** UNKNOWN VARIABLE: " + var);
+            }
+            if free != "" {
+                if Event.Type == LYRICS {
+                    emit LYRICS(free);
+                }
+            }
+        } else {
+            System.Print("==> Text: " + Event.Text);
+            emit;
+        }
     }
 
 }

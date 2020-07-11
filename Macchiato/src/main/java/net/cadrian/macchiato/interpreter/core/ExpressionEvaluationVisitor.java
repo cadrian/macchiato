@@ -481,14 +481,14 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		}
 		if (index instanceof MacNumber) {
 			if (!(target instanceof MacArray)) {
-				throw new InterpreterException("invalid target type: expected MacArray but got "
+				throw new ObjectInexistentException("invalid target type: expected MacArray but got "
 						+ target.getClass().getSimpleName() + " (index=" + index + ")",
 						indexedExpression.getIndexed().position());
 			}
 			lastValue = ((MacArray) target).get((MacNumber) index);
 		} else if (index instanceof MacString) {
 			if (!(target instanceof MacDictionary)) {
-				throw new InterpreterException("invalid target type: expected MacDictionary but got "
+				throw new ObjectInexistentException("invalid target type: expected MacDictionary but got "
 						+ target.getClass().getSimpleName() + " (index=" + index + ")",
 						indexedExpression.getIndexed().position());
 			}

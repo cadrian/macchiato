@@ -52,4 +52,14 @@ class Humanizer {
 
     def Pedal(Event);
 
+    def GeneralPurpose1(Event);
+    def GeneralPurpose2(Event);
+    def GeneralPurpose3(Event);
+    def GeneralPurpose4(Event);
+
+    def Effect1(Event);
+    def Effect2(Event);
+
+    def ParseText(Event);
+
 }

@@ -288,6 +288,7 @@ class KeyboardsHumanizer (itf.Humanizer) {
     def Volume(Event) {
         // Record the volume value
         volume[Event.Channel] = Event.Value;
+        emit;
     }
 
     def Portamento(Event) {
@@ -300,6 +301,29 @@ class KeyboardsHumanizer (itf.Humanizer) {
         v = humanize(v, v, percent_velocity);
         local t = tick(Event.Tick, bpm, percent_tick / 2, 0, false);
         emit CONTROL_CHANGE(Event.Channel, PORTAMENTO_TIME, v) at t;
+    }
+
+    def GeneralPurpose1(Event){
+    }
+
+    def GeneralPurpose2(Event){
+    }
+
+    def GeneralPurpose3(Event){
+    }
+
+    def GeneralPurpose4(Event){
+    }
+
+    def Effect1(Event) {
+    }
+
+    def Effect2(Event) {
+    }
+
+    def ParseText(Event){
+        System.Print("INSTRUMENT_NAME: " + Event.Text);
+        emit;
     }
 
 }

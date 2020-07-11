@@ -122,9 +122,38 @@ BEGIN TRACK {
     next;
 }
 
+(Event.Type == CONTROL_CHANGE) and (Event.Mpc == GENERAL_PURPOSE_1) {
+    humanizer.GeneralPurpose1(Event);
+    next;
+}
+
+(Event.Type == CONTROL_CHANGE) and (Event.Mpc == GENERAL_PURPOSE_2) {
+    humanizer.GeneralPurpose2(Event);
+    next;
+}
+
+(Event.Type == CONTROL_CHANGE) and (Event.Mpc == GENERAL_PURPOSE_3) {
+    humanizer.GeneralPurpose3(Event);
+    next;
+}
+
+(Event.Type == CONTROL_CHANGE) and (Event.Mpc == GENERAL_PURPOSE_4) {
+    humanizer.GeneralPurpose4(Event);
+    next;
+}
+
+(Event.Type == CONTROL_CHANGE) and (Event.Mpc == EFFECT_1) {
+    humanizer.Effect1(Event);
+    next;
+}
+
+(Event.Type == CONTROL_CHANGE) and (Event.Mpc == EFFECT_2) {
+    humanizer.Effect2(Event);
+    next;
+}
+
 (Event.Type == CONTROL_CHANGE) and (Event.Mpc == CHANNEL_VOLUME) {
     humanizer.Volume(Event);
-    emit;
     next;
 }
 
@@ -174,30 +203,37 @@ BEGIN TRACK {
 
 (Event.Type == TEXT) {
     System.Print("TEXT: " + Event.Text);
+    humanizer.ParseText(Event);
 }
 
 (Event.Type == COPYRIGHT) {
     System.Print("COPYRIGHT: " + Event.Text);
+    humanizer.ParseText(Event);
 }
 
 (Event.Type == TRACK_NAME) {
     System.Print("TRACK_NAME: " + Event.Text);
+    humanizer.ParseText(Event);
 }
 
 (Event.Type == INSTRUMENT_NAME) {
     System.Print("INSTRUMENT_NAME: " + Event.Text);
+    humanizer.ParseText(Event);
 }
 
 (Event.Type == LYRICS) {
     System.Print("LYRICS: " + Event.Text);
+    humanizer.ParseText(Event);
 }
 
 (Event.Type == MARKER_TEXT) {
     System.Print("MARKER_TEXT: " + Event.Text);
+    humanizer.ParseText(Event);
 }
 
 (Event.Type == CUE_POINT) {
     System.Print("CUE_POINT: " + Event.Text);
+    humanizer.ParseText(Event);
 }
 
 END TRACK {

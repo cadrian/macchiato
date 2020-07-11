@@ -740,7 +740,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] TYPE_0 = new Class[0];
 	@SuppressWarnings("unchecked")
-	private static final Class<? extends MacObject>[] TYPE_STR1 = new Class[] { String.class };
+	private static final Class<? extends MacObject>[] TYPE_STR1 = new Class[] { MacString.class };
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] TYPE_INT1 = new Class[] { MacNumber.class };
 	@SuppressWarnings("unchecked")
