@@ -74,6 +74,9 @@ class DefaultHumanizer (itf.Humanizer) {
     factorExpression;
     factorVolume;
 
+    legatoStrength;
+    beatDepth;
+
     def DefaultHumanizer(arg) {
         tracknum = 0;
         tickWidth = 20;
@@ -85,6 +88,9 @@ class DefaultHumanizer (itf.Humanizer) {
         factorVelocity = 1;
         factorExpression = 1;
         factorVolume = 0;
+
+        legatoStrength = 0;
+        beatDepth = 64;
 
         if (arg exists) and not (arg == "") {
             setFromArg(System.FromString(arg));
@@ -259,21 +265,24 @@ class DefaultHumanizer (itf.Humanizer) {
             if (v > 0) {
                 local t;
                 if chordOn[Event.Channel][Event.Tick] exists {
+                    System.Print("chordOn exists");
                     t = tick(chordOn[Event.Channel][Event.Tick], 1, tickWidth / beat, timeN, timeD);
                 } else if chordOff[Event.Channel][Event.Tick] exists {
+                    System.Print("chordOff exists: legato case");
                     // legato -- be careful not to accumulate "lateness"
-                    local o = chordOff[Event.Channel][Event.Tick];
-                    local l = Event.Tick - o
+                    local o = chordOff[Event.Channel][Event.Tick] - (legatoStrength * tickWidth / beat) / 4;
+                    local l = Event.Tick - o;
                     if l <= 0 {
                         l = tickWidth / 2;
                     }
-                    t = tick(Event.Tick, 0, l, timeN, timeD);
+                    t = tick(Event.Tick + ((beatDepth - 64) * tickWidth / beat) / 4, 0, l, timeN, timeD);
                     if t < o {
                         t = o;
                     }
                     chordOn[Event.Channel][Event.Tick] = t;
                 } else {
-                    t = tick(Event.Tick, 1, tickWidth / 2, timeN, timeD);
+                    System.Print("new chord");
+                    t = tick(Event.Tick + ((beatDepth - 64) * tickWidth / beat) / 4, 1, tickWidth / 2, timeN, timeD);
                     chordOn[Event.Channel][Event.Tick] = t;
                 }
                 running[Event.Channel][Event.Pitch] = t;
@@ -339,7 +348,7 @@ class DefaultHumanizer (itf.Humanizer) {
             w = w / (beat + 1)
             n = false
         } else {
-            c = Event.Tick
+            c = Event.Tick + (legatoStrength * tickWidth / beat) / 4;
             n = true
         }
 
@@ -403,21 +412,29 @@ class DefaultHumanizer (itf.Humanizer) {
     }
 
     def GeneralPurpose1(Event){
+        System.Print("GP1: " + System.ToString(Event.Value));
     }
 
     def GeneralPurpose2(Event){
+        System.Print("GP2: " + System.ToString(Event.Value));
     }
 
     def GeneralPurpose3(Event){
+        System.Print("GP3: " + System.ToString(Event.Value));
     }
 
     def GeneralPurpose4(Event){
+        System.Print("GP4: " + System.ToString(Event.Value));
     }
 
     def Effect1(Event) {
+        System.Print("EF1: " + System.ToString(Event.Value));
+        legatoStrength = Event.Value;
     }
 
     def Effect2(Event) {
+        System.Print("EF2: " + System.ToString(Event.Value));
+        beatDepth = Event.Value;
     }
 
     def ParseText(Event) {
