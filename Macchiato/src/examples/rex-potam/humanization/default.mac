@@ -77,6 +77,10 @@ class DefaultHumanizer (itf.Humanizer) {
     legatoStrength;
     beatDepth;
 
+    tickWidthDivisor;
+    legatoStrengthDivisor;
+    beatDepthDivisor;
+
     def DefaultHumanizer(arg) {
         tracknum = 0;
         tickWidth = 20;
@@ -91,6 +95,10 @@ class DefaultHumanizer (itf.Humanizer) {
 
         legatoStrength = 0;
         beatDepth = 64;
+
+        tickWidthDivisor = 4;
+        legatoStrengthDivisor = 16;
+        beatDepthDivisor = 16;
 
         if (arg exists) and not (arg == "") {
             setFromArg(System.FromString(arg));
@@ -123,7 +131,7 @@ class DefaultHumanizer (itf.Humanizer) {
                     factorVelocity = arg["factorVelocity"]
                     System.Print("Setting factor velocity to " + System.ToString(factorVelocity));
                 } else {
-                    System.Print("Invalid factor_velocity (cannot be null or negative)")
+                    System.Print("Invalid factorVelocity (cannot be null or negative)")
                 }
             }
             if arg["factorExpression"] exists {
@@ -131,7 +139,7 @@ class DefaultHumanizer (itf.Humanizer) {
                     factorExpression = arg["factorExpression"]
                     System.Print("Setting factor expression to " + System.ToString(factorExpression));
                 } else {
-                    System.Print("Invalid factor_expression (cannot be negative)")
+                    System.Print("Invalid factorExpression (cannot be negative)")
                 }
             }
             if arg["factorVolume"] exists {
@@ -139,7 +147,31 @@ class DefaultHumanizer (itf.Humanizer) {
                     factorVolume = arg["factorVolume"]
                     System.Print("Setting factor volume to " + System.ToString(factorVolume));
                 } else {
-                    System.Print("Invalid factor_volume (cannot be negative)")
+                    System.Print("Invalid factorVolume (cannot be negative)")
+                }
+            }
+            if arg["legatoStrengthDivisor"] exists {
+                if arg["legatoStrengthDivisor"] > 0 {
+                    legatoStrengthDivisor = arg["legatoStrengthDivisor"]
+                    System.Print("Setting legato strength divisor to " + System.ToString(legatoStrengthDivisor));
+                } else {
+                    System.Print("Invalid legatoStrengthDivisor (cannot be null or negative)")
+                }
+            }
+            if arg["beatDepthDivisor"] exists {
+                if arg["beatDepthDivisor"] > 0 {
+                    beatDepthDivisor = arg["beatDepthDivisor"]
+                    System.Print("Setting beat depth divisor to " + System.ToString(beatDepthDivisor));
+                } else {
+                    System.Print("Invalid beatDepthDivisor (cannot be null or negative)")
+                }
+            }
+            if arg["tickWidthDivisor"] exists {
+                if arg["tickWidthDivisor"] > 0 {
+                    tickWidthDivisor = arg["tickWidthDivisor"]
+                    System.Print("Setting tick width divisor to " + System.ToString(tickWidthDivisor));
+                } else {
+                    System.Print("Invalid tickWidthDivisor (cannot be null or negative)")
                 }
             }
         }
@@ -270,19 +302,19 @@ class DefaultHumanizer (itf.Humanizer) {
                 } else if chordOff[Event.Channel][Event.Tick] exists {
                     System.Print("chordOff exists: legato case");
                     // legato -- be careful not to accumulate "lateness"
-                    local o = chordOff[Event.Channel][Event.Tick] - (legatoStrength * tickWidth / beat) / 4;
+                    local o = chordOff[Event.Channel][Event.Tick] - (legatoStrength * tickWidth / beat) / legatoStrengthDivisor;
                     local l = Event.Tick - o;
                     if l <= 0 {
                         l = tickWidth / 2;
                     }
-                    t = tick(Event.Tick + ((beatDepth - 64) * tickWidth / beat) / 4, 0, l, timeN, timeD);
+                    t = tick(Event.Tick + ((beatDepth - 64) * tickWidth / beat) / beatDepthDivisor, 0, l, timeN, timeD);
                     if t < o {
                         t = o;
                     }
                     chordOn[Event.Channel][Event.Tick] = t;
                 } else {
                     System.Print("new chord");
-                    t = tick(Event.Tick + ((beatDepth - 64) * tickWidth / beat) / 4, 1, tickWidth / 2, timeN, timeD);
+                    t = tick(Event.Tick + ((beatDepth - 64) * tickWidth / beat) / beatDepthDivisor, 1, tickWidth / 2, timeN, timeD);
                     chordOn[Event.Channel][Event.Tick] = t;
                 }
                 running[Event.Channel][Event.Pitch] = t;
@@ -333,7 +365,7 @@ class DefaultHumanizer (itf.Humanizer) {
         // and with a bit of random for rough "humanization"
         // Note that expression may have changed so the release velocity is not
         // necessarily equal to the press velocity
-        local w = ((Event.Tick - r) / beat) / 4;
+        local w = ((Event.Tick - r) / beat) / tickWidthDivisor;
         if w < 1 {
             w = 1;
         } else if w > tickWidth {
@@ -348,17 +380,27 @@ class DefaultHumanizer (itf.Humanizer) {
             w = w / (beat + 1)
             n = false
         } else {
-            c = Event.Tick + (legatoStrength * tickWidth / beat) / 4;
+            c = Event.Tick + (legatoStrength * tickWidth / beat) / legatoStrengthDivisor;
             n = true
         }
 
         Result = tick(c, -1, w, timeN, timeD);
         if Result < r {
-            Result = tick(c, 0, w, timeN, timeD);
+            local d = ((beatDepth - 64) * tickWidth / beat) / beatDepthDivisor;
+            Result = tick(c + d, -1, w, timeN, timeD);
             if Result < r {
-                Result = Event.Tick;
+                Result = tick(c, 0, w, timeN, timeD);
                 if Result < r {
-                    Result = r + w;
+                    Result = tick(c + d, 0, w, timeN, timeD);
+                    if Result < r {
+                        Result = Event.Tick + d;
+                        if Result < r {
+                            Result = r + System.GaussRandom(w);
+                            if Result < r {
+                                Result = r + w;
+                            }
+                        }
+                    }
                 }
             }
         }
