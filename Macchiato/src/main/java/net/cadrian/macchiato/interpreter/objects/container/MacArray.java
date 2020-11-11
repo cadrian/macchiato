@@ -16,8 +16,12 @@
  */
 package net.cadrian.macchiato.interpreter.objects.container;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -285,6 +289,86 @@ public class MacArray implements MacContainer<MacNumber> {
 
 	};
 
+	private static class SortMethod extends AbstractMethod<MacArray> {
+
+		private static final Identifier NAME = new Identifier("Sort", Position.NONE);
+
+		@SuppressWarnings("unchecked")
+		private static final Class<? extends MacObject>[] ARG_TYPES = new Class[] {};
+		private static final Identifier[] ARG_NAMES = {};
+
+		protected SortMethod(final Ruleset ruleset) {
+			super(ruleset);
+		}
+
+		@Override
+		public Class<MacArray> getTargetType() {
+			return MacArray.class;
+		}
+
+		private static class ObjectComparator<T extends Comparable<T>> implements Comparator<MacObject> {
+			private final Position position;
+
+			public ObjectComparator(final Position position) {
+				this.position = position;
+			}
+
+			@Override
+			@SuppressWarnings("unchecked")
+			public int compare(final MacObject o1, final MacObject o2) {
+				if (!(o1 instanceof Comparable<?>) || !(o2 instanceof Comparable<?>)) {
+					throw new InterpreterException("invalid 'sort' function call: some objects are not comparable",
+							position);
+				}
+				try {
+					final T c1 = (T) o1;
+					final T c2 = (T) o2;
+					return c1.compareTo(c2);
+				} catch (final ClassCastException e) {
+					throw new InterpreterException("invalid 'sort' function call: some objects are not comparable",
+							position);
+				}
+			}
+		}
+
+		private <T extends Comparable<T>> void sort(final MacArray target, final Context context,
+				final Position position) {
+			final List<MacObject> values = new ArrayList<>(target.array.values());
+			Collections.sort(values, new ObjectComparator<T>(position));
+			target.array.clear();
+			final int n = values.size();
+			for (int i = 0; i < n; i++) {
+				target.array.put(MacNumber.valueOf(i), values.get(i));
+			}
+		}
+
+		@Override
+		public void run(final MacArray target, final Context context, final Position position) {
+			sort(target, context, position);
+		}
+
+		@Override
+		public Identifier name() {
+			return NAME;
+		}
+
+		@Override
+		public Class<? extends MacObject>[] getArgTypes() {
+			return ARG_TYPES;
+		}
+
+		@Override
+		public Identifier[] getArgNames() {
+			return ARG_NAMES;
+		}
+
+		@Override
+		public Class<? extends MacObject> getResultType() {
+			return MacObject.class;
+		}
+
+	};
+
 	private final Map<MacNumber, MacObject> array = new TreeMap<>();
 
 	@Override
@@ -325,6 +409,8 @@ public class MacArray implements MacContainer<MacNumber> {
 			return (Method<T>) new ForEachMethod(ruleset);
 		case "Map":
 			return (Method<T>) new MapMethod(ruleset);
+		case "Sort":
+			return (Method<T>) new SortMethod(ruleset);
 		}
 		return null;
 	}
