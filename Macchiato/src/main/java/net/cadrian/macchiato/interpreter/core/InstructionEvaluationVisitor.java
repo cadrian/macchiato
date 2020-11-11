@@ -196,16 +196,16 @@ class InstructionEvaluationVisitor implements InstructionVisitor {
 			while (keys.hasNext()) {
 				final MacObject value = loop.get(keys.next());
 				assignmentVisitor.assign(name1, value);
+				instruction.accept(this);
 			}
-			instruction.accept(this);
 		} else {
 			while (keys.hasNext()) {
 				final I key = keys.next();
 				final MacObject value = loop.get(key);
 				assignmentVisitor.assign(name1, key);
 				assignmentVisitor.assign(name2, value);
+				instruction.accept(this);
 			}
-			instruction.accept(this);
 		}
 	}
 
