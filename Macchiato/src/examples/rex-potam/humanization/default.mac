@@ -81,8 +81,24 @@ class DefaultHumanizer (itf.Humanizer) {
     legatoStrengthDivisor;
     beatDepthDivisor;
 
+    sets;
+
     def DefaultHumanizer(arg) {
         tracknum = 0;
+
+        setDefault();
+
+        sets = [];
+
+        if (arg exists) and not (arg == "") {
+            setFromArg(System.FromString(arg), 0);
+        }
+        System.Print("**** DEFAULT HUMANIZER: " + System.ToString(timeN) + "/" + System.ToString(timeD));
+    }
+
+    def setDefault() {
+        System.Print("Setting defaults");
+
         tickWidth = 20;
         velocityWidth = 20;
         beat = 4;
@@ -99,81 +115,107 @@ class DefaultHumanizer (itf.Humanizer) {
         tickWidthDivisor = 4;
         legatoStrengthDivisor = 16;
         beatDepthDivisor = 16;
-
-        if (arg exists) and not (arg == "") {
-            setFromArg(System.FromString(arg));
-        }
-        System.Print("**** DEFAULT HUMANIZER: " + System.ToString(timeN) + "/" + System.ToString(timeD));
     }
 
-    def setFromArg(arg) {
+    def setArg(arg) {
+        System.Print("Setting arg: " + System.ToString(arg));
+
+        // cleaner way to set conf
+        if arg["timeNumerator"] exists {
+            timeN = arg["timeNumerator"];
+            System.Print("Setting time numerator to " + System.ToString(timeN));
+        }
+        if arg["timeDenominator"] exists {
+            timeD = arg["timeDenominator"];
+            System.Print("Setting time denominator to " + System.ToString(timeD));
+        }
+        if arg["velocityWidth"] exists {
+            velocityWidth = arg["velocityWidth"]
+            System.Print("Setting velocity width to " + System.ToString(velocityWidth));
+        }
+        if arg["factorVelocity"] exists {
+            if arg["factorVelocity"] > 0 {
+                factorVelocity = arg["factorVelocity"]
+                System.Print("Setting factor velocity to " + System.ToString(factorVelocity));
+            } else {
+                System.Print("Invalid factorVelocity (cannot be null or negative)")
+            }
+        }
+        if arg["factorExpression"] exists {
+            if arg["factorExpression"] >= 0 {
+                factorExpression = arg["factorExpression"]
+                System.Print("Setting factor expression to " + System.ToString(factorExpression));
+            } else {
+                System.Print("Invalid factorExpression (cannot be negative)")
+            }
+        }
+        if arg["factorVolume"] exists {
+            if arg["factorVolume"] >= 0 {
+                factorVolume = arg["factorVolume"]
+                System.Print("Setting factor volume to " + System.ToString(factorVolume));
+            } else {
+                System.Print("Invalid factorVolume (cannot be negative)")
+            }
+        }
+        if arg["legatoStrengthDivisor"] exists {
+            if arg["legatoStrengthDivisor"] > 0 {
+                legatoStrengthDivisor = arg["legatoStrengthDivisor"]
+                System.Print("Setting legato strength divisor to " + System.ToString(legatoStrengthDivisor));
+            } else {
+                System.Print("Invalid legatoStrengthDivisor (cannot be null or negative)")
+            }
+        }
+        if arg["beatDepthDivisor"] exists {
+            if arg["beatDepthDivisor"] > 0 {
+                beatDepthDivisor = arg["beatDepthDivisor"]
+                System.Print("Setting beat depth divisor to " + System.ToString(beatDepthDivisor));
+            } else {
+                System.Print("Invalid beatDepthDivisor (cannot be null or negative)")
+            }
+        }
+        if arg["tickWidthDivisor"] exists {
+            if arg["tickWidthDivisor"] > 0 {
+                tickWidthDivisor = arg["tickWidthDivisor"]
+                System.Print("Setting tick width divisor to " + System.ToString(tickWidthDivisor));
+            } else {
+                System.Print("Invalid tickWidthDivisor (cannot be null or negative)")
+            }
+        }
+    }
+
+    def setFromArg(arg, tick) {
+        local set;
+
         if (arg[0] exists) and (arg[1] exists) {
             // legacy
-            timeN = arg[0];
-            timeD = arg[1];
+            set = {
+                "timeNumerator": arg[0],
+                "timeDenominator": arg[1]
+            };
         } else {
-            System.Print("Setting arg: " + System.ToString(arg))
-            // cleaner way to set conf
-            if arg["timeNumerator"] exists {
-                timeN = arg["timeNumerator"];
-                System.Print("Setting time numerator to " + System.ToString(timeN));
+            set = arg;
+        }
+        System.Print("Recording @" + System.ToString(tick) + " set: " + System.ToString(set));
+        sets[tick] = set;
+        setArg(set);
+    }
+
+    def setArgFromTick(tick) {
+        System.Print("sets=" + System.ToString(sets));
+        System.Print("Setting @" + System.ToString(tick));
+
+        local set;
+        for t, v in sets {
+            if t < tick {
+                set = v;
             }
-            if arg["timeDenominator"] exists {
-                timeD = arg["timeDenominator"];
-                System.Print("Setting time denominator to " + System.ToString(timeD));
-            }
-            if arg["velocityWidth"] exists {
-                velocityWidth = arg["velocityWidth"]
-                System.Print("Setting velocity width to " + System.ToString(velocityWidth));
-            }
-            if arg["factorVelocity"] exists {
-                if arg["factorVelocity"] > 0 {
-                    factorVelocity = arg["factorVelocity"]
-                    System.Print("Setting factor velocity to " + System.ToString(factorVelocity));
-                } else {
-                    System.Print("Invalid factorVelocity (cannot be null or negative)")
-                }
-            }
-            if arg["factorExpression"] exists {
-                if arg["factorExpression"] >= 0 {
-                    factorExpression = arg["factorExpression"]
-                    System.Print("Setting factor expression to " + System.ToString(factorExpression));
-                } else {
-                    System.Print("Invalid factorExpression (cannot be negative)")
-                }
-            }
-            if arg["factorVolume"] exists {
-                if arg["factorVolume"] >= 0 {
-                    factorVolume = arg["factorVolume"]
-                    System.Print("Setting factor volume to " + System.ToString(factorVolume));
-                } else {
-                    System.Print("Invalid factorVolume (cannot be negative)")
-                }
-            }
-            if arg["legatoStrengthDivisor"] exists {
-                if arg["legatoStrengthDivisor"] > 0 {
-                    legatoStrengthDivisor = arg["legatoStrengthDivisor"]
-                    System.Print("Setting legato strength divisor to " + System.ToString(legatoStrengthDivisor));
-                } else {
-                    System.Print("Invalid legatoStrengthDivisor (cannot be null or negative)")
-                }
-            }
-            if arg["beatDepthDivisor"] exists {
-                if arg["beatDepthDivisor"] > 0 {
-                    beatDepthDivisor = arg["beatDepthDivisor"]
-                    System.Print("Setting beat depth divisor to " + System.ToString(beatDepthDivisor));
-                } else {
-                    System.Print("Invalid beatDepthDivisor (cannot be null or negative)")
-                }
-            }
-            if arg["tickWidthDivisor"] exists {
-                if arg["tickWidthDivisor"] > 0 {
-                    tickWidthDivisor = arg["tickWidthDivisor"]
-                    System.Print("Setting tick width divisor to " + System.ToString(tickWidthDivisor));
-                } else {
-                    System.Print("Invalid tickWidthDivisor (cannot be null or negative)")
-                }
-            }
+        }
+
+        if set exists {
+            System.Print("Found @" + System.ToString(tick) + " set: " + System.ToString(set));
+            setArg(set);
+        } else {
+            setDefault();
         }
     }
 
@@ -227,6 +269,8 @@ class DefaultHumanizer (itf.Humanizer) {
 
         // Portamento pedal state
         portamento = false;
+
+        setArgFromTick(0);
     }
 
     def EndTrack() {
@@ -272,6 +316,8 @@ class DefaultHumanizer (itf.Humanizer) {
     }
 
     def NoteOn(Event) {
+        setArgFromTick(Event.Tick);
+
         // Record the velocity
         velocity[Event.Channel][Event.Pitch] = Event.Velocity;
 
@@ -327,6 +373,8 @@ class DefaultHumanizer (itf.Humanizer) {
     }
 
     def NoteOnOff(Event) {
+        setArgFromTick(Event.Tick);
+
         if Event.Channel == 9 {
             emit;
         } else if volume[Event.Channel] == 0 {
@@ -344,6 +392,8 @@ class DefaultHumanizer (itf.Humanizer) {
     def NoteOff(Event) {
         // For completion only -- because NoteWorthy Composer
         // does not emit those Events
+
+        setArgFromTick(Event.Tick);
 
         if Event.Channel == 9 {
             emit;
@@ -488,7 +538,7 @@ class DefaultHumanizer (itf.Humanizer) {
             System.Print("==> Text | free: " + free +" | var: " + var + " | expr: " + expr);
             local value = System.FromString(expr);
             if var == "set" {
-                setFromArg(System.FromString(expr));
+                setFromArg(System.FromString(expr), Event.Tick);
             } else if var == "time_numerator" {
                 timeN = value;
             } else if var == "time_denominator" {
