@@ -46,8 +46,8 @@ def tick(t, sign, width, tn, td) {
             Result = 1;
         }
     }
-    System.Print("TICK: " + System.ToString(tn) + "/" + System.ToString(td));
     Result = (Result * tn) / td;
+    System.Print("TICK: " + System.ToString(tn) + "/" + System.ToString(td) + " => " + System.ToString(Result));
 }
 
 class DefaultHumanizer (itf.Humanizer) {
@@ -132,6 +132,10 @@ class DefaultHumanizer (itf.Humanizer) {
         if arg["velocityWidth"] exists {
             velocityWidth = arg["velocityWidth"]
             System.Print("Setting velocity width to " + System.ToString(velocityWidth));
+        }
+        if arg["tickWidth"] exists {
+            tickWidth = arg["tickWidth"]
+            System.Print("Setting tick width to " + System.ToString(tickWidth));
         }
         if arg["factorVelocity"] exists {
             if arg["factorVelocity"] > 0 {
@@ -302,6 +306,8 @@ class DefaultHumanizer (itf.Humanizer) {
     }
 
     def Pedal(Event) {
+        setArgFromTick(Event.Tick);
+
         local v = Event.Value;
         if v > 0 {
             v = humanize(v, v, velocityWidth);
