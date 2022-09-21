@@ -31,6 +31,15 @@ public interface Message<M extends MidiMessage> extends MacObject {
 	interface Visitor {
 	}
 
+	class InvalidMessage extends RuntimeException {
+
+		private static final long serialVersionUID = 7202339970347183951L;
+
+		public InvalidMessage(final Throwable t) {
+			super(t);
+		}
+	}
+
 	void accept(Visitor v);
 
 	Event<M> toEvent(BigInteger tick);

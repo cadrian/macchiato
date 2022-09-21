@@ -16,12 +16,10 @@
  */
 package net.cadrian.macchiato.interpreter.event;
 
-import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
 
 import net.cadrian.macchiato.interpreter.Event;
 import net.cadrian.macchiato.interpreter.objects.MacNumber;
-import net.cadrian.macchiato.midi.Message;
 
 abstract class AbstractEvent<M extends MidiMessage> implements Event<M> {
 
@@ -48,12 +46,6 @@ abstract class AbstractEvent<M extends MidiMessage> implements Event<M> {
 	public M getMidiMessage() {
 		return midiMessage;
 	}
-
-	@Override
-	public abstract Message<M> createMessage();
-
-	@Override
-	public abstract MidiEvent createMidiEvent();
 
 	@Override
 	public String toString() {

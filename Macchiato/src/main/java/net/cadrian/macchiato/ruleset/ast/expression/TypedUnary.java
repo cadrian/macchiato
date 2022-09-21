@@ -72,7 +72,7 @@ public class TypedUnary extends Unary implements TypedExpression {
 	@Override
 	public TypedExpression simplify() {
 		final TypedExpression simplifyOperand = operand.simplify();
-		TypedUnary result;
+		final TypedUnary result;
 		if (operand == simplifyOperand) {
 			result = this;
 		} else {

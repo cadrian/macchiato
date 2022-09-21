@@ -16,7 +16,11 @@
  */
 package net.cadrian.macchiato.ruleset.parser;
 
-public class Position {
+import java.io.Serializable;
+
+public class Position implements Serializable {
+
+	private static final long serialVersionUID = -2289057144490764020L;
 
 	public static final Position NONE = new Position(null, 0);
 

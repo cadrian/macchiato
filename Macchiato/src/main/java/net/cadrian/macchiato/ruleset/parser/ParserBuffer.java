@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
@@ -106,10 +107,9 @@ public class ParserBuffer {
 		try {
 			n = reader.read(buffer);
 		} catch (final IOException e) {
-			LOGGER.error("IO error", e);
 			throw new ParserException(error("Error while reading input file"), e);
 		}
-		final int length = this.length;
+		final int startLength = this.length;
 		if (n == -1) {
 			eof = true;
 			try {
@@ -118,7 +118,7 @@ public class ParserBuffer {
 				LOGGER.debug("Ignored close exception", e);
 			}
 		} else {
-			System.arraycopy(buffer, 0, ensureContentLength(length + n), length, n);
+			System.arraycopy(buffer, 0, ensureContentLength(startLength + n), startLength, n);
 			this.length += n;
 		}
 	}
@@ -137,7 +137,9 @@ public class ParserBuffer {
 	}
 
 	public void rewind(final Position position) {
-		assert position != null;
+		if (position == null) {
+			throw new IllegalArgumentException("null position");
+		}
 		rewind(position.offset);
 	}
 
@@ -151,7 +153,8 @@ public class ParserBuffer {
 	}
 
 	public String error(final String message, final Position position) throws IOException {
-		return (position.path == path ? this : getParserBuffer(position.path)).error(message, position.offset);
+		return (Objects.equals(position.path, path) ? this : getParserBuffer(position.path)).error(message,
+				position.offset);
 	}
 
 	private String error(final String message, final int offset) {
@@ -161,16 +164,7 @@ public class ParserBuffer {
 			readMore();
 		}
 
-		int startPosition = offset;
-		if (startPosition >= length) {
-			startPosition = length - 1;
-		}
-		while (startPosition > 0 && content[startPosition] != '\n') {
-			startPosition--;
-		}
-		if (content[startPosition] == '\n' && startPosition < offset && startPosition < length) {
-			startPosition++;
-		}
+		final int startPosition = getStartPosition(offset);
 		int line = 1;
 		int column = 0;
 		for (int i = 0; i < offset && i < length; i++) {
@@ -182,17 +176,15 @@ public class ParserBuffer {
 			}
 		}
 		final StringBuilder text = new StringBuilder();
-		final StringBuilder carret = new StringBuilder();
-		for (int i = startPosition; i < offset && i < length; i++) {
-			final char c = content[i];
-			text.append(c);
-			if (c == '\t') {
-				carret.append('\t');
-			} else {
-				carret.append(' ');
-			}
-		}
-		carret.append('^');
+		final String carret = fillErrorToCarret(offset, startPosition, text);
+		fillErrorToEndOfLine(offset, text);
+
+		this.offset = oldOffset;
+		return (message == null ? "" : "**** " + message + '\n') + path + " at line " + line + ", column " + column
+				+ '\n' + text + '\n' + carret;
+	}
+
+	private void fillErrorToEndOfLine(final int offset, final StringBuilder text) {
 		if (offset < length && content[offset] != '\n') {
 			text.append(content[offset]);
 			rewind(offset);
@@ -203,10 +195,20 @@ public class ParserBuffer {
 				next();
 			}
 		}
+	}
 
-		this.offset = oldOffset;
-		return (message == null ? "" : "**** " + message + '\n') + path + " at line " + line + ", column " + column
-				+ '\n' + text + '\n' + carret;
+	private int getStartPosition(final int offset) {
+		int startPosition = offset;
+		if (startPosition >= length) {
+			startPosition = length - 1;
+		}
+		while (startPosition > 0 && content[startPosition] != '\n') {
+			startPosition--;
+		}
+		if (content[startPosition] == '\n' && startPosition < offset && startPosition < length) {
+			startPosition++;
+		}
+		return startPosition;
 	}
 
 	public String error(String message, final Position... positions) throws IOException {
@@ -220,6 +222,21 @@ public class ParserBuffer {
 			message = null;
 		}
 		return result.toString();
+	}
+
+	private String fillErrorToCarret(final int offset, final int startPosition, final StringBuilder text) {
+		final StringBuilder carret = new StringBuilder();
+		for (int i = startPosition; i < offset && i < length; i++) {
+			final char c = content[i];
+			text.append(c);
+			if (c == '\t') {
+				carret.append('\t');
+			} else {
+				carret.append(' ');
+			}
+		}
+		carret.append('^');
+		return carret.toString();
 	}
 
 	public void skipBlanks() {
@@ -409,7 +426,6 @@ public class ParserBuffer {
 			}
 			next();
 		} while (state >= 0);
-		final Pattern readRegex = Pattern.compile(b.toString());
-		return readRegex;
+		return Pattern.compile(b.toString());
 	}
 }

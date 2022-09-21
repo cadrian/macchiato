@@ -27,7 +27,12 @@ import javax.sound.midi.MidiMessage;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.SysexMessage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Track {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Track.class);
 
 	private final Map<Long, List<Message<? extends MidiMessage>>> events = new TreeMap<>();
 
@@ -42,8 +47,7 @@ public class Track {
 				final Message<MetaMessage> e = type.createMessage(metaMessage.getData());
 				addEvent(tick, e);
 			} else if (message instanceof SysexMessage) {
-				// final SysexMessage sysexMessage = (SysexMessage) message;
-				System.out.println("IGNORED: system extension message @" + tick);
+				LOGGER.warn("IGNORED: system extension message @{}", tick);
 			} else if (message instanceof ShortMessage) {
 				final ShortMessage shortMessage = (ShortMessage) message;
 				final ShortMessageType type = ShortMessageType.at(shortMessage.getCommand());
@@ -51,7 +55,7 @@ public class Track {
 						shortMessage.getData2());
 				addEvent(tick, e);
 			} else {
-				assert false;
+				throw new IllegalArgumentException("unknown message type");
 			}
 		}
 	}

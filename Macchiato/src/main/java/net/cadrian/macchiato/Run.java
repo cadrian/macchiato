@@ -21,6 +21,9 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+
+import javax.sound.midi.InvalidMidiDataException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +44,8 @@ public class Run {
 
 	static int run(final String[] args) {
 		if (args.length < 1) {
-			System.err.println("Usage: " + Run.class.getSimpleName()
-					+ " <mac file> (<midi input file>) (<midi output file>) [-- <program arguments>]");
+			LOGGER.error("Usage: {} <mac file> (<midi input file>) (<midi output file>) [-- <program arguments>]",
+					Run.class.getSimpleName());
 			return 1;
 		}
 
@@ -50,39 +53,51 @@ public class Run {
 			final String rulesetName = getRulesetName(args);
 			final String midiInputName = getMidiInputName(args);
 			final File rulesetFile = new File(rulesetName);
-			final Ruleset ruleset;
 			final Parser parser = new Parser(rulesetFile.getParentFile(), rulesetFile.getPath());
-			try {
-				LOGGER.info("Parsing ruleset: {}", rulesetName);
-				ruleset = parser.parse().simplify();
-				LOGGER.debug("Parsed ruleset: {}", ruleset);
-			} catch (final ParserException e) {
-				System.err.println(parser.error(e));
+			final Ruleset ruleset = getRuleset(rulesetName, parser);
+			if (ruleset == null) {
 				return 1;
 			}
-			try {
-				final Interpreter interpreter = new Interpreter(ruleset);
-				if (midiInputName != null) {
-					final String midiOutputName = getMidiOutputName(args);
-					try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(midiInputName))) {
-						try (final BufferedOutputStream out = new BufferedOutputStream(
-								new FileOutputStream(midiOutputName))) {
-							interpreter.run(in, out, getProgramArgs(args));
-						}
-					}
-				} else {
-					interpreter.run(getProgramArgs(args));
-				}
-			} catch (final InterpreterException e) {
-				System.err.print(parser.error(e));
-				return 1;
-			}
+			return execute(args, midiInputName, parser, ruleset);
 		} catch (final Exception e) {
-			e.printStackTrace();
+			LOGGER.error("Unexpected exception", e);
 			return 1;
 		}
+	}
 
+	private static int execute(final String[] args, final String midiInputName, final Parser parser,
+			final Ruleset ruleset) throws InvalidMidiDataException, IOException {
+		try {
+			final Interpreter interpreter = new Interpreter(ruleset);
+			if (midiInputName != null) {
+				final String midiOutputName = getMidiOutputName(args);
+				try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(midiInputName))) {
+					try (final BufferedOutputStream out = new BufferedOutputStream(
+							new FileOutputStream(midiOutputName))) {
+						interpreter.run(in, out, getProgramArgs(args));
+					}
+				}
+			} else {
+				interpreter.run(getProgramArgs(args));
+			}
+		} catch (final InterpreterException e) {
+			LOGGER.error("{}", parser.error(e));
+			return 1;
+		}
 		return 0;
+	}
+
+	private static Ruleset getRuleset(final String rulesetName, final Parser parser) {
+		final Ruleset ruleset;
+		try {
+			LOGGER.info("Parsing ruleset: {}", rulesetName);
+			ruleset = parser.parse().simplify();
+			LOGGER.debug("Parsed ruleset: {}", ruleset);
+		} catch (final ParserException e) {
+			LOGGER.error("{}", parser.error(e));
+			return null;
+		}
+		return ruleset;
 	}
 
 	private static String getRulesetName(final String[] args) {

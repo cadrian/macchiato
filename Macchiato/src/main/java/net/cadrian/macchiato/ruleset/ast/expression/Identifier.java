@@ -31,7 +31,7 @@ public class Identifier implements Expression, Comparable<Identifier> {
 	private final Position position;
 
 	public Identifier(final String name, final Position position) {
-		if (name == null || name.isEmpty()) {
+		if (name == null || name.isBlank()) {
 			throw new NullPointerException("null identifier");
 		}
 		this.name = name;

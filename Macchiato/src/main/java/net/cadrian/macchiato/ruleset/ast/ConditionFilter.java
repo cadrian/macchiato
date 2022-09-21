@@ -31,7 +31,9 @@ public class ConditionFilter extends Filter {
 
 	public ConditionFilter(final Position position, final TypedExpression condition, final Instruction instruction) {
 		super(instruction);
-		assert (condition.getType() == MacBoolean.class);
+		if (condition.getType() != MacBoolean.class) {
+			throw new IllegalArgumentException("invalid condition: not a boolean");
+		}
 		this.condition = condition;
 		this.position = position;
 	}

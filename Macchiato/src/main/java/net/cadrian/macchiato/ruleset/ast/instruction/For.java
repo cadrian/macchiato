@@ -99,48 +99,61 @@ public class For implements Instruction {
 		if (simplifyLoop.isStatic()) {
 			final Expression container = simplifyLoop.getStaticValue();
 			if (container instanceof ManifestArray) {
-				final List<Expression> expressions = ((ManifestArray) container).getExpressions();
-				switch (expressions.size()) {
-				case 0:
-					LOGGER.debug("remove empty loop");
-					return DoNothing.instance;
-				case 1:
-					LOGGER.debug("replace one-run loop by block");
-					final Block b = new Block(position);
-					final Expression firstExpression = expressions.get(0);
-					if (name2 == null) {
-						b.add(new Assignment(simplifyName1, firstExpression));
-					} else {
-						b.add(new Assignment(simplifyName1,
-								new ManifestNumeric(simplifyName1.position(), BigInteger.ZERO)));
-						b.add(new Assignment(simplifyName2, firstExpression));
-					}
-					b.add(simplifyInstruction);
-					return b;
-				}
+				return simplifyManifestArray(simplifyName1, simplifyName2, simplifyInstruction, result, container);
 			} else if (container instanceof ManifestDictionary) {
-				final ManifestDictionary dictionary = (ManifestDictionary) container;
-				final List<Entry> expressions = dictionary.getExpressions();
-				switch (expressions.size()) {
-				case 0:
-					LOGGER.debug("remove empty loop");
-					return DoNothing.instance;
-				case 1:
-					LOGGER.debug("replace one-run loop by block");
-					final Block b = new Block(position);
-					final Entry firstExpression = expressions.get(0);
-					if (name2 == null) {
-						b.add(new Assignment(simplifyName1, firstExpression.getExpression()));
-					} else {
-						b.add(new Assignment(simplifyName1, firstExpression.getKey()));
-						b.add(new Assignment(simplifyName2, firstExpression.getExpression()));
-					}
-					b.add(simplifyInstruction);
-					return b;
-				}
+				return simplifyManifestDictionary(simplifyName1, simplifyName2, simplifyInstruction, result, container);
 			}
 		}
 		return result;
+	}
+
+	private Instruction simplifyManifestArray(final Expression simplifyName1, final Expression simplifyName2,
+			final Instruction simplifyInstruction, final For result, final Expression container) {
+		final List<Expression> expressions = ((ManifestArray) container).getExpressions();
+		switch (expressions.size()) {
+		case 0:
+			LOGGER.debug("remove empty loop");
+			return DoNothing.instance;
+		case 1:
+			LOGGER.debug("replace one-run loop by block");
+			final Block b = new Block(position);
+			final Expression firstExpression = expressions.get(0);
+			if (name2 == null) {
+				b.add(new Assignment(simplifyName1, firstExpression));
+			} else {
+				b.add(new Assignment(simplifyName1, new ManifestNumeric(simplifyName1.position(), BigInteger.ZERO)));
+				b.add(new Assignment(simplifyName2, firstExpression));
+			}
+			b.add(simplifyInstruction);
+			return b;
+		default:
+			return result;
+		}
+	}
+
+	private Instruction simplifyManifestDictionary(final Expression simplifyName1, final Expression simplifyName2,
+			final Instruction simplifyInstruction, final For result, final Expression container) {
+		final ManifestDictionary dictionary = (ManifestDictionary) container;
+		final List<Entry> expressions = dictionary.getExpressions();
+		switch (expressions.size()) {
+		case 0:
+			LOGGER.debug("remove empty loop");
+			return DoNothing.instance;
+		case 1:
+			LOGGER.debug("replace one-run loop by block");
+			final Block b = new Block(position);
+			final Entry firstExpression = expressions.get(0);
+			if (name2 == null) {
+				b.add(new Assignment(simplifyName1, firstExpression.getExpression()));
+			} else {
+				b.add(new Assignment(simplifyName1, firstExpression.getKey()));
+				b.add(new Assignment(simplifyName2, firstExpression.getExpression()));
+			}
+			b.add(simplifyInstruction);
+			return b;
+		default:
+			return result;
+		}
 	}
 
 	@Override

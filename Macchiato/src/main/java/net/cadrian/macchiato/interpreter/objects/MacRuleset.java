@@ -57,7 +57,7 @@ public class MacRuleset implements MacObject {
 			def.run(context, position);
 		}
 
-	};
+	}
 
 	private final Ruleset ruleset;
 	private final Map<Identifier, ReadOnlyField<MacRuleset, MacRuleset>> fields = new LinkedHashMap<>();
@@ -71,33 +71,26 @@ public class MacRuleset implements MacObject {
 	@Override
 	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset,
 			final Identifier name) {
-		Field<T, R> result = (Field<T, R>) fields.get(name);
-		if (result == null) {
-			final Ruleset importedRuleset = this.ruleset.getRuleset(name);
+		return (Field<T, R>) fields.computeIfAbsent(name, n -> {
+			final Ruleset importedRuleset = this.ruleset.getRuleset(n);
 			if (importedRuleset != null) {
 				final MacRuleset rs = new MacRuleset(importedRuleset);
-				final ReadOnlyField<MacRuleset, MacRuleset> field = new ReadOnlyField<>(name, ruleset, MacRuleset.class,
-						MacRuleset.class, rs);
-				fields.put(name, field);
-				result = (Field<T, R>) rs;
+				return new ReadOnlyField<>(n, ruleset, MacRuleset.class, MacRuleset.class, rs);
 			}
-		}
-		return result;
+			return null;
+		});
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
-		Method<T> result = (Method<T>) methods.get(name);
-		if (result == null) {
+		return (Method<T>) methods.computeIfAbsent(name, n -> {
 			final LocalizedDef def = this.ruleset.getDef(name);
 			if (def != null) {
-				final RulesetMethod method = new RulesetMethod(def);
-				methods.put(name, method);
-				result = (Method<T>) method;
+				return new RulesetMethod(def);
 			}
-		}
-		return result;
+			return null;
+		});
 	}
 
 	@Override

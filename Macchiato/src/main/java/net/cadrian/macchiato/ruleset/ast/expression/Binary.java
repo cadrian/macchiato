@@ -20,23 +20,8 @@ import net.cadrian.macchiato.ruleset.ast.Expression;
 
 public abstract class Binary implements Expression {
 
-	public static enum Operator {
-		AND,
-		OR,
-		XOR,
-		LT,
-		LE,
-		EQ,
-		NE,
-		GE,
-		GT,
-		MATCH,
-		ADD,
-		SUBTRACT,
-		MULTIPLY,
-		DIVIDE,
-		REMAINDER,
-		POWER;
+	public enum Operator {
+		AND, OR, XOR, LT, LE, EQ, NE, GE, GT, MATCH, ADD, SUBTRACT, MULTIPLY, DIVIDE, REMAINDER, POWER;
 	}
 
 	protected final Operator operator;

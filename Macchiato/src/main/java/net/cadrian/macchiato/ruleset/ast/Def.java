@@ -35,7 +35,9 @@ public class Def implements Node {
 
 	public Def(final Position position, final Identifier name, final FormalArgs args, final Expression requires,
 			final Expression ensures, final Instruction instruction, final Clazz clazz) {
-		assert instruction != null || clazz != null;
+		if (instruction == null && clazz == null) {
+			throw new IllegalArgumentException("null instruction and clazz");
+		}
 		this.position = position;
 		this.name = name;
 		this.requires = requires;

@@ -14,7 +14,7 @@ import org.junit.Test;
 
 public class TestParser {
 
-	private String read(String path) throws IOException {
+	private String read(final String path) throws IOException {
 		final File file = new File(path);
 		if (!file.exists()) {
 			return "";
@@ -55,12 +55,12 @@ public class TestParser {
 		Assert.assertEquals(read(file + ".err"), new String(errStream.toByteArray()));
 	}
 
-	private void run(File dir, String suffix, int expectedStatus) throws IOException {
+	private void run(final File dir, final String suffix, final int expectedStatus) throws IOException {
 		Assert.assertTrue(dir.isDirectory());
 		for (final File file : dir.listFiles(new FileFilter() {
 
 			@Override
-			public boolean accept(File file) {
+			public boolean accept(final File file) {
 				return file.getName().endsWith(suffix);
 			}
 		})) {

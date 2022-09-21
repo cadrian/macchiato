@@ -24,16 +24,14 @@ public class MacEvent implements MacObject {
 
 	public MacEvent(final Ruleset ruleset, final MacNumber tick, final MetaMessageType type) {
 		this.ruleset = ruleset;
-		this.tick = new ReadWriteField<MacEvent, MacNumber>(FIELD_TICK, ruleset, MacEvent.class, MacNumber.class, tick);
-		this.type = new ReadOnlyField<MacEvent, MetaMessageType>(FIELD_TYPE, ruleset, MacEvent.class,
-				MetaMessageType.class, type);
+		this.tick = new ReadWriteField<>(FIELD_TICK, ruleset, MacEvent.class, MacNumber.class, tick);
+		this.type = new ReadOnlyField<>(FIELD_TYPE, ruleset, MacEvent.class, MetaMessageType.class, type);
 	}
 
 	public MacEvent(final Ruleset ruleset, final MacNumber tick, final ShortMessageType type) {
 		this.ruleset = ruleset;
-		this.tick = new ReadWriteField<MacEvent, MacNumber>(FIELD_TICK, ruleset, MacEvent.class, MacNumber.class, tick);
-		this.type = new ReadOnlyField<MacEvent, ShortMessageType>(FIELD_TYPE, ruleset, MacEvent.class,
-				ShortMessageType.class, type);
+		this.tick = new ReadWriteField<>(FIELD_TICK, ruleset, MacEvent.class, MacNumber.class, tick);
+		this.type = new ReadOnlyField<>(FIELD_TYPE, ruleset, MacEvent.class, ShortMessageType.class, type);
 	}
 
 	public <T extends MacObject, R extends MacObject> Field<T, R> addField(final Identifier name, final R value) {

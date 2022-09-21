@@ -40,12 +40,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class MacDictionary implements MacContainer<MacString> {
 
-	private static final ThreadLocal<Set<MacDictionary>> TO_STRING_GATE = new ThreadLocal<Set<MacDictionary>>() {
-		@Override
-		protected Set<MacDictionary> initialValue() {
-			return new HashSet<>();
-		}
-	};
+	private static final ThreadLocal<Set<MacDictionary>> TO_STRING_GATE = ThreadLocal.withInitial(HashSet::new);
 
 	private static class SizeMethod extends AbstractMethod<MacDictionary> {
 
@@ -89,7 +84,7 @@ public class MacDictionary implements MacContainer<MacString> {
 			return MacDictionary.class;
 		}
 
-	};
+	}
 
 	private static class HasMethod extends AbstractMethod<MacDictionary> {
 
@@ -205,7 +200,7 @@ public class MacDictionary implements MacContainer<MacString> {
 			return null;
 		}
 
-	};
+	}
 
 	private static class MapMethod extends AbstractMethod<MacDictionary> {
 
@@ -284,7 +279,7 @@ public class MacDictionary implements MacContainer<MacString> {
 			return MacObject.class;
 		}
 
-	};
+	}
 
 	private final Map<MacString, MacObject> dictionary = new LinkedHashMap<>();
 
@@ -326,8 +321,9 @@ public class MacDictionary implements MacContainer<MacString> {
 			return (Method<T>) new ForEachMethod(ruleset);
 		case "Map":
 			return (Method<T>) new MapMethod(ruleset);
+		default:
+			return null;
 		}
-		return null;
 	}
 
 	@Override

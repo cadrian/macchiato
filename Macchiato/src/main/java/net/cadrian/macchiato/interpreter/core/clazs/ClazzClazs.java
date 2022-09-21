@@ -116,68 +116,82 @@ public class ClazzClazs implements Clazs {
 		}
 
 		for (final Identifier field : localizedClazz.clazz.getFields()) {
-			final FieldDefinition newDefinition = new FieldDefinition(this, field,
-					new ClazzClazsField(this, field, ruleset));
-			final FieldDefinition parentDefinition = fields.put(field, newDefinition);
-			if (parentDefinition != null) {
-				throw new InterpreterException("Field already exists: " + field.getName(),
-						parentDefinition.name.position(), field.position());
-			}
+			defineField(field);
 		}
 
-		ClazsConstructor constructor = null;
+		ClazsConstructor clazsConstructor = null;
 		for (final Def def : localizedClazz.clazz.getDefs()) {
-			final Identifier name = def.name();
-			if (name.equals(this.name)) {
-				constructor = new ClazzClazsConstructor(this, def, name, ruleset);
+			final Identifier defName = def.name();
+			if (defName.equals(this.name)) {
+				clazsConstructor = new ClazzClazsConstructor(this, def, defName, ruleset);
 			} else {
-				final ClazzClazsMethod method = new ClazzClazsMethod(this, def, name, ruleset);
-				final MethodDefinition newDefinition = new MethodDefinition(this, name, method);
-				final Map<Clazs, MethodDefinition> precursorDefinitions = precursors.remove(name);
-				if (precursorDefinitions != null) {
-					for (final MethodDefinition precursorDefinition : precursorDefinitions.values()) {
-						final Class<? extends MacObject>[] precursorArgTypes = precursorDefinition.method.getArgTypes();
-						final Class<? extends MacObject>[] newArgTypes = method.getArgTypes();
-
-						if (precursorArgTypes.length != newArgTypes.length) {
-							throw new InterpreterException("Invalid redefinition: not the same number of arguments",
-									precursorDefinition.name.position(), name.position());
-						}
-
-						newDefinition.addPrecursorMethod(precursorDefinition);
-
-						final MethodDefinition precursor = ((ClazzClazs) precursorDefinition.owner).methods.get(name);
-						method.addPrecursor((ClazzClazsMethod) precursor.method);
-					}
-				}
-				methods.put(name, newDefinition);
+				defineMethod(precursors, def, defName);
 			}
 		}
 		for (final Map.Entry<Identifier, Map<Clazs, MethodDefinition>> precursorsEntry : precursors.entrySet()) {
-			final Identifier methodName = precursorsEntry.getKey();
-			final Iterator<MethodDefinition> precursorMethodsIterator = precursorsEntry.getValue().values().iterator();
-			MethodDefinition concretePrecursorMethod = null;
-			while (precursorMethodsIterator.hasNext()) {
-				final MethodDefinition precursorMethod = precursorMethodsIterator.next();
-				LOGGER.debug("Checking method: {}", precursorMethod);
-				if (precursorMethod.method.isConcrete()) {
-					if (concretePrecursorMethod == null) {
-						concretePrecursorMethod = precursorMethod;
-					} else {
-						throw new InterpreterException(
-								"Duplicate parent definition of " + methodName.getName() + " -- need redefine",
-								precursorMethod.name.position(), concretePrecursorMethod.name.position());
-					}
+			getPrecursorMethod(precursorsEntry);
+		}
+		this.constructor = clazsConstructor == null ? new ClazzClazsDefaultConstructor(this, name, ruleset)
+				: clazsConstructor;
+	}
+
+	private void defineField(final Identifier field) {
+		final FieldDefinition newDefinition = new FieldDefinition(this, field,
+				new ClazzClazsField(this, field, ruleset));
+		final FieldDefinition parentDefinition = fields.put(field, newDefinition);
+		if (parentDefinition != null) {
+			throw new InterpreterException("Field already exists: " + field.getName(), parentDefinition.name.position(),
+					field.position());
+		}
+	}
+
+	private void defineMethod(final Map<Identifier, Map<Clazs, MethodDefinition>> precursors, final Def def,
+			final Identifier defName) {
+		final ClazzClazsMethod method = new ClazzClazsMethod(this, def, defName, ruleset);
+		final MethodDefinition newDefinition = new MethodDefinition(this, defName, method);
+		final Map<Clazs, MethodDefinition> precursorDefinitions = precursors.remove(defName);
+		if (precursorDefinitions != null) {
+			for (final MethodDefinition precursorDefinition : precursorDefinitions.values()) {
+				final Class<? extends MacObject>[] precursorArgTypes = precursorDefinition.method.getArgTypes();
+				final Class<? extends MacObject>[] newArgTypes = method.getArgTypes();
+
+				if (precursorArgTypes.length != newArgTypes.length) {
+					throw new InterpreterException("Invalid redefinition: not the same number of arguments",
+							precursorDefinition.name.position(), defName.position());
 				}
-			}
-			if (concretePrecursorMethod != null) {
-				methods.put(methodName, concretePrecursorMethod);
-			} else {
-				// not concrete, take whichever one, it's OK
-				methods.put(methodName, precursorsEntry.getValue().values().iterator().next());
+
+				newDefinition.addPrecursorMethod(precursorDefinition);
+
+				final MethodDefinition precursor = ((ClazzClazs) precursorDefinition.owner).methods.get(defName);
+				method.addPrecursor((ClazzClazsMethod) precursor.method);
 			}
 		}
-		this.constructor = constructor == null ? new ClazzClazsDefaultConstructor(this, name, ruleset) : constructor;
+		methods.put(defName, newDefinition);
+	}
+
+	private void getPrecursorMethod(final Map.Entry<Identifier, Map<Clazs, MethodDefinition>> precursorsEntry) {
+		final Identifier methodName = precursorsEntry.getKey();
+		final Iterator<MethodDefinition> precursorMethodsIterator = precursorsEntry.getValue().values().iterator();
+		MethodDefinition concretePrecursorMethod = null;
+		while (precursorMethodsIterator.hasNext()) {
+			final MethodDefinition precursorMethod = precursorMethodsIterator.next();
+			LOGGER.debug("Checking method: {}", precursorMethod);
+			if (precursorMethod.method.isConcrete()) {
+				if (concretePrecursorMethod == null) {
+					concretePrecursorMethod = precursorMethod;
+				} else {
+					throw new InterpreterException(
+							"Duplicate parent definition of " + methodName.getName() + " -- need redefine",
+							precursorMethod.name.position(), concretePrecursorMethod.name.position());
+				}
+			}
+		}
+		if (concretePrecursorMethod != null) {
+			methods.put(methodName, concretePrecursorMethod);
+		} else {
+			// not concrete, take whichever one, it's OK
+			methods.put(methodName, precursorsEntry.getValue().values().iterator().next());
+		}
 	}
 
 	private static String dottedName(final Identifier[] name, final int length) {
@@ -193,51 +207,64 @@ public class ClazzClazs implements Clazs {
 
 	private void resolve(final ClassRepository repository, final Parent parent,
 			final Map<Identifier, Map<Clazs, MethodDefinition>> precursors) {
-		final Identifier[] name = parent.getName();
-		final int n = name.length - 1;
-		Ruleset ruleset = this.ruleset;
+		final Identifier[] parentName = parent.getName();
+		final int n = parentName.length - 1;
+		Ruleset localizedRuleset = this.ruleset;
 		for (int i = 0; i < n; i++) {
-			ruleset = ruleset.getRuleset(name[i]);
-			if (ruleset == null) {
-				throw new InterpreterException("Class not found (unknown ruleset " + name[i].getName() + " in "
-						+ dottedName(name, i) + "): " + dottedName(name, name.length), parent.position());
+			localizedRuleset = localizedRuleset.getRuleset(parentName[i]);
+			if (localizedRuleset == null) {
+				throw new InterpreterException(
+						"Class not found (unknown ruleset " + parentName[i].getName() + " in "
+								+ dottedName(parentName, i) + "): " + dottedName(parentName, parentName.length),
+						parent.position());
 			}
 		}
-		final LocalizedClazz localizedClazz = ruleset.getClazz(name[n]);
+		final LocalizedClazz localizedClazz = localizedRuleset.getClazz(parentName[n]);
 		if (localizedClazz == null) {
-			throw new InterpreterException("Class not found: " + dottedName(name, name.length), parent.position());
+			throw new InterpreterException("Class not found: " + dottedName(parentName, parentName.length),
+					parent.position());
 		}
 		final ClazzClazs parentClazs = (ClazzClazs) repository.getClazs(localizedClazz);
 		parents.add(parentClazs);
 		conformanceCache.add(parentClazs);
 
 		for (final FieldDefinition fieldDefinition : parentClazs.fields.values()) {
-			final Identifier fieldName = fieldDefinition.name;
-			final FieldDefinition otherDefinition = fields.put(fieldName, fieldDefinition);
-			if (otherDefinition != null) {
-				throw new InterpreterException("Field conflict: " + fieldName.getName(),
-						otherDefinition.name.position(), fieldName.position());
-			}
+			resolveParentField(fieldDefinition);
 		}
 
 		for (final MethodDefinition methodDefinition : parentClazs.methods.values()) {
-			final Identifier methodName = methodDefinition.name;
-			final Map<Clazs, MethodDefinition> newPrecursorMethods = new LinkedHashMap<>();
-			final Map<Clazs, MethodDefinition> methods = precursors.putIfAbsent(methodName, newPrecursorMethods);
-			if (methods == null) {
-				newPrecursorMethods.put(parentClazs, methodDefinition);
-			} else {
-				final MethodDefinition precursorDefinition = methods.values().iterator().next();
-				final Class<? extends MacObject>[] precursorArgTypes = precursorDefinition.method.getArgTypes();
-				final Class<? extends MacObject>[] methodArgTypes = methodDefinition.method.getArgTypes();
+			resolveParentMethod(parent, precursors, parentClazs, methodDefinition);
+		}
+	}
 
-				if (precursorArgTypes.length != methodArgTypes.length) {
-					throw new InterpreterException("Invalid redefinition: not the same number of arguments",
-							precursorDefinition.name.position(), methodName.position(), parent.position());
-				}
+	private void resolveParentField(final FieldDefinition fieldDefinition) {
+		final Identifier fieldName = fieldDefinition.name;
+		final FieldDefinition otherDefinition = fields.put(fieldName, fieldDefinition);
+		if (otherDefinition != null) {
+			throw new InterpreterException("Field conflict: " + fieldName.getName(), otherDefinition.name.position(),
+					fieldName.position());
+		}
+	}
 
-				methods.put(parentClazs, methodDefinition);
+	private void resolveParentMethod(final Parent parent,
+			final Map<Identifier, Map<Clazs, MethodDefinition>> precursors, final ClazzClazs parentClazs,
+			final MethodDefinition methodDefinition) {
+		final Identifier methodName = methodDefinition.name;
+		final Map<Clazs, MethodDefinition> newPrecursorMethods = new LinkedHashMap<>();
+		final Map<Clazs, MethodDefinition> precursorMethods = precursors.putIfAbsent(methodName, newPrecursorMethods);
+		if (precursorMethods == null) {
+			newPrecursorMethods.put(parentClazs, methodDefinition);
+		} else {
+			final MethodDefinition precursorDefinition = precursorMethods.values().iterator().next();
+			final Class<? extends MacObject>[] precursorArgTypes = precursorDefinition.method.getArgTypes();
+			final Class<? extends MacObject>[] methodArgTypes = methodDefinition.method.getArgTypes();
+
+			if (precursorArgTypes.length != methodArgTypes.length) {
+				throw new InterpreterException("Invalid redefinition: not the same number of arguments",
+						precursorDefinition.name.position(), methodName.position(), parent.position());
 			}
+
+			precursorMethods.put(parentClazs, methodDefinition);
 		}
 	}
 

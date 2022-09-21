@@ -20,9 +20,8 @@ import net.cadrian.macchiato.ruleset.ast.Expression;
 
 public abstract class Unary implements Expression {
 
-	public static enum Operator {
-		NOT,
-		MINUS;
+	public enum Operator {
+		NOT, MINUS;
 	}
 
 	protected final Operator operator;

@@ -33,8 +33,12 @@ public class Emit implements Instruction {
 	private final TypedExpression tick;
 
 	public Emit(final Position position, final TypedExpression message, final TypedExpression tick) {
-		assert message.getType() == Message.class;
-		assert message != null || tick == null;
+		if (message != null && message.getType() != Message.class) {
+			throw new IllegalArgumentException("invalid message");
+		}
+		if (message == null && tick != null) {
+			throw new IllegalArgumentException("invalid tick");
+		}
 		this.position = position;
 		this.message = message;
 		this.tick = tick;

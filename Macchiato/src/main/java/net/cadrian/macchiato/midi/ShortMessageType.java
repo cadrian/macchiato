@@ -133,7 +133,6 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 	POLY_PRESSURE(0xA0) {
 		@Override
 		public String toString(final int pressure, final int unused) {
-			assert unused == 0;
 			return "pressure: " + pressure;
 		}
 
@@ -226,7 +225,6 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 	PROGRAM_CHANGE(0xC0) {
 		@Override
 		public String toString(final int patch, final int unused) {
-			assert unused == 0;
 			return "patch: " + patch;
 		}
 
@@ -268,7 +266,6 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 	CHANNEL_PRESSURE(0xD0) {
 		@Override
 		public String toString(final int pressure, final int unused) {
-			assert unused == 0;
 			return "pressure: " + pressure;
 		}
 

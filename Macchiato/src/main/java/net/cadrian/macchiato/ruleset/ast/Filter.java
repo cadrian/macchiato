@@ -20,7 +20,7 @@ public abstract class Filter implements Node {
 
 	protected final Instruction instruction;
 
-	public Filter(final Instruction instruction) {
+	protected Filter(final Instruction instruction) {
 		this.instruction = instruction;
 	}
 

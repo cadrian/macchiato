@@ -43,12 +43,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class MacArray implements MacContainer<MacNumber> {
 
-	private static final ThreadLocal<Set<MacArray>> TO_STRING_GATE = new ThreadLocal<Set<MacArray>>() {
-		@Override
-		protected Set<MacArray> initialValue() {
-			return new HashSet<>();
-		}
-	};
+	private static final ThreadLocal<Set<MacArray>> TO_STRING_GATE = ThreadLocal.withInitial(HashSet::new);
 
 	private static class SizeMethod extends AbstractMethod<MacArray> {
 
@@ -92,7 +87,7 @@ public class MacArray implements MacContainer<MacNumber> {
 			return MacArray.class;
 		}
 
-	};
+	}
 
 	private static class HasMethod extends AbstractMethod<MacArray> {
 
@@ -208,7 +203,7 @@ public class MacArray implements MacContainer<MacNumber> {
 			return null;
 		}
 
-	};
+	}
 
 	private static class MapMethod extends AbstractMethod<MacArray> {
 
@@ -287,7 +282,7 @@ public class MacArray implements MacContainer<MacNumber> {
 			return MacObject.class;
 		}
 
-	};
+	}
 
 	private static class SortMethod extends AbstractMethod<MacArray> {
 
@@ -331,8 +326,7 @@ public class MacArray implements MacContainer<MacNumber> {
 			}
 		}
 
-		private <T extends Comparable<T>> void sort(final MacArray target, final Context context,
-				final Position position) {
+		private <T extends Comparable<T>> void sort(final MacArray target, final Position position) {
 			final List<MacObject> values = new ArrayList<>(target.array.values());
 			Collections.sort(values, new ObjectComparator<T>(position));
 			target.array.clear();
@@ -344,7 +338,7 @@ public class MacArray implements MacContainer<MacNumber> {
 
 		@Override
 		public void run(final MacArray target, final Context context, final Position position) {
-			sort(target, context, position);
+			sort(target, position);
 		}
 
 		@Override
@@ -367,7 +361,7 @@ public class MacArray implements MacContainer<MacNumber> {
 			return MacObject.class;
 		}
 
-	};
+	}
 
 	private final Map<MacNumber, MacObject> array = new TreeMap<>();
 
@@ -411,8 +405,9 @@ public class MacArray implements MacContainer<MacNumber> {
 			return (Method<T>) new MapMethod(ruleset);
 		case "Sort":
 			return (Method<T>) new SortMethod(ruleset);
+		default:
+			return null;
 		}
-		return null;
 	}
 
 	@Override

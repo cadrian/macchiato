@@ -21,10 +21,10 @@ public class Sequence {
 	private final Track[] tracks;
 
 	public Sequence(final javax.sound.midi.Sequence midi) {
-		final javax.sound.midi.Track[] tracks = midi.getTracks();
-		this.tracks = new Track[tracks.length];
-		for (int i = 0; i < tracks.length; i++) {
-			this.tracks[i] = new Track(tracks[i]);
+		final javax.sound.midi.Track[] midiTracks = midi.getTracks();
+		this.tracks = new Track[midiTracks.length];
+		for (int i = 0; i < midiTracks.length; i++) {
+			this.tracks[i] = new Track(midiTracks[i]);
 		}
 	}
 

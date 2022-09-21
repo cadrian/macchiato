@@ -95,7 +95,7 @@ public abstract class MacCallable implements MacObject {
 			return MacObject.class;
 		}
 
-	};
+	}
 
 	public abstract void invoke(final Context context, final Position position);
 
@@ -111,8 +111,9 @@ public abstract class MacCallable implements MacObject {
 		switch (name.getName()) {
 		case "Invoke":
 			return (Method<T>) new InvokeMethod(ruleset);
+		default:
+			return null;
 		}
-		return null;
 	}
 
 	@Override

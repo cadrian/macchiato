@@ -24,7 +24,7 @@ abstract class AbstractTextMessage extends MetaMessage {
 
 	protected final MacString text;
 
-	public AbstractTextMessage(final MetaMessageType messageType, final MacString text) {
+	protected AbstractTextMessage(final MetaMessageType messageType, final MacString text) {
 		super(messageType);
 		this.text = text;
 	}

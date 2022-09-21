@@ -453,7 +453,9 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 	END_OF_TRACK(0x2F) {
 		@Override
 		public String toString(final byte[] data) {
-			assert data.length == 0;
+			if (data != null && data.length != 0) {
+				throw new IllegalArgumentException("data should be empty");
+			}
 			return "";
 		}
 
@@ -469,6 +471,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 		@Override
 		public void fill(final MacEvent messageData, final Message<MetaMessage> message) {
+			// nothing
 		}
 
 		@Override
@@ -489,7 +492,9 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 	TEMPO(0x51) {
 		@Override
 		public String toString(final byte[] data) {
-			assert data.length == 3;
+			if (data.length != 3) {
+				throw new IllegalArgumentException("invalid data: expected 3 bytes");
+			}
 			final BigInteger mpq = new BigInteger(1, data);
 			final BigInteger bpm = BPM_MPQ_FACTOR.divide(mpq);
 			return bpm + " bpm";
@@ -536,7 +541,9 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 	TIME_SIGNATURE(0x58) {
 		@Override
 		public String toString(final byte[] data) {
-			assert data.length == 4;
+			if (data.length != 4) {
+				throw new IllegalArgumentException("invalid data: expected 4 bytes");
+			}
 			final byte n = data[0];
 			final byte d = data[1];
 			final byte m = data[2];
@@ -600,7 +607,9 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 	KEY_SIGNATURE(0x59) {
 		@Override
 		public String toString(final byte[] data) {
-			assert data.length == 2;
+			if (data.length != 2) {
+				throw new IllegalArgumentException("invalid data: expected 2 bytes");
+			}
 			final byte keysig = data[0];
 			final byte mode = data[1];
 
@@ -637,8 +646,9 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 					return "F#";
 				case 7:
 					return "C#";
+				default:
+					throw new IllegalArgumentException("invalid data: unknown keysig");
 				}
-				break;
 			case 1: // minor
 				switch (keysig) {
 				case -7:
@@ -671,11 +681,12 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 					return "D#m";
 				case 7:
 					return "A#m";
+				default:
+					throw new IllegalArgumentException("invalid data: unknown keysig");
 				}
-				break;
+			default:
+				throw new IllegalArgumentException("invalid data: unknown mode");
 			}
-
-			return null;
 		}
 
 		@Override
@@ -748,7 +759,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends MacObject>[] TYPE_INT4 = new Class[] { MacNumber.class, MacNumber.class,
 			MacNumber.class, MacNumber.class };
-	private static final BigInteger BPM_MPQ_FACTOR = new BigInteger("60000000");
+	private static final BigInteger BPM_MPQ_FACTOR = BigInteger.valueOf(60_000_000L);
 	private static final Map<Byte, MetaMessageType> MAP;
 	static {
 		final Map<Byte, MetaMessageType> m = new LinkedHashMap<>();

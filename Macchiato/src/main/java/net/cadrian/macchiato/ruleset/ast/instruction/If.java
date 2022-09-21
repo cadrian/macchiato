@@ -81,7 +81,7 @@ public class If implements Instruction {
 		}
 		if (simplifyCondition.isStatic()) {
 			final ManifestBoolean cond = (ManifestBoolean) simplifyCondition.getStaticValue();
-			if (cond.getValue()) {
+			if (Boolean.TRUE.equals(cond.getValue())) {
 				LOGGER.debug("replace if-else by always-true");
 				return simplifyInstruction;
 			} else {

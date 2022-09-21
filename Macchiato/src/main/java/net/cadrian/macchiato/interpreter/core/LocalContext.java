@@ -185,41 +185,54 @@ public class LocalContext extends Context {
 		}
 		final MacObject contractValue = eval(contract.typed(MacObject.class));
 		if (contractValue instanceof MacBoolean) {
-			if (((MacBoolean) contractValue).isFalse()) {
-				throw new ContractException(tag + " failed", contract.position());
-			}
+			checkBooleanContract(contract, tag, (MacBoolean) contractValue);
 		} else if (contractValue instanceof MacArray) {
-			final MacArray contractArray = (MacArray) contractValue;
-			final Iterator<MacNumber> keys = contractArray.keys();
-			while (keys.hasNext()) {
-				final MacNumber key = keys.next();
-				final MacObject value = contractArray.get(key);
-				if (value instanceof MacBoolean) {
-					if (((MacBoolean) contractValue).isFalse()) {
-						throw new ContractException(tag + "[" + key + "] failed", contract.position());
-					}
-				} else {
-					throw new ContractException(tag + "[" + key + "] is not a boolean", contract.position());
-				}
-			}
+			checkArrayContract(contract, tag, (MacArray) contractValue);
 		} else if (contractValue instanceof MacDictionary) {
-			final MacDictionary contractDictionary = (MacDictionary) contractValue;
-			final Iterator<MacString> keys = contractDictionary.keys();
-			while (keys.hasNext()) {
-				final MacString key = keys.next();
-				final MacObject value = contractDictionary.get(key);
-				if (value instanceof MacBoolean) {
-					if (((MacBoolean) contractValue).isFalse()) {
-						throw new ContractException(tag + "[" + key + "] failed", contract.position());
-					}
-				} else {
-					throw new ContractException(tag + "[" + key + "] is not a boolean", contract.position());
-				}
-			}
+			checkDictionaryContract(contract, tag, (MacDictionary) contractValue);
 		} else {
 			throw new ContractException(tag + " is not a boolean or a collection of booleans", contract.position());
 		}
 		return true;
+	}
+
+	private void checkBooleanContract(final Expression contract, final String tag, final MacBoolean contractValue) {
+		if (contractValue.isFalse()) {
+			throw new ContractException(tag + " failed", contract.position());
+		}
+	}
+
+	private void checkArrayContract(final Expression contract, final String tag, final MacArray contractValue) {
+		final MacArray contractArray = contractValue;
+		final Iterator<MacNumber> keys = contractArray.keys();
+		while (keys.hasNext()) {
+			final MacNumber key = keys.next();
+			final MacObject value = contractArray.get(key);
+			if (value instanceof MacBoolean) {
+				if (((MacBoolean) value).isFalse()) {
+					throw new ContractException(tag + "[" + key + "] failed", contract.position());
+				}
+			} else {
+				throw new ContractException(tag + "[" + key + "] is not a boolean", contract.position());
+			}
+		}
+	}
+
+	private void checkDictionaryContract(final Expression contract, final String tag,
+			final MacDictionary contractValue) {
+		final MacDictionary contractDictionary = contractValue;
+		final Iterator<MacString> keys = contractDictionary.keys();
+		while (keys.hasNext()) {
+			final MacString key = keys.next();
+			final MacObject value = contractDictionary.get(key);
+			if (value instanceof MacBoolean) {
+				if (((MacBoolean) value).isFalse()) {
+					throw new ContractException(tag + "[" + key + "] failed", contract.position());
+				}
+			} else {
+				throw new ContractException(tag + "[" + key + "] is not a boolean", contract.position());
+			}
+		}
 	}
 
 	@Override

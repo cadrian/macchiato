@@ -81,7 +81,7 @@ public class While implements Instruction {
 		}
 		if (simplifyCondition.isStatic()) {
 			final ManifestBoolean cond = (ManifestBoolean) simplifyCondition.getStaticValue();
-			if (cond.getValue()) {
+			if (Boolean.TRUE.equals(cond.getValue())) {
 				return new Abort(position, "Infinite loop detected");
 			}
 			LOGGER.debug("replace while loop by never-run");

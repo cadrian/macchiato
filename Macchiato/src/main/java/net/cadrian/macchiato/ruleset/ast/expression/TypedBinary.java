@@ -16,6 +16,8 @@
  */
 package net.cadrian.macchiato.ruleset.ast.expression;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,24 +109,22 @@ public class TypedBinary extends Binary implements TypedExpression {
 		switch (operator) {
 		case AND: {
 			final ManifestBoolean l = (ManifestBoolean) left;
-			if (!l.getValue()) {
+			if (Boolean.FALSE.equals(l.getValue())) {
 				return l;
 			}
-			final ManifestBoolean r = (ManifestBoolean) right;
-			return r;
+			return right;
 		}
 		case OR: {
 			final ManifestBoolean l = (ManifestBoolean) left;
-			if (l.getValue()) {
+			if (Boolean.TRUE.equals(l.getValue())) {
 				return l;
 			}
-			final ManifestBoolean r = (ManifestBoolean) right;
-			return r;
+			return right;
 		}
 		case XOR: {
 			final ManifestBoolean l = (ManifestBoolean) left;
 			final ManifestBoolean r = (ManifestBoolean) right;
-			return new ManifestBoolean(position(), l.getValue() != r.getValue());
+			return new ManifestBoolean(position(), !Objects.equals(l.getValue(), r.getValue()));
 		}
 		case LT: {
 			return new ManifestBoolean(position(), compare(left, right) < 0);

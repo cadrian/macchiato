@@ -77,7 +77,7 @@ public class MacPattern implements MacObject {
 			return MacMatcher.class;
 		}
 
-	};
+	}
 
 	private final Pattern value;
 
@@ -101,8 +101,9 @@ public class MacPattern implements MacObject {
 		switch (name.getName()) {
 		case "Matcher":
 			return (Method<T>) new MatcherMethod(ruleset);
+		default:
+			return null;
 		}
-		return null;
 	}
 
 	@Override

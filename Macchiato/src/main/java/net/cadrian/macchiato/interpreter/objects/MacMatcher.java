@@ -73,7 +73,7 @@ public class MacMatcher implements MacObject {
 			return MacBoolean.class;
 		}
 
-	};
+	}
 
 	private static class GroupMethod extends AbstractMethod<MacMatcher> {
 
@@ -134,7 +134,7 @@ public class MacMatcher implements MacObject {
 			return MacString.class;
 		}
 
-	};
+	}
 
 	private final Matcher value;
 
@@ -156,8 +156,9 @@ public class MacMatcher implements MacObject {
 			return (Method<T>) new MatchesMethod(ruleset);
 		case "Group":
 			return (Method<T>) new GroupMethod(ruleset);
+		default:
+			return null;
 		}
-		return null;
 	}
 
 	@Override

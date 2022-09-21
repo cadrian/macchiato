@@ -20,11 +20,8 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class BoundFilter extends Filter {
 
-	public static enum Bound {
-		BEGIN_SEQUENCE,
-		END_SEQUENCE,
-		BEGIN_TRACK,
-		END_TRACK;
+	public enum Bound {
+		BEGIN_SEQUENCE, END_SEQUENCE, BEGIN_TRACK, END_TRACK;
 	}
 
 	public static interface Visitor extends Node.Visitor {

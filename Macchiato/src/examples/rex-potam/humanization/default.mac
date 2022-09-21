@@ -20,6 +20,23 @@
  * This is the default advanced humanization.
  */
 
+/*
+ * NWC example: =mac:set={"tickWidth"=10}
+ *
+ * Known variables:
+ * - timeNumerator
+ * - timeDenominator
+ * - velocityWidth
+ * - tickWidth
+ * - factorVelocity
+ * - factorExpression
+ * - factorVolume
+ * - deltaVelocity
+ * - legatoStrengthDivisor
+ * - beatDepthDivisor
+ * - tickWidthDivisor
+ */
+
 import itf "interface.mac";
 import utl "utils.mac";
 
@@ -74,6 +91,8 @@ class DefaultHumanizer (itf.Humanizer) {
     factorExpression;
     factorVolume;
 
+    deltaVelocity;
+
     legatoStrength;
     beatDepth;
 
@@ -108,6 +127,8 @@ class DefaultHumanizer (itf.Humanizer) {
         factorVelocity = 1;
         factorExpression = 1;
         factorVolume = 0;
+
+        deltaVelocity = 0;
 
         legatoStrength = 0;
         beatDepth = 64;
@@ -160,6 +181,10 @@ class DefaultHumanizer (itf.Humanizer) {
             } else {
                 System.Print("Invalid factorVolume (cannot be negative)")
             }
+        }
+        if arg["deltaVelocity"] exists {
+            deltaVelocity = arg["deltaVelocity"]
+            System.Print("Setting factor volume to " + System.ToString(deltaVelocity));
         }
         if arg["legatoStrengthDivisor"] exists {
             if arg["legatoStrengthDivisor"] > 0 {
@@ -332,7 +357,7 @@ class DefaultHumanizer (itf.Humanizer) {
         } else if volume[Event.Channel] > 0 {
             // Emit an Event with a velocity that depends on the expression,
             // and with a bit of random for rough "humanization"
-            local v0 = velocity[Event.Channel][Event.Pitch];
+            local v0 = velocity[Event.Channel][Event.Pitch] + deltaVelocity;
             local h = humanize(v0, v0, velocityWidth);
             local e = expression[Event.Channel];
             local p = volume[Event.Channel];

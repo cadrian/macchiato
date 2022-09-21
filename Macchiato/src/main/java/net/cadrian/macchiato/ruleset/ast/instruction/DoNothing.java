@@ -22,6 +22,7 @@ public class DoNothing implements Instruction {
 
 	@Override
 	public void accept(final Visitor v) {
+		// do nothing :-)
 	}
 
 	@Override

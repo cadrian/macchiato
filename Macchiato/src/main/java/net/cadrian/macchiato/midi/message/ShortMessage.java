@@ -38,7 +38,7 @@ public abstract class ShortMessage implements MacComparable<ShortMessage>, Messa
 	private final ShortMessageType messageType;
 	protected final int channel;
 
-	public ShortMessage(final int channel, final ShortMessageType messageType) {
+	protected ShortMessage(final int channel, final ShortMessageType messageType) {
 		this.messageType = messageType;
 		this.channel = channel;
 	}
@@ -56,7 +56,7 @@ public abstract class ShortMessage implements MacComparable<ShortMessage>, Messa
 		try {
 			return new ShortEvent(MacNumber.valueOf(tick), messageType, messageType.createMidiMessage(this));
 		} catch (final InvalidMidiDataException e) {
-			throw new RuntimeException(e);
+			throw new InvalidMessage(e);
 		}
 	}
 

@@ -31,8 +31,8 @@ public class Platform {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Platform.class);
 
-	public static final String[] XDG_CONFIG_DIRS;
-	public static final String[] XDG_RUNTIME_DIRS;
+	private static final String[] XDG_CONFIG_DIRS;
+	private static final String[] XDG_RUNTIME_DIRS;
 
 	static {
 		// XDG logic copied from

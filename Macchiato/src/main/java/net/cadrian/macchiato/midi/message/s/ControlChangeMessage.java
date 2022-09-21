@@ -33,7 +33,7 @@ public class ControlChangeMessage extends ShortMessage {
 	public ControlChangeMessage(final int channel, final ControlChange mpc, final int value) {
 		super(channel, ShortMessageType.CONTROL_CHANGE);
 		if (mpc == null) {
-			throw new NullPointerException("unknown MPC");
+			throw new IllegalArgumentException("unknown MPC");
 		}
 		this.mpc = mpc;
 		this.value = value;

@@ -30,7 +30,7 @@ public abstract class AbstractCall {
 	protected final Identifier name;
 	protected final List<Expression> arguments = new ArrayList<>();
 
-	public AbstractCall(final Position position, final Expression target, final Identifier name) {
+	protected AbstractCall(final Position position, final Expression target, final Identifier name) {
 		this.position = position;
 		this.target = target;
 		this.name = name;

@@ -61,6 +61,12 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionEvaluationVisitor.class);
 
+	private static final String ERROR_DIVISION_BY_ZERO = "Division by zero";
+	private static final String ERROR_INCOMPATIBLE_TYPES = "incompatible types";
+	private static final String ERROR_INVALID_LEFT_OPERAND_TYPE = "invalid left operand type";
+	private static final String ERROR_INVALID_RIGHT_OPERAND_TYPE = "invalid right operand type";
+	private static final String ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST = "right expression does not exist";
+
 	private final Context context;
 	private final Class<? extends MacObject> expressionType;
 	protected final Map<Integer, MacObject> oldValues;
@@ -121,15 +127,16 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		switch (typedBinary.getOperator()) {
 		case ADD:
 			if (!(left instanceof MacString) && !(left instanceof MacNumber)) {
-				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new ObjectInexistentException("right expression does not exist",
+				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 						typedBinary.getLeftOperand().position());
 			}
 			if (lastValue.getClass() != left.getClass()) {
-				throw new InterpreterException("incompatible types", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
 			}
 			if (lastValue instanceof MacString) {
 				lastValue = ((MacString) left).concat((MacString) lastValue);
@@ -147,34 +154,37 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			break;
 		case AND:
 			if (!(left instanceof MacBoolean)) {
-				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			if (MacBoolean.TRUE.equals(lastValue)) {
 				typedBinary.getRightOperand().accept(this);
 				if (lastValue == null) {
-					throw new ObjectInexistentException("right expression does not exist",
+					throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 							typedBinary.getLeftOperand().position());
 				}
 				if (!(lastValue instanceof MacBoolean)) {
-					throw new InterpreterException("invalid right operand type",
+					throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
 							typedBinary.getLeftOperand().position());
 				}
 			}
 			break;
 		case DIVIDE:
 			if (!(left instanceof MacNumber)) {
-				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new ObjectInexistentException("right expression does not exist",
+				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 						typedBinary.getLeftOperand().position());
 			}
 			if (!(lastValue instanceof MacNumber)) {
-				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
-				throw new ObjectInexistentException("Division by zero", typedBinary.getLeftOperand().position());
+				throw new ObjectInexistentException(ERROR_DIVISION_BY_ZERO, typedBinary.getLeftOperand().position());
 			} else if (((MacNumber) lastValue).compareTo(MacNumber.ONE) == 0) {
 				lastValue = left;
 			} else {
@@ -184,92 +194,100 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		case EQ:
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new ObjectInexistentException("right expression does not exist",
+				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 						typedBinary.getLeftOperand().position());
 			}
 			lastValue = MacBoolean.valueOf(left.equals(lastValue));
 			break;
 		case GE:
 			if (!(left instanceof Comparable)) {
-				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new ObjectInexistentException("right expression does not exist",
+				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 						typedBinary.getLeftOperand().position());
 			}
 			if (lastValue.getClass() != left.getClass()) {
-				throw new InterpreterException("incompatible types", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
 			}
 			lastValue = MacBoolean.valueOf(((Comparable<MacObject>) left).compareTo(lastValue) >= 0);
 			break;
 		case GT:
 			if (!(left instanceof Comparable)) {
-				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new ObjectInexistentException("right expression does not exist",
+				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 						typedBinary.getLeftOperand().position());
 			}
 			if (lastValue.getClass() != left.getClass()) {
-				throw new InterpreterException("incompatible types", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
 			}
 			lastValue = MacBoolean.valueOf(((Comparable<MacObject>) left).compareTo(lastValue) > 0);
 			break;
 		case LE:
 			if (!(left instanceof Comparable)) {
-				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new ObjectInexistentException("right expression does not exist",
+				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 						typedBinary.getLeftOperand().position());
 			}
 			if (lastValue.getClass() != left.getClass()) {
-				throw new InterpreterException("incompatible types", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
 			}
 			lastValue = MacBoolean.valueOf(((Comparable<MacObject>) left).compareTo(lastValue) <= 0);
 			break;
 		case LT:
 			if (!(left instanceof Comparable)) {
-				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new ObjectInexistentException("right expression does not exist",
+				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 						typedBinary.getLeftOperand().position());
 			}
 			if (lastValue.getClass() != left.getClass()) {
-				throw new InterpreterException("incompatible types", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
 			}
 			lastValue = MacBoolean.valueOf(((Comparable<MacObject>) left).compareTo(lastValue) < 0);
 			break;
 		case MATCH:
 			if (!(left instanceof MacString)) {
-				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new ObjectInexistentException("right expression does not exist",
+				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 						typedBinary.getLeftOperand().position());
 			}
 			if (!(lastValue instanceof MacPattern)) {
-				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			lastValue = ((MacPattern) lastValue).matches((MacString) left);
 			break;
 		case MULTIPLY:
 			if (!(left instanceof MacNumber)) {
-				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new ObjectInexistentException("right expression does not exist",
+				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 						typedBinary.getLeftOperand().position());
 			}
 			if (!(lastValue instanceof MacNumber)) {
-				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
 				lastValue = MacNumber.ZERO;
@@ -282,38 +300,41 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		case NE:
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new ObjectInexistentException("right expression does not exist",
+				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 						typedBinary.getLeftOperand().position());
 			}
 			lastValue = MacBoolean.valueOf(!left.equals(lastValue));
 			break;
 		case OR:
 			if (!(left instanceof MacBoolean)) {
-				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			if (MacBoolean.FALSE.equals(lastValue)) {
 				typedBinary.getRightOperand().accept(this);
 				if (lastValue == null) {
-					throw new ObjectInexistentException("right expression does not exist",
+					throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 							typedBinary.getLeftOperand().position());
 				}
 				if (!(lastValue instanceof MacBoolean)) {
-					throw new InterpreterException("invalid right operand type",
+					throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
 							typedBinary.getLeftOperand().position());
 				}
 			}
 			break;
 		case POWER:
 			if (!(left instanceof MacNumber)) {
-				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new ObjectInexistentException("right expression does not exist",
+				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 						typedBinary.getLeftOperand().position());
 			}
 			if (!(lastValue instanceof MacNumber)) {
-				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
 				lastValue = MacNumber.ONE;
@@ -325,18 +346,20 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			break;
 		case REMAINDER:
 			if (!(left instanceof MacNumber)) {
-				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new ObjectInexistentException("right expression does not exist",
+				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 						typedBinary.getLeftOperand().position());
 			}
 			if (!(lastValue instanceof MacNumber)) {
-				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
-				throw new ObjectInexistentException("Division by zero", typedBinary.getLeftOperand().position());
+				throw new ObjectInexistentException(ERROR_DIVISION_BY_ZERO, typedBinary.getLeftOperand().position());
 			} else if (((MacNumber) lastValue).compareTo(MacNumber.ONE) == 0) {
 				lastValue = MacNumber.ZERO;
 			} else {
@@ -345,15 +368,17 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			break;
 		case SUBTRACT:
 			if (!(left instanceof MacNumber)) {
-				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new ObjectInexistentException("right expression does not exist",
+				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 						typedBinary.getLeftOperand().position());
 			}
 			if (!(lastValue instanceof MacNumber)) {
-				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
 				lastValue = (left);
@@ -363,15 +388,17 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			break;
 		case XOR:
 			if (!(left instanceof MacBoolean)) {
-				throw new InterpreterException("invalid left operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
-				throw new ObjectInexistentException("right expression does not exist",
+				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 						typedBinary.getLeftOperand().position());
 			}
 			if (!(lastValue instanceof MacBoolean)) {
-				throw new InterpreterException("invalid right operand type", typedBinary.getLeftOperand().position());
+				throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
 			}
 			lastValue = ((MacBoolean) left).xor((MacBoolean) lastValue);
 			break;
@@ -503,7 +530,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			final Identifier name) {
 		final Method<T> method = target.getMethod(context.getRuleset(), name);
 		if (method != null) {
-			return new MacMethod<T>(method, target);
+			return new MacMethod<>(method, target);
 		}
 		return null;
 	}

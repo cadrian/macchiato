@@ -50,6 +50,10 @@ class AssignmentVisitor implements ExpressionVisitor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AssignmentVisitor.class);
 
+	private static final String ERROR_CANNOT_ASSIGN_TO_A_FUNCTION_CALL = "Cannot assign to a function call";
+	private static final String ERROR_CANNOT_ASSIGN_TO_AN_OLD_VALUE = "Cannot assign to an old value";
+	private static final String ERROR_INVALID_LEFT_SIDE_ASSIGNMENT = "Invalid left-side assignment";
+
 	private static interface Setter {
 		void set(MacObject value);
 	}
@@ -79,17 +83,17 @@ class AssignmentVisitor implements ExpressionVisitor {
 
 	@Override
 	public void visitExistsExpression(final ExistsExpression existsExpression) {
-		throw new InterpreterException("Invalid left-side assignment", existsExpression.position());
+		throw new InterpreterException(ERROR_INVALID_LEFT_SIDE_ASSIGNMENT, existsExpression.position());
 	}
 
 	@Override
 	public void visitFunctionCall(final FunctionCall functionCall) {
-		throw new InterpreterException("Cannot assign to a function call", functionCall.position());
+		throw new InterpreterException(ERROR_CANNOT_ASSIGN_TO_A_FUNCTION_CALL, functionCall.position());
 	}
 
 	@Override
 	public void visitOld(final Old old) {
-		throw new InterpreterException("Cannot assign to an old value", old.position());
+		throw new InterpreterException(ERROR_CANNOT_ASSIGN_TO_AN_OLD_VALUE, old.position());
 	}
 
 	private class IdentifierSetter implements Setter {
@@ -185,7 +189,7 @@ class AssignmentVisitor implements ExpressionVisitor {
 
 	@Override
 	public void visitDottedExpression(final DottedExpression dottedExpression) {
-		throw new InterpreterException("Cannot assign to a function call", dottedExpression.position());
+		throw new InterpreterException(ERROR_CANNOT_ASSIGN_TO_A_FUNCTION_CALL, dottedExpression.position());
 	}
 
 	@Override
@@ -197,27 +201,11 @@ class AssignmentVisitor implements ExpressionVisitor {
 		} else {
 			final MacNumber numericIndex = indexValue.asIndexType(MacNumber.class);
 			if (numericIndex != null) {
-				indexedExpression.getIndexed().accept(this);
-				final Setter indexedSetter = setter;
-				if (previousValue != null && !(previousValue instanceof MacArray)) {
-					throw new InterpreterException("invalid index", indexedExpression.getIndex().position());
-				}
-				LOGGER.debug("previous value array: {}", previousValue);
-				setter = new ArraySetter((MacArray) previousValue, indexedSetter, (MacNumber) numericIndex);
-				previousValue = previousValue == null ? null : ((MacArray) previousValue).get((MacNumber) numericIndex);
+				visitNumericIndexedExpression(indexedExpression, numericIndex);
 			} else {
 				final MacString stringIndex = indexValue.asIndexType(MacString.class);
 				if (stringIndex != null) {
-					indexedExpression.getIndexed().accept(this);
-					final Setter indexedSetter = setter;
-					if (previousValue != null && !(previousValue instanceof MacDictionary)) {
-						throw new InterpreterException("invalid index", indexedExpression.getIndex().position());
-					}
-					LOGGER.debug("previous value dictionary: {}", previousValue);
-					setter = new DictionarySetter((MacDictionary) previousValue, indexedSetter,
-							(MacString) stringIndex);
-					previousValue = previousValue == null ? null
-							: ((MacDictionary) previousValue).get((MacString) stringIndex);
+					visitStringIndexedExpression(indexedExpression, stringIndex);
 				} else {
 					throw new InterpreterException("Cannot use " + indexValue.getClass().getSimpleName() + " as index",
 							indexedExpression.position());
@@ -227,44 +215,67 @@ class AssignmentVisitor implements ExpressionVisitor {
 		LOGGER.debug("--> {}", previousValue);
 	}
 
+	private void visitNumericIndexedExpression(final IndexedExpression indexedExpression,
+			final MacNumber numericIndex) {
+		indexedExpression.getIndexed().accept(this);
+		final Setter indexedSetter = setter;
+		if (previousValue != null && !(previousValue instanceof MacArray)) {
+			throw new InterpreterException("invalid index", indexedExpression.getIndex().position());
+		}
+		LOGGER.debug("previous value array: {}", previousValue);
+		setter = new ArraySetter((MacArray) previousValue, indexedSetter, numericIndex);
+		previousValue = previousValue == null ? null : ((MacArray) previousValue).get(numericIndex);
+	}
+
+	private void visitStringIndexedExpression(final IndexedExpression indexedExpression, final MacString stringIndex) {
+		indexedExpression.getIndexed().accept(this);
+		final Setter indexedSetter = setter;
+		if (previousValue != null && !(previousValue instanceof MacDictionary)) {
+			throw new InterpreterException("invalid index", indexedExpression.getIndex().position());
+		}
+		LOGGER.debug("previous value dictionary: {}", previousValue);
+		setter = new DictionarySetter((MacDictionary) previousValue, indexedSetter, stringIndex);
+		previousValue = previousValue == null ? null : ((MacDictionary) previousValue).get(stringIndex);
+	}
+
 	@Override
 	public void visitManifestArray(final ManifestArray array) {
-		throw new InterpreterException("Invalid left-side assignment", array.position());
+		throw new InterpreterException(ERROR_INVALID_LEFT_SIDE_ASSIGNMENT, array.position());
 	}
 
 	@Override
 	public void visitManifestBoolean(final ManifestBoolean manifestBoolean) {
-		throw new InterpreterException("Invalid left-side assignment", manifestBoolean.position());
+		throw new InterpreterException(ERROR_INVALID_LEFT_SIDE_ASSIGNMENT, manifestBoolean.position());
 	}
 
 	@Override
 	public void visitManifestDictionary(final ManifestDictionary dictionary) {
-		throw new InterpreterException("Invalid left-side assignment", dictionary.position());
+		throw new InterpreterException(ERROR_INVALID_LEFT_SIDE_ASSIGNMENT, dictionary.position());
 	}
 
 	@Override
 	public void visitManifestNumeric(final ManifestNumeric manifestNumeric) {
-		throw new InterpreterException("Invalid left-side assignment", manifestNumeric.position());
+		throw new InterpreterException(ERROR_INVALID_LEFT_SIDE_ASSIGNMENT, manifestNumeric.position());
 	}
 
 	@Override
 	public void visitManifestRegex(final ManifestRegex manifestRegex) {
-		throw new InterpreterException("Invalid left-side assignment", manifestRegex.position());
+		throw new InterpreterException(ERROR_INVALID_LEFT_SIDE_ASSIGNMENT, manifestRegex.position());
 	}
 
 	@Override
 	public void visitManifestString(final ManifestString manifestString) {
-		throw new InterpreterException("Invalid left-side assignment", manifestString.position());
+		throw new InterpreterException(ERROR_INVALID_LEFT_SIDE_ASSIGNMENT, manifestString.position());
 	}
 
 	@Override
 	public void visitTypedBinary(final TypedBinary typedBinary) {
-		throw new InterpreterException("Invalid left-side assignment", typedBinary.position());
+		throw new InterpreterException(ERROR_INVALID_LEFT_SIDE_ASSIGNMENT, typedBinary.position());
 	}
 
 	@Override
 	public void visitTypedUnary(final TypedUnary typedUnary) {
-		throw new InterpreterException("Invalid left-side assignment", typedUnary.position());
+		throw new InterpreterException(ERROR_INVALID_LEFT_SIDE_ASSIGNMENT, typedUnary.position());
 	}
 
 }

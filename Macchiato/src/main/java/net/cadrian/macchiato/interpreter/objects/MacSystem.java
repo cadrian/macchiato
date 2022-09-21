@@ -79,13 +79,12 @@ public class MacSystem implements MacObject {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
-		final Native fun;
 		try {
-			fun = Native.valueOf(name.getName());
+			final Native fun = Native.valueOf(name.getName());
+			return (Method<T>) new NativeMethod(ruleset, fun);
 		} catch (final IllegalArgumentException e) {
 			return null;
 		}
-		return (Method<T>) new NativeMethod(ruleset, fun);
 	}
 
 	@Override

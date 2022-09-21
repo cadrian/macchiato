@@ -14,7 +14,7 @@ import org.junit.Test;
 
 public class TestRun {
 
-	private byte[] read(String path) throws IOException {
+	private byte[] read(final String path) throws IOException {
 		final File file = new File(path);
 		if (!file.exists()) {
 			return new byte[0];
@@ -32,7 +32,7 @@ public class TestRun {
 	}
 
 	private void run(final File file, final int expectedStatus) throws IOException {
-		String path = file.getPath();
+		final String path = file.getPath();
 
 		final PrintStream oldOut = System.out;
 		final PrintStream oldErr = System.err;
@@ -73,12 +73,12 @@ public class TestRun {
 		new File(path + ".out.mid").delete();
 	}
 
-	private void run(File dir, String suffix, int expectedStatus) throws IOException {
+	private void run(final File dir, final String suffix, final int expectedStatus) throws IOException {
 		Assert.assertTrue(dir.isDirectory());
 		for (final File file : dir.listFiles(new FileFilter() {
 
 			@Override
-			public boolean accept(File file) {
+			public boolean accept(final File file) {
 				return file.getName().endsWith(suffix);
 			}
 		})) {

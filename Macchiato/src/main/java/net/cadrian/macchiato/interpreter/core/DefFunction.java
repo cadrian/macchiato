@@ -47,7 +47,9 @@ public class DefFunction implements Function {
 			Arrays.fill(argTypes, MacObject.class);
 			argNames = args.toArray();
 		} else {
-			assert def.clazz != null;
+			if (def.clazz == null) {
+				throw new IllegalArgumentException("null class");
+			}
 			argTypes = NO_ARG_TYPES;
 			argNames = NO_ARG_NAMES;
 		}

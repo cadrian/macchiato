@@ -37,7 +37,7 @@ public abstract class MetaMessage implements MacComparable<MetaMessage>, Message
 
 	private final MetaMessageType messageType;
 
-	public MetaMessage(final MetaMessageType messageType) {
+	protected MetaMessage(final MetaMessageType messageType) {
 		this.messageType = messageType;
 	}
 
@@ -50,7 +50,7 @@ public abstract class MetaMessage implements MacComparable<MetaMessage>, Message
 		try {
 			return new MetaEvent(MacNumber.valueOf(tick), messageType, messageType.createMidiMessage(this));
 		} catch (final InvalidMidiDataException e) {
-			throw new RuntimeException(e);
+			throw new InvalidMessage(e);
 		}
 	}
 
