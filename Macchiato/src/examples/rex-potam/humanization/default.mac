@@ -364,12 +364,40 @@ class DefaultHumanizer (itf.Humanizer) {
 
             // IDEAL SHOULD BE: (but Macchiato does not support floating point numbers)
             // v = ((h ^ factorVelocity) * (e ^ factorExpression) * (p ^ factorVolume)) ^ (1 / (factorVelocity + factorExpression + factorVolume))
-            v = ((h ^ factorVelocity) * (e ^ factorExpression) * (p ^ factorVolume)) / (127 ^ (factorVelocity + factorExpression + factorVolume - 1))
+            // v = ((h ^ factorVelocity) * (e ^ factorExpression) * (p ^ factorVolume)) / (127 ^ (factorVelocity + factorExpression + factorVolume - 1))
+
+            local vgn = 127;
+            local vgd = 1;
+            if factorVelocity > 0 {
+                vgn = vgn * h * factorVelocity
+                vgd = vgd * 127 * factorVelocity
+            }
+            if factorExpression > 0 {
+                vgn = vgn * e * factorExpression
+                vgd = vgd * 127 * factorExpression
+            }
+            if factorVolume > 0 {
+                vgn = vgn * p * factorVolume
+                vgd = vgd * 127 * factorVolume
+            }
+
+            local van = (h * factorVelocity) + (e * factorExpression) + (p * factorVolume);
+            local vad = factorVelocity + factorExpression + factorVolume;
+
+            local a = 0; // factorVelocity + factorExpression + factorVolume;
+            local g = 1; // 3 / a;
+
+            v = ((g * vgn / vgd) + (a * van / vad)) / (a + g);
+            //v = vgn / vgd;
+            //v = van / vad;
+
             System.Print("VELOCITY: " + System.ToString(v0)
-                + " [" + System.ToString(h) + "*" + System.ToString(factorVelocity)
-                + ", " + System.ToString(e) + "*" + System.ToString(factorExpression)
-                + ", " + System.ToString(p) + "*" + System.ToString(factorVolume)
-                +"] => " + System.ToString(v))
+                + " [velocity: " + System.ToString(h) + "*" + System.ToString(factorVelocity)
+                + ", expression: " + System.ToString(e) + "*" + System.ToString(factorExpression)
+                + ", volume: " + System.ToString(p) + "*" + System.ToString(factorVolume)
+                + "] => {GEOMETRIC: vgn=" + System.ToString(vgn) + ", vgd=" + System.ToString(vgd)
+                + "}, {ARITHMETIC: van=" + System.ToString(van) + ", vad=" + System.ToString(vad)
+                + "}, a=" + System.ToString(a) + ", g=" + System.ToString(g) + " => " + System.ToString(v))
 
             if (v > 0) {
                 local t;
