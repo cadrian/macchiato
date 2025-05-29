@@ -212,7 +212,7 @@ class DefaultHumanizer (itf.Humanizer) {
         }
     }
 
-    def setFromArg(arg, tick) {
+    def setFromArg(arg, tick) requires (arg exists) and (sets exists) {
         local set;
 
         if (arg[0] exists) and (arg[1] exists) {
@@ -229,7 +229,7 @@ class DefaultHumanizer (itf.Humanizer) {
         setArg(set);
     }
 
-    def setArgFromTick(tick) {
+    def setArgFromTick(tick) requires (tick exists) and (sets exists) {
         System.Print("sets=" + System.ToString(sets));
         System.Print("Setting @" + System.ToString(tick));
 
