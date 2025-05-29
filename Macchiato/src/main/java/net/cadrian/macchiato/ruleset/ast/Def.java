@@ -87,8 +87,9 @@ public class Def implements Node {
 		final Clazz simplifyClazz = clazz == null ? null : clazz.simplify();
 		final Expression simplifyRequires = requires == null ? null : requires.simplify();
 		final Expression simplifyEnsures = ensures == null ? null : ensures.simplify();
-		if (simplifyInstruction.equals(instruction) && simplifyRequires.equals(requires)
-				&& simplifyEnsures.equals(ensures) && simplifyClazz.equals(clazz)) {
+		if (instruction.equals(simplifyInstruction) && (requires == null || requires.equals(simplifyRequires))
+				&& (ensures == null || ensures.equals(simplifyEnsures))
+				&& (clazz == null || clazz.equals(simplifyClazz))) {
 			return this;
 		}
 		return new Def(position, name, args, simplifyRequires, simplifyEnsures, simplifyInstruction, simplifyClazz);

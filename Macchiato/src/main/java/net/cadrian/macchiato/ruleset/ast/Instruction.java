@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.ruleset.ast;
 
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface Instruction extends Node {
 
 	Instruction simplify();

@@ -219,7 +219,7 @@ public final class ParserBuffer {
 			if (i > 0) {
 				result.append('\n');
 			}
-			result.append(error(message, position));
+			result.append(error(i == 0 ? message : null, position));
 		}
 		return result.toString();
 	}

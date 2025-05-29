@@ -46,12 +46,12 @@ public class FunctionCall extends AbstractCall implements Expression {
 	@Override
 	public Expression simplify() {
 		final Expression simplifyTarget = target == null ? null : target.simplify();
-		boolean changed = !simplifyTarget.equals(target);
+		boolean changed = target != null && !target.equals(simplifyTarget);
 		final FunctionCall result = new FunctionCall(position, simplifyTarget, name);
 		for (final Expression arg : arguments) {
 			final Expression simplifyArg = arg.simplify();
 			result.add(simplifyArg);
-			changed |= !simplifyArg.equals(arg);
+			changed |= !arg.equals(simplifyArg);
 		}
 		return changed ? result : this;
 	}

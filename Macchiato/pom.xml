@@ -81,9 +81,37 @@
             <ruleset>ruleset.xml</ruleset>
           </rulesets>
         </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+              <goal>cpd-check</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <version>3.26.0</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>pmd</report>
+              <report>cpd</report>
+              <report>aggregate-pmd</report>
+              <report>aggregate-pmd-no-fork</report>
+              <report>aggregate-cpd</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
 
   <dependencies>
     <!-- waiting for Debian to upgrade to slf4j 2 / logback 1.5 -->

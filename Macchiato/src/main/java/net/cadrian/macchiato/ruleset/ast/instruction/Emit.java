@@ -67,7 +67,7 @@ public class Emit implements Instruction {
 	public Instruction simplify() {
 		final TypedExpression simplifyMessage = message == null ? null : message.simplify();
 		final TypedExpression simplifyTick = tick == null ? null : tick.simplify();
-		if (message.equals(simplifyMessage) && tick.equals(simplifyTick)) {
+		if ((message == null || message.equals(simplifyMessage)) && (tick == null || tick.equals(simplifyTick))) {
 			return this;
 		}
 		return new Emit(position, simplifyMessage, simplifyTick);

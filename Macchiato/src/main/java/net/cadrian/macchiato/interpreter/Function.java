@@ -19,6 +19,7 @@ package net.cadrian.macchiato.interpreter;
 import net.cadrian.macchiato.interpreter.core.Context;
 import net.cadrian.macchiato.ruleset.parser.Position;
 
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface Function extends Callable {
 
 	void run(Context context, Position position);

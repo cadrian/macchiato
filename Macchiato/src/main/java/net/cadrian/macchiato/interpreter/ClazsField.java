@@ -19,6 +19,7 @@ package net.cadrian.macchiato.interpreter;
 import net.cadrian.macchiato.interpreter.core.clazs.MacClazsObject;
 import net.cadrian.macchiato.interpreter.objects.MacObject;
 
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface ClazsField extends Field<MacClazsObject, MacObject> {
 
 	Clazs getTargetClazs();

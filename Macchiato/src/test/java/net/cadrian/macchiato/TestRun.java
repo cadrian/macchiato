@@ -1,20 +1,27 @@
 package net.cadrian.macchiato;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestRun {
 
-	private byte[] read(final String path) throws IOException {
+	private static final Logger LOGGER = LoggerFactory.getLogger(TestRun.class);
+
+	private static byte[] read(final String path) throws IOException {
 		final File file = new File(path);
 		if (!file.exists()) {
 			return new byte[0];
@@ -31,7 +38,18 @@ public class TestRun {
 		return result.toByteArray();
 	}
 
+	private static void write(final String path, final byte[] data) throws IOException {
+		final File file = new File(path);
+
+		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
+			out.write(data);
+			out.flush();
+		}
+	}
+
 	private void run(final File file, final int expectedStatus) throws IOException {
+		LOGGER.debug("******** TESTING [{}] {}", expectedStatus, file);
+
 		final String path = file.getPath();
 
 		final PrintStream oldOut = System.out;
@@ -58,14 +76,20 @@ public class TestRun {
 			Assert.fail(e.getMessage());
 			throw e;
 		} finally {
+			out.flush();
 			System.setOut(oldOut);
+			err.flush();
 			System.setErr(oldErr);
 		}
 
-		Assert.assertEquals("Differing stdout: " + path, new String(read(path + ".out")),
-				new String(outStream.toByteArray()));
-		Assert.assertEquals("Differing stderr: " + path, new String(read(path + ".err")),
-				new String(errStream.toByteArray()));
+		final byte[] actualOut = outStream.toByteArray();
+		LOGGER.debug("out: {}", new String(actualOut));
+		write(path + ".out.new", actualOut);
+		Assert.assertEquals("Differing stdout: " + path, new String(read(path + ".out")), new String(actualOut));
+		final byte[] actualErr = errStream.toByteArray();
+		LOGGER.debug("err: {}", new String(actualErr));
+		write(path + ".err.new", actualErr);
+		Assert.assertEquals("Differing stderr: " + path, new String(read(path + ".err")), new String(actualErr));
 		Assert.assertEquals(expectedStatus, actualStatus);
 		Assert.assertArrayEquals("Differing MIDI:" + path, read(path + ".ref.mid"), read(path + ".out.mid"));
 
@@ -75,13 +99,7 @@ public class TestRun {
 
 	private void run(final File dir, final String suffix, final int expectedStatus) throws IOException {
 		Assert.assertTrue(dir.isDirectory());
-		for (final File file : dir.listFiles(new FileFilter() {
-
-			@Override
-			public boolean accept(final File file) {
-				return file.getName().endsWith(suffix);
-			}
-		})) {
+		for (final File file : dir.listFiles((FileFilter) file1 -> file1.getName().endsWith(suffix))) {
 			run(file, expectedStatus);
 		}
 	}

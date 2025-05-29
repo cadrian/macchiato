@@ -16,6 +16,7 @@
  */
 package net.cadrian.macchiato.ruleset.ast.expression;
 
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface ManifestExpression<V> extends TypedExpression {
 
 	V getValue();

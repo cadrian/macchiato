@@ -8,7 +8,7 @@ public final class DoNothing implements Instruction {
 	public static final DoNothing INSTANCE = new DoNothing();
 
 	private DoNothing() {
-		throw new IllegalStateException("unexpected call");
+		// singleton
 	}
 
 	@Override

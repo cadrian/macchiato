@@ -42,7 +42,7 @@ public class ProcedureCall extends AbstractCall implements Instruction {
 	@Override
 	public Instruction simplify() {
 		final Expression simplifyTarget = target == null ? null : target.simplify();
-		boolean changed = !target.equals(simplifyTarget);
+		boolean changed = target != null && !target.equals(simplifyTarget);
 		final ProcedureCall result = new ProcedureCall(position, simplifyTarget, name);
 		for (final Expression arg : arguments) {
 			final Expression simplifyArg = arg.simplify();
