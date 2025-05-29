@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/cadrian/macchiato.png?branch=master)](https://travis-ci.org/cadrian/macchiato)
-
 **Macchiato is a MIDI file processor.**
 
 It takes a MIDI file, transforms it using rules, and outputs another
