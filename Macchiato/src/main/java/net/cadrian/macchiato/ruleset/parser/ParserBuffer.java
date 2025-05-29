@@ -216,10 +216,11 @@ public final class ParserBuffer {
 		final StringBuilder result = new StringBuilder();
 		for (int i = 0; i < positions.length; i++) {
 			final Position position = positions[i];
-			if (i > 0) {
-				result.append('\n');
+			if (i == 0) {
+				result.append(error(message, position));
+			} else {
+				result.append('\n').append(error(null, position));
 			}
-			result.append(error(i == 0 ? message : null, position));
 		}
 		return result.toString();
 	}

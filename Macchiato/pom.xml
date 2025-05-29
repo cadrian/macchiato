@@ -80,6 +80,9 @@
           <rulesets>
             <ruleset>ruleset.xml</ruleset>
           </rulesets>
+          <failOnViolation>true</failOnViolation>
+          <failurePriority>4</failurePriority>
+          <renderSuppressedViolations>false</renderSuppressedViolations>
         </configuration>
         <executions>
           <execution>
@@ -98,17 +101,19 @@
       <plugin>
         <artifactId>maven-pmd-plugin</artifactId>
         <version>3.26.0</version>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>pmd</report>
-              <report>cpd</report>
-              <report>aggregate-pmd</report>
-              <report>aggregate-pmd-no-fork</report>
-              <report>aggregate-cpd</report>
-            </reports>
-          </reportSet>
-        </reportSets>
+        <configuration>
+          <reportSets>
+            <reportSet>
+              <reports>
+                <report>pmd</report>
+                <report>cpd</report>
+                <report>aggregate-pmd</report>
+                <report>aggregate-pmd-no-fork</report>
+                <report>aggregate-cpd</report>
+              </reports>
+            </reportSet>
+          </reportSets>
+        </configuration>
       </plugin>
     </plugins>
   </reporting>
