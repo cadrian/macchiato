@@ -22,7 +22,7 @@ import net.cadrian.macchiato.midi.message.ShortMessage;
 
 public class PitchBendMessage extends ShortMessage {
 
-	public static interface Visitor extends Message.Visitor {
+	public interface Visitor extends Message.Visitor {
 		void visitPitchBend(PitchBendMessage message);
 	}
 

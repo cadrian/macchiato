@@ -22,7 +22,7 @@ import net.cadrian.macchiato.midi.message.MetaMessage;
 
 public class EndOfTrackMessage extends MetaMessage {
 
-	public static interface Visitor extends Message.Visitor {
+	public interface Visitor extends Message.Visitor {
 		void visitEndOfTrack(EndOfTrackMessage message);
 	}
 

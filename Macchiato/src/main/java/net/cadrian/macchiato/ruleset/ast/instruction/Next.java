@@ -22,7 +22,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Next implements Instruction {
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitNext(Next next);
 	}
 

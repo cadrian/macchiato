@@ -26,7 +26,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ManifestRegex implements ManifestExpression<Pattern> {
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitManifestRegex(ManifestRegex manifestRegex);
 	}
 

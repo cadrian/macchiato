@@ -21,7 +21,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Def implements Node {
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visit(Def def);
 	}
 

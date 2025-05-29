@@ -33,6 +33,38 @@
                 <maven.compiler.target>21</maven.compiler.target>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         </properties>
+        <reporting>
+                <plugins>
+                        <plugin>
+                                <groupId>org.apache.maven.plugins</groupId>
+                                <artifactId>maven-pmd-plugin</artifactId>
+                                <version>3.26.0</version>
+
+                                <configuration>
+                                        <linkXref>true</linkXref>
+                                        <inputEncoding>utf-8</inputEncoding>
+                                        <minimumTokens>100</minimumTokens>
+                                        <targetJdk>21</targetJdk>
+                                </configuration>
+                                <reportSets>
+                                        <reportSet><!-- by default, id = "default" -->
+                                          <reports><!-- select non-aggregate reports -->
+                                            <report>pmd</report>
+                                            <report>cpd</report>
+                                          </reports>
+                                        </reportSet>
+                                        <reportSet><!-- aggregate reportSet, to define in poms having modules -->
+                                                <id>aggregate</id>
+                                                <inherited>false</inherited> <!-- don't run aggregate in child modules -->
+                                                <reports>
+                                                        <report>aggregate-pmd</report>
+                                                        <report>aggregate-cpd</report>
+                                                </reports>
+                                        </reportSet>
+                                </reportSets>
+                        </plugin>
+                </plugins>
+        </reporting>
         <dependencies>
                 <!-- waiting for Debian to upgrade to slf4j 2 / logback 1.5 -->
                 <dependency>

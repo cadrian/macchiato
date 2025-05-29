@@ -26,7 +26,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ManifestNumeric implements ManifestExpression<BigInteger> {
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitManifestNumeric(ManifestNumeric manifestNumeric);
 	}
 

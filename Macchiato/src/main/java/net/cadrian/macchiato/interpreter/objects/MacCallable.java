@@ -97,7 +97,7 @@ public abstract class MacCallable implements MacObject {
 
 	}
 
-	public abstract void invoke(final Context context, final Position position);
+	public abstract void invoke(Context context, Position position);
 
 	@Override
 	public <T extends MacObject, R extends MacObject> Field<T, R> getField(final Ruleset ruleset,

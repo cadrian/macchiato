@@ -23,7 +23,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Result implements Expression {
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitResult(Result result);
 	}
 

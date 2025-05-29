@@ -27,7 +27,7 @@ public class Old implements Expression {
 
 	private static final AtomicInteger COUNTER = new AtomicInteger();
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitOld(Old old);
 	}
 

@@ -23,7 +23,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Identifier implements Expression, Comparable<Identifier> {
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitIdentifier(Identifier identifier);
 	}
 

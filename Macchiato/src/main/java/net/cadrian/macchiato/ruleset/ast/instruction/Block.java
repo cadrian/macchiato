@@ -31,7 +31,7 @@ public class Block implements Instruction {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Block.class);
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitBlock(Block block);
 	}
 

@@ -24,7 +24,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ExistsExpression implements TypedExpression {
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitExistsExpression(ExistsExpression existsExpression);
 	}
 

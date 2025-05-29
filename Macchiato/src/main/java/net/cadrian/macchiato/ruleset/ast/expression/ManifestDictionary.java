@@ -28,7 +28,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ManifestDictionary implements ManifestExpression<Void> {
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitManifestDictionary(ManifestDictionary manifestDictionary);
 	}
 

@@ -388,7 +388,7 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 
 	public final int command;
 
-	private ShortMessageType(final int command) {
+	ShortMessageType(final int command) {
 		this.command = command;
 	}
 

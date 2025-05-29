@@ -54,7 +54,7 @@ class AssignmentVisitor implements ExpressionVisitor {
 	private static final String ERROR_CANNOT_ASSIGN_TO_AN_OLD_VALUE = "Cannot assign to an old value";
 	private static final String ERROR_INVALID_LEFT_SIDE_ASSIGNMENT = "Invalid left-side assignment";
 
-	private static interface Setter {
+	private interface Setter {
 		void set(MacObject value);
 	}
 

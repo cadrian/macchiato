@@ -27,6 +27,6 @@ public interface Expression extends Node {
 
 	boolean isStatic();
 
-	public Expression getStaticValue();
+	Expression getStaticValue();
 
 }

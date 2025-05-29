@@ -24,7 +24,7 @@ public class BoundFilter extends Filter {
 		BEGIN_SEQUENCE, END_SEQUENCE, BEGIN_TRACK, END_TRACK;
 	}
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visit(BoundFilter boundFilter);
 	}
 

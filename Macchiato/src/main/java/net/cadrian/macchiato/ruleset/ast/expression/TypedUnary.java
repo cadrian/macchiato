@@ -28,7 +28,7 @@ public class TypedUnary extends Unary implements TypedExpression {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TypedUnary.class);
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitTypedUnary(TypedUnary typedUnary);
 	}
 

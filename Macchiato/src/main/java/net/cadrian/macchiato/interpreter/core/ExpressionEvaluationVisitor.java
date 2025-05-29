@@ -131,22 +131,23 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 						typedBinary.getLeftOperand().position());
 			}
 			typedBinary.getRightOperand().accept(this);
-			if (lastValue == null) {
+			final MacObject right = lastValue;
+			if (right == null) {
 				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
 						typedBinary.getLeftOperand().position());
 			}
-			if (lastValue.getClass() != left.getClass()) {
+			if (right.getClass() != left.getClass()) {
 				throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
 			}
-			if (lastValue instanceof MacString) {
-				lastValue = ((MacString) left).concat((MacString) lastValue);
-			} else if (lastValue instanceof MacNumber) {
+			if (right instanceof MacString string) {
+				lastValue = ((MacString) left).concat(string);
+			} else if (right instanceof MacNumber number) {
 				if (((MacNumber) left).compareTo(MacNumber.ZERO) == 0) {
-					// nothing
-				} else if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
+					lastValue = right;
+				} else if (number.compareTo(MacNumber.ZERO) == 0) {
 					lastValue = left;
 				} else {
-					lastValue = ((MacNumber) left).add((MacNumber) lastValue);
+					lastValue = ((MacNumber) left).add(number);
 				}
 			} else {
 				throw new InterpreterException("BUG: invalid type", typedBinary.getLeftOperand().position());

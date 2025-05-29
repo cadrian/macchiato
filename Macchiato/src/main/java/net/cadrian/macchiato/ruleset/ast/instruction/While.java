@@ -29,7 +29,7 @@ public class While implements Instruction {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(While.class);
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitWhile(While w);
 	}
 

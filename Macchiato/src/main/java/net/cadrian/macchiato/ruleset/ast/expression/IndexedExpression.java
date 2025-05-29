@@ -30,7 +30,7 @@ public class IndexedExpression implements Expression {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IndexedExpression.class);
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitIndexedExpression(IndexedExpression indexedExpression);
 	}
 

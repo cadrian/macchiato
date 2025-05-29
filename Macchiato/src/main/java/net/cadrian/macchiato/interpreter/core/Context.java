@@ -75,7 +75,7 @@ public abstract class Context {
 
 	public abstract void evaluateOldData(Expression ensures);
 
-	public abstract boolean checkContract(final Expression contract, final String tag) throws ContractException;
+	public abstract boolean checkContract(Expression contract, String tag) throws ContractException;
 
 	final Function getFunction(final Identifier name) {
 		LOGGER.debug("<-- {}", name);

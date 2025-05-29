@@ -75,7 +75,7 @@ class FromStringFunction extends AbstractObjectReaderFunction implements Functio
 		LOGGER.debug("<-- {}", data);
 		final MacObject result;
 
-		try (final Reader reader = new StringReader(data.getValue())) {
+		try (Reader reader = new StringReader(data.getValue())) {
 			final ParserBuffer buffer = ParserBuffer.getParserBuffer(reader);
 			result = parseObject(buffer);
 		} catch (final IOException e) {

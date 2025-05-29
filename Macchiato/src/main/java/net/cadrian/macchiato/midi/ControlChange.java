@@ -64,7 +64,7 @@ public enum ControlChange implements MacComparable<ControlChange> {
 
 	public final int code;
 
-	private ControlChange(final int code) {
+	ControlChange(final int code) {
 		this.code = code;
 	}
 

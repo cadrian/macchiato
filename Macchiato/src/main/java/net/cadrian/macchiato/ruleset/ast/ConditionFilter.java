@@ -22,7 +22,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ConditionFilter extends Filter {
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visit(ConditionFilter conditionFilter);
 	}
 

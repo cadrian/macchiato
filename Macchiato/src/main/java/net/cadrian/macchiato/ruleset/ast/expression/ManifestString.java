@@ -24,7 +24,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ManifestString implements ManifestExpression<String> {
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitManifestString(ManifestString manifestString);
 	}
 

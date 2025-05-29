@@ -22,7 +22,7 @@ import net.cadrian.macchiato.midi.MetaMessageType;
 
 public class CuePointMessage extends AbstractTextMessage {
 
-	public static interface Visitor extends Message.Visitor {
+	public interface Visitor extends Message.Visitor {
 		void visitCuePoint(CuePointMessage message);
 	}
 

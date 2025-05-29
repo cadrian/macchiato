@@ -30,7 +30,7 @@ public class TypedBinary extends Binary implements TypedExpression {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TypedBinary.class);
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitTypedBinary(TypedBinary typedBinary);
 	}
 

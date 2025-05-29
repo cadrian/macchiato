@@ -29,7 +29,7 @@ public class If implements Instruction {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(If.class);
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitIf(If i);
 	}
 

@@ -47,7 +47,7 @@ public class ClazzClazs implements Clazs {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ClazzClazs.class);
 
 	@FunctionalInterface
-	public static interface ClassRepository {
+	public interface ClassRepository {
 		Clazs getClazs(LocalizedClazz localizedClazz);
 	}
 

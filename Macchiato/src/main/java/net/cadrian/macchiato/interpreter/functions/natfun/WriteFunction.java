@@ -80,7 +80,7 @@ class WriteFunction extends AbstractObjectWriterFunction implements Function {
 			throw new ObjectInexistentException("value does not exist", position);
 		}
 
-		try (final Writer writer = new BufferedWriter(new FileWriter(file.getValue()))) {
+		try (Writer writer = new BufferedWriter(new FileWriter(file.getValue()))) {
 			if (!writeObject(writer, value)) {
 				throw new InterpreterException("invalid value: not writable", position);
 			}

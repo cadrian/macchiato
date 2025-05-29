@@ -35,7 +35,7 @@ public class For implements Instruction {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(For.class);
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitFor(For f);
 	}
 

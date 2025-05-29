@@ -77,7 +77,7 @@ class ToStringFunction extends AbstractObjectWriterFunction implements Function 
 		}
 
 		final String result;
-		try (final StringWriter writer = new StringWriter()) {
+		try (StringWriter writer = new StringWriter()) {
 			if (!writeObject(writer, value)) {
 				throw new InterpreterException("invalid value", position);
 			}

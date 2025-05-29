@@ -23,7 +23,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Assignment implements Instruction {
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitAssignment(Assignment assignment);
 	}
 

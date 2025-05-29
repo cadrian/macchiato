@@ -25,7 +25,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Clazz implements Node {
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visit(Clazz def);
 	}
 

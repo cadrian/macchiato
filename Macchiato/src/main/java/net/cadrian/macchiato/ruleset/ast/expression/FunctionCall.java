@@ -24,7 +24,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class FunctionCall extends AbstractCall implements Expression {
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitFunctionCall(FunctionCall functionCall);
 	}
 

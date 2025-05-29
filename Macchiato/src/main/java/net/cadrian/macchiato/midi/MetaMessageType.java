@@ -771,7 +771,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 	public final byte type;
 
-	private MetaMessageType(final int type) {
+	MetaMessageType(final int type) {
 		this.type = (byte) type;
 	}
 
@@ -785,7 +785,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 	public abstract MetaMessage createMidiMessage(Message<MetaMessage> message) throws InvalidMidiDataException;
 
-	public abstract void fill(final MacEvent messageData, final Message<MetaMessage> message);
+	public abstract void fill(MacEvent messageData, Message<MetaMessage> message);
 
 	public abstract Class<? extends MacObject>[] getArgTypes();
 

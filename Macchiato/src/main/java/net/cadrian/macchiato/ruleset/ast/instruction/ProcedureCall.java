@@ -25,7 +25,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ProcedureCall extends AbstractCall implements Instruction {
 
-	public static interface Visitor extends Node.Visitor {
+	public interface Visitor extends Node.Visitor {
 		void visitProcedureCall(ProcedureCall procedureCall);
 	}
 

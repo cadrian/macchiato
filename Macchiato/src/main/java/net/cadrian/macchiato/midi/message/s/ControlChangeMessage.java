@@ -23,7 +23,7 @@ import net.cadrian.macchiato.midi.message.ShortMessage;
 
 public class ControlChangeMessage extends ShortMessage {
 
-	public static interface Visitor extends Message.Visitor {
+	public interface Visitor extends Message.Visitor {
 		void visitControlChange(ControlChangeMessage message);
 	}
 
