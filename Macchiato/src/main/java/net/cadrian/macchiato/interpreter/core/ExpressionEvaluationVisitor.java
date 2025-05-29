@@ -111,15 +111,17 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	private void evalNot(final MacObject operand, final TypedUnary typedUnary) {
 		if (operand instanceof final MacBoolean op) {
 			lastValue = op.not();
+		} else {
+			throw new InterpreterException(ERROR_INVALID_OPERAND_TYPE, typedUnary.getOperand().position());
 		}
-		throw new InterpreterException(ERROR_INVALID_OPERAND_TYPE, typedUnary.getOperand().position());
 	}
 
 	private void evalMinus(final MacObject operand, final TypedUnary typedUnary) {
 		if (operand instanceof final MacNumber op) {
 			lastValue = op.negate();
+		} else {
+			throw new InterpreterException(ERROR_INVALID_OPERAND_TYPE, typedUnary.getOperand().position());
 		}
-		throw new InterpreterException(ERROR_INVALID_OPERAND_TYPE, typedUnary.getOperand().position());
 	}
 
 	@Override
