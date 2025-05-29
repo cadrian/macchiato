@@ -66,7 +66,7 @@ public class MacBoolean implements MacComparable<MacBoolean> {
 
 	@Override
 	public int compareTo(final MacBoolean other) {
-		return value ? (other.value ? 0 : 1) : (other.value ? -1 : 0);
+		return value ? other.value ? 0 : 1 : other.value ? -1 : 0;
 	}
 
 	public static MacBoolean valueOf(final boolean b) {

@@ -322,8 +322,8 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		@Override
 		public ShortMessage createMidiMessage(final Message<ShortMessage> message) throws InvalidMidiDataException {
 			final PitchBendMessage m = (PitchBendMessage) message;
-			final int data1 = (m.getValue() >>> 7);
-			final int data2 = (m.getValue() & 0x7f);
+			final int data1 = m.getValue() >>> 7;
+			final int data2 = m.getValue() & 0x7f;
 			return new ShortMessage(command, m.getChannel(), data1, data2);
 		}
 

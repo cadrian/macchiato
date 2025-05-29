@@ -71,9 +71,8 @@ public class Run {
 			final Interpreter interpreter = new Interpreter(ruleset);
 			if (midiInputName != null) {
 				final String midiOutputName = getMidiOutputName(args);
-				try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(midiInputName))) {
-					try (final BufferedOutputStream out = new BufferedOutputStream(
-							new FileOutputStream(midiOutputName))) {
+				try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(midiInputName))) {
+					try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(midiOutputName))) {
 						interpreter.run(in, out, getProgramArgs(args));
 					}
 				}
@@ -128,6 +127,10 @@ public class Run {
 			}
 		}
 		return new String[0];
+	}
+
+	private Run() {
+		throw new IllegalStateException("No instance");
 	}
 
 }

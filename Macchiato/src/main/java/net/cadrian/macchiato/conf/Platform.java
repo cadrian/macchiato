@@ -27,12 +27,11 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Platform {
+public final class Platform {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Platform.class);
 
 	private static final String[] XDG_CONFIG_DIRS;
-	private static final String[] XDG_RUNTIME_DIRS;
 
 	static {
 		// XDG logic copied from
@@ -41,7 +40,6 @@ public class Platform {
 		final Map<String, String> environment = System.getenv();
 
 		String configDirs = environment.get("XDG_CONFIG_DIRS");
-		String runtimeDirs = environment.get("XDG_RUNTIME_DIR");
 
 		final String osName = System.getProperty("os.name");
 		if (osName.startsWith("Mac OS X")) {
@@ -49,32 +47,18 @@ public class Platform {
 				configDirs = File.separator + "Library" + File.separator + "Preferences" + File.pathSeparator
 						+ File.separator + "Library" + File.separator + "Application Support";
 			}
-			if (runtimeDirs == null) {
-				runtimeDirs = environment.get("TMPDIR");
-			}
 		} else if (osName.startsWith("Windows")) {
 			if (configDirs == null) {
 				configDirs = environment.get("APPDATA") + File.pathSeparator + environment.get("LOCALAPPDATA");
-			}
-			if (runtimeDirs == null) {
-				runtimeDirs = environment.get("LOCALAPPDATA") + File.separator + "Temp";
 			}
 		} else {
 			if (configDirs == null) {
 				configDirs = File.separator + "etc" + File.separator + "xdg";
 			}
-			if (runtimeDirs == null) {
-				// https://serverfault.com/questions/388840/good-default-for-xdg-runtime-dir
-				runtimeDirs = environment.get("TMPDIR");
-				if (runtimeDirs == null) {
-					runtimeDirs = File.separator + "tmp";
-				}
-			}
 		}
 
 		final String pathSeparatorPattern = Pattern.quote(File.pathSeparator);
 		XDG_CONFIG_DIRS = configDirs.split(pathSeparatorPattern);
-		XDG_RUNTIME_DIRS = runtimeDirs.split(pathSeparatorPattern);
 	}
 
 	public static File getConfigFile(final String filename) {
@@ -107,6 +91,7 @@ public class Platform {
 	}
 
 	private Platform() {
+		throw new IllegalStateException("No instance");
 	}
 
 }

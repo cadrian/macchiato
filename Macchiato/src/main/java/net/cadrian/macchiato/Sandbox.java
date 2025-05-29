@@ -68,5 +68,9 @@ public class Sandbox {
 			}
 		}
 	}
+	
+	private Sandbox() {
+		throw new IllegalStateException("No instance");
+	}
 
 }

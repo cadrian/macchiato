@@ -38,7 +38,7 @@ abstract class AbstractObjectWriterFunction extends AbstractNativeFunction {
 		if (value instanceof MacString) {
 			return writeString(writer, ((MacString) value).getValue());
 		}
-		if ((value instanceof MacNumber) || (value instanceof MacBoolean)) {
+		if (value instanceof MacNumber || value instanceof MacBoolean) {
 			writer.write(value.toString());
 			return true;
 		}

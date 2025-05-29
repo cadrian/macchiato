@@ -144,7 +144,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				if (((MacNumber) left).compareTo(MacNumber.ZERO) == 0) {
 					// nothing
 				} else if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
-					lastValue = (left);
+					lastValue = left;
 				} else {
 					lastValue = ((MacNumber) left).add((MacNumber) lastValue);
 				}
@@ -339,7 +339,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
 				lastValue = MacNumber.ONE;
 			} else if (((MacNumber) lastValue).compareTo(MacNumber.ONE) == 0) {
-				lastValue = (left);
+				lastValue = left;
 			} else {
 				lastValue = ((MacNumber) left).pow((MacNumber) lastValue);
 			}
@@ -381,7 +381,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 						typedBinary.getLeftOperand().position());
 			}
 			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
-				lastValue = (left);
+				lastValue = left;
 			} else {
 				lastValue = ((MacNumber) left).subtract((MacNumber) lastValue);
 			}
