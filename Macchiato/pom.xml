@@ -31,6 +31,7 @@
                   net.cadrian.macchiato Macchiato jar s/.*/debian/ * *</debian.mavenRules>
                 <maven.compiler.source>21</maven.compiler.source>
                 <maven.compiler.target>21</maven.compiler.target>
+                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         </properties>
         <dependencies>
                 <!-- waiting for Debian to upgrade to slf4j 2 / logback 1.5 -->
