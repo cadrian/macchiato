@@ -1,3 +1,5 @@
+[![Java CI with Maven](https://github.com/cadrian/macchiato/actions/workflows/maven.yml/badge.svg)](https://github.com/cadrian/macchiato/actions/workflows/maven.yml)
+
 **Macchiato is a MIDI file processor.**
 
 It takes a MIDI file, transforms it using rules, and outputs another
