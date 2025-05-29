@@ -32,8 +32,8 @@ public interface Field<T extends MacObject, R extends MacObject> {
 
 	Class<T> getTargetType();
 
-	R get(T target, final Context context, Position position);
+	R get(T target, Context context, Position position);
 
-	R set(T target, final Context context, Position position, R newValue);
+	R set(T target, Context context, Position position, R newValue);
 
 }

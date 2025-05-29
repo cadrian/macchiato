@@ -22,9 +22,9 @@ public class Sequence {
 
 	public Sequence(final javax.sound.midi.Sequence midi) {
 		final javax.sound.midi.Track[] midiTracks = midi.getTracks();
-		this.tracks = new Track[midiTracks.length];
+		tracks = new Track[midiTracks.length];
 		for (int i = 0; i < midiTracks.length; i++) {
-			this.tracks[i] = new Track(midiTracks[i]);
+			tracks[i] = new Track(midiTracks[i]);
 		}
 	}
 

@@ -70,8 +70,8 @@ public class ParserBuffer {
 	private ParserBuffer(final String path, final Reader reader) throws IOException {
 		this.path = path;
 		this.reader = reader == null ? new BufferedReader(new FileReader(path)) : reader;
-		this.content = new char[4096];
-		this.offset = 0;
+		content = new char[4096];
+		offset = 0;
 		readMore();
 	}
 
@@ -109,7 +109,7 @@ public class ParserBuffer {
 		} catch (final IOException e) {
 			throw new ParserException(error("Error while reading input file"), e);
 		}
-		final int startLength = this.length;
+		final int startLength = length;
 		if (n == -1) {
 			eof = true;
 			try {
@@ -119,7 +119,7 @@ public class ParserBuffer {
 			}
 		} else {
 			System.arraycopy(buffer, 0, ensureContentLength(startLength + n), startLength, n);
-			this.length += n;
+			length += n;
 		}
 	}
 

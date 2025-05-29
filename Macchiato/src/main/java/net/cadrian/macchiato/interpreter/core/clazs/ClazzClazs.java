@@ -102,9 +102,9 @@ public class ClazzClazs implements Clazs {
 	private final Set<Clazs> conformanceCache = new LinkedHashSet<>();
 
 	public ClazzClazs(final ClassRepository repository, final LocalizedClazz localizedClazz) {
-		this.ruleset = localizedClazz.ruleset;
-		this.name = localizedClazz.clazz.name();
-		this.invariant = localizedClazz.clazz.getInvariant();
+		ruleset = localizedClazz.ruleset;
+		name = localizedClazz.clazz.name();
+		invariant = localizedClazz.clazz.getInvariant();
 
 		final Map<Identifier, Map<Clazs, MethodDefinition>> precursors = new LinkedHashMap<>();
 		final Inheritance inheritance = localizedClazz.clazz.getInheritance();
@@ -122,7 +122,7 @@ public class ClazzClazs implements Clazs {
 		ClazsConstructor clazsConstructor = null;
 		for (final Def def : localizedClazz.clazz.getDefs()) {
 			final Identifier defName = def.name();
-			if (defName.equals(this.name)) {
+			if (defName.equals(name)) {
 				clazsConstructor = new ClazzClazsConstructor(this, def, defName, ruleset);
 			} else {
 				defineMethod(precursors, def, defName);
@@ -131,7 +131,7 @@ public class ClazzClazs implements Clazs {
 		for (final Map.Entry<Identifier, Map<Clazs, MethodDefinition>> precursorsEntry : precursors.entrySet()) {
 			getPrecursorMethod(precursorsEntry);
 		}
-		this.constructor = clazsConstructor == null ? new ClazzClazsDefaultConstructor(this, name, ruleset)
+		constructor = clazsConstructor == null ? new ClazzClazsDefaultConstructor(this, name, ruleset)
 				: clazsConstructor;
 	}
 
@@ -209,7 +209,7 @@ public class ClazzClazs implements Clazs {
 			final Map<Identifier, Map<Clazs, MethodDefinition>> precursors) {
 		final Identifier[] parentName = parent.getName();
 		final int n = parentName.length - 1;
-		Ruleset localizedRuleset = this.ruleset;
+		Ruleset localizedRuleset = ruleset;
 		for (int i = 0; i < n; i++) {
 			localizedRuleset = localizedRuleset.getRuleset(parentName[i]);
 			if (localizedRuleset == null) {

@@ -36,7 +36,7 @@ public class Old implements Expression {
 	private final Position position;
 
 	public Old(final Position position, final Expression expression) {
-		this.id = COUNTER.getAndIncrement();
+		id = COUNTER.getAndIncrement();
 		this.position = position;
 		this.expression = expression;
 	}

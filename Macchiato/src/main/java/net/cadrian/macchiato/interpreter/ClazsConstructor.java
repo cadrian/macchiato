@@ -24,6 +24,6 @@ public interface ClazsConstructor extends Function {
 	Clazs getTargetClazs();
 
 	@Override
-	void run(final Context context, Position position);
+	void run(Context context, Position position);
 
 }

@@ -21,6 +21,6 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public interface Function extends Callable {
 
-	void run(final Context context, Position position);
+	void run(Context context, Position position);
 
 }

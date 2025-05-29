@@ -33,10 +33,10 @@ public class TimeSignatureMessage extends MetaMessage {
 
 	public TimeSignatureMessage(final byte n, final byte d, final byte m, final byte t) {
 		super(MetaMessageType.TIME_SIGNATURE);
-		this.numerator = n;
-		this.denominator = d;
-		this.metronome = m;
-		this.ticks = t;
+		numerator = n;
+		denominator = d;
+		metronome = m;
+		ticks = t;
 	}
 
 	public byte getNumerator() {

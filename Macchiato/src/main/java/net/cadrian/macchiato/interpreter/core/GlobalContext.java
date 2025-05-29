@@ -92,7 +92,7 @@ class GlobalContext extends Context {
 	}
 
 	void setTrack(final int trackIndex, final javax.sound.midi.Track trackIn, final javax.sound.midi.Track trackOut) {
-		this.track = new Track(trackIndex, trackIn, trackOut);
+		track = new Track(trackIndex, trackIn, trackOut);
 	}
 
 	void setEvent(final MacNumber tick, final MetaMessageType type, final MetaMessage message) {
@@ -101,7 +101,7 @@ class GlobalContext extends Context {
 		type.fill(eventData, metaEvent.createMessage());
 		LOGGER.debug("Setting meta event {}", eventData);
 		global.put(Identifiers.EVENT, eventData);
-		this.event = metaEvent;
+		event = metaEvent;
 	}
 
 	void setEvent(final MacNumber tick, final ShortMessageType type, final ShortMessage message) {
@@ -110,7 +110,7 @@ class GlobalContext extends Context {
 		type.fill(eventData, shortEvent.createMessage());
 		LOGGER.debug("Setting short event {}", eventData);
 		global.put(Identifiers.EVENT, eventData);
-		this.event = shortEvent;
+		event = shortEvent;
 	}
 
 	@Override

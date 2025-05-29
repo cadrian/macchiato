@@ -22,9 +22,9 @@ import net.cadrian.macchiato.interpreter.objects.MacObject;
 
 public interface MacContainer<I extends MacObject> extends MacObject {
 
-	MacObject set(I index, final MacObject value);
+	MacObject set(I index, MacObject value);
 
-	MacObject get(final I index);
+	MacObject get(I index);
 
 	Iterator<I> keys();
 

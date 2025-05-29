@@ -38,7 +38,7 @@ class ReadOnlyField<T extends MacObject, R extends MacObject> implements Field<T
 		this.ruleset = ruleset;
 		this.targetType = targetType;
 		this.resultType = resultType;
-		this.value = initialValue;
+		value = initialValue;
 	}
 
 	@Override

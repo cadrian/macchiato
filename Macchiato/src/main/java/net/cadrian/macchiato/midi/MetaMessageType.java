@@ -548,14 +548,14 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 			final byte d = data[1];
 			final byte m = data[2];
 			final byte t = data[2];
-			String result = n + "/" + (1 << d);
+			final StringBuilder result = new StringBuilder().append(n).append("/").append(1 << d);
 			if (m != 0) {
-				result += ", metronome: every " + m + " ticks";
+				result.append(", metronome: every ").append(m).append(" ticks");
 			}
 			if (t != 0) {
-				result += ", " + t + " ticks per quarter";
+				result.append(", ").append(t).append(" ticks per quarter");
 			}
-			return result;
+			return result.toString();
 		}
 
 		@Override

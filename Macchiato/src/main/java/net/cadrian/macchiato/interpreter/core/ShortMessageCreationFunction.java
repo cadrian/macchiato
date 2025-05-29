@@ -32,7 +32,7 @@ public class ShortMessageCreationFunction implements Function {
 	private final Ruleset ruleset;
 
 	public ShortMessageCreationFunction(final ShortMessageType type, final Ruleset ruleset) {
-		this.name = new Identifier(type.name(), Position.NONE);
+		name = new Identifier(type.name(), Position.NONE);
 		this.type = type;
 		this.ruleset = ruleset;
 	}

@@ -86,7 +86,7 @@ public class Parser {
 
 	public Parser(final File relativeDirectory, final String path) throws IOException {
 		this.relativeDirectory = relativeDirectory;
-		this.buffer = ParserBuffer.getParserBuffer(path);
+		buffer = ParserBuffer.getParserBuffer(path);
 	}
 
 	public Ruleset parse() {

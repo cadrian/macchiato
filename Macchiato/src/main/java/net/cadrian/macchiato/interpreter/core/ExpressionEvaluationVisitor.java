@@ -555,7 +555,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	@Override
 	public void visitResult(final Result result) {
 		LOGGER.debug("<-- {}", result);
-		this.lastValue = context.get(new Identifier("Result", result.position()));
+		lastValue = context.get(new Identifier("Result", result.position()));
 		LOGGER.debug("--> {}", lastValue);
 	}
 

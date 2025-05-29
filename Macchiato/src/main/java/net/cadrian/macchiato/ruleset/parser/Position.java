@@ -29,7 +29,7 @@ public class Position implements Serializable {
 
 	Position(final String path, final int position) {
 		this.path = path;
-		this.offset = position;
+		offset = position;
 	}
 
 	@Override

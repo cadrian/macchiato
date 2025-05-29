@@ -32,7 +32,7 @@ public class MetaMessageCreationFunction implements Function {
 	private final Ruleset ruleset;
 
 	public MetaMessageCreationFunction(final MetaMessageType type, final Ruleset ruleset) {
-		this.name = new Identifier(type.name(), Position.NONE);
+		name = new Identifier(type.name(), Position.NONE);
 		this.type = type;
 		this.ruleset = ruleset;
 	}

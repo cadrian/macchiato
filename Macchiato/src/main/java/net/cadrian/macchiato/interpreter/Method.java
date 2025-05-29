@@ -24,6 +24,6 @@ public interface Method<T extends MacObject> extends Callable {
 
 	Class<T> getTargetType();
 
-	void run(T target, final Context context, Position position);
+	void run(T target, Context context, Position position);
 
 }

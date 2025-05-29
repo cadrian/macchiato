@@ -37,7 +37,7 @@ class ReadWriteField<T extends MacObject, R extends MacObject> implements Field<
 		this.ruleset = ruleset;
 		this.targetType = targetType;
 		this.resultType = resultType;
-		this.value = initialValue;
+		value = initialValue;
 	}
 
 	@Override
