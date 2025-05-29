@@ -23,7 +23,7 @@
                 <target>System.err</target>
                 <encoder>
                         <pattern>
-                                %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %-30M - %msg%n
+                                %msg
                         </pattern>
                 </encoder>
         </appender>
