@@ -6,12 +6,13 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Abort implements Instruction {
 
+	private final Position position;
+	private final String message;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitAbort(Abort abort);
 	}
-
-	private final Position position;
-	private final String message;
 
 	public Abort(final Position position, final String message) {
 		this.position = position;

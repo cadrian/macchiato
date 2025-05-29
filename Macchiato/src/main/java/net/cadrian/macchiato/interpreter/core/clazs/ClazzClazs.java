@@ -42,9 +42,20 @@ import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.Ruleset.LocalizedClazz;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
+@SuppressWarnings("PMD.GodClass")
 public class ClazzClazs implements Clazs {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ClazzClazs.class);
+
+	private final Ruleset ruleset;
+	private final Identifier name;
+	private final Expression invariant;
+	private final Map<Identifier, MethodDefinition> methods = new LinkedHashMap<>();
+	private final Map<Identifier, FieldDefinition> fields = new LinkedHashMap<>();
+	private final ClazsConstructor constructor;
+
+	private final Set<ClazzClazs> parents = new LinkedHashSet<>();
+	private final Set<Clazs> conformanceCache = new LinkedHashSet<>();
 
 	@FunctionalInterface
 	public interface ClassRepository {
@@ -90,16 +101,6 @@ public class ClazzClazs implements Clazs {
 			return "{FieldDefinition name=" + name + " field=" + field + "}";
 		}
 	}
-
-	private final Ruleset ruleset;
-	private final Identifier name;
-	private final Expression invariant;
-	private final Map<Identifier, MethodDefinition> methods = new LinkedHashMap<>();
-	private final Map<Identifier, FieldDefinition> fields = new LinkedHashMap<>();
-	private final ClazsConstructor constructor;
-
-	private final Set<ClazzClazs> parents = new LinkedHashSet<>();
-	private final Set<Clazs> conformanceCache = new LinkedHashSet<>();
 
 	public ClazzClazs(final ClassRepository repository, final LocalizedClazz localizedClazz) {
 		ruleset = localizedClazz.ruleset;

@@ -32,6 +32,7 @@ abstract class AbstractObjectReaderFunction extends AbstractNativeFunction {
 		super(ruleset);
 	}
 
+	@SuppressWarnings("PMD.CyclomaticComplexity")
 	protected MacObject parseObject(final ParserBuffer buffer) {
 		final MacObject result;
 		buffer.skipBlanks();
@@ -71,6 +72,7 @@ abstract class AbstractObjectReaderFunction extends AbstractNativeFunction {
 		return result;
 	}
 
+	@SuppressWarnings("PMD.CyclomaticComplexity")
 	private MacDictionary parseDictionary(final ParserBuffer buffer) {
 		assert buffer.current() == '{';
 		final MacDictionary result = new MacDictionary();
@@ -114,6 +116,7 @@ abstract class AbstractObjectReaderFunction extends AbstractNativeFunction {
 		return result;
 	}
 
+	@SuppressWarnings("PMD.CyclomaticComplexity")
 	private MacArray parseArray(final ParserBuffer buffer) {
 		assert buffer.current() == '[';
 		final MacArray result = new MacArray();

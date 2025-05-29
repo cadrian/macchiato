@@ -69,12 +69,12 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_INT3;
+			return TYPE_INT3.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_CHANNEL_PITCH_VELOCITY;
+			return ARG_CHANNEL_PITCH_VELOCITY.clone();
 		}
 
 		@Override
@@ -113,12 +113,12 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_INT3;
+			return TYPE_INT3.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_CHANNEL_PITCH_VELOCITY;
+			return ARG_CHANNEL_PITCH_VELOCITY.clone();
 		}
 
 		@Override
@@ -156,12 +156,12 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_INT2;
+			return TYPE_INT2.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_CHANNEL_PRESSURE;
+			return ARG_CHANNEL_PRESSURE.clone();
 		}
 
 		@Override
@@ -185,7 +185,7 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 		public Message<ShortMessage> createMessage(final int channel, final int code, final int value) {
 			final ControlChange mpc = ControlChange.at(code);
 			if (mpc == null) {
-				throw new NullPointerException("unknown MPC 0x" + Integer.toHexString(code));
+				throw new IllegalArgumentException("unknown MPC 0x" + Integer.toHexString(code));
 			}
 			return new ControlChangeMessage(channel, mpc, value);
 		}
@@ -207,12 +207,12 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_MPC;
+			return TYPE_MPC.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_CHANNEL_MPC_VALUE;
+			return ARG_CHANNEL_MPC_VALUE.clone();
 		}
 
 		@Override
@@ -248,12 +248,12 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_INT2;
+			return TYPE_INT2.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_CHANNEL_PATCH;
+			return ARG_CHANNEL_PATCH.clone();
 		}
 
 		@Override
@@ -289,12 +289,12 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_INT2;
+			return TYPE_INT2.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_CHANNEL_PRESSURE;
+			return ARG_CHANNEL_PRESSURE.clone();
 		}
 
 		@Override
@@ -336,12 +336,12 @@ public enum ShortMessageType implements MacComparable<ShortMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_INT2;
+			return TYPE_INT2.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_CHANNEL_VALUE;
+			return ARG_CHANNEL_VALUE.clone();
 		}
 
 		@Override

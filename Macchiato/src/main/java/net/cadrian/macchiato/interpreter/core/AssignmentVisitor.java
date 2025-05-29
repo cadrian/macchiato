@@ -54,14 +54,15 @@ class AssignmentVisitor implements ExpressionVisitor {
 	private static final String ERROR_CANNOT_ASSIGN_TO_AN_OLD_VALUE = "Cannot assign to an old value";
 	private static final String ERROR_INVALID_LEFT_SIDE_ASSIGNMENT = "Invalid left-side assignment";
 
-	private interface Setter {
-		void set(MacObject value);
-	}
-
 	private final Context context;
 
 	private Object previousValue;
 	private Setter setter;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
+	private interface Setter {
+		void set(MacObject value);
+	}
 
 	AssignmentVisitor(final Context context) {
 		this.context = context;

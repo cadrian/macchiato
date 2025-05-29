@@ -57,6 +57,7 @@ import net.cadrian.macchiato.ruleset.ast.expression.TypedBinary;
 import net.cadrian.macchiato.ruleset.ast.expression.TypedUnary;
 import net.cadrian.macchiato.ruleset.parser.Position;
 
+@SuppressWarnings("PMD.CyclomaticComplexity")
 public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionEvaluationVisitor.class);
@@ -64,6 +65,7 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 	private static final String ERROR_DIVISION_BY_ZERO = "Division by zero";
 	private static final String ERROR_INCOMPATIBLE_TYPES = "incompatible types";
 	private static final String ERROR_INVALID_LEFT_OPERAND_TYPE = "invalid left operand type";
+	private static final String ERROR_INVALID_OPERAND_TYPE = "invalid operand type";
 	private static final String ERROR_INVALID_RIGHT_OPERAND_TYPE = "invalid right operand type";
 	private static final String ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST = "right expression does not exist";
 
@@ -97,24 +99,29 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		}
 		switch (typedUnary.getOperator()) {
 		case NOT:
-			if (!(operand instanceof MacBoolean)) {
-				throw new InterpreterException("invalid operand type", typedUnary.getOperand().position());
-			}
-			lastValue = ((MacBoolean) operand).not();
+			evalNot(operand, typedUnary);
 			break;
 		case MINUS:
-			if (!(operand instanceof MacNumber)) {
-				throw new InterpreterException("invalid operand type", typedUnary.getOperand().position());
-			}
-			lastValue = ((MacNumber) operand).negate();
+			evalMinus(operand, typedUnary);
 			break;
-		default:
-			throw new InterpreterException("BUG: not implemented", typedUnary.getOperand().position());
 		}
 		LOGGER.debug("--> {} => {}", typedUnary, lastValue);
 	}
 
-	@SuppressWarnings("unchecked")
+	private void evalNot(final MacObject operand, final TypedUnary typedUnary) {
+		if (operand instanceof final MacBoolean op) {
+			lastValue = op.not();
+		}
+		throw new InterpreterException(ERROR_INVALID_OPERAND_TYPE, typedUnary.getOperand().position());
+	}
+
+	private void evalMinus(final MacObject operand, final TypedUnary typedUnary) {
+		if (operand instanceof final MacNumber op) {
+			lastValue = op.negate();
+		}
+		throw new InterpreterException(ERROR_INVALID_OPERAND_TYPE, typedUnary.getOperand().position());
+	}
+
 	@Override
 	public void visitTypedBinary(final TypedBinary typedBinary) {
 		LOGGER.debug("<-- {}", typedBinary);
@@ -126,272 +133,96 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		}
 		switch (typedBinary.getOperator()) {
 		case ADD:
-			if (!(left instanceof MacString) && !(left instanceof MacNumber)) {
-				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			typedBinary.getRightOperand().accept(this);
-			final MacObject right = lastValue;
-			if (right == null) {
-				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
-						typedBinary.getLeftOperand().position());
-			}
-			if (right.getClass() != left.getClass()) {
-				throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
-			}
-			if (right instanceof MacString string) {
-				lastValue = ((MacString) left).concat(string);
-			} else if (right instanceof MacNumber number) {
-				if (((MacNumber) left).compareTo(MacNumber.ZERO) == 0) {
-					lastValue = right;
-				} else if (number.compareTo(MacNumber.ZERO) == 0) {
-					lastValue = left;
-				} else {
-					lastValue = ((MacNumber) left).add(number);
-				}
-			} else {
-				throw new InterpreterException("BUG: invalid type", typedBinary.getLeftOperand().position());
-			}
+			evalAdd(typedBinary, left);
 			break;
 		case AND:
-			if (!(left instanceof MacBoolean)) {
-				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			if (MacBoolean.TRUE.equals(lastValue)) {
-				typedBinary.getRightOperand().accept(this);
-				if (lastValue == null) {
-					throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
-							typedBinary.getLeftOperand().position());
-				}
-				if (!(lastValue instanceof MacBoolean)) {
-					throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
-							typedBinary.getLeftOperand().position());
-				}
-			}
+			evalAnd(typedBinary, left);
 			break;
 		case DIVIDE:
-			if (!(left instanceof MacNumber)) {
-				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			typedBinary.getRightOperand().accept(this);
-			if (lastValue == null) {
-				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
-						typedBinary.getLeftOperand().position());
-			}
-			if (!(lastValue instanceof MacNumber)) {
-				throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
-				throw new ObjectInexistentException(ERROR_DIVISION_BY_ZERO, typedBinary.getLeftOperand().position());
-			} else if (((MacNumber) lastValue).compareTo(MacNumber.ONE) == 0) {
-				lastValue = left;
-			} else {
-				lastValue = ((MacNumber) left).divide((MacNumber) lastValue);
-			}
+			evalDivide(typedBinary, left);
 			break;
 		case EQ:
-			typedBinary.getRightOperand().accept(this);
-			if (lastValue == null) {
-				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
-						typedBinary.getLeftOperand().position());
-			}
-			lastValue = MacBoolean.valueOf(left.equals(lastValue));
+			evalEqual(typedBinary, left);
 			break;
 		case GE:
-			if (!(left instanceof Comparable)) {
-				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			typedBinary.getRightOperand().accept(this);
-			if (lastValue == null) {
-				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
-						typedBinary.getLeftOperand().position());
-			}
-			if (lastValue.getClass() != left.getClass()) {
-				throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
-			}
-			lastValue = MacBoolean.valueOf(((Comparable<MacObject>) left).compareTo(lastValue) >= 0);
+			evalGreaterOrEqual(typedBinary, left);
 			break;
 		case GT:
-			if (!(left instanceof Comparable)) {
-				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			typedBinary.getRightOperand().accept(this);
-			if (lastValue == null) {
-				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
-						typedBinary.getLeftOperand().position());
-			}
-			if (lastValue.getClass() != left.getClass()) {
-				throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
-			}
-			lastValue = MacBoolean.valueOf(((Comparable<MacObject>) left).compareTo(lastValue) > 0);
+			evalGreaterThan(typedBinary, left);
 			break;
 		case LE:
-			if (!(left instanceof Comparable)) {
-				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			typedBinary.getRightOperand().accept(this);
-			if (lastValue == null) {
-				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
-						typedBinary.getLeftOperand().position());
-			}
-			if (lastValue.getClass() != left.getClass()) {
-				throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
-			}
-			lastValue = MacBoolean.valueOf(((Comparable<MacObject>) left).compareTo(lastValue) <= 0);
+			evalLessOrEqual(typedBinary, left);
 			break;
 		case LT:
-			if (!(left instanceof Comparable)) {
-				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			typedBinary.getRightOperand().accept(this);
-			if (lastValue == null) {
-				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
-						typedBinary.getLeftOperand().position());
-			}
-			if (lastValue.getClass() != left.getClass()) {
-				throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
-			}
-			lastValue = MacBoolean.valueOf(((Comparable<MacObject>) left).compareTo(lastValue) < 0);
+			evalLessThan(typedBinary, left);
 			break;
 		case MATCH:
-			if (!(left instanceof MacString)) {
-				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			typedBinary.getRightOperand().accept(this);
-			if (lastValue == null) {
-				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
-						typedBinary.getLeftOperand().position());
-			}
-			if (!(lastValue instanceof MacPattern)) {
-				throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			lastValue = ((MacPattern) lastValue).matches((MacString) left);
+			evalMatch(typedBinary, left);
 			break;
 		case MULTIPLY:
-			if (!(left instanceof MacNumber)) {
-				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			typedBinary.getRightOperand().accept(this);
-			if (lastValue == null) {
-				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
-						typedBinary.getLeftOperand().position());
-			}
-			if (!(lastValue instanceof MacNumber)) {
-				throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
-				lastValue = MacNumber.ZERO;
-			} else if (((MacNumber) lastValue).compareTo(MacNumber.ONE) == 0) {
-				lastValue = left;
-			} else {
-				lastValue = ((MacNumber) left).multiply((MacNumber) lastValue);
-			}
+			evalMultiply(typedBinary, left);
 			break;
 		case NE:
-			typedBinary.getRightOperand().accept(this);
-			if (lastValue == null) {
-				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
-						typedBinary.getLeftOperand().position());
-			}
-			lastValue = MacBoolean.valueOf(!left.equals(lastValue));
+			evalNotEqual(typedBinary, left);
 			break;
 		case OR:
-			if (!(left instanceof MacBoolean)) {
-				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			if (MacBoolean.FALSE.equals(lastValue)) {
-				typedBinary.getRightOperand().accept(this);
-				if (lastValue == null) {
-					throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
-							typedBinary.getLeftOperand().position());
-				}
-				if (!(lastValue instanceof MacBoolean)) {
-					throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
-							typedBinary.getLeftOperand().position());
-				}
-			}
+			evalOr(typedBinary, left);
 			break;
 		case POWER:
-			if (!(left instanceof MacNumber)) {
-				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			typedBinary.getRightOperand().accept(this);
-			if (lastValue == null) {
-				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
-						typedBinary.getLeftOperand().position());
-			}
-			if (!(lastValue instanceof MacNumber)) {
-				throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
-				lastValue = MacNumber.ONE;
-			} else if (((MacNumber) lastValue).compareTo(MacNumber.ONE) == 0) {
-				lastValue = left;
-			} else {
-				lastValue = ((MacNumber) left).pow((MacNumber) lastValue);
-			}
+			evalPower(typedBinary, left);
 			break;
 		case REMAINDER:
-			if (!(left instanceof MacNumber)) {
-				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			typedBinary.getRightOperand().accept(this);
-			if (lastValue == null) {
-				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
-						typedBinary.getLeftOperand().position());
-			}
-			if (!(lastValue instanceof MacNumber)) {
-				throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
-				throw new ObjectInexistentException(ERROR_DIVISION_BY_ZERO, typedBinary.getLeftOperand().position());
-			} else if (((MacNumber) lastValue).compareTo(MacNumber.ONE) == 0) {
-				lastValue = MacNumber.ZERO;
-			} else {
-				lastValue = ((MacNumber) left).remainder((MacNumber) lastValue);
-			}
+			evalRemainder(typedBinary, left);
 			break;
 		case SUBTRACT:
-			if (!(left instanceof MacNumber)) {
-				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			typedBinary.getRightOperand().accept(this);
-			if (lastValue == null) {
-				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
-						typedBinary.getLeftOperand().position());
-			}
-			if (!(lastValue instanceof MacNumber)) {
-				throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
-			}
-			if (((MacNumber) lastValue).compareTo(MacNumber.ZERO) == 0) {
-				lastValue = left;
-			} else {
-				lastValue = ((MacNumber) left).subtract((MacNumber) lastValue);
-			}
+			evalSubtract(typedBinary, left);
 			break;
 		case XOR:
-			if (!(left instanceof MacBoolean)) {
-				throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE,
-						typedBinary.getLeftOperand().position());
+			evalXor(typedBinary, left);
+			break;
+		}
+		LOGGER.debug("--> {} => {}", typedBinary, lastValue);
+	}
+
+	private void evalAdd(final TypedBinary typedBinary, final MacObject left) {
+		if (!(left instanceof MacString) && !(left instanceof MacNumber)) {
+			throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		typedBinary.getRightOperand().accept(this);
+		final MacObject right = lastValue;
+		if (right == null) {
+			throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
+					typedBinary.getLeftOperand().position());
+		}
+		if (right.getClass() != left.getClass()) {
+			throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
+		}
+		if (right instanceof final MacString string) {
+			if (((MacString) left).isEmpty()) {
+				lastValue = string;
+			} else if (string.isEmpty()) {
+				lastValue = left;
+			} else {
+				lastValue = ((MacString) left).concat(string);
 			}
+		} else if (right instanceof final MacNumber number) {
+			if (((MacNumber) left).isZero()) {
+				lastValue = right; // useless, but keeps PMD happy
+			} else if (number.isZero()) {
+				lastValue = left;
+			} else {
+				lastValue = ((MacNumber) left).add(number);
+			}
+		} else {
+			throw new InterpreterException("BUG: invalid type", typedBinary.getLeftOperand().position());
+		}
+	}
+
+	private void evalAnd(final TypedBinary typedBinary, final MacObject left) {
+		if (!(left instanceof MacBoolean)) {
+			throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		if (((MacBoolean) lastValue).isTrue()) {
 			typedBinary.getRightOperand().accept(this);
 			if (lastValue == null) {
 				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
@@ -401,12 +232,244 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 				throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
 						typedBinary.getLeftOperand().position());
 			}
-			lastValue = ((MacBoolean) left).xor((MacBoolean) lastValue);
-			break;
-		default:
-			throw new InterpreterException("BUG: not implemented", typedBinary.getLeftOperand().position());
 		}
-		LOGGER.debug("--> {} => {}", typedBinary, lastValue);
+	}
+
+	private void evalDivide(final TypedBinary typedBinary, final MacObject left) {
+		if (!(left instanceof MacNumber)) {
+			throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		typedBinary.getRightOperand().accept(this);
+		if (lastValue == null) {
+			throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
+					typedBinary.getLeftOperand().position());
+		}
+		if (!(lastValue instanceof MacNumber)) {
+			throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		if (((MacNumber) lastValue).isZero()) {
+			throw new ObjectInexistentException(ERROR_DIVISION_BY_ZERO, typedBinary.getLeftOperand().position());
+		} else if (((MacNumber) lastValue).isOne()) {
+			lastValue = left;
+		} else {
+			lastValue = ((MacNumber) left).divide((MacNumber) lastValue);
+		}
+	}
+
+	private void evalEqual(final TypedBinary typedBinary, final MacObject left) {
+		typedBinary.getRightOperand().accept(this);
+		if (lastValue == null) {
+			throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
+					typedBinary.getLeftOperand().position());
+		}
+		lastValue = MacBoolean.valueOf(left.equals(lastValue));
+	}
+
+	@SuppressWarnings("unchecked")
+	private void evalGreaterOrEqual(final TypedBinary typedBinary, final MacObject left) {
+		if (!(left instanceof Comparable)) {
+			throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		typedBinary.getRightOperand().accept(this);
+		if (lastValue == null) {
+			throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
+					typedBinary.getLeftOperand().position());
+		}
+		if (lastValue.getClass() != left.getClass()) {
+			throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
+		}
+		lastValue = MacBoolean.valueOf(((Comparable<MacObject>) left).compareTo(lastValue) >= 0);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void evalGreaterThan(final TypedBinary typedBinary, final MacObject left) {
+		if (!(left instanceof Comparable)) {
+			throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		typedBinary.getRightOperand().accept(this);
+		if (lastValue == null) {
+			throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
+					typedBinary.getLeftOperand().position());
+		}
+		if (lastValue.getClass() != left.getClass()) {
+			throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
+		}
+		lastValue = MacBoolean.valueOf(((Comparable<MacObject>) left).compareTo(lastValue) > 0);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void evalLessOrEqual(final TypedBinary typedBinary, final MacObject left) {
+		if (!(left instanceof Comparable)) {
+			throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		typedBinary.getRightOperand().accept(this);
+		if (lastValue == null) {
+			throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
+					typedBinary.getLeftOperand().position());
+		}
+		if (lastValue.getClass() != left.getClass()) {
+			throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
+		}
+		lastValue = MacBoolean.valueOf(((Comparable<MacObject>) left).compareTo(lastValue) <= 0);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void evalLessThan(final TypedBinary typedBinary, final MacObject left) {
+		if (!(left instanceof Comparable)) {
+			throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		typedBinary.getRightOperand().accept(this);
+		if (lastValue == null) {
+			throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
+					typedBinary.getLeftOperand().position());
+		}
+		if (lastValue.getClass() != left.getClass()) {
+			throw new InterpreterException(ERROR_INCOMPATIBLE_TYPES, typedBinary.getLeftOperand().position());
+		}
+		lastValue = MacBoolean.valueOf(((Comparable<MacObject>) left).compareTo(lastValue) < 0);
+	}
+
+	private void evalMatch(final TypedBinary typedBinary, final MacObject left) {
+		if (!(left instanceof MacString)) {
+			throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		typedBinary.getRightOperand().accept(this);
+		if (lastValue == null) {
+			throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
+					typedBinary.getLeftOperand().position());
+		}
+		if (!(lastValue instanceof MacPattern)) {
+			throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		lastValue = ((MacPattern) lastValue).matches((MacString) left);
+	}
+
+	private void evalMultiply(final TypedBinary typedBinary, final MacObject left) {
+		if (!(left instanceof MacNumber)) {
+			throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		typedBinary.getRightOperand().accept(this);
+		final MacObject right = lastValue;
+		if (right == null) {
+			throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
+					typedBinary.getLeftOperand().position());
+		}
+		if (!(right instanceof MacNumber)) {
+			throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		if (((MacNumber) right).isZero() || ((MacNumber) left).isZero()) {
+			lastValue = MacNumber.ZERO;
+		} else if (((MacNumber) right).isOne()) {
+			lastValue = left;
+		} else if (((MacNumber) left).isOne()) {
+			lastValue = right; // useless, but keeps PMD happy
+		} else {
+			lastValue = ((MacNumber) left).multiply((MacNumber) lastValue);
+		}
+	}
+
+	private void evalNotEqual(final TypedBinary typedBinary, final MacObject left) {
+		typedBinary.getRightOperand().accept(this);
+		if (lastValue == null) {
+			throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
+					typedBinary.getLeftOperand().position());
+		}
+		lastValue = MacBoolean.valueOf(!left.equals(lastValue));
+	}
+
+	private void evalOr(final TypedBinary typedBinary, final MacObject left) {
+		if (!(left instanceof MacBoolean)) {
+			throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		if (((MacBoolean) lastValue).isFalse()) {
+			typedBinary.getRightOperand().accept(this);
+			if (lastValue == null) {
+				throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
+						typedBinary.getLeftOperand().position());
+			}
+			if (!(lastValue instanceof MacBoolean)) {
+				throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE,
+						typedBinary.getLeftOperand().position());
+			}
+		}
+	}
+
+	private void evalPower(final TypedBinary typedBinary, final MacObject left) {
+		if (!(left instanceof MacNumber)) {
+			throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		typedBinary.getRightOperand().accept(this);
+		if (lastValue == null) {
+			throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
+					typedBinary.getLeftOperand().position());
+		}
+		if (!(lastValue instanceof MacNumber)) {
+			throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		if (((MacNumber) left).isZero()) {
+			lastValue = MacNumber.ZERO;
+		} else if (((MacNumber) lastValue).isZero() || ((MacNumber) left).isOne()) {
+			lastValue = MacNumber.ONE;
+		} else if (((MacNumber) lastValue).isOne()) {
+			lastValue = left;
+		} else {
+			lastValue = ((MacNumber) left).pow((MacNumber) lastValue);
+		}
+	}
+
+	private void evalRemainder(final TypedBinary typedBinary, final MacObject left) {
+		if (!(left instanceof MacNumber)) {
+			throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		typedBinary.getRightOperand().accept(this);
+		if (lastValue == null) {
+			throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
+					typedBinary.getLeftOperand().position());
+		}
+		if (!(lastValue instanceof MacNumber)) {
+			throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		if (((MacNumber) lastValue).isZero()) {
+			throw new ObjectInexistentException(ERROR_DIVISION_BY_ZERO, typedBinary.getLeftOperand().position());
+		} else if (((MacNumber) lastValue).isOne()) {
+			lastValue = MacNumber.ZERO;
+		} else {
+			lastValue = ((MacNumber) left).remainder((MacNumber) lastValue);
+		}
+	}
+
+	private void evalSubtract(final TypedBinary typedBinary, final MacObject left) {
+		if (!(left instanceof MacNumber)) {
+			throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		typedBinary.getRightOperand().accept(this);
+		if (lastValue == null) {
+			throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
+					typedBinary.getLeftOperand().position());
+		}
+		if (!(lastValue instanceof MacNumber)) {
+			throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		if (((MacNumber) lastValue).isZero()) {
+			lastValue = left;
+		} else {
+			lastValue = ((MacNumber) left).subtract((MacNumber) lastValue);
+		}
+	}
+
+	private void evalXor(final TypedBinary typedBinary, final MacObject left) {
+		if (!(left instanceof MacBoolean)) {
+			throw new InterpreterException(ERROR_INVALID_LEFT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		typedBinary.getRightOperand().accept(this);
+		if (lastValue == null) {
+			throw new ObjectInexistentException(ERROR_RIGHT_EXPRESSION_DOES_NOT_EXIST,
+					typedBinary.getLeftOperand().position());
+		}
+		if (!(lastValue instanceof MacBoolean)) {
+			throw new InterpreterException(ERROR_INVALID_RIGHT_OPERAND_TYPE, typedBinary.getLeftOperand().position());
+		}
+		lastValue = ((MacBoolean) left).xor((MacBoolean) lastValue);
 	}
 
 	@Override
@@ -507,20 +570,20 @@ public class ExpressionEvaluationVisitor implements ExpressionVisitor {
 		if (index == null) {
 			throw new ObjectInexistentException("index does not exist", indexedExpression.getIndex().position());
 		}
-		if (index instanceof MacNumber) {
+		if (index instanceof final MacNumber numIndex) {
 			if (!(target instanceof MacArray)) {
 				throw new ObjectInexistentException("invalid target type: expected MacArray but got "
 						+ target.getClass().getSimpleName() + " (index=" + index + ")",
 						indexedExpression.getIndexed().position());
 			}
-			lastValue = ((MacArray) target).get((MacNumber) index);
-		} else if (index instanceof MacString) {
+			lastValue = ((MacArray) target).get(numIndex);
+		} else if (index instanceof final MacString strIndex) {
 			if (!(target instanceof MacDictionary)) {
 				throw new ObjectInexistentException("invalid target type: expected MacDictionary but got "
 						+ target.getClass().getSimpleName() + " (index=" + index + ")",
 						indexedExpression.getIndexed().position());
 			}
-			lastValue = ((MacDictionary) target).get((MacString) index);
+			lastValue = ((MacDictionary) target).get(strIndex);
 		} else {
 			throw new InterpreterException("invalid index type", indexedExpression.getIndexed().position());
 		}

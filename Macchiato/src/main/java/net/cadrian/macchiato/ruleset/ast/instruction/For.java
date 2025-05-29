@@ -35,15 +35,16 @@ public class For implements Instruction {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(For.class);
 
-	public interface Visitor extends Node.Visitor {
-		void visitFor(For f);
-	}
-
 	private final Position position;
 	private final Expression name1;
 	private final Expression name2;
 	private final Expression loop;
 	private final Instruction instruction;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
+	public interface Visitor extends Node.Visitor {
+		void visitFor(For f);
+	}
 
 	public For(final Position position, final Expression name1, final Expression name2, final Expression loop,
 			final Instruction instruction) {
@@ -81,39 +82,42 @@ public class For implements Instruction {
 	}
 
 	@Override
+	@SuppressWarnings("PMD.CyclomaticComplexity")
 	public Instruction simplify() {
 		final Expression simplifyName1 = name1.simplify();
 		final Expression simplifyName2 = name2 == null ? null : name2.simplify();
 		final Expression simplifyLoop = loop.simplify();
 		final Instruction simplifyInstruction = instruction.simplify();
-		if (simplifyInstruction == DoNothing.instance) {
-			return DoNothing.instance;
+		if (simplifyInstruction == DoNothing.INSTANCE) {
+			return DoNothing.INSTANCE;
 		}
 		final For result;
-		if (simplifyName1 == name1 && simplifyName2 == name2 && simplifyLoop == loop
-				&& simplifyInstruction == instruction) {
+		if (name1.equals(simplifyName1) && (name2 == null || name2.equals(simplifyName2)) && loop.equals(simplifyLoop)
+				&& instruction.equals(simplifyInstruction)) {
 			result = this;
 		} else {
 			result = new For(position, simplifyName1, simplifyName2, simplifyLoop, simplifyInstruction);
 		}
 		if (simplifyLoop.isStatic()) {
 			final Expression container = simplifyLoop.getStaticValue();
-			if (container instanceof ManifestArray) {
-				return simplifyManifestArray(simplifyName1, simplifyName2, simplifyInstruction, result, container);
-			} else if (container instanceof ManifestDictionary) {
-				return simplifyManifestDictionary(simplifyName1, simplifyName2, simplifyInstruction, result, container);
+			if (container instanceof final ManifestArray array) {
+				return simplifyManifestArray(simplifyName1, simplifyName2, simplifyInstruction, result, array);
+			}
+			if (container instanceof final ManifestDictionary dictionary) {
+				return simplifyManifestDictionary(simplifyName1, simplifyName2, simplifyInstruction, result,
+						dictionary);
 			}
 		}
 		return result;
 	}
 
 	private Instruction simplifyManifestArray(final Expression simplifyName1, final Expression simplifyName2,
-			final Instruction simplifyInstruction, final For result, final Expression container) {
-		final List<Expression> expressions = ((ManifestArray) container).getExpressions();
+			final Instruction simplifyInstruction, final For result, final ManifestArray container) {
+		final List<Expression> expressions = container.getExpressions();
 		switch (expressions.size()) {
 		case 0:
 			LOGGER.debug("remove empty loop");
-			return DoNothing.instance;
+			return DoNothing.INSTANCE;
 		case 1:
 			LOGGER.debug("replace one-run loop by block");
 			final Block b = new Block(position);
@@ -132,13 +136,13 @@ public class For implements Instruction {
 	}
 
 	private Instruction simplifyManifestDictionary(final Expression simplifyName1, final Expression simplifyName2,
-			final Instruction simplifyInstruction, final For result, final Expression container) {
-		final ManifestDictionary dictionary = (ManifestDictionary) container;
+			final Instruction simplifyInstruction, final For result, final ManifestDictionary container) {
+		final ManifestDictionary dictionary = container;
 		final List<Entry> expressions = dictionary.getExpressions();
 		switch (expressions.size()) {
 		case 0:
 			LOGGER.debug("remove empty loop");
-			return DoNothing.instance;
+			return DoNothing.INSTANCE;
 		case 1:
 			LOGGER.debug("replace one-run loop by block");
 			final Block b = new Block(position);

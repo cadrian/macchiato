@@ -73,6 +73,7 @@ import net.cadrian.macchiato.ruleset.ast.instruction.Next;
 import net.cadrian.macchiato.ruleset.ast.instruction.ProcedureCall;
 import net.cadrian.macchiato.ruleset.ast.instruction.While;
 
+@SuppressWarnings("PMD.CyclomaticComplexity")
 public class Parser {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Parser.class);
@@ -96,38 +97,35 @@ public class Parser {
 	Ruleset parse(final Position position) {
 		LOGGER.debug("<-- {}", buffer.position());
 		final Ruleset result = new Ruleset(position, buffer.path);
-		try {
-			boolean allowImport = true;
-			while (!buffer.off()) {
-				buffer.skipBlanks();
-				final Position pos = buffer.position();
-				if (readKeyword("import")) {
-					if (!allowImport) {
-						throw new ParserException(error("Cannot import files after filters", pos));
-					}
-					parseImport(result, pos);
-				} else if (readKeyword("def")) {
-					final Def def = parseDef(pos);
-					final Def old = result.addDef(def);
-					if (old != null) {
-						throw new ParserException(error("Duplicate def " + old.name(), old.position(), def.position()));
-					}
-				} else if (readKeyword("class")) {
-					final Clazz clazz = parseClass(pos);
-					final Clazz old = result.addClazz(clazz);
-					if (old != null) {
-						throw new ParserException(
-								error("Duplicate class " + old.name(), old.position(), clazz.position()));
-					}
-				} else {
-					result.addFilter(parseFilter(pos));
-					allowImport = false;
+
+		boolean allowImport = true;
+		while (!buffer.off()) {
+			buffer.skipBlanks();
+			final Position pos = buffer.position();
+			if (readKeyword("import")) {
+				if (!allowImport) {
+					throw new ParserException(error("Cannot import files after filters", pos));
 				}
-				buffer.skipBlanks();
+				parseImport(result, pos);
+			} else if (readKeyword("def")) {
+				final Def def = parseDef(pos);
+				final Def old = result.addDef(def);
+				if (old != null) {
+					throw new ParserException(error("Duplicate def " + old.name(), old.position(), def.position()));
+				}
+			} else if (readKeyword("class")) {
+				final Clazz clazz = parseClass(pos);
+				final Clazz old = result.addClazz(clazz);
+				if (old != null) {
+					throw new ParserException(error("Duplicate class " + old.name(), old.position(), clazz.position()));
+				}
+			} else {
+				result.addFilter(parseFilter(pos));
+				allowImport = false;
 			}
-		} catch (final Exception e) {
-			throw new ParserException(error(e.getMessage()), e);
+			buffer.skipBlanks();
 		}
+
 		LOGGER.debug("--> {}", result);
 		return result;
 	}
@@ -324,7 +322,7 @@ public class Parser {
 			throw new ParserException(error("Unfinished inheritance clause"));
 		}
 
-		final Parent result = new Parent(name.toArray(new Identifier[name.size()]), position);
+		final Parent result = new Parent(name.toArray(new Identifier[0]), position);
 
 		LOGGER.debug("--> {}", result);
 		return result;
@@ -452,52 +450,52 @@ public class Parser {
 			final Instruction result = parseInstructionSuffix(parseInstructionTarget(new Identifier(name, position)));
 			LOGGER.debug("--> {}", result);
 			return result;
-		} else {
-			switch (name) {
-			case "do":
-				// TODO return parseDo();
-				throw new ParserException(error("not yet implemented"));
-			case "emit": {
-				final Emit result = parseEmit(position);
-				LOGGER.debug("--> {}", result);
-				return result;
-			}
-			case "for": {
-				final For result = parseFor(position);
-				LOGGER.debug("--> {}", result);
-				return result;
-			}
-			case "if": {
-				final If result = parseIf(position);
-				LOGGER.debug("--> {}", result);
-				return result;
-			}
-			case "local": {
-				final Local result = parseLocal(position);
-				LOGGER.debug("--> {}", result);
-				return result;
-			}
-			case "next": {
-				final Next result = parseNext(position);
-				LOGGER.debug("--> {}", result);
-				return result;
-			}
-			case "Result": {
-				final Instruction result = parseInstructionSuffix(parseInstructionTarget(new Result(position)));
-				LOGGER.debug("--> {}", result);
-				return result;
-			}
-			case "switch":
-				// TODO return parseSwitch();
-				throw new ParserException(error("not yet implemented"));
-			case "while": {
-				final While result = parseWhile(position);
-				LOGGER.debug("--> {}", result);
-				return result;
-			}
-			default:
-				throw new ParserException(error("Unexpected keyword " + name, position));
-			}
+		}
+
+		switch (name) {
+		case "do":
+			// TODO return parseDo();
+			throw new ParserException(error("not yet implemented"));
+		case "emit": {
+			final Emit result = parseEmit(position);
+			LOGGER.debug("--> {}", result);
+			return result;
+		}
+		case "for": {
+			final For result = parseFor(position);
+			LOGGER.debug("--> {}", result);
+			return result;
+		}
+		case "if": {
+			final If result = parseIf(position);
+			LOGGER.debug("--> {}", result);
+			return result;
+		}
+		case "local": {
+			final Local result = parseLocal(position);
+			LOGGER.debug("--> {}", result);
+			return result;
+		}
+		case "next": {
+			final Next result = parseNext(position);
+			LOGGER.debug("--> {}", result);
+			return result;
+		}
+		case "Result": {
+			final Instruction result = parseInstructionSuffix(parseInstructionTarget(new Result(position)));
+			LOGGER.debug("--> {}", result);
+			return result;
+		}
+		case "switch":
+			// TODO return parseSwitch();
+			throw new ParserException(error("not yet implemented"));
+		case "while": {
+			final While result = parseWhile(position);
+			LOGGER.debug("--> {}", result);
+			return result;
+		}
+		default:
+			throw new ParserException(error("Unexpected keyword " + name, position));
 		}
 	}
 
@@ -936,41 +934,33 @@ public class Parser {
 		final char c2 = buffer.off() ? '\0' : buffer.current();
 		switch (c1) {
 		case '=':
-			switch (c2) {
-			case '=':
+			if (c2 == '=') {
 				buffer.next();
 				return Binary.Operator.EQ;
-			default:
-				buffer.rewind(position);
-				return null;
 			}
+			buffer.rewind(position);
+			return null;
 		case '!':
-			switch (c2) {
-			case '=':
+			if (c2 == '=') {
 				buffer.next();
 				return Binary.Operator.NE;
-			default:
-				buffer.rewind(position);
-				return null;
 			}
+			buffer.rewind(position);
+			return null;
 		case '~':
 			return Binary.Operator.MATCH;
 		case '<':
-			switch (c2) {
-			case '=':
+			if (c2 == '=') {
 				buffer.next();
 				return Binary.Operator.LE;
-			default:
-				return Binary.Operator.LT;
 			}
+			return Binary.Operator.LT;
 		case '>':
-			switch (c2) {
-			case '=':
+			if (c2 == '=') {
 				buffer.next();
 				return Binary.Operator.GE;
-			default:
-				return Binary.Operator.GT;
 			}
+			return Binary.Operator.GT;
 		default:
 			buffer.rewind(position);
 			return null;
@@ -1591,7 +1581,7 @@ public class Parser {
 		System.exit(run(args));
 	}
 
-	static int run(final String[] args) throws IOException {
+	static int run(final String... args) throws IOException {
 		final File file = new File(args[0]);
 		final Parser parser = new Parser(file.getParentFile(), file.getPath());
 		try {

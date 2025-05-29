@@ -16,6 +16,8 @@
  */
 package net.cadrian.macchiato.interpreter.event;
 
+import java.util.Objects;
+
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.ShortMessage;
 
@@ -29,10 +31,7 @@ public class ShortEvent extends AbstractEvent<ShortMessage> {
 
 	public ShortEvent(final MacNumber tick, final ShortMessageType type, final ShortMessage message) {
 		super(tick, message);
-		if (type == null) {
-			throw new NullPointerException("BUG: null type");
-		}
-		this.type = type;
+		this.type = Objects.requireNonNull(type);
 	}
 
 	public ShortMessageType getType() {

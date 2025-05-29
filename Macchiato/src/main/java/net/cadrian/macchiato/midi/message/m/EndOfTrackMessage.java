@@ -22,6 +22,7 @@ import net.cadrian.macchiato.midi.message.MetaMessage;
 
 public class EndOfTrackMessage extends MetaMessage {
 
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Message.Visitor {
 		void visitEndOfTrack(EndOfTrackMessage message);
 	}

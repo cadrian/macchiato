@@ -23,12 +23,13 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class DottedExpression implements Expression {
 
+	private final Expression target;
+	private final Identifier selector;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitDottedExpression(DottedExpression dottedExpression);
 	}
-
-	private final Expression target;
-	private final Identifier selector;
 
 	public DottedExpression(final Expression target, final Identifier selector) {
 		this.target = target;
@@ -61,7 +62,7 @@ public class DottedExpression implements Expression {
 	@Override
 	public Expression simplify() {
 		final Expression simplifyTarget = target.simplify();
-		if (simplifyTarget == target) {
+		if (simplifyTarget.equals(target)) {
 			return this;
 		}
 		return new DottedExpression(simplifyTarget, selector);

@@ -22,11 +22,12 @@ import net.cadrian.macchiato.midi.message.ShortMessage;
 
 public class ProgramChangeMessage extends ShortMessage {
 
+	private final int patch;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Message.Visitor {
 		void visitProgramChange(ProgramChangeMessage message);
 	}
-
-	private final int patch;
 
 	public ProgramChangeMessage(final int channel, final int patch) {
 		super(channel, ShortMessageType.PROGRAM_CHANGE);

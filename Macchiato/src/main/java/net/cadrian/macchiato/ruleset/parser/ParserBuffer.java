@@ -16,11 +16,11 @@
  */
 package net.cadrian.macchiato.ruleset.parser;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,11 +30,20 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ParserBuffer {
+@SuppressWarnings("PMD.CyclomaticComplexity")
+public final class ParserBuffer {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ParserBuffer.class);
 
 	private static final Map<String, ParserBuffer> FLYWEIGHT = new ConcurrentHashMap<>();
+
+	final String path;
+
+	private final Reader reader;
+	private boolean eof;
+	private char[] content;
+	private int length;
+	private int offset;
 
 	public static ParserBuffer getParserBuffer(final String path) throws IOException {
 		final AtomicReference<IOException> exception = new AtomicReference<>();
@@ -59,17 +68,9 @@ public class ParserBuffer {
 		return new ParserBuffer(null, reader);
 	}
 
-	final String path;
-
-	private final Reader reader;
-	private boolean eof;
-	private char[] content;
-	private int length;
-	private int offset;
-
 	private ParserBuffer(final String path, final Reader reader) throws IOException {
 		this.path = path;
-		this.reader = reader == null ? new BufferedReader(new FileReader(path)) : reader;
+		this.reader = reader == null ? Files.newBufferedReader(Paths.get(path)) : reader;
 		content = new char[4096];
 		offset = 0;
 		readMore();
@@ -103,7 +104,7 @@ public class ParserBuffer {
 
 	private void readMore() {
 		final char[] buffer = new char[4096];
-		int n;
+		final int n;
 		try {
 			n = reader.read(buffer);
 		} catch (final IOException e) {
@@ -211,7 +212,7 @@ public class ParserBuffer {
 		return startPosition;
 	}
 
-	public String error(String message, final Position... positions) throws IOException {
+	public String error(final String message, final Position... positions) throws IOException {
 		final StringBuilder result = new StringBuilder();
 		for (int i = 0; i < positions.length; i++) {
 			final Position position = positions[i];
@@ -219,7 +220,6 @@ public class ParserBuffer {
 				result.append('\n');
 			}
 			result.append(error(message, position));
-			message = null;
 		}
 		return result.toString();
 	}
@@ -281,25 +281,20 @@ public class ParserBuffer {
 				case '\n':
 					state = 0;
 					break;
+				default:
+					break;
 				}
 				break;
 			case 20: // block comment
-				switch (current()) {
-				case '*':
+				if (current() == '*') {
 					state = 21;
-					break;
-				default:
-					break;
 				}
 				break;
 			case 21: // block comment after '*'
-				switch (current()) {
-				case '/':
+				if (current() == '/') {
 					state = 0;
-					break;
-				default:
+				} else {
 					state = 20;
-					break;
 				}
 				break;
 			default:

@@ -24,13 +24,14 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Emit implements Instruction {
 
-	public interface Visitor extends Node.Visitor {
-		void visitEmit(Emit emit);
-	}
-
 	private final Position position;
 	private final TypedExpression message;
 	private final TypedExpression tick;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
+	public interface Visitor extends Node.Visitor {
+		void visitEmit(Emit emit);
+	}
 
 	public Emit(final Position position, final TypedExpression message, final TypedExpression tick) {
 		if (message != null && message.getType() != Message.class) {
@@ -66,7 +67,7 @@ public class Emit implements Instruction {
 	public Instruction simplify() {
 		final TypedExpression simplifyMessage = message == null ? null : message.simplify();
 		final TypedExpression simplifyTick = tick == null ? null : tick.simplify();
-		if (simplifyMessage == message && simplifyTick == tick) {
+		if (message.equals(simplifyMessage) && tick.equals(simplifyTick)) {
 			return this;
 		}
 		return new Emit(position, simplifyMessage, simplifyTick);

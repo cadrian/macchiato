@@ -22,14 +22,15 @@ import net.cadrian.macchiato.midi.message.MetaMessage;
 
 public class TimeSignatureMessage extends MetaMessage {
 
-	public interface Visitor extends Message.Visitor {
-		void visitTimeSignature(TimeSignatureMessage message);
-	}
-
 	private final byte numerator;
 	private final byte denominator;
 	private final byte metronome;
 	private final byte ticks;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
+	public interface Visitor extends Message.Visitor {
+		void visitTimeSignature(TimeSignatureMessage message);
+	}
 
 	public TimeSignatureMessage(final byte n, final byte d, final byte m, final byte t) {
 		super(MetaMessageType.TIME_SIGNATURE);

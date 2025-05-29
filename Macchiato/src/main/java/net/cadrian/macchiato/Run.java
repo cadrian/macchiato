@@ -19,9 +19,9 @@ package net.cadrian.macchiato;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.sound.midi.InvalidMidiDataException;
 
@@ -34,7 +34,7 @@ import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.parser.Parser;
 import net.cadrian.macchiato.ruleset.parser.ParserException;
 
-public class Run {
+public final class Run {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Run.class);
 
@@ -42,7 +42,7 @@ public class Run {
 		System.exit(run(args));
 	}
 
-	static int run(final String[] args) {
+	static int run(final String... args) {
 		if (args.length < 1) {
 			LOGGER.error("Usage: {} <mac file> (<midi input file>) (<midi output file>) [-- <program arguments>]",
 					Run.class.getSimpleName());
@@ -59,7 +59,7 @@ public class Run {
 				return 1;
 			}
 			return execute(args, midiInputName, parser, ruleset);
-		} catch (final Exception e) {
+		} catch (final InvalidMidiDataException | IOException e) {
 			LOGGER.error("Unexpected exception", e);
 			return 1;
 		}
@@ -71,10 +71,10 @@ public class Run {
 			final Interpreter interpreter = new Interpreter(ruleset);
 			if (midiInputName != null) {
 				final String midiOutputName = getMidiOutputName(args);
-				try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(midiInputName))) {
-					try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(midiOutputName))) {
-						interpreter.run(in, out, getProgramArgs(args));
-					}
+				try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(Paths.get(midiInputName)));
+						BufferedOutputStream out = new BufferedOutputStream(
+								Files.newOutputStream(Paths.get(midiOutputName)))) {
+					interpreter.run(in, out, getProgramArgs(args));
 				}
 			} else {
 				interpreter.run(getProgramArgs(args));
@@ -99,18 +99,18 @@ public class Run {
 		return ruleset;
 	}
 
-	private static String getRulesetName(final String[] args) {
+	private static String getRulesetName(final String... args) {
 		return args[0];
 	}
 
-	private static String getMidiInputName(final String[] args) {
+	private static String getMidiInputName(final String... args) {
 		if (args.length > 1 && !"--".equals(args[1])) {
 			return args[1];
 		}
 		return null;
 	}
 
-	private static String getMidiOutputName(final String[] args) {
+	private static String getMidiOutputName(final String... args) {
 		assert getMidiInputName(args) != null;
 		if (args.length > 2 && !"--".equals(args[2])) {
 			return args[2];
@@ -118,7 +118,7 @@ public class Run {
 		return args[1] + ".out.mid";
 	}
 
-	private static String[] getProgramArgs(final String[] args) {
+	private static String[] getProgramArgs(final String... args) {
 		for (int i = 0; i < args.length; i++) {
 			if ("--".equals(args[i])) {
 				final String[] result = new String[args.length - i - 1];

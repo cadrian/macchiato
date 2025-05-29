@@ -21,10 +21,6 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Def implements Node {
 
-	public interface Visitor extends Node.Visitor {
-		void visit(Def def);
-	}
-
 	private final Identifier name;
 	private final Clazz clazz;
 	private final FormalArgs args;
@@ -32,6 +28,11 @@ public class Def implements Node {
 	private final Position position;
 	private final Expression requires;
 	private final Expression ensures;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
+	public interface Visitor extends Node.Visitor {
+		void visit(Def def);
+	}
 
 	public Def(final Position position, final Identifier name, final FormalArgs args, final Expression requires,
 			final Expression ensures, final Instruction instruction, final Clazz clazz) {
@@ -86,8 +87,8 @@ public class Def implements Node {
 		final Clazz simplifyClazz = clazz == null ? null : clazz.simplify();
 		final Expression simplifyRequires = requires == null ? null : requires.simplify();
 		final Expression simplifyEnsures = ensures == null ? null : ensures.simplify();
-		if (simplifyInstruction == instruction && simplifyRequires == requires && simplifyEnsures == ensures
-				&& simplifyClazz == clazz) {
+		if (simplifyInstruction.equals(instruction) && simplifyRequires.equals(requires)
+				&& simplifyEnsures.equals(ensures) && simplifyClazz.equals(clazz)) {
 			return this;
 		}
 		return new Def(position, name, args, simplifyRequires, simplifyEnsures, simplifyInstruction, simplifyClazz);

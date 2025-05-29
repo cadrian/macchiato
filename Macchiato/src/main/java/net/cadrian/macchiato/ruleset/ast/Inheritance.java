@@ -24,26 +24,31 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Inheritance implements Node {
 
+	private final List<Parent> parents = new ArrayList<>();
+	private final Position position;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visit(Inheritance inheritance);
 	}
 
 	public static class Parent implements Node {
 
+		private final Identifier[] name;
+		private final Position position;
+
+		@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 		public interface Visitor extends Node.Visitor {
 			void visit(Parent inheritance);
 		}
 
-		private final Identifier[] name;
-		private final Position position;
-
 		public Parent(final Identifier[] name, final Position position) {
-			this.name = name;
+			this.name = name.clone();
 			this.position = position;
 		}
 
 		public Identifier[] getName() {
-			return name;
+			return name.clone();
 		}
 
 		@Override
@@ -57,9 +62,6 @@ public class Inheritance implements Node {
 		}
 
 	}
-
-	private final List<Parent> parents = new ArrayList<>();
-	private final Position position;
 
 	public Inheritance(final Position position) {
 		this.position = position;

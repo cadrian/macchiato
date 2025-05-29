@@ -25,16 +25,17 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Clazz implements Node {
 
-	public interface Visitor extends Node.Visitor {
-		void visit(Clazz def);
-	}
-
 	private final Identifier name;
 	private final Expression invariant;
 	private final Inheritance inheritance;
 	private final Map<Identifier, Def> defs = new LinkedHashMap<>();
 	private final Map<Identifier, Identifier> fields = new LinkedHashMap<>();
 	private final Position position;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
+	public interface Visitor extends Node.Visitor {
+		void visit(Clazz def);
+	}
 
 	public Clazz(final Position position, final Identifier name, final Inheritance inheritance,
 			final Expression invariant) {

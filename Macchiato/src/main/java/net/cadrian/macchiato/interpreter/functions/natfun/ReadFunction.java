@@ -54,12 +54,12 @@ class ReadFunction extends AbstractObjectReaderFunction implements Function {
 
 	@Override
 	public Class<? extends MacObject>[] getArgTypes() {
-		return ARG_TYPES;
+		return ARG_TYPES.clone();
 	}
 
 	@Override
 	public Identifier[] getArgNames() {
-		return ARG_NAMES;
+		return ARG_NAMES.clone();
 	}
 
 	@Override

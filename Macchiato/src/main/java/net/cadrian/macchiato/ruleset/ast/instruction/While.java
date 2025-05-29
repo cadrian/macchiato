@@ -29,21 +29,22 @@ public class While implements Instruction {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(While.class);
 
-	public interface Visitor extends Node.Visitor {
-		void visitWhile(While w);
-	}
-
 	private final Position position;
 	private final Expression condition;
 	private final Instruction instruction;
 	private final Instruction otherwise;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
+	public interface Visitor extends Node.Visitor {
+		void visitWhile(While w);
+	}
 
 	public While(final Position position, final Expression condition, final Instruction instruction,
 			final Instruction otherwise) {
 		this.position = position;
 		this.condition = condition;
 		this.instruction = instruction;
-		this.otherwise = otherwise == null ? DoNothing.instance : otherwise;
+		this.otherwise = otherwise == null ? DoNothing.INSTANCE : otherwise;
 	}
 
 	public Expression getCondition() {
@@ -72,16 +73,17 @@ public class While implements Instruction {
 	public Instruction simplify() {
 		final Expression simplifyCondition = condition.simplify();
 		final Instruction simplifyInstruction = instruction.simplify();
-		final Instruction simplifyOtherwise = otherwise == null ? null : otherwise.simplify();
-		While result;
-		if (simplifyCondition == condition && simplifyInstruction == instruction && simplifyOtherwise == otherwise) {
+		final Instruction simplifyOtherwise = otherwise.simplify();
+		final While result;
+		if (condition.equals(simplifyCondition) && instruction.equals(simplifyInstruction)
+				&& otherwise.equals(simplifyOtherwise)) {
 			result = this;
 		} else {
 			result = new While(position, simplifyCondition, simplifyInstruction, simplifyOtherwise);
 		}
 		if (simplifyCondition.isStatic()) {
 			final ManifestBoolean cond = (ManifestBoolean) simplifyCondition.getStaticValue();
-			if (Boolean.TRUE.equals(cond.getValue())) {
+			if (cond.getValue()) {
 				return new Abort(position, "Infinite loop detected");
 			}
 			LOGGER.debug("replace while loop by never-run");

@@ -28,13 +28,14 @@ public class TypedUnary extends Unary implements TypedExpression {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TypedUnary.class);
 
-	public interface Visitor extends Node.Visitor {
-		void visitTypedUnary(TypedUnary typedUnary);
-	}
-
 	private final TypedExpression operand;
 	private final Class<? extends MacObject> resultType;
 	private final Position position;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
+	public interface Visitor extends Node.Visitor {
+		void visitTypedUnary(TypedUnary typedUnary);
+	}
 
 	public TypedUnary(final Position position, final Unary.Operator operator, final TypedExpression operand,
 			final Class<? extends MacObject> resultType) {
@@ -73,7 +74,7 @@ public class TypedUnary extends Unary implements TypedExpression {
 	public TypedExpression simplify() {
 		final TypedExpression simplifyOperand = operand.simplify();
 		final TypedUnary result;
-		if (operand == simplifyOperand) {
+		if (operand.equals(simplifyOperand)) {
 			result = this;
 		} else {
 			result = new TypedUnary(position(), operator, simplifyOperand, resultType);
@@ -94,17 +95,23 @@ public class TypedUnary extends Unary implements TypedExpression {
 	public Expression getStaticValue() {
 		final Expression op = operand.getStaticValue();
 		switch (operator) {
-		case NOT: {
-			final ManifestBoolean o = (ManifestBoolean) op;
-			return new ManifestBoolean(position(), !o.getValue());
+		case NOT:
+			return getStaticNot(op);
+		case MINUS:
+			return getStaticMinus(op);
 		}
-		case MINUS: {
-			final ManifestNumeric o = (ManifestNumeric) op;
-			return new ManifestNumeric(position(), o.getValue().negate());
-		}
-		default:
-			return null;
-		}
+		// never reached
+		return null;
+	}
+
+	private Expression getStaticNot(final Expression op) {
+		final ManifestBoolean o = (ManifestBoolean) op;
+		return new ManifestBoolean(position(), !o.getValue());
+	}
+
+	private Expression getStaticMinus(final Expression op) {
+		final ManifestNumeric o = (ManifestNumeric) op;
+		return new ManifestNumeric(position(), o.getValue().negate());
 	}
 
 	@Override

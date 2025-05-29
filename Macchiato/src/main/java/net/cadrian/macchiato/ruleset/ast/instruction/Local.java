@@ -24,13 +24,14 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Local implements Instruction {
 
-	public interface Visitor extends Node.Visitor {
-		void visitLocal(Local local);
-	}
-
 	private final Position position;
 	private final Identifier local;
 	private final Expression initializer;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
+	public interface Visitor extends Node.Visitor {
+		void visitLocal(Local local);
+	}
 
 	public Local(final Position position, final Identifier local, final Expression initializer) {
 		this.position = position;
@@ -60,7 +61,7 @@ public class Local implements Instruction {
 	public Instruction simplify() {
 		final Identifier simplifyLocal = local.simplify();
 		final Expression simplifyInitializer = initializer == null ? null : initializer.simplify();
-		if (simplifyLocal == local && simplifyInitializer == initializer) {
+		if (local.equals(simplifyLocal) && (initializer == null || initializer.equals(simplifyInitializer))) {
 			return this;
 		}
 		return new Local(position, simplifyLocal, simplifyInitializer);

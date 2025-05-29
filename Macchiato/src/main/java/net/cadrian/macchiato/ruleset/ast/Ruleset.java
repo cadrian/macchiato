@@ -32,6 +32,15 @@ public class Ruleset {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Ruleset.class);
 
+	private final Map<Identifier, Def> defs = new LinkedHashMap<>();
+	private final Map<Identifier, Clazz> clazzes = new LinkedHashMap<>();
+	private final List<Filter> filters = new ArrayList<>();
+	private final Map<Identifier, Ruleset> rulesets = new LinkedHashMap<>();
+	private final String path;
+	private final Position position; // position of import in parent ruleset
+
+	private List<Filter> filtersCache;
+
 	public static class LocalizedDef {
 		// non-null if it is a constructor
 		public final Clazz clazz;
@@ -58,15 +67,6 @@ public class Ruleset {
 			this.ruleset = ruleset;
 		}
 	}
-
-	private final Map<Identifier, Def> defs = new LinkedHashMap<>();
-	private final Map<Identifier, Clazz> clazzes = new LinkedHashMap<>();
-	private final List<Filter> filters = new ArrayList<>();
-	private final Map<Identifier, Ruleset> rulesets = new LinkedHashMap<>();
-	private final String path;
-	private final Position position; // position of import in parent ruleset
-
-	private List<Filter> filtersCache;
 
 	public Ruleset(final Position position, final String path) {
 		LOGGER.debug("NEW RULESET: {}", path);
@@ -169,8 +169,8 @@ public class Ruleset {
 	public Ruleset simplify() {
 		LOGGER.debug("<-- {}", this);
 		Ruleset result = this;
-		for (int simplifyCount = 256; simplifyCount-- > 0;) {
-			LOGGER.debug("Simplify #{}", 256 - simplifyCount, result);
+		for (int simplifyCount = 1; simplifyCount < 256; simplifyCount++) {
+			LOGGER.debug("Simplify #{}: {}", simplifyCount, result);
 			boolean changed = false;
 			final Ruleset simplifyRuleset = new Ruleset(position, path);
 			for (final Map.Entry<Identifier, Ruleset> entry : result.rulesets.entrySet()) {
@@ -179,25 +179,25 @@ public class Ruleset {
 				final Ruleset value = entry.getValue();
 				final Ruleset simplifyValue = value.simplify();
 				simplifyRuleset.addRuleset(rulesetName, simplifyValue);
-				changed |= simplifyValue != value;
+				changed |= !simplifyValue.equals(value);
 			}
 			for (final Def def : result.defs.values()) {
 				LOGGER.debug("Simplify def {}", def.name());
 				final Def simplifyDef = def.simplify();
 				simplifyRuleset.addDef(simplifyDef);
-				changed |= simplifyDef != def;
+				changed |= !simplifyDef.equals(def);
 			}
 			for (final Clazz clazz : result.clazzes.values()) {
 				LOGGER.debug("Simplify class {}", clazz.name());
 				final Clazz simplifyClazz = clazz.simplify();
 				simplifyRuleset.addClazz(simplifyClazz);
-				changed |= simplifyClazz != clazz;
+				changed |= !simplifyClazz.equals(clazz);
 			}
 			for (final Filter filter : result.filters) {
 				LOGGER.debug("Simplify filter");
 				final Filter simplifyFilter = filter.simplify();
 				simplifyRuleset.addFilter(simplifyFilter);
-				changed |= simplifyFilter != filter;
+				changed |= !simplifyFilter.equals(filter);
 			}
 			if (!changed) {
 				LOGGER.debug("Found simplify fix point");

@@ -74,12 +74,12 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_INT1;
+			return TYPE_INT1.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_SEQUENCE;
+			return ARG_SEQUENCE.clone();
 		}
 
 		@Override
@@ -114,12 +114,12 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_STR1;
+			return TYPE_STR1.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_TEXT;
+			return ARG_TEXT.clone();
 		}
 
 		@Override
@@ -154,12 +154,12 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_STR1;
+			return TYPE_STR1.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_TEXT;
+			return ARG_TEXT.clone();
 		}
 
 		@Override
@@ -194,12 +194,12 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_STR1;
+			return TYPE_STR1.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_TEXT;
+			return ARG_TEXT.clone();
 		}
 
 		@Override
@@ -234,12 +234,12 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_STR1;
+			return TYPE_STR1.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_TEXT;
+			return ARG_TEXT.clone();
 		}
 
 		@Override
@@ -274,12 +274,12 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_STR1;
+			return TYPE_STR1.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_TEXT;
+			return ARG_TEXT.clone();
 		}
 
 		@Override
@@ -314,12 +314,12 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_STR1;
+			return TYPE_STR1.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_TEXT;
+			return ARG_TEXT.clone();
 		}
 
 		@Override
@@ -354,12 +354,12 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_STR1;
+			return TYPE_STR1.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_TEXT;
+			return ARG_TEXT.clone();
 		}
 
 		@Override
@@ -436,12 +436,12 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_INT1;
+			return TYPE_INT1.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_VALUE;
+			return ARG_VALUE.clone();
 		}
 
 		@Override
@@ -476,12 +476,12 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_0;
+			return TYPE_0.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_0;
+			return ARG_0.clone();
 		}
 
 		@Override
@@ -524,12 +524,12 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_INT1;
+			return TYPE_INT1.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_BPM;
+			return ARG_BPM.clone();
 		}
 
 		@Override
@@ -548,7 +548,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 			final byte d = data[1];
 			final byte m = data[2];
 			final byte t = data[2];
-			final StringBuilder result = new StringBuilder().append(n).append("/").append(1 << d);
+			final StringBuilder result = new StringBuilder(128).append(n).append('/').append(1 << d);
 			if (m != 0) {
 				result.append(", metronome: every ").append(m).append(" ticks");
 			}
@@ -585,12 +585,12 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_INT4;
+			return TYPE_INT4.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_TIMESIG;
+			return ARG_TIMESIG.clone();
 		}
 
 		@Override
@@ -606,6 +606,7 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 	},
 	KEY_SIGNATURE(0x59) {
 		@Override
+		@SuppressWarnings("PMD.CyclomaticComplexity")
 		public String toString(final byte[] data) {
 			if (data.length != 2) {
 				throw new IllegalArgumentException("invalid data: expected 2 bytes");
@@ -712,12 +713,12 @@ public enum MetaMessageType implements MacComparable<MetaMessageType> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return TYPE_INT2;
+			return TYPE_INT2.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_KEYSIG;
+			return ARG_KEYSIG.clone();
 		}
 
 		@Override

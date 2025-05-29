@@ -24,12 +24,13 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ManifestString implements ManifestExpression<String> {
 
+	private final String value;
+	private final Position position;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitManifestString(ManifestString manifestString);
 	}
-
-	private final String value;
-	private final Position position;
 
 	public ManifestString(final Position position, final String value) {
 		this.value = value;

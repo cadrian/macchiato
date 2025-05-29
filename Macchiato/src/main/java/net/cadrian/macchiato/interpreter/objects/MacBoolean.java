@@ -21,7 +21,7 @@ import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
-public class MacBoolean implements MacComparable<MacBoolean> {
+public final class MacBoolean implements MacComparable<MacBoolean> {
 
 	public static final MacBoolean TRUE = new MacBoolean(true);
 	public static final MacBoolean FALSE = new MacBoolean(false);

@@ -103,10 +103,7 @@ public class LocalContext extends Context {
 
 	@Override
 	public boolean has(final Identifier key) {
-		if (local.containsKey(key)) {
-			return true;
-		}
-		return parent.has(key);
+		return local.containsKey(key) || parent.has(key);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -137,7 +134,7 @@ public class LocalContext extends Context {
 	@Override
 	public <T extends MacObject> T set(final Identifier key, final T value) {
 		LOGGER.debug("<-- {} = {}", key, value);
-		T result;
+		final T result;
 		if (local.containsKey(key)) {
 			@SuppressWarnings("unchecked")
 			final T old = (T) local.put(key, value);

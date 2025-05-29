@@ -22,12 +22,13 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ConditionFilter extends Filter {
 
+	private final TypedExpression condition;
+	private final Position position;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visit(ConditionFilter conditionFilter);
 	}
-
-	private final TypedExpression condition;
-	private final Position position;
 
 	public ConditionFilter(final Position position, final TypedExpression condition, final Instruction instruction) {
 		super(instruction);
@@ -55,7 +56,7 @@ public class ConditionFilter extends Filter {
 	@Override
 	public Filter simplify() {
 		final Instruction simplifyInstruction = instruction.simplify();
-		if (simplifyInstruction == instruction) {
+		if (simplifyInstruction.equals(instruction)) {
 			return this;
 		}
 		return new ConditionFilter(position, condition.simplify(), simplifyInstruction);

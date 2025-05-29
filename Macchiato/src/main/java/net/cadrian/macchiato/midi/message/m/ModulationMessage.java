@@ -22,11 +22,12 @@ import net.cadrian.macchiato.midi.message.MetaMessage;
 
 public class ModulationMessage extends MetaMessage {
 
+	private final int value;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Message.Visitor {
 		void visitModulation(ModulationMessage message);
 	}
-
-	private final int value;
 
 	public ModulationMessage(final int value) {
 		super(MetaMessageType.MODULATION);

@@ -22,6 +22,7 @@ import net.cadrian.macchiato.midi.MetaMessageType;
 
 public class InstrumentNameMessage extends AbstractTextMessage {
 
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Message.Visitor {
 		void visitInstrumentName(InstrumentNameMessage message);
 	}

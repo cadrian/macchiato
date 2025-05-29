@@ -19,6 +19,7 @@ package net.cadrian.macchiato.interpreter.functions.natfun;
 import net.cadrian.macchiato.interpreter.Function;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 
+@SuppressWarnings("PMD.FieldNamingConventions")
 public enum Native {
 	Random {
 		@Override

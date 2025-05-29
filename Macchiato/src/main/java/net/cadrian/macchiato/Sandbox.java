@@ -30,7 +30,7 @@ import javax.sound.midi.Track;
 import net.cadrian.macchiato.midi.MetaMessageType;
 import net.cadrian.macchiato.midi.ShortMessageType;
 
-public class Sandbox {
+public final class Sandbox {
 
 	public static void main(final String[] args) throws Exception {
 		final Sequence sequence = MidiSystem.getSequence(new File(args[0]));
@@ -63,12 +63,12 @@ public class Sandbox {
 								+ " (" + type.toString(shortMessage.getData1(), shortMessage.getData2()) + ")");
 					}
 				} else {
-					throw new Exception("unknown type of message: " + message.getClass());
+					throw new IllegalStateException("unknown type of message: " + message.getClass());
 				}
 			}
 		}
 	}
-	
+
 	private Sandbox() {
 		throw new IllegalStateException("No instance");
 	}

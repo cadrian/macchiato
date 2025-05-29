@@ -14,6 +14,10 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class MacRuleset implements MacObject {
 
+	private final Ruleset ruleset;
+	private final Map<Identifier, ReadOnlyField<MacRuleset, MacRuleset>> fields = new LinkedHashMap<>();
+	private final Map<Identifier, Method<MacRuleset>> methods = new LinkedHashMap<>();
+
 	private static class RulesetMethod implements Method<MacRuleset> {
 
 		private final DefFunction def;
@@ -58,10 +62,6 @@ public class MacRuleset implements MacObject {
 		}
 
 	}
-
-	private final Ruleset ruleset;
-	private final Map<Identifier, ReadOnlyField<MacRuleset, MacRuleset>> fields = new LinkedHashMap<>();
-	private final Map<Identifier, Method<MacRuleset>> methods = new LinkedHashMap<>();
 
 	public MacRuleset(final Ruleset ruleset) {
 		this.ruleset = ruleset;

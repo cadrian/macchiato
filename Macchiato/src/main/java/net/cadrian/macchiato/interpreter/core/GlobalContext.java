@@ -59,7 +59,7 @@ class GlobalContext extends Context {
 	private Event<? extends MidiMessage> event;
 	private boolean next;
 
-	public GlobalContext(final Ruleset ruleset, final String[] args) {
+	public GlobalContext(final Ruleset ruleset, final String... args) {
 		this.ruleset = ruleset;
 
 		final MacSystem system = new MacSystem();

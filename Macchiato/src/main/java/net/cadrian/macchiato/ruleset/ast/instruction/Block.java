@@ -31,12 +31,13 @@ public class Block implements Instruction {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Block.class);
 
+	private final Position position;
+	private final List<Instruction> instructions = new ArrayList<>();
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitBlock(Block block);
 	}
-
-	private final Position position;
-	private final List<Instruction> instructions = new ArrayList<>();
 
 	public Block(final Position position) {
 		this.position = position;
@@ -65,7 +66,7 @@ public class Block implements Instruction {
 		switch (instructions.size()) {
 		case 0:
 			LOGGER.debug("remove empty block");
-			return DoNothing.instance;
+			return DoNothing.INSTANCE;
 		case 1:
 			LOGGER.debug("replace block by unique instruction");
 			return instructions.get(0).simplify();
@@ -74,14 +75,15 @@ public class Block implements Instruction {
 			boolean changed = false;
 			for (final Instruction instruction : instructions) {
 				final Instruction simplifyInstruction = instruction.simplify();
-				if (simplifyInstruction == DoNothing.instance) {
+				if (simplifyInstruction.equals(DoNothing.INSTANCE)) {
+					LOGGER.debug("remove instruction that does nothing");
 					changed = true;
 				} else {
 					result.add(simplifyInstruction);
-					changed |= simplifyInstruction != instruction;
+					changed |= !instruction.equals(simplifyInstruction);
 				}
 			}
-			return changed ? result : this;
+			return changed ? result.getInstructions().isEmpty() ? DoNothing.INSTANCE : result : this;
 		}
 	}
 

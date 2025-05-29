@@ -22,6 +22,7 @@ import net.cadrian.macchiato.midi.MetaMessageType;
 
 public class TrackNameMessage extends AbstractTextMessage {
 
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Message.Visitor {
 		void visitTrackName(TrackNameMessage message);
 	}

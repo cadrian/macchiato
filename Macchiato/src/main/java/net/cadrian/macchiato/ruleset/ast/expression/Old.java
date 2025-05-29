@@ -27,13 +27,14 @@ public class Old implements Expression {
 
 	private static final AtomicInteger COUNTER = new AtomicInteger();
 
-	public interface Visitor extends Node.Visitor {
-		void visitOld(Old old);
-	}
-
 	private final int id;
 	private final Expression expression;
 	private final Position position;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
+	public interface Visitor extends Node.Visitor {
+		void visitOld(Old old);
+	}
 
 	public Old(final Position position, final Expression expression) {
 		id = COUNTER.getAndIncrement();
@@ -67,7 +68,7 @@ public class Old implements Expression {
 	@Override
 	public Expression simplify() {
 		final Expression simplifiedExpression = expression.simplify();
-		if (simplifiedExpression == expression) {
+		if (simplifiedExpression.equals(expression)) {
 			return this;
 		}
 		return new Old(position, simplifiedExpression);

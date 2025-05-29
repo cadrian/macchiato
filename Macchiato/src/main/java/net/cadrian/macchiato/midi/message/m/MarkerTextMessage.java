@@ -22,6 +22,7 @@ import net.cadrian.macchiato.midi.MetaMessageType;
 
 public class MarkerTextMessage extends AbstractTextMessage {
 
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Message.Visitor {
 		void visitMarkerText(MarkerTextMessage message);
 	}

@@ -20,16 +20,17 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class BoundFilter extends Filter {
 
+	private final Position position;
+	private final Bound bound;
+
 	public enum Bound {
 		BEGIN_SEQUENCE, END_SEQUENCE, BEGIN_TRACK, END_TRACK;
 	}
 
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visit(BoundFilter boundFilter);
 	}
-
-	private final Position position;
-	private final Bound bound;
 
 	public BoundFilter(final Position position, final Bound bound, final Instruction instruction) {
 		super(instruction);
@@ -54,7 +55,7 @@ public class BoundFilter extends Filter {
 	@Override
 	public Filter simplify() {
 		final Instruction simplifyInstruction = instruction.simplify();
-		if (simplifyInstruction == instruction) {
+		if (simplifyInstruction.equals(instruction)) {
 			return this;
 		}
 		return new BoundFilter(position, bound, simplifyInstruction);

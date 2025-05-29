@@ -22,11 +22,12 @@ import net.cadrian.macchiato.midi.message.MetaMessage;
 
 public class SequenceNumberMessage extends MetaMessage {
 
+	private final int sequence;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Message.Visitor {
 		void visitSequenceNumber(SequenceNumberMessage message);
 	}
-
-	private final int sequence;
 
 	public SequenceNumberMessage(final int sequence) {
 		super(MetaMessageType.SEQUENCE_NUMBER);

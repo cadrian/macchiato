@@ -24,12 +24,13 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class CheckedExpression implements TypedExpression {
 
+	private final Class<? extends MacObject> type;
+	private final Expression toCheck;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitCheckedExpression(CheckedExpression e);
 	}
-
-	private final Class<? extends MacObject> type;
-	private final Expression toCheck;
 
 	public CheckedExpression(final Expression toCheck, final Class<? extends MacObject> type) {
 		this.toCheck = toCheck;
@@ -64,7 +65,7 @@ public class CheckedExpression implements TypedExpression {
 	public TypedExpression simplify() {
 		final TypedExpression result;
 		final Expression simplifyToCheck = toCheck.simplify();
-		if (simplifyToCheck == toCheck) {
+		if (simplifyToCheck.equals(toCheck)) {
 			result = this;
 		} else {
 			result = simplifyToCheck.typed(type);

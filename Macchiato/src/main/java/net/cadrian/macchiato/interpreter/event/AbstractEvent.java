@@ -16,6 +16,8 @@
  */
 package net.cadrian.macchiato.interpreter.event;
 
+import java.util.Objects;
+
 import javax.sound.midi.MidiMessage;
 
 import net.cadrian.macchiato.interpreter.Event;
@@ -27,14 +29,8 @@ abstract class AbstractEvent<M extends MidiMessage> implements Event<M> {
 	protected final M midiMessage;
 
 	AbstractEvent(final MacNumber tick, final M midiMessage) {
-		if (tick == null) {
-			throw new NullPointerException("BUG: null tick");
-		}
-		if (midiMessage == null) {
-			throw new NullPointerException("BUG: null midiMessage");
-		}
-		this.tick = tick;
-		this.midiMessage = midiMessage;
+		this.tick = Objects.requireNonNull(tick);
+		this.midiMessage = Objects.requireNonNull(midiMessage);
 	}
 
 	@Override

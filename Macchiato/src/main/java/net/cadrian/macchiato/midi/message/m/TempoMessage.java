@@ -22,11 +22,12 @@ import net.cadrian.macchiato.midi.message.MetaMessage;
 
 public class TempoMessage extends MetaMessage {
 
+	private final int bpm;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Message.Visitor {
 		void visitTempo(TempoMessage message);
 	}
-
-	private final int bpm;
 
 	public TempoMessage(final int bpm) {
 		super(MetaMessageType.TEMPO);

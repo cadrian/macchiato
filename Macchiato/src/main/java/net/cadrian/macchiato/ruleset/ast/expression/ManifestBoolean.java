@@ -24,12 +24,13 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ManifestBoolean implements ManifestExpression<Boolean> {
 
+	private final boolean value;
+	private final Position position;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitManifestBoolean(ManifestBoolean manifestBoolean);
 	}
-
-	private final boolean value;
-	private final Position position;
 
 	public ManifestBoolean(final Position position, final boolean value) {
 		this.value = value;

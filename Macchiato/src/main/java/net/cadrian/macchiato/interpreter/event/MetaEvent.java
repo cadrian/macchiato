@@ -16,6 +16,8 @@
  */
 package net.cadrian.macchiato.interpreter.event;
 
+import java.util.Objects;
+
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
 
@@ -29,10 +31,7 @@ public class MetaEvent extends AbstractEvent<MetaMessage> {
 
 	public MetaEvent(final MacNumber tick, final MetaMessageType type, final MetaMessage message) {
 		super(tick, message);
-		if (type == null) {
-			throw new NullPointerException("BUG: null type");
-		}
-		this.type = type;
+		this.type = Objects.requireNonNull(type);
 	}
 
 	public MetaMessageType getType() {

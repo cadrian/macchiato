@@ -30,6 +30,8 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class MacMatcher implements MacObject {
 
+	private final Matcher value;
+
 	private static class MatchesMethod extends AbstractMethod<MacMatcher> {
 
 		private static final Identifier NAME = new Identifier("Matches", Position.NONE);
@@ -121,12 +123,12 @@ public class MacMatcher implements MacObject {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return ARG_TYPES;
+			return ARG_TYPES.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_NAMES;
+			return ARG_NAMES.clone();
 		}
 
 		@Override
@@ -135,8 +137,6 @@ public class MacMatcher implements MacObject {
 		}
 
 	}
-
-	private final Matcher value;
 
 	public MacMatcher(final Matcher value) {
 		this.value = value;

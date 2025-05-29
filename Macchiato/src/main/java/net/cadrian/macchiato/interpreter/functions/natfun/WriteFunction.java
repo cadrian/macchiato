@@ -16,10 +16,10 @@
  */
 package net.cadrian.macchiato.interpreter.functions.natfun;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,12 +57,12 @@ class WriteFunction extends AbstractObjectWriterFunction implements Function {
 
 	@Override
 	public Class<? extends MacObject>[] getArgTypes() {
-		return ARG_TYPES;
+		return ARG_TYPES.clone();
 	}
 
 	@Override
 	public Identifier[] getArgNames() {
-		return ARG_NAMES;
+		return ARG_NAMES.clone();
 	}
 
 	@Override
@@ -80,7 +80,7 @@ class WriteFunction extends AbstractObjectWriterFunction implements Function {
 			throw new ObjectInexistentException("value does not exist", position);
 		}
 
-		try (Writer writer = new BufferedWriter(new FileWriter(file.getValue()))) {
+		try (Writer writer = Files.newBufferedWriter(Paths.get(file.getValue()))) {
 			if (!writeObject(writer, value)) {
 				throw new InterpreterException("invalid value: not writable", position);
 			}

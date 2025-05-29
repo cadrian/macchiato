@@ -28,7 +28,9 @@ import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 import net.cadrian.macchiato.ruleset.parser.Position;
 
-public class MacPattern implements MacObject {
+public final class MacPattern implements MacObject {
+
+	private final Pattern value;
 
 	private static final Map<Pattern, MacPattern> CACHE = new ConcurrentHashMap<>();
 
@@ -64,12 +66,12 @@ public class MacPattern implements MacObject {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return ARG_TYPES;
+			return ARG_TYPES.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_NAMES;
+			return ARG_NAMES.clone();
 		}
 
 		@Override
@@ -78,8 +80,6 @@ public class MacPattern implements MacObject {
 		}
 
 	}
-
-	private final Pattern value;
 
 	private MacPattern(final Pattern value) {
 		this.value = value;
@@ -98,12 +98,10 @@ public class MacPattern implements MacObject {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
-		switch (name.getName()) {
-		case "Matcher":
+		if ("Matcher".equals(name.getName())) {
 			return (Method<T>) new MatcherMethod(ruleset);
-		default:
-			return null;
 		}
+		return null;
 	}
 
 	@Override

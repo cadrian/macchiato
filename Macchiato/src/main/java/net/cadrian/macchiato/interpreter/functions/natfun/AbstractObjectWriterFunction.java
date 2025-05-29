@@ -34,6 +34,7 @@ abstract class AbstractObjectWriterFunction extends AbstractNativeFunction {
 		super(ruleset);
 	}
 
+	@SuppressWarnings("PMD.SimplifyBooleanReturns")
 	protected boolean writeObject(final Writer writer, final MacObject value) throws IOException {
 		if (value instanceof MacString) {
 			return writeString(writer, ((MacString) value).getValue());
@@ -42,11 +43,11 @@ abstract class AbstractObjectWriterFunction extends AbstractNativeFunction {
 			writer.write(value.toString());
 			return true;
 		}
-		if (value instanceof MacArray) {
-			return writeArray(writer, (MacArray) value);
+		if (value instanceof final MacArray array) {
+			return writeArray(writer, array);
 		}
-		if (value instanceof MacDictionary) {
-			return writeDictionary(writer, (MacDictionary) value);
+		if (value instanceof final MacDictionary dictionary) {
+			return writeDictionary(writer, dictionary);
 		}
 		return false;
 	}

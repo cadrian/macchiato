@@ -22,11 +22,12 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Next implements Instruction {
 
+	private final Position position;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitNext(Next next);
 	}
-
-	private final Position position;
 
 	public Next(final Position position) {
 		this.position = position;

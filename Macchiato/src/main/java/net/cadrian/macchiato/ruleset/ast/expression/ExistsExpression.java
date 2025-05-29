@@ -24,12 +24,13 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ExistsExpression implements TypedExpression {
 
+	private final Expression expression;
+	private final Position position;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitExistsExpression(ExistsExpression existsExpression);
 	}
-
-	private final Expression expression;
-	private final Position position;
 
 	public ExistsExpression(final Position position, final Expression expression) {
 		this.position = position;
@@ -75,7 +76,11 @@ public class ExistsExpression implements TypedExpression {
 
 	@Override
 	public TypedExpression simplify() {
-		return this;
+		final Expression simplifyExpression = expression.simplify();
+		if (simplifyExpression.equals(expression)) {
+			return this;
+		}
+		return new ExistsExpression(position, simplifyExpression);
 	}
 
 	@Override

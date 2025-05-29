@@ -38,7 +38,7 @@ public class FormalArgs {
 	}
 
 	public Identifier[] toArray() {
-		return args.toArray(new Identifier[args.size()]);
+		return args.toArray(new Identifier[0]);
 	}
 
 	@Override

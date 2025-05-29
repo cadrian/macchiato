@@ -59,12 +59,12 @@ class ClazzClazsConstructor implements ClazsConstructor {
 
 	@Override
 	public Class<? extends MacObject>[] getArgTypes() {
-		return argTypes;
+		return argTypes.clone();
 	}
 
 	@Override
 	public Identifier[] getArgNames() {
-		return argNames;
+		return argNames.clone();
 	}
 
 	@Override

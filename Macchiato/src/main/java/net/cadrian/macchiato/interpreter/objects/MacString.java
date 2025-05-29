@@ -24,7 +24,7 @@ import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
-public class MacString implements MacComparable<MacString> {
+public final class MacString implements MacComparable<MacString> {
 
 	private static final Map<String, MacString> CACHE = new ConcurrentHashMap<>();
 
@@ -33,6 +33,10 @@ public class MacString implements MacComparable<MacString> {
 	private MacString(final String value) {
 		final String v = value.intern();
 		this.value = v;
+	}
+
+	public boolean isEmpty() {
+		return value.isEmpty();
 	}
 
 	public String getValue() {

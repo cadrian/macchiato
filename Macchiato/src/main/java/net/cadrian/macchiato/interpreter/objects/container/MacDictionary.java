@@ -42,6 +42,8 @@ public class MacDictionary implements MacContainer<MacString> {
 
 	private static final ThreadLocal<Set<MacDictionary>> TO_STRING_GATE = ThreadLocal.withInitial(HashSet::new);
 
+	private final Map<MacString, MacObject> dictionary = new LinkedHashMap<>();
+
 	private static class SizeMethod extends AbstractMethod<MacDictionary> {
 
 		private static final Identifier NAME = new Identifier("Size", Position.NONE);
@@ -61,12 +63,12 @@ public class MacDictionary implements MacContainer<MacString> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return ARG_TYPES;
+			return ARG_TYPES.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_NAMES;
+			return ARG_NAMES.clone();
 		}
 
 		@Override
@@ -117,12 +119,12 @@ public class MacDictionary implements MacContainer<MacString> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return ARG_TYPES;
+			return ARG_TYPES.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_NAMES;
+			return ARG_NAMES.clone();
 		}
 
 		@Override
@@ -187,12 +189,12 @@ public class MacDictionary implements MacContainer<MacString> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return ARG_TYPES;
+			return ARG_TYPES.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_NAMES;
+			return ARG_NAMES.clone();
 		}
 
 		@Override
@@ -266,12 +268,12 @@ public class MacDictionary implements MacContainer<MacString> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return ARG_TYPES;
+			return ARG_TYPES.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_NAMES;
+			return ARG_NAMES.clone();
 		}
 
 		@Override
@@ -280,8 +282,6 @@ public class MacDictionary implements MacContainer<MacString> {
 		}
 
 	}
-
-	private final Map<MacString, MacObject> dictionary = new LinkedHashMap<>();
 
 	@Override
 	public MacObject set(final MacString index, final MacObject value) {

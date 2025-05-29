@@ -22,6 +22,7 @@ import net.cadrian.macchiato.midi.MetaMessageType;
 
 public class CuePointMessage extends AbstractTextMessage {
 
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Message.Visitor {
 		void visitCuePoint(CuePointMessage message);
 	}

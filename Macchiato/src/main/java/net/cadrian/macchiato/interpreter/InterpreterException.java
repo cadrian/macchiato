@@ -26,12 +26,12 @@ public class InterpreterException extends RuntimeException {
 
 	public InterpreterException(final String msg, final Position... position) {
 		super(msg);
-		this.position = position;
+		this.position = position.clone();
 	}
 
 	public InterpreterException(final String msg, final Throwable cause, final Position... position) {
 		super(msg, cause);
-		this.position = position;
+		this.position = position.clone();
 	}
 
 	public InterpreterException(final String msg, final InterpreterException e) {
@@ -39,7 +39,7 @@ public class InterpreterException extends RuntimeException {
 	}
 
 	public Position[] getPosition() {
-		return position;
+		return position.clone();
 	}
 
 }

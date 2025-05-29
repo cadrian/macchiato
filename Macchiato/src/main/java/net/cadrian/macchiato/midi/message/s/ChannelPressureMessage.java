@@ -22,11 +22,12 @@ import net.cadrian.macchiato.midi.message.ShortMessage;
 
 public class ChannelPressureMessage extends ShortMessage {
 
+	private final int pressure;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Message.Visitor {
 		void visitChannelPressure(ChannelPressureMessage message);
 	}
-
-	private final int pressure;
 
 	public ChannelPressureMessage(final int channel, final int pressure) {
 		super(channel, ShortMessageType.CHANNEL_PRESSURE);

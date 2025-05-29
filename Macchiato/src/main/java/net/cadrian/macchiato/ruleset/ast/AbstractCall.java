@@ -23,7 +23,7 @@ import java.util.List;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 import net.cadrian.macchiato.ruleset.parser.Position;
 
-public abstract class AbstractCall {
+public abstract class AbstractCall implements Node {
 
 	protected final Position position;
 	protected final Expression target;
@@ -48,6 +48,7 @@ public abstract class AbstractCall {
 		arguments.add(exp);
 	}
 
+	@Override
 	public Position position() {
 		return position;
 	}

@@ -51,6 +51,7 @@ import net.cadrian.macchiato.ruleset.ast.instruction.ProcedureCall;
 import net.cadrian.macchiato.ruleset.ast.instruction.While;
 import net.cadrian.macchiato.ruleset.parser.Position;
 
+@SuppressWarnings("PMD.CyclomaticComplexity")
 class InstructionEvaluationVisitor implements InstructionVisitor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(InstructionEvaluationVisitor.class);

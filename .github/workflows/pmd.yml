@@ -32,7 +32,7 @@ jobs:
         id: pmd
         uses: pmd/pmd-github-action@v2
         with:
-          rulesets: 'rulesets/java/quickstart.xml'
+          rulesets: 'Macchiato/ruleset.xml'
           sourcePath: 'Macchiato/src/main/java'
           analyzeModifiedFilesOnly: false
       - name: Upload SARIF file

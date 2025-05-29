@@ -82,12 +82,12 @@ public abstract class MacCallable implements MacObject {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return ARG_TYPES;
+			return ARG_TYPES.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_NAMES;
+			return ARG_NAMES.clone();
 		}
 
 		@Override
@@ -108,12 +108,10 @@ public abstract class MacCallable implements MacObject {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends MacObject> Method<T> getMethod(final Ruleset ruleset, final Identifier name) {
-		switch (name.getName()) {
-		case "Invoke":
+		if ("Invoke".equals(name.getName())) {
 			return (Method<T>) new InvokeMethod(ruleset);
-		default:
-			return null;
 		}
+		return null;
 	}
 
 	@Override

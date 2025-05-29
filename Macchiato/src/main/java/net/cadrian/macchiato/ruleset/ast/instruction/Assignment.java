@@ -23,12 +23,13 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Assignment implements Instruction {
 
+	private final Expression leftSide;
+	private final Expression rightSide;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitAssignment(Assignment assignment);
 	}
-
-	private final Expression leftSide;
-	private final Expression rightSide;
 
 	public Assignment(final Expression leftSide, final Expression rightSide) {
 		this.leftSide = leftSide;
@@ -57,7 +58,7 @@ public class Assignment implements Instruction {
 	public Instruction simplify() {
 		final Expression left = leftSide.simplify();
 		final Expression right = rightSide.simplify();
-		if (left == leftSide && right == rightSide) {
+		if (left.equals(leftSide) && right.equals(rightSide)) {
 			return this;
 		}
 		return new Assignment(left, right);

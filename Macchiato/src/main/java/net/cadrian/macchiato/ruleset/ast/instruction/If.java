@@ -29,21 +29,22 @@ public class If implements Instruction {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(If.class);
 
-	public interface Visitor extends Node.Visitor {
-		void visitIf(If i);
-	}
-
 	private final Position position;
 	private final Expression condition;
 	private final Instruction instruction;
 	private final Instruction otherwise;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
+	public interface Visitor extends Node.Visitor {
+		void visitIf(If i);
+	}
 
 	public If(final Position position, final Expression condition, final Instruction instruction,
 			final Instruction otherwise) {
 		this.position = position;
 		this.condition = condition;
 		this.instruction = instruction;
-		this.otherwise = otherwise == null ? DoNothing.instance : otherwise;
+		this.otherwise = otherwise == null ? DoNothing.INSTANCE : otherwise;
 	}
 
 	public Expression getCondition() {
@@ -72,22 +73,22 @@ public class If implements Instruction {
 	public Instruction simplify() {
 		final Expression simplifyCondition = condition.simplify();
 		final Instruction simplifyInstruction = instruction.simplify();
-		final Instruction simplifyOtherwise = otherwise == null ? null : otherwise.simplify();
-		If result;
-		if (simplifyCondition == condition && simplifyInstruction == instruction && simplifyOtherwise == otherwise) {
+		final Instruction simplifyOtherwise = otherwise.simplify();
+		final If result;
+		if (condition.equals(simplifyCondition) && instruction.equals(simplifyInstruction)
+				&& otherwise.equals(simplifyOtherwise)) {
 			result = this;
 		} else {
 			result = new If(position, simplifyCondition, simplifyInstruction, simplifyOtherwise);
 		}
 		if (simplifyCondition.isStatic()) {
 			final ManifestBoolean cond = (ManifestBoolean) simplifyCondition.getStaticValue();
-			if (Boolean.TRUE.equals(cond.getValue())) {
+			if (cond.getValue()) {
 				LOGGER.debug("replace if-else by always-true");
 				return simplifyInstruction;
-			} else {
-				LOGGER.debug("replace if-else by always-false");
-				return simplifyOtherwise;
 			}
+			LOGGER.debug("replace if-else by always-false");
+			return simplifyOtherwise;
 		}
 		return result;
 	}

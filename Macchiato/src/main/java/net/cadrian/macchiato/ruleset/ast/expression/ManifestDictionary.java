@@ -28,6 +28,10 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ManifestDictionary implements ManifestExpression<Void> {
 
+	private final List<Entry> expressions = new ArrayList<>();
+	private final Position position;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitManifestDictionary(ManifestDictionary manifestDictionary);
 	}
@@ -49,9 +53,6 @@ public class ManifestDictionary implements ManifestExpression<Void> {
 			return expression;
 		}
 	}
-
-	private final List<Entry> expressions = new ArrayList<>();
-	private final Position position;
 
 	public ManifestDictionary(final Position position) {
 		this.position = position;
@@ -114,7 +115,7 @@ public class ManifestDictionary implements ManifestExpression<Void> {
 			final Expression expression = entry.expression;
 			final Expression simplifyExpression = expression.simplify();
 			result.put(simplifyKey, simplifyExpression);
-			changed |= simplifyKey != key || simplifyExpression != expression;
+			changed |= !simplifyKey.equals(key) || !simplifyExpression.equals(expression);
 		}
 		return changed ? result : this;
 	}

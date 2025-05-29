@@ -22,6 +22,7 @@ import net.cadrian.macchiato.midi.MetaMessageType;
 
 public class LyricsMessage extends AbstractTextMessage {
 
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Message.Visitor {
 		void visitLyrics(LyricsMessage message);
 	}

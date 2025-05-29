@@ -22,11 +22,12 @@ import net.cadrian.macchiato.midi.message.ShortMessage;
 
 public class PitchBendMessage extends ShortMessage {
 
+	private final int value;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Message.Visitor {
 		void visitPitchBend(PitchBendMessage message);
 	}
-
-	private final int value;
 
 	public PitchBendMessage(final int channel, final int value) {
 		super(channel, ShortMessageType.PITCH_BEND);

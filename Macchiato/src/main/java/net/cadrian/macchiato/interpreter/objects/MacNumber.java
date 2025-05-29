@@ -25,7 +25,7 @@ import net.cadrian.macchiato.interpreter.Method;
 import net.cadrian.macchiato.ruleset.ast.Ruleset;
 import net.cadrian.macchiato.ruleset.ast.expression.Identifier;
 
-public class MacNumber implements MacComparable<MacNumber> {
+public final class MacNumber implements MacComparable<MacNumber> {
 
 	private static final Map<BigInteger, MacNumber> CACHE = new ConcurrentHashMap<>();
 
@@ -36,6 +36,14 @@ public class MacNumber implements MacComparable<MacNumber> {
 
 	private MacNumber(final BigInteger value) {
 		this.value = value;
+	}
+
+	public boolean isZero() {
+		return value.equals(BigInteger.ZERO);
+	}
+
+	public boolean isOne() {
+		return value.equals(BigInteger.ONE);
 	}
 
 	public BigInteger getValue() {

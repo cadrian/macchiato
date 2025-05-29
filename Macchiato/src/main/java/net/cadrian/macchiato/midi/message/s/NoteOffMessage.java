@@ -22,12 +22,13 @@ import net.cadrian.macchiato.midi.message.ShortMessage;
 
 public class NoteOffMessage extends ShortMessage {
 
+	private final int pitch;
+	private final int velocity;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Message.Visitor {
 		void visitNoteOff(NoteOffMessage message);
 	}
-
-	private final int pitch;
-	private final int velocity;
 
 	public NoteOffMessage(final int channel, final int pitch, final int velocity) {
 		super(channel, ShortMessageType.NOTE_OFF);

@@ -45,6 +45,8 @@ public class Interpreter {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Interpreter.class);
 
+	private final Ruleset ruleset;
+
 	private static final class MidiInterpreterException extends RuntimeException {
 
 		private static final long serialVersionUID = -2848143876495660891L;
@@ -55,17 +57,15 @@ public class Interpreter {
 
 	}
 
-	private final Ruleset ruleset;
-
 	public Interpreter(final Ruleset ruleset) {
 		this.ruleset = ruleset;
 	}
 
-	public void run(final String[] args) throws InvalidMidiDataException, IOException {
+	public void run(final String... args) throws InvalidMidiDataException, IOException {
 		run(System.in, System.out, args);
 	}
 
-	public void run(final InputStream in, final OutputStream out, final String[] args)
+	public void run(final InputStream in, final OutputStream out, final String... args)
 			throws InvalidMidiDataException, IOException {
 		final int inputMidiType;
 		if (in.markSupported()) {
@@ -105,7 +105,7 @@ public class Interpreter {
 		LOGGER.info("Done.");
 	}
 
-	private void runTracks(final Track[] tracksIn, final Track[] tracksOut, final String[] args) {
+	private void runTracks(final Track[] tracksIn, final Track[] tracksOut, final String... args) {
 		final GlobalContext context = new GlobalContext(ruleset, args);
 
 		final int tracksCount = tracksIn.length;

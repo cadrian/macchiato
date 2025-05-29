@@ -25,6 +25,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ProcedureCall extends AbstractCall implements Instruction {
 
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitProcedureCall(ProcedureCall procedureCall);
 	}
@@ -41,12 +42,12 @@ public class ProcedureCall extends AbstractCall implements Instruction {
 	@Override
 	public Instruction simplify() {
 		final Expression simplifyTarget = target == null ? null : target.simplify();
-		boolean changed = simplifyTarget != target;
+		boolean changed = !target.equals(simplifyTarget);
 		final ProcedureCall result = new ProcedureCall(position, simplifyTarget, name);
 		for (final Expression arg : arguments) {
 			final Expression simplifyArg = arg.simplify();
 			result.add(simplifyArg);
-			changed |= simplifyArg != arg;
+			changed |= !arg.equals(simplifyArg);
 		}
 		return changed ? result : this;
 	}

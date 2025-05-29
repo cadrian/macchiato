@@ -77,7 +77,7 @@ public final class Platform {
 			}
 		}
 		// not found, trying classpath
-		final URL resource = Platform.class.getClassLoader().getResource(filename);
+		final URL resource = Thread.currentThread().getContextClassLoader().getResource(filename);
 		if (resource != null) {
 			LOGGER.debug("Found config file in classpath: {}", resource);
 			try {

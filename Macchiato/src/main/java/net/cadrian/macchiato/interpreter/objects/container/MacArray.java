@@ -45,6 +45,8 @@ public class MacArray implements MacContainer<MacNumber> {
 
 	private static final ThreadLocal<Set<MacArray>> TO_STRING_GATE = ThreadLocal.withInitial(HashSet::new);
 
+	private final Map<MacNumber, MacObject> array = new TreeMap<>();
+
 	private static class SizeMethod extends AbstractMethod<MacArray> {
 
 		private static final Identifier NAME = new Identifier("Size", Position.NONE);
@@ -64,12 +66,12 @@ public class MacArray implements MacContainer<MacNumber> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return ARG_TYPES;
+			return ARG_TYPES.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_NAMES;
+			return ARG_NAMES.clone();
 		}
 
 		@Override
@@ -120,12 +122,12 @@ public class MacArray implements MacContainer<MacNumber> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return ARG_TYPES;
+			return ARG_TYPES.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_NAMES;
+			return ARG_NAMES.clone();
 		}
 
 		@Override
@@ -190,12 +192,12 @@ public class MacArray implements MacContainer<MacNumber> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return ARG_TYPES;
+			return ARG_TYPES.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_NAMES;
+			return ARG_NAMES.clone();
 		}
 
 		@Override
@@ -269,12 +271,12 @@ public class MacArray implements MacContainer<MacNumber> {
 
 		@Override
 		public Class<? extends MacObject>[] getArgTypes() {
-			return ARG_TYPES;
+			return ARG_TYPES.clone();
 		}
 
 		@Override
 		public Identifier[] getArgNames() {
-			return ARG_NAMES;
+			return ARG_NAMES.clone();
 		}
 
 		@Override
@@ -320,7 +322,7 @@ public class MacArray implements MacContainer<MacNumber> {
 					final T c2 = (T) o2;
 					return c1.compareTo(c2);
 				} catch (final ClassCastException e) {
-					throw new InterpreterException("invalid 'sort' function call: some objects are not comparable",
+					throw new InterpreterException("invalid 'sort' function call: some objects are not comparable", e,
 							position);
 				}
 			}
@@ -328,7 +330,7 @@ public class MacArray implements MacContainer<MacNumber> {
 
 		private <T extends Comparable<T>> void sort(final MacArray target, final Position position) {
 			final List<MacObject> values = new ArrayList<>(target.array.values());
-			Collections.sort(values, new ObjectComparator<T>(position));
+			Collections.sort(values, new ObjectComparator<>(position));
 			target.array.clear();
 			final int n = values.size();
 			for (int i = 0; i < n; i++) {
@@ -362,8 +364,6 @@ public class MacArray implements MacContainer<MacNumber> {
 		}
 
 	}
-
-	private final Map<MacNumber, MacObject> array = new TreeMap<>();
 
 	@Override
 	public MacObject set(final MacNumber index, final MacObject value) {

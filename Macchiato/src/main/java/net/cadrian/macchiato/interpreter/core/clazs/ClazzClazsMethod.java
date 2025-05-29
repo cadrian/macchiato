@@ -67,12 +67,12 @@ class ClazzClazsMethod implements ClazsMethod {
 
 	@Override
 	public Class<? extends MacObject>[] getArgTypes() {
-		return argTypes;
+		return argTypes.clone();
 	}
 
 	@Override
 	public Identifier[] getArgNames() {
-		return argNames;
+		return argNames.clone();
 	}
 
 	@Override
@@ -103,7 +103,7 @@ class ClazzClazsMethod implements ClazsMethod {
 	@Override
 	public void run(final MacClazsObject target, final Context context, final Position position) {
 		final ClazsContext clazsContext;
-		if (context instanceof ClazsContext && ((ClazsContext) context).getTarget() == target) {
+		if (context instanceof ClazsContext && ((ClazsContext) context).getTarget().equals(target)) {
 			clazsContext = (ClazsContext) context;
 		} else {
 			clazsContext = new ClazsContext(context, target, ruleset);
@@ -124,6 +124,7 @@ class ClazzClazsMethod implements ClazsMethod {
 		}
 	}
 
+	@SuppressWarnings("PMD.CyclomaticComplexity")
 	private boolean checkRequires(final Context context) {
 		boolean ok = false;
 		final List<ContractException> fails = new ArrayList<>();
@@ -150,7 +151,7 @@ class ClazzClazsMethod implements ClazsMethod {
 				msg.append('\n').append(fail.getMessage());
 				positions.addAll(Arrays.asList(fail.getPosition()));
 			}
-			throw new ContractException(msg.toString(), positions.toArray(new Position[positions.size()]));
+			throw new ContractException(msg.toString(), positions.toArray(new Position[0]));
 		}
 		return ok;
 	}

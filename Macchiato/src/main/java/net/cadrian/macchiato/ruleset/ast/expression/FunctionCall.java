@@ -24,6 +24,7 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class FunctionCall extends AbstractCall implements Expression {
 
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitFunctionCall(FunctionCall functionCall);
 	}
@@ -45,12 +46,12 @@ public class FunctionCall extends AbstractCall implements Expression {
 	@Override
 	public Expression simplify() {
 		final Expression simplifyTarget = target == null ? null : target.simplify();
-		boolean changed = simplifyTarget != target;
+		boolean changed = !simplifyTarget.equals(target);
 		final FunctionCall result = new FunctionCall(position, simplifyTarget, name);
 		for (final Expression arg : arguments) {
 			final Expression simplifyArg = arg.simplify();
 			result.add(simplifyArg);
-			changed |= simplifyArg != arg;
+			changed |= !simplifyArg.equals(arg);
 		}
 		return changed ? result : this;
 	}

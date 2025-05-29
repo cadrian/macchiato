@@ -3,11 +3,12 @@ package net.cadrian.macchiato.ruleset.ast.instruction;
 import net.cadrian.macchiato.ruleset.ast.Instruction;
 import net.cadrian.macchiato.ruleset.parser.Position;
 
-public class DoNothing implements Instruction {
+public final class DoNothing implements Instruction {
 
-	public static final DoNothing instance = new DoNothing();
+	public static final DoNothing INSTANCE = new DoNothing();
 
 	private DoNothing() {
+		throw new IllegalStateException("unexpected call");
 	}
 
 	@Override

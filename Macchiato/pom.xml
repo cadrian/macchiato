@@ -17,72 +17,92 @@
 -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-        <modelVersion>4.0.0</modelVersion>
-        <groupId>net.cadrian.macchiato</groupId>
-        <artifactId>Macchiato</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-        <packaging>jar</packaging>
-        <properties>
-                <debian.hasPackageVersion>
-                </debian.hasPackageVersion>
-                <debian.originalVersion>0.0.1-SNAPSHOT</debian.originalVersion>
-                <debian.package>libmacchiato-java</debian.package>
-                <debian.mavenRules>net.cadrian.macchiato Macchiato jar * * *,
-                  net.cadrian.macchiato Macchiato jar s/.*/debian/ * *</debian.mavenRules>
-                <maven.compiler.source>21</maven.compiler.source>
-                <maven.compiler.target>21</maven.compiler.target>
-                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        </properties>
-        <reporting>
-                <plugins>
-                        <plugin>
-                                <groupId>org.apache.maven.plugins</groupId>
-                                <artifactId>maven-pmd-plugin</artifactId>
-                                <version>3.26.0</version>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>net.cadrian.macchiato</groupId>
+  <artifactId>Macchiato</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <properties>
+    <debian.hasPackageVersion>
+    </debian.hasPackageVersion>
+    <debian.originalVersion>0.0.1-SNAPSHOT</debian.originalVersion>
+    <debian.package>libmacchiato-java</debian.package>
+    <debian.mavenRules>net.cadrian.macchiato Macchiato jar * * *,
+      net.cadrian.macchiato Macchiato jar s/.*/debian/ * *</debian.mavenRules>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <pmdVersion>7.13.0</pmdVersion>
+  </properties>
 
-                                <configuration>
-                                        <linkXref>true</linkXref>
-                                        <inputEncoding>utf-8</inputEncoding>
-                                        <minimumTokens>100</minimumTokens>
-                                        <targetJdk>21</targetJdk>
-                                </configuration>
-                                <reportSets>
-                                        <reportSet><!-- by default, id = "default" -->
-                                          <reports><!-- select non-aggregate reports -->
-                                            <report>pmd</report>
-                                            <report>cpd</report>
-                                          </reports>
-                                        </reportSet>
-                                        <reportSet><!-- aggregate reportSet, to define in poms having modules -->
-                                                <id>aggregate</id>
-                                                <inherited>false</inherited> <!-- don't run aggregate in child modules -->
-                                                <reports>
-                                                        <report>aggregate-pmd</report>
-                                                        <report>aggregate-cpd</report>
-                                                </reports>
-                                        </reportSet>
-                                </reportSets>
-                        </plugin>
-                </plugins>
-        </reporting>
-        <dependencies>
-                <!-- waiting for Debian to upgrade to slf4j 2 / logback 1.5 -->
-                <dependency>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                        <version>1.7.32</version>
-                </dependency>
-                <dependency>
-                        <groupId>ch.qos.logback</groupId>
-                        <artifactId>logback-classic</artifactId>
-                        <version>1.2.11</version>
-                        <scope>runtime</scope>
-                </dependency>
-                <dependency>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                        <version>4.13.2</version>
-                        <scope>test</scope>
-                </dependency>
-        </dependencies>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-pmd-plugin</artifactId>
+          <version>3.26.0</version>
+
+          <dependencies>
+            <dependency>
+              <groupId>net.sourceforge.pmd</groupId>
+              <artifactId>pmd-core</artifactId>
+              <version>${pmdVersion}</version>
+            </dependency>
+            <dependency>
+              <groupId>net.sourceforge.pmd</groupId>
+              <artifactId>pmd-java</artifactId>
+              <version>${pmdVersion}</version>
+            </dependency>
+            <dependency>
+              <groupId>net.sourceforge.pmd</groupId>
+              <artifactId>pmd-javascript</artifactId>
+              <version>${pmdVersion}</version>
+            </dependency>
+            <dependency>
+              <groupId>net.sourceforge.pmd</groupId>
+              <artifactId>pmd-jsp</artifactId>
+              <version>${pmdVersion}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <configuration>
+          <includeTests>false</includeTests>
+          <minimumTokens>100</minimumTokens>
+          <targetJdk>21</targetJdk>
+          <rulesets>
+            <ruleset>ruleset.xml</ruleset>
+          </rulesets>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <!-- waiting for Debian to upgrade to slf4j 2 / logback 1.5 -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.32</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.2.11</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 </project>

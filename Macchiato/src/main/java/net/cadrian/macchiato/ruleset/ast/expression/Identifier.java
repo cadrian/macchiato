@@ -23,16 +23,17 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Identifier implements Expression, Comparable<Identifier> {
 
+	private final String name;
+	private final Position position;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitIdentifier(Identifier identifier);
 	}
 
-	private final String name;
-	private final Position position;
-
 	public Identifier(final String name, final Position position) {
 		if (name == null || name.isBlank()) {
-			throw new NullPointerException("null identifier");
+			throw new IllegalArgumentException("null identifier");
 		}
 		this.name = name;
 		this.position = position == null ? Position.NONE : position;
@@ -78,10 +79,7 @@ public class Identifier implements Expression, Comparable<Identifier> {
 
 	@Override
 	public boolean equals(final Object obj) {
-		if (!(obj instanceof Identifier)) {
-			return false;
-		}
-		return name.equals(((Identifier) obj).name);
+		return obj instanceof final Identifier id && name.equals(id.name);
 	}
 
 	@Override

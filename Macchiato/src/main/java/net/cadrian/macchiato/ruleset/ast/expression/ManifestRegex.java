@@ -26,12 +26,13 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ManifestRegex implements ManifestExpression<Pattern> {
 
+	private final Pattern value;
+	private final Position position;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitManifestRegex(ManifestRegex manifestRegex);
 	}
-
-	private final Pattern value;
-	private final Position position;
 
 	public ManifestRegex(final Position position, final Pattern value) {
 		this.value = value;

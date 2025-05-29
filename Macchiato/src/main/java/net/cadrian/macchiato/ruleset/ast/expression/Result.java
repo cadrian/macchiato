@@ -23,11 +23,12 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class Result implements Expression {
 
+	private final Position position;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitResult(Result result);
 	}
-
-	private final Position position;
 
 	public Result(final Position position) {
 		this.position = position;

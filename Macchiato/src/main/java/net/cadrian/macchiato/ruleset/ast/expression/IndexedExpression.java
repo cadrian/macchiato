@@ -30,12 +30,13 @@ public class IndexedExpression implements Expression {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IndexedExpression.class);
 
+	private final Expression indexed;
+	private final TypedExpression index;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitIndexedExpression(IndexedExpression indexedExpression);
 	}
-
-	private final Expression indexed;
-	private final TypedExpression index;
 
 	public IndexedExpression(final Expression indexed, final TypedExpression index) {
 		this.indexed = indexed;
@@ -69,7 +70,7 @@ public class IndexedExpression implements Expression {
 	public Expression simplify() {
 		final Expression simplifyIndexed = indexed.simplify();
 		final TypedExpression simplifyIndex = index.simplify();
-		if (simplifyIndexed == indexed && simplifyIndex == index) {
+		if (simplifyIndexed.equals(indexed) && simplifyIndex.equals(index)) {
 			return this;
 		}
 		if (simplifyIndexed.isStatic() && simplifyIndex.isStatic()) {

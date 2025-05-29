@@ -22,12 +22,13 @@ import net.cadrian.macchiato.midi.message.MetaMessage;
 
 public class KeySignatureMessage extends MetaMessage {
 
+	private final byte keysig;
+	private final byte mode;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Message.Visitor {
 		void visitKeySignature(KeySignatureMessage message);
 	}
-
-	private final byte keysig;
-	private final byte mode;
 
 	public KeySignatureMessage(final byte keysig, final byte mode) {
 		super(MetaMessageType.KEY_SIGNATURE);

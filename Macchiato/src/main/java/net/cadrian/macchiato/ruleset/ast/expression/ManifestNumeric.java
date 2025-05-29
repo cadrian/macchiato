@@ -26,12 +26,13 @@ import net.cadrian.macchiato.ruleset.parser.Position;
 
 public class ManifestNumeric implements ManifestExpression<BigInteger> {
 
+	private final BigInteger value;
+	private final Position position;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Node.Visitor {
 		void visitManifestNumeric(ManifestNumeric manifestNumeric);
 	}
-
-	private final BigInteger value;
-	private final Position position;
 
 	public ManifestNumeric(final Position position, final BigInteger value) {
 		this.value = value;

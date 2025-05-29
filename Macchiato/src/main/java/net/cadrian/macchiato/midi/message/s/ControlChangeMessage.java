@@ -23,12 +23,13 @@ import net.cadrian.macchiato.midi.message.ShortMessage;
 
 public class ControlChangeMessage extends ShortMessage {
 
+	private final ControlChange mpc;
+	private final int value;
+
+	@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 	public interface Visitor extends Message.Visitor {
 		void visitControlChange(ControlChangeMessage message);
 	}
-
-	private final ControlChange mpc;
-	private final int value;
 
 	public ControlChangeMessage(final int channel, final ControlChange mpc, final int value) {
 		super(channel, ShortMessageType.CONTROL_CHANGE);
